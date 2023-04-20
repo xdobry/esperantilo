@@ -1,0 +1,35 @@
+Prerequsits:
+
+Source code for
+Tcl
+XOTcl
+Hunspell
+
+Information
+
+The configure script use Tcl TEA (adapted for Tcl) Architecture
+for configuring.
+But it has small hack to adapt it for C++.
+So I think it will not work for non gcc compilers (so hack your own Makefile.in)
+See comented palces in Makefile.in
+
+Compiling for Linux
+
+./configure
+#See configure --help to get all needed options
+# but you need options
+# --with-tcl=?
+# --with-xotcl=?
+# --with-hunspell=?
+# --prefix=?
+./make
+./make install
+
+Compiling for Windows
+
+See file
+Makefile.win
+
+You need some adaptation and other resources to compile it
+see coments in that file
+You need C++ compiler (There is free VC++ from MS)

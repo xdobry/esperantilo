@@ -1,0 +1,71 @@
+This is tcl interface to link grammar parser (using C-Api) from
+http://www.link.cs.cmu.edu/link/
+Davy Temperley    Daniel Sleator    John Lafferty
+
+in directory unix there is directly all code from link-parser in version 4.1b
+All source of link parser are copied to subdirectory unix
+Because of some technical reasons all files form original "src" and "include"
+subdirectories are copied to main directory.
+So the original "Makefile" in unix directory will not work.
+I have to adapt the file read_dict.c and make funkction "advance" static
+because of the same function in glibc library.
+
+This library was build for needs of the project Esperantilo
+http://www.esperantilo.org
+
+WARNING
+This library do not garant access to all functions of link parser
+
+
+USAGE
+
+linkparser::init
+
+linkparser::parser sentence
+
+linkpareser:close
+
+Warning: ensure that the directory "data", which is in unix directory are in current
+path when you load a direcotory per linkparser::init
+
+Example:
+
+linkparser::init
+linkparser::parser "The parser works well"
+linkpareser:close
+
+The output of ::parser is a list
+- first element are a list of tokens with "walls"
+- second element are a list of tokens with "walls" with tagging information
+- 3 to end elements are links
+- The link are list of 3 element: {index-to-left-token label index-to-right-token}
+
+Exampe for "The parser works well"
+{LEFT-WALL the parser works well RIGHT-WALL} {LEFT-WALL the parser.n works.v well.e RIGHT-WALL} {0 RW 5} {0 Wd 2} {1 Ds 2} {2 Ss 3} {3 MVa 4}
+
+See original documentation of link parser and source code.
+
+See also test.tcl in test directory
+
+
+COMPILING
+
+./configure --with-tcl=path_to_dir_with_tcl --prefix=your_prefix
+make
+
+INSTALLING
+
+make install
+
+(Warning: The directory "data" are not installed property.
+So you need do it yourself by your program)
+
+
+LICENSE
+
+For Tcl-API see LICENSE in main directory.
+link-parser has own LINCESE in unix directory.
+
+AUTHOR
+
+Artur Trzewik <mail@xdobry.de>

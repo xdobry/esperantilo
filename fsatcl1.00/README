@@ -1,0 +1,58 @@
+This is tcl interface to fsa_morph tool (using C-Api) from
+http://www.eti.pg.gda.pl/katedry/kiw/pracownicy/Jan.Daciuk/personal/fsa.html
+it is finite automata dictionary written by Jan Daciuk
+
+in directory unix there is directly all code from s_fsa this tool
+
+This library was build for needs of the project Esperantilo
+http://www.esperantilo.org
+To provide polish lexicone based tagger
+This library use a dictionary from
+projekt morfologic
+http://morfologik.blogspot.com/
+And its dictionary that is contained in LanguageTool
+http://www.languagetool.org/
+(see resources/pl)
+
+WARNING
+This library use options for dictionaries compiled with -INFIX and -PREFIX compresion.
+
+
+USAGE
+
+fsa::init direcotry_file encoding
+
+fsa::morph word
+
+fsa::close
+
+Example:
+
+fsa::init polish.dict iso8859-2
+fsa::morph mam
+...
+...
+fsa::close
+
+this correspond to orginal fsa_tool
+echo word | fsa_morph -I -P -d polish.dict
+
+
+
+COMPILING
+
+./configure --with-tcl=path_to_dir_with_tcl --prefix=
+make
+
+INSTALLING
+
+make install
+
+LICENSE
+
+For Tcl-API see LICENSE in main directory.
+fsa has own LINCESE in unix directory.
+
+AUTHOR
+
+Artur Trzewik <mail@xdobry.de>

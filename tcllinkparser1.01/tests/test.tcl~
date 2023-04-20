@@ -1,0 +1,21 @@
+#!/usr/bin/tcl
+# Simple Test file to test all mysqltcl commands and parameters
+# please create test database first
+# from test.sql file
+# >mysql -u root
+# >create database uni;
+#
+# >mysql -u root <test.sql
+# please adapt the parameters for mysqlconnect some lines above
+
+if {[file exists libload.tcl]} {
+    source libload.tcl
+} else {
+    source [file join [file dirname [info script]] libload.tcl]
+}
+
+cd unix
+
+linkparser::init
+puts [linkparser::parse "The parser works well"]
+linkparser::close

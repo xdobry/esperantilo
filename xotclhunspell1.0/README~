@@ -1,0 +1,7 @@
+Hunspelltcl
+
+Is Tcl/XOTcl binary extension to access Hunspell spelling library.
+
+See test.tcl to get some information about usage of this library.
+
+See Hunspell manuall to get more information about spellchecking
