@@ -1,0 +1,493 @@
+# Tiu dosiero estas publikigita laux GPL Permesilo
+# legu: http://www.gnu.org
+#
+# This file is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# Tiu funkcio estas eksperimata kaj ne tre matura
+# Tiuj reguloj estas uzata dum gramatika korektado en 'la korektilo'.
+# Korektado->Montru Korektilo
+# Legu pli en blogo htt://blog.esperantilo.org serĉu temon pri 'LanguageTool'
+
+# Intrukcio de formato
+# por malŝalti iun regulon, skribi anstataŭ 'regulo' '-regulo'
+
+# Mallonga priskibo de formato
+# Se vi neniom scias pri programado aŭ formalaj lingvoj, ne provu tion kompreni.
+# Priskribu vian deziron kaj kontaktu min (Artur Trzewik mail@xdobry.de - skribu vorton Esperantilo en temo de letero)
+#
+# regulo estas priskibita per listoj nomo + listo
+# nomo - nomo de eraro
+# match - priskribas la esprimon por kapti la eraron
+#  - folioj - esprimo sur folioj (la esprimo funkcias, se por iu sekvo de elementoj ĉiu kondico estas vera)
+#      v - vorto
+#      b - vorto en baza formo (ekzemple: "homo" por "homojn")
+#      s - simbolo
+#      f - funkcio
+#      k - kunteksto (vidu priskribojn por tradukado) - ekz {AND {v vidi} {k {kunobj homo}}
+#      AND - logika "kaj" (ekzemple AND {v iri s V} - vorto iri kaj simbolo "V")
+#      OR - logika "aŭ"
+#      NOT - logika "not"
+#      radiko - operacio sur radiko
+#      parenco - operacio sur parenco
+#      vr, br, sr, fr - regula esprimu sur v, b ,s 
+# regiono - regiono por markado kaŭ anstataŭigo per sugesto
+#      ekzemple {1} - la dua elemento
+#      ekzemple {0 1} - la unua ĝis dua
+# korekto - vorto por sugesto
+# pkorekto - programa esprimo por sugesto
+#    en tiu esprimo oni povas atingi variablojn v1..vn - vortoj de esprimo , e1..en - elementoj de esprimo
+#
+# Rigardu ekzemploj, eble vi povas uzi ilin por novaj reguloj.
+# Ĉar tiu funkcio estas freŝa kaj evoluas, la formato povos ŝanĝi venonte.
+
+regulo {
+     	nomo {erari vojon}
+	match {
+	    folioj {
+                b erari
+		v vojon
+	    }
+	}
+	mesagxo {"erari vojon" - erari estas netransitiva verbo kaj signifas mise pensi, ne iri}
+	regiono 0
+	pkorekto {maltraf[$e1 set tempo]}
+}
+regulo {
+     	nomo {"plimalpli"}
+	match {
+	    folioj {
+                v "plimalpli"
+	    }
+	}
+	mesagxo {skribu "pli-malpli"}
+	korekto {pli-malpli}
+}
+regulo {
+     	nomo {"pli malpli"}
+	match {
+	    folioj {
+                v "pli"
+                v "malpli"
+	    }
+	}
+	mesagxo {skribu "pli-malpli"}
+	korekto {pli-malpli}
+}
+regulo {
+     	nomo {"ek de"}
+	match {
+	    folioj {
+                v "ek"
+                v "de"
+	    }
+	}
+	mesagxo {skribu "ekde"}
+	korekto {ekde}
+}
+regulo {
+     	nomo {antaŭvidita}
+	match {
+	    folioj {
+                b antaŭvidita
+	    }
+	}
+	mesagxo {"antaŭvidita"  tempo (tempon oni ne vidas)}
+	korekto {projektita}
+}
+regulo {
+     	nomo {pro timi}
+	match {
+	    folioj {
+                v pro 
+		s V
+	    }
+	}
+	mesagxo {post "pro" ne povas esti infinitivo}
+	regiono 1
+	pkorekto {[string range $v2 0 end-1]o}
+}
+regulo {
+	nomo {antaŭ + inf}
+	match {
+	    folioj {
+		v antaŭ
+		s V
+	    }
+	}
+	regiono 0
+	mesagxo {uzu "antaŭ ol + infinitivo"}
+	korekto {{antaŭ ol}}
+}
+regulo {
+	nomo {anstataŭ ol labori}
+	match {
+	    folioj {
+		v anstataŭ
+		v ol
+		vr {.+i}
+	    }
+	}
+	mesagxo {uzu "anstataŭ + infinitivo"}
+	pkorekto {[list [list $v1 $v3]]}
+}
+# Li kaj sia papo estas famaj
+# Sia papo estas fama
+regulo {
+	nomo {sia en subjekto}
+	match {
+	    folioj {
+               AND {b sia OR {parenco {parenco {f subj}} parenco {f subj}}}
+	    }
+	}
+	mesagxo {"sia" ne povas priskirbi subjekton}
+	pkorekto {[$e1 prenuGramatikeAnalogan lia] [$e1 prenuGramatikeAnalogan ĝia] [$e1 prenuGramatikeAnalogan ŝia] [$e1 prenuGramatikeAnalogan ilia]}
+}
+regulo {
+	nomo {insteresi kaj interesiĝi}
+	match {
+	    folioj {
+               b interesi
+	       v pri
+	    }
+	}
+	regiono 0
+	mesagxo {uzu "interesiĝi pri" - interesi = veki intereson}
+	pkorekto {interesiĝ[string range $v1 end-1 end]}
+}
+# ne funkcias por "kilogramo de grandaj terpomoj"
+regulo {
+	nomo {kvanto + "da"}
+	match {
+	    folioj {
+               OR {b kilogramo b kvanto b litro b amaso b pundo b glaso b taso b kulerego b kulero}
+	       v de
+	    }
+	}
+	regiono 1
+	mesagxo {uzu "kvanto + da"}
+	korekto {da}
+}
+regulo {
+	nomo {plena + "de" - seppik}
+	match {
+	    folioj {
+               OR {b plena b riĉa b malplena b abunda}
+	       v da
+	    }
+	}
+	regiono 1
+	mesagxo {uzu "de"}
+	korekto {de}
+}
+regulo {
+	nomo {taso + "de" la - seppik}
+	match {
+	    folioj {
+               v da
+	       v la
+	    }
+	}
+	regiono 0
+	mesagxo {uzu "de" - se vi uzas "la"}
+	korekto {de}
+}
+regulo {
+	nomo {nombro dek ?}
+	match {
+	     folioj {
+		vr {dek(unu|du|tri|kvar|kvin|ses|sep|naŭ)}
+	     }
+	}
+	mesagxo {ne skribu tiun nombron kune}
+	pkorekto {[list [regsub {(dek)(unu|du|tri|kvar|kvin|ses|sep|naŭ)} $v1 {\1 \2}]]}
+}
+regulo {
+	nomo {l'domo}
+	match {
+	     folioj {
+		vr {l'\w+}
+	     }
+	}
+	mesagxo {separatilo post ' estas necesa}
+	pkorekto {[list [regsub {l'(\w+)} $v1 {l' \1}]]}
+}
+regulo {
+	nomo {ĉi-tie - ĉi tie}
+	match {
+             folioj {
+               vr {ĉi-ti[aeu]j?n?}
+             }
+	}
+	mesagxo {vorteton 'ĉi' kun tablo-vorto oni skribas sen streketo}
+        pkorekto {[list [regsub {ĉi-(ti[aeu]n?)} $v1 {ĉi \1}]]}
+}
+regulo {
+	nomo {ĉi-tie - ĉi tie}
+	match {
+             folioj {
+               vr {ĉi-.*oj?n?}
+             }
+	}
+	mesagxo {vorteton 'ĉi' kun substantivo oni skribas sen streketo}
+        pkorekto {[list [regsub {ĉi-(.*oj?n?)} $v1 {ĉi \1}]]}
+}
+# Reguloj de magazino "Monato"
+# http://www.esperanto.be/fel/mon/mon_konv.php
+#Uzu „aboli” kaj ne „abolicii”.
+#Uzu „aidoso” kaj ne „aideso”, „disao” aŭ „iposo”.
+#Uzu „a.K.” kaj „p.K.” (sen r).
+#Uzu „antaŭ nelonge" (duvorte).
+#Uzu „buĝeto” kaj ne „budĝeto”.
+#Uzu „danke al” aŭ „danke + akuzativo” kaj ne „dank' al” (plej ofte tamen la simpla pro pli taŭgas).
+#Uzu „disketo” kaj ne „diskedo”.
+#Uzu „fare de” kaj ne „far”.
+#Uzu „firmao” kaj ne „firmo”.
+#Uzu „jarcento” ke ne „jc”.
+#Uzu „k.s.” kaj ne „k. s.” aŭ „ks”.
+#Uzu „komputilo” kaj ne komputoro, komputero, kompjutro, kompjutero, ordinatoro, komputatoro ktp.
+#Uzu „ktp” (sen punkto) kaj ne „k.t.p.”
+#Uzu „loĝanto” kaj ne „enloĝanto”.
+#Uzu „matĉo” kaj ne „maĉo”.
+#Uzu „ministrejo pri ekonomio” kaj ne „ministerio por ekonomio”.
+#Uzu „organizaĵo” kaj ne „organizo”.
+#Uzu „speguli” kaj ne „respeguli”.
+#Uzu „t.e.” kaj ne „t. e.”
+#Oftaj eraroj
+#* Kontrakto/traktato: „Kontrakto” estas jure valida interkonsento, laŭ kiu ĉiu partio ricevas difinitajn rajtojn kaj devojn. „Traktato” estas skriba interkonsento inter du ŝtatoj aŭ aro da ŝtatoj. Teorie ankaŭ ŝtatoj povas kontrakti inter si, sed se temas pri normalaj komercaj kontraktoj temas kutime pri iuj pli subaj organoj.
+#* Eŭropa Konsilio/Konsilio de Eŭropo: Oni ne miksu tiujn du tute malsamajn instancojn. „Eŭropa Konsilio” (Europese Raad, Conseil européen, European Council, Europäischer Rat, Consejo Europeo, Consiglio europeo...) konsistas el la ŝtat- kaj registar-estroj de Eŭropa Unio. En la „Konsilio de Eŭropo” (Raad van Europa, Conseil de l'Europe, Council of Europe, Europarat, Consiglio d'Europa, Συμβούλιο της Ευρώπης ...) membras 46 ŝtatoj, inkluzive de Rusio kaj la kaŭkazaj respublikoj.
+#* Momente: La signifo de „momente” estas „dum momento”. Ne miksu ĝin kun „ĉi-momente”, „nun”, „hodiaŭ”, „nuntempe” ktp.
+#* Nacia: „Nacia” signifas „apartenanta al difinita nacio”. Ĝi ne estas sinonimo de „ŝtata” aŭ „tutlanda”. La vorto „internacia” tamen ricevis ankaŭ duan signifon „interŝtata”.
+#* Eduki: „Eduki” ne signifas „instrui”. Instruistoj instruas, sed gepatroj edukas.
+
+regulo {
+     	nomo {abolicii}
+	match {
+	    folioj {
+                b abolicii
+	    }
+	}
+	mesagxo {uzu "aboli"}
+	pkorekto {abol[$e1 set tempo]}
+}
+regulo {
+     	nomo {speguli}
+	match {
+	    folioj {
+                b respeguli
+	    }
+	}
+	mesagxo {uzu "speguli"}
+	pkorekto {spegul[$e1 set tempo]}
+}
+regulo {
+     	nomo {speguli}
+	match {
+	    folioj {
+                b respeguli
+	    }
+	}
+	mesagxo {uzu "speguli"}
+	pkorekto {spegul[$e1 set tempo]}
+}
+regulo {
+     	nomo {aidoso}
+	match {
+	    folioj {
+                OR {b aideso b disao b iposo}
+	    }
+	}
+	mesagxo {uzu "aidoso"}
+	pkorekto {aidos[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {komputilo}
+	match {
+	    folioj {
+                OR {b komputoro b komputero b kompjutro b kompjutero b ordinatoro b komputatoro}
+	    }
+	}
+	mesagxo {uzu "komputilo"}
+	pkorekto {komputil[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {loĝanto}
+	match {
+	    folioj {
+                b enloĝanto
+	    }
+	}
+	mesagxo {uzu "loĝanto"}
+	pkorekto {loĝant[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {maĉo}
+	match {
+	    folioj {
+                b matĉo
+	    }
+	}
+	mesagxo {uzu "matĉo"}
+	pkorekto {matĉ[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {buĝeto}
+	match {
+	    folioj {
+                b budĝeto
+	    }
+	}
+	mesagxo {uzu "buĝeto"}
+	pkorekto {buĝet[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {disketo}
+	match {
+	    folioj {
+                b diskedo
+	    }
+	}
+	mesagxo {uzu "disketo"}
+	pkorekto {disket[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {firmao}
+	match {
+	    folioj {
+                b firmo
+	    }
+	}
+	mesagxo {uzu "firmao"}
+	pkorekto {firma[$e1 prenuGramFinilon]}
+}
+regulo {
+     	nomo {ministerio pri}
+	match {
+	    folioj {
+                b ministerio 
+		v por
+	    }
+	}
+	mesagxo {uzu "ministrejo pri"}
+	pkorekto {[list [list ministrej[$e1 prenuGramFinilon] pri]]}
+}
+regulo {
+     	nomo {far - fare de}
+	match {
+	    folioj {
+                v far
+	    }
+	}
+	mesagxo {uzu "fare de"}
+	pkorekto {{fare de}}
+}
+regulo {
+	nomo {oferti kaj proponi}
+	match {
+	    folioj {
+                AND {b oferti NOT {OR {k {kunobj varo kurso servo} k {kun firmao enterpreno servo}}}} 
+	    }
+	}
+	mesagxo {eble uzu "proponi", konsilu la vortaron}
+	pkorekto {propon[$e1 set tempo]}
+}
+regulo {
+	nomo {pli baldaŭ}
+	match {
+	    folioj {
+                v pli
+		v baldaŭ
+	    }
+	}
+	mesagxo {uzu 'pli frue'}
+	regiono 1
+	korekto {frue}
+}
+# Vi iras en la maljusta direkto.
+regulo {
+	nomo {maljusta kaj malĝusta}
+	match {
+            folioj {
+                AND {b maljusta k {kun vojo vojeto interpretado flanko direkto angulo respondo loko imago sono}}
+	    }
+	}
+	mesagxo {ebla mikso de vortoj maljusta kaj malĝusta}
+        pkorekto {[$e1 prenuGramatikeAnalogan malĝusta]}
+}
+regulo {
+	nomo {justa kaj ĝusta}
+	match {
+            folioj {
+                AND {b justa k {kun vojo vojeto interpretado flanko direkto angulo respondo loko imago sono}}
+	    }
+	}
+	mesagxo {ebla mikso de vortoj justa kaj ĝusta}
+        pkorekto {[$e1 prenuGramatikeAnalogan ĝusta]}
+}
+regulo {
+	nomo {ĉi kun adjektivo aŭ adverbo}
+	match {
+            folioj {
+                AND {v ĉi NOT {antauxelemento {vr ti[aeu]j?n?}}}
+		OR {s ADJ s ADV}
+	    }
+	}
+	mesagxo {Kiam "cxi" rilatas al adverbo aŭ adjektivo oni devas kunskribi per streketo.}
+        pkorekto {ĉi-$v2}
+}
+regulo {
+        nomo {tiel ke}
+	match {
+	    folioj {
+		v ,
+		v tiel
+		v ke
+	    }
+	}
+	mesagxo {Metu la komon antaŭ 'ke'}
+        pkorekto {{ tiel, ke}}
+}
+regulo {
+        nomo {la ambaŭ}
+	match {
+	    folioj {
+		v la
+		v ambaŭ
+	    }
+	}
+	mesagxo {ambaŭ estas jam difinilo}
+        pkorekto {ambaŭ}
+}
+regulo {
+	nomo {ne jam}
+	match {
+	    folioj {
+		v ne
+		v jam
+	    }
+	}
+	mesagxo {uzu "ankoraŭ ne"}
+	pkorekto {[list [list ankoraŭ ne]]}
+}
+regulo {
+	nomo {ne ankoraŭ}
+	match {
+	    folioj {
+		v ne
+		v ankoraŭ
+	    }
+	}
+	mesagxo {uzu "ankoraŭ ne"}
+	pkorekto {[list [list ankoraŭ ne]]}
+}

@@ -1,0 +1,111 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+abiu 	brazila sovaĝa frukto 	abio 	abeto
+a bunda 	la sidvangoj 	abunda 	abundante
+agora 	nun 	ankoraŭ 	ainda
+adulto 	plenkreskulo 	adulto 	adultério
+alaúde 	mezepoka gitaro 	alaŭdo 	cotovia
+algo 	io 	algo 	alga
+ao menos 	minimume 	almenaŭ 	sequer
+aluno 	lernanto 	aluno 	pedra-ume
+ambos 	ambaŭ 	amboso 	bigorna
+amo 	[mi] amas, mastro 	amo 	amor
+ânimo 	kuraĝo, volo, emo 	animo 	alma
+ano 	jaro 	ano 	membro
+ao 	al 	aŭ 	ou
+apenas 	nur 	apenaŭ 	logo que
+augusto 	noblega, plej alta 	aŭgusto 	agosto
+auto- (prefikso) 	mem- 	aŭto 	carro
+banir 	ekziligi, malpermesi 	bani 	banhar
+basco 	eŭska 	basko 	aba
+baço 	lieno 	baso 	baixo (mús.)
+batata 	terpomo 	batato 	batata-doce
+bebo 	mi trinkas 	bebo 	bebê
+beco 	ŝtrateto 	beko 	bico
+benzina 	benzeno 	benzino 	gasolina
+boato 	laŭdiro 	boato 	bote
+boto 	dolfeno 	boto 	bota
+bovino 	temas pri bovo 	bovino 	vaca
+brando 	delikata 	brando 	aguardente
+bucho 	ventro 	buŝo 	boca
+carambola 	stelfrukto, karambolfrukto 	karamboli 	bater, colidir
+cargo 	ofico, posteno 	kargo 	carga
+carta 	letero, mapo 	karto 	cartão
+casco 	hufo 	kasko 	capacete
+colo (nur skribe) 	brusto 	colo 	polegada
+como 	kiel 	komo 	vírgula
+cu (nur skribe) 	anuso 	ĉu 	ne tradukebla
+demandar 	bezoni, postuli 	demandi 	perguntar
+dia 	tago 	dia 	divino
+diante 	antaŭ 	dianto 	cravo
+do 	de la 	do 	portanto
+falo 	[mi] parolas, faluso 	falo 	queda
+ficar 	resti 	fiki 	foder
+fila 	vico 	filo 	filho
+filho ([filjo]) 	filo 	filio 	filial
+foco 	fokuso 	foko 	foca
+fracasso 	fiasko 	frakasi 	quebrar
+franca (nur skribe) 	sincera 	franca 	francês
+fumo 	tabako 	fumo 	fumaça
+garbo 	eleganco 	garbo 	feixe
+gado 	grego, bredaro 	gado 	bacalhau
+gasto 	elspezo 	gasto 	hóspede
+genro 	bofilo 	genro 	gênero
+grado 	volo 	grado 	grau
+grave 	serioza 	grava 	importante
+grego 	greka 	grego 	gado
+há 	estas (nepersone kaj konstante),
+ekzistas (nepersone) 	ha 	ah
+hoje 	hodiaŭ 	hoj 	ei
+já 	jam 	ja 	certamente, com certeza
+lá 	tie 	la 	o, a, os, as
+lado 	flanko 	lado 	lata
+lesivo 	malutila 	lesivo 	lixívia
+limo 	ŝlimo 	limo 	limite, fronteira
+louco 	freneza, frenezulo 	loko 	lugar, local
+macho 	viro, virbesto, mulo 	maŝo 	malho
+marco 	signo, ŝtono, mejloŝtono 	marko 	selo, etiqueta
+mastro 	masto 	mastro 	dono, chefe, patrão
+mono 	simio 	mono 	dinheiro
+multa 	monpuno 	multa 	muito
+negro 	nigra 	negro 	crioulo
+neta 	nepino 	neta 	líqüido
+no 	en 	ne 	não
+nu 	nuda 	nu 	ora (interj.)
+num 	en (iu) 	nun 	agora
+ora 	nu 	ora 	dourado
+pano 	teksaĵo, tuko 	pano 	pão
+parado 	senmova 	parado 	desfile
+pasto 	herbejo (por bredbestoj) 	pasto 	massa
+pego 	[mi] prenas 	pego 	pica-pau
+pico 	montopinto 	pico 	pizza
+pinto 	kokido, (vulg.) slango por "peniso" 	pinto 	ponta, cume
+pipa 	ligna barelo, kajto (Braz.) 	pipo 	cachimbo
+posta 	fiŝo-peco 	posta 	posterior
+poste 	fosto 	poste 	depois, posteriormente
+posto 	posteno, gardejo, benzin-stacio (Braz.) 	poŝto 	correios
+prego 	najlo 	preĝo 	oração, prece
+preta 	nigra 	preta 	pronto
+pro 	al la, por la 	pro 	por
+puta 	slango por "prostituitino" 	puto 	poço
+qualquer 	ia ajn 	kelka 	algum
+quero 	[mi] volas 	kero 	copas (naipe)
+reto 	rekta 	reto 	rede
+rifa 	lotumo 	rifo 	recife
+sapo 	bufo 	sapo 	sabão, sabonete
+selo 	(poŝt)marko, sigelo 	selo 	sela
+sono 	dormo 	sono 	som
+taça 	pokalo 	taso 	xícara
+testa 	frunto 	testo 	teste
+testudo 	grandfruntulo 	testudo 	tartaruga
+tia 	onklino 	tia 	assim
+tio 	onklo 	tio 	este
+tolo 	stulta, naiva 	tolo 	pano (de linho)
+vaca 	bovino 	vaka 	vacante
+vaga 	vaka loko 	vagi 	vagar
+violão 	gitaro 	violono 	violino
+volante 	flirtanta, fluganta, faldfolio, moviĝa 	volante 	querendo

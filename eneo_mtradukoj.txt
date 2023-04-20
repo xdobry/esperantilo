@@ -1,0 +1,4178 @@
+{point of minimum} minimumiganto
+{onto function} surjekcio
+{Laptev Sea} lapteva
+{coffee house} kafejo
+{coffee tin} kafskatolo
+{coffee cannister} kafskatolo
+{raspberry bush} frambujo
+{leopard's bane} arniko
+{arc cosine} arkkosinuso
+{arc cosine} arkokosinuso
+{hyperbolic cosine} hiperbolakosinuso
+{area-hyperbolic cosine} hiperbolakosinuso
+{inverse hyperbolic cosine} hiperbolakosinuso
+{make love} amori
+{bile duct} koledoko
+{fallow deer} damao
+{Cartesian product} karteziaproduto
+{Hermitian product} skalaraproduto
+{Hermitian product} hermitaproduto
+{scalar product} skalaraproduto
+{vector product} vektoraproduto
+{night is falling} noktiĝi
+{spend the night} tranokti
+{sugar cane} sukerkano
+{tonic accent} tonakcento
+{pitch accent} tonakcento
+{in spite of} malgraŭ
+{interval of convergence} konverĝintervalo
+{dimplomatic mission} ambasado
+{Atlantic Ocean} atlantiko
+{find not guilty} malkondamni
+{issue judgement for} malkondamni
+{cashier's office} kasejo
+{ticket window} giĉeto
+{first lieutenant} leŭtenanto
+{second lieutenant} subleŭtenanto
+{second lieutenant} vicleŭtenanto
+{sea urchin} ekino
+{present tense} prezenco
+{power of attorney} prokuro
+{attorney in fact} prokuristo
+{exponential function} eksponencialo
+{hazel hen} tetrao
+{angular coefficient} angulakoeficiento
+{dance hall} dancejo
+{tightrope walker} ŝnurdancisto
+{arc sine} arksinuso
+{hyperbolic sine} hiperbolasinuso
+{area-hyperbolic sine} hiperbolasinuso
+{inverse hyperbolic sine} hiperbolasinuso
+{uniformly continous} kontinuega
+{sub-atomic particle} atomero
+{nuclear power plant} atomelektrejo
+{perennial herb} staŭdo
+{chocolate milk} trinkĉokolado
+{hot chocolate} trinkĉokolado
+{sex drive} libido
+{thanks to} danke
+{Thanksgiving Day} dankofesto
+{blood vessel} angio
+{sea level} oceannivelo
+{bill of lading} ŝarĝatesto
+{consignment note} ŝarĝatesto
+{Agrucis family} agarikacoj
+{sable martin} zibelo
+{formal polynomial} formalapolinomo
+{characteristic polynomial} karakterizapolinomo
+{null polynomial} nulpolinomo
+{null polynomial} polinoma
+{unit polynomial} unuopolinomo
+{unit polynomial} polinoma
+{Periodic Table} perioda
+{regular expresssion} regulesprimo
+{straight line} rekto
+{affine line} afinarekto
+{Euler['s] line} eŭlerarekto
+{one-dimensional vector space} vektorarekto
+{tennis court} tenisejo
+{ping pong} tabloteniso
+{table tennis} tabloteniso
+{birds of prey} rabobirdoj
+{crushed note} aĉakaturo
+{short grace note} aĉakaturo
+{out of danger} eksterdanĝera
+{mailing list} dissendolisto
+{linked list} ligillisto
+{milk sugar} laktozo
+{sans serif} senserifa
+{talk small talk} klaĉi
+{become handicapped} kripliĝi
+{be crippled} kripliĝi
+{hooded crow} korniko
+{transit network} transita
+{go to the trouble of} sinĝeni
+{go to the bother of} sinĝeni
+{goldbeater's skin} baŭdruĉo
+{root sign} radikilo
+{radical sign} radikilo
+{n-th root} aradiko
+{root sign} radiksigno
+{radical sign} radiksigno
+{rack one's brains} cerbumi
+{administer Holy Communion} komunii
+{receive Holy Communion} komuniiĝi
+{star anise} ilicio
+{exculsive circle} koterio
+{resinous wood} keno
+{Baltic Sea} baltiko
+{cup-and-ball game} bilboko
+{approach infinity} infinitiĝi
+{characteristic subspace} ajgensubspaco
+{characteristic subspace} ajgenspaco
+{protecting mole} ĝeto
+{blue-collar profession} metio
+{blue-collar worker} metiisto
+{commit perjury} ĵurrompi
+{Old Testament} malnovatestamento
+{New Testament} novatestamento
+{cooking utensil} kuirpoto
+{beast fable} fablo
+{to bear} naski
+{to give birth} naski
+{random variable} hazardavariablo
+{random variable} lotecavariablo
+{random variable} stokastavariablo
+{preventative medicine} antaŭrimedo
+{star anise} stelanizo
+{horizontal bar} reko
+{azotic acid} nitrata
+{blood cell} sangoĉelo
+{be on a diet} dieti
+{long-tailed duck} klangulo
+{mathematical logic} logistiko
+{memorandum book} agendo
+{engagement diary} agendo
+{in the framework of} kadre
+{floor plate} varango
+{caustic soda} natro
+{computer network} komputilareto
+{local area computer network} lokareto
+{wide area computer network} mallokareto
+{St. John's bread} karobo
+{carob tree} karobujo
+{carob tree} karobarbo
+{draw into a thread} fadenigi
+{fishing line} fiŝfadeno
+{plumb line} plumbofadeno
+{affine space} afinaspaco
+{affine variety} subspaco
+{Banach space} banaĥaspaco
+{Euclidean space} eŭklidaspaco
+{Hermitian space} hermitaspaco
+{Hilbert space} hilbertaspaco
+{metric space} metrikaspaco
+{measure space} mezurhavaspaco
+{normed space} normohavaspaco
+{normed space} normitaspaco
+{probability space} probablospaco
+{vector space} vektoraspaco
+{vector subspace} subspaco
+{topological space} topologiaspaco
+{topological subspace} subspaco
+{litmus paper} lakmus(a
+{Altai language family} altaja
+{do battle} batali
+{engage in combat} batali
+{potato chip} ĉipso
+{Western Christianity} okcidentakristanismo
+{Eastern Christianity} orientakristanismo
+{conditional tense} kondicionalo
+{commercial agent} komercaagento
+{insurance agent} asekuraagento
+{commission agent} komisiaagento
+{long-eared owl} orelstrigo
+{sweet potato} batato
+{candle stick} kandelingo
+{play the trump card} atuti
+{movie theater} kinejo
+{movie house} kinejo
+{non-aliquot part} alikvanto
+{negotiable instrument} ĝirilo
+{commercial paper} ĝirilo
+{Holy Week} sankta
+{Jerusalem artichoke} tuberahelianto
+{of the n-th degree} grada
+{demi-degree outward} duongrado
+{demi-degree inward} duongrado
+{to be awake} maldormi
+{cuckoo clock} kukolhorloĝo
+{polling place} balotejo
+{ballot box} balotujo
+{right to vote} balotrajto
+{idiomatic expression} idiotismo
+{algebraic structure} algebrastrukturo
+{topological structure} topologiastrukturo
+{sexually transmitted} venerea
+{guarantee of payment of a debt by a bill of exchan} avalo
+{aliquot part} alikvoto
+{perennial plant} daŭraplanto
+{near dweller} najbaro
+{club fungi} klabfungoj
+{sac fungi} sakfungoj
+{be greedy} avari
+{boil in lye water} lesivi
+{file system} dosiersistemo
+{sheet metal} lado
+{corrugated iron} ondalado
+{tin can} ladskatolo
+{clef sign} kleo
+{weeding tool} sarkilo
+{umbilical chord} umbilika
+{differential calculus} diferencialakalkulo
+{infinitesimal calculus} infinitezimakalkulo
+{integral calculus} integralakalkulo
+{probability theory} probablokalkulo
+{sea robin} triglo
+{book of devotions} ritlibro
+{exise tax} akcizo
+{levy an exise tax} akcizi
+{local tariff} urbaakcizo
+{double standard} bimetalismo
+{coordinating conjunction} kunordigakonjunkcio
+{subordinating conjunction} subordigakonjunkcio
+{apply for} kandidati
+{stand as a candidate for} kandidati
+{rational number} raciono
+{prolate epicycloid} longigitaepicikloido
+{curtate epicycloid} mallongigitaepicikloido
+{the Americas} ameriko
+{North America} nordameriko
+{South America} sudameriko
+{complex number} imaginaro
+{imaginary number} imaginaro
+{Venetian blind} latkurteno
+{cocoa tree} kakaujo
+{of the same sign} samsigna
+{change in sign} signoŝanĝo
+{sign inversal} signoŝanĝo
+{to post} afiŝi
+{pillow case} kusentego
+{cushion cover} kusentego
+{pillow case} kusentegilo
+{cushion cover} kusentegilo
+{pillow case} kusensako
+{cushion cover} kusensako
+{common cycloid} cikloido
+{prolate cycloid} longigitacikloido
+{curtate cycloid} mallongigitacikloido
+{Turkic language} tjurka
+{bass viol} kontrabaso
+{double bass} kontrabaso
+{Gauss['s] curve} gaŭsakurbo
+{Gaussian curve} gaŭsakurbo
+{bellshaped curve} gaŭsakurbo
+{Gauss['s] curve} kloŝformakurbo
+{Gaussian curve} kloŝformakurbo
+{bellshaped curve} kloŝformakurbo
+{fog horn} fajfilego
+{enter into a contract with} kontrakti
+{binding agreement} kontrakto
+{legal agreement} kontrakto
+{peace treaty} packontrakto
+{chemist's shop} apoteko
+{colloidal silver} arĝirolo
+{shoulder belt} balteo
+{letter of credit} akreditivo
+{request for credit} akreditivo
+{arrange a credit} akreditivi
+{exhibit contrast} kontrasti
+{show difference} kontrasti
+{stand out} kontrasti
+{point out difference between} kontrastigi
+{set off} kontrastigi
+{back pack} dorsosako
+{André-Marie Ampère} ampero
+{hot-air balloon} varmaeraaerostato
+{have compassion for} kompati
+{feel compassion for} kompati
+{have pity for} kompati
+{have mercy on} kompati
+{be sorry for} kompati
+{commiserate with} kompati
+{move to compassion} kompatigi
+{incite to pity} kompatigi
+{World Health Organisation} prisano
+{trihedral angle} triedro
+{hazel tree} avelujo
+{fire tongs} fajroprenilo
+{ladybird beetle} kokcinelo
+{lady beetle} kokcinelo
+{be glad} ĝoji
+{make joyful} ĝojigi
+{make glad} ĝojigi
+{bascule bridge} baskulponto
+{toggle switch} baskulŝaltilo
+{burnt lime} kalko
+{slaked lime} kalko
+{slack lime} kalko
+{Aleutian Islands} aleutaj
+{country fair} kermeso
+{village fair} kermeso
+{nitrous acid} nitrita
+{get married} edziĝi
+{get married} edziniĝi
+{Holy Matrimony} edziĝo
+{get married} geedziĝi
+{Amanita mushroom} amanito
+{line wrap} linifaldo
+{word wrap} linifaldo
+{coca bush} kokao
+{bill of exchange} kambio
+{letter of exchange} kambio
+{bill in hand} kambio
+{fax machine} faksilo
+{as a matter of fact} fakte
+{in fact} fakte
+{butter dish} buterujo
+{bill of lading} konosamento
+{consignment note} konosamento
+{the angelus} anĝeluso
+{flying lemur} galeopiteko
+{comment on} komentarii
+{suffer damage} averii
+{Caucasus Mountains} kaŭkaza
+{Welsh mortgage} antikrezo
+{assignment of rents} antikrezo
+{assignment of profits} antikrezo
+{pledging of the income from real property} antikrezo
+{deceived husband} kokrito
+{make an appointment} rendevui
+{set a date} rendevui
+{a posteriori} aposteriora
+{burnt offering} brulofero
+{static electricity} elektrostatika
+{land register} katastro
+{register of title deeds} katastro
+{official real estate register} katastro
+{banana tree} bananujo
+{Dirac['s] comb} dirakakombilo
+{be conscious} konscii
+{open somebody's eyes} malblindigi
+{rational number} racionalo
+{irrational number} neracionalo
+{necessary condition} necesakondiĉo
+{sufficient condition} sufiĉakondiĉo
+{be avid} avidi
+{cry out} ekkrii
+{shout out} ekkrii
+{exclamation mark} krisigno
+{news letter} informletero
+{news letter} novaĵletero
+{traction engine} lokomobilo
+{Cartesian folium} karteziafolio
+{Big Bang} praeksplodo
+{linear combination} linearakombinaĵo
+{spherical cap} kaloto
+{winter rape} kolzo
+{bathing suit} bankalsono
+{brown coal} lignito
+{plate glass} glaco
+{chimney sweep} kamenskrapisto
+{biunique correspondence} bijekcio
+{one-to-one mapping} bijekcio
+{feather star} komatulo
+{the flu} gripo
+{in material form} konkreta
+{put into concrete form} konkretigi
+{go shopping} butikumi
+{wind pipe} traĥeo
+{curriculum vitae} vivoprotokolo
+{hold office} ofici
+{office space} oficejo
+{serve notice} avizi
+{put on notice} avizi
+{come to terms with} interkonsenti
+{come to an understanding with} interkonsenti
+{roast beef} rostbefo
+{memory leak} memorlikado
+{water parting} akvodislimo
+{couch grass} agropiro
+{dog grass} agropiro
+{linseed oil} linoleo
+{of the same volume} samvolumena
+{Great Britain} britujo
+{magnetic disk} magnetadisko
+{floppy disk} disketo
+{disk drive} diskingo
+{disk unit} diskturnilo
+{hard disk} diskaparato
+{fixed disk} fiksitadisko
+{hard disk} fiksitadisko
+{compact disc} lumdisko
+{optical disc} lumdisko
+{a partition} subdisko
+{spherical layer} sferdisko
+{Caspian Sea} kaspio
+{French bulldog} buldogo
+{department store} magazenego
+{matrix multiplication} matricamultipliko
+{polynomial multiplication} polinomamultipliko
+{chess piece} ŝakpeco
+{bed clothes} litaĵo
+{bed linens} litaĵo
+{buyer's polypoly} polipsonio
+{layer cake} tavolkuko
+{griddle cake} patkuko
+{mortal man} karnulo
+{back up copy} savkopio
+{natural number} naturanombro
+{central processor} ĉefprocesoro
+{central processing unit} ĉefprocesoro
+{collar bone} klaviklo
+{shock absorber} amortizilo
+{other side} kateto
+{menstrual flow} menstruo
+{poor box} almozkesto
+{give alms} almozdoni
+{mucous membrane} mukozo
+{cupping glass} kupo
+{business card} nomkarto
+{business card} vizitkarto
+{circuit board} cirkvitkarto
+{make a sound} aŭdigi
+{Pliny the Younger} plinio
+{Pliny the Elder} plinio
+{maintenance allowance} alimento
+{angular distance} anguladistanco
+{angular separation} anguladistanco
+{polar radius} polusadistanco
+{radius vector} polusadistanco
+{polar radius} polusdistanco
+{radius vector} polusdistanco
+{graphic representation} grafikaprezento
+{image curve} grafikaprezento
+{full duplex} dupleksa
+{garbage dump} rubejo
+{trash dump} rubejo
+{garbage can} rubujo
+{paper bin} rubujo
+{trash bin} rubujo
+{trash can} rubujo
+{trash container} rubujo
+{great circle} ĉefcirklo
+{great circle} cirklego
+{Euler['s] circle} eŭleracirklo
+{nine-point circle} eŭleracirklo
+{circle of convergence} konverĝocirklo
+{circle of curvature} kurbecocirklo
+{osculating circle} kurbecocirklo
+{unit circle centered at the origin} trigonometriacirklo
+{egg white} albumino
+{Unix user} uniksulo
+{Unix fan} uniksulo
+{World Tourism Organisation} priturismo
+{caste system} kastismo
+{chestnut tree} kaŝtanarbo
+{chestnut tree} kaŝtanujo
+{Legion of Honor} honoralegio
+{scroll bar} rulumskalo
+{arithmetic sequence} aritmetikaprogresio
+{arithmetic progression} aritmetikaprogresio
+{geometric sequence} geometriaprogresio
+{geometric progression} geometriaprogresio
+{harmonic sequence} harmonaprogresio
+{harmonic progression} harmonaprogresio
+{upper shell} karapaco
+{strongly connected} koneksega
+{simply connected} simplekoneksa
+{pathwise connected} vojkoneksa
+{belle lettres} beletro
+{joint-stock company} akciasocieto
+{company with share capital} akciasocieto
+{movie theater} kinoteatro
+{movie house} kinoteatro
+{German silver} arĝentano
+{hunting horn} ĉaskorno
+{shoe horn} ŝukorno
+{shoe spoon} ŝukorno
+{high tide} altmaro
+{low tide} malaltmaro
+{greenhouse effect} forceja
+{mother of pearl} perlamoto
+{prairie wolf} kojoto
+{Russian Federation} ruslanda
+{Russian Empire} ruslanda
+{extension field} superkorpo
+{extension field} superakorpo
+{quotient field} frakcikorpo
+{fraction field} frakcikorpo
+{Galois['s] field} galezakorpo
+{Galois['s] extension} superkorpo
+{fixed field} invariantokorpo
+{root field} radikakorpo
+{absolute monopoly} absolutamonopolo
+{export monopoly} eksportmonopolo
+{import monopoly} importmonopolo
+{government monopoly} ŝtatamonopolo
+{enclosed area} korto
+{king's retinue} kortego
+{royal household} kortego
+{court of law} kortumo
+{farm bird} kortobirdo
+{domestic fowl} kortobirdo
+{lunar caustic} lapiso
+{probability distribution function} distribuafunkcio
+{distribution function} distribuafunkcio
+{elementary function} elementafunkcio
+{generalized function} ĝeneraligitafunkcio
+{Heaviside['s] function} hevisidafunkcio
+{hyperbolic function} hiperbolafunkcio
+{inverse hyperbolic function} hiperbolafunkcio
+{area-hyperbolic function} hiperbolafunkcio
+{inverse trigonometric function} trigonometriafunkcio
+{inverse circular function} trigonometriafunkcio
+{cyclometric function} trigonometriafunkcio
+{characteristic function} karakterizafunkcio
+{function of n variables} argumentafunkcio
+{polynomial function} polinomafunkcio
+{multiple-valued function} plursencafunkcio
+{rational function} racionalafunkcio
+{simple function} simplafunkcio
+{step function} ŝtuparafunkcio
+{test function} testafunkcio
+{test function} testofunkcio
+{trigonometric function} trigonometriafunkcio
+{circular function} trigonometriafunkcio
+{single-valued function} unusencafunkcio
+{pitch fork} forkego
+{hay fork} forkego
+{buyer's monopoly} monopsonio
+{Kepler['s] laws} keplerajleĝoj
+{smash hit} furoro
+{be a hit} furori
+{during the day} tage
+{differential form} diferencialaformo
+{Hermitian form} hermitaformo
+{vacuum cleaner} polvosuĉilo
+{annual instalment} anuitato
+{raising to a power} potencigo
+{n-th power} apotenco
+{sheep dog} ŝafhundo
+{screen button} ekranabutono
+{operational research} operaciesploro
+{operations research} operaciesploro
+{internal composition law} internaoperacio
+{internal composition law} enaoperacio
+{logical operation} logikaoperacio
+{opposite element} kontraŭegalo
+{additive inverse} kontraŭegalo
+{with an opposite} kontraŭegaligebla
+{expressive means} esprimilo
+{mounted patrol officer} ĝendarmo
+{broker commission} kurtaĝo
+{broker fee} kurtaĝo
+{direct current} rektakurento
+{rye grass} lolo
+{cutting edge} klingo
+{English Channel} maniko
+{monkey puzzle} araŭkario
+{Chili pine} araŭkario
+{spring bolt} klinko
+{Organisation for Economic Co-operation and Develop} porekonomiaj
+{draw lots} loti
+{mathematical logic} matematikalogiko
+{International Labour Organisation} internacialabor
+{place of employment} laborloko
+{brain worker} cerblaboristo
+{agricultural worker} kamplaboristo
+{wood worker} lignolaboristo
+{work out in detail} ellabori
+{treat at length} ellabori
+{out of work} senlabora
+{hard work} pezalaboro
+{barbed wire} pikdrato
+{barbed wire} pikildrato
+{take care of} prizorgi
+{look after} prizorgi
+{connected component} koneksakomponanto
+{ready-made suit} konfekcio
+{commercial comptetition} konkurenco
+{arc secant} arksekanto
+{black grouse} tetro
+{conference center} kongresejo
+{convention center} kongresejo
+{convention hall} kongresejo
+{exposition center} kongresejo
+{open hearse} katafalko
+{arc cosecant} arkkosekanto
+{arc cosecant} arkokosekanto
+{cow wheat} melampiro
+{golden section} dispartigo
+{integral part} entjeraparto
+{integer part} entjeraparto
+{fractional part} frakciaparto
+{imaginary part} imaginaraparto
+{real part} reelaparto
+{film actor} filmaktoro
+{film actress} filmaktoro
+{film actor} filmartisto
+{film actress} filmartisto
+{film cartridge} filmkaseto
+{for sale} aĉetebla
+{purchasing agent} aĉetisto
+{weak topology} malfortatopologio
+{weak* topology} dualmalfortatopologio
+{weak* topology} malfortatopologio
+{topology of pointwise convergence} topologio
+{topology of uniform convergence} topologio
+{analytic geometry} analitikageometrio
+{n-by-p matrix} matrico
+{null matrix} nulmatrico
+{null matrix} matrica
+{unit matrix} unuomatrico
+{unit matrix} matrica
+{Jacobian matrix} jakobiamatrico
+{matrix of a linear mapping} matrico
+{tomato paste} tomatpasto
+{garage door} pordego
+{eau de cologne} odekolono
+{toilet water} odekolono
+{craw daddy} astako
+{executive committee} plenumkomitato
+{seat belt} sekurzono
+{safety belt} sekurzono
+{credit against pledge of chattels} lombardo
+{object program} celprogramo
+{target program} celprogramo
+{source program} fontprogramo
+{system software} sistemaprogramaro
+{application software} aplikaprogramaro
+{French fry} terpomfingro
+{potatoe chip} terpomfingro
+{instead of} anstataŭ
+{in lieu of} anstataŭ
+{in place of} anstataŭ
+{substitute for} anstataŭi
+{take the place of} anstataŭi
+{put in place of} anstataŭigi
+{make a substitution} anstataŭigi
+{of inflection} infleksa
+{of course} memkompreneble
+{back pack} tornistro
+{finite object} finio
+{good offices} komplezo
+{good natured} kompleza
+{good natured} komplezema
+{be so kind as to} komplezi
+{negative electrode} katodo
+{ethnic group} etno
+{saddle blanket} ĉabrako
+{diving suit} skafandro
+{space suit} skafandro
+{Euclid['s] algorithm} eŭklidaalgoritmo
+{graph theory} grafeiko
+{division with remainder} divido
+{division with remainder} eŭklidadivido
+{a console} konzolo
+{residue class group} grupo
+{alternating group} alternagrupo
+{fundamental group} fundamentagrupo
+{Galois['s] group} galezagrupo
+{quotient group} kvocientagrupo
+{factor group} kvocientagrupo
+{symmetrical group} simetriagrupo
+{gas station} benzinejo
+{filling station} benzinejo
+{petrol station} benzinejo
+{gas station} benzinstacio
+{filling station} benzinstacio
+{petrol station} benzinstacio
+{gas tank} benzinujo
+{petrol tank} benzinujo
+{gas can} benzinkruĉo
+{petrol can} benzinkruĉo
+{call into question} kontesti
+{deny the truth of} kontesti
+{refuse to accept} kontesti
+{be lacking} manki
+{friars's caps} akonito
+{monk's hood} akonito
+{wolf's bane} akonito
+{registration form} aliĝilo
+{northern lights} nordlumo
+{aurora borealis} nordlumo
+{make love} amaĉi
+{make love} amaĵi
+{love affair} amaĵo
+{have a crush on} ameti
+{fall in love} enamiĝi
+{horned animal} kornbruto
+{bell tower} kampanilo
+{clock tower} kampanilo
+{set theory} arteorio
+{set theory} aroteorio
+{set theory} laaroj
+{quotient set} kvocientaaro
+{empty set} malplenaaro
+{walking stick} lambastono
+{arc cotangent} arkkotangento
+{arc cotangent} arkokotangento
+{hyperbolic cotangent} hiperbolakotangento
+{area-hyperbolic cotangent} hiperbolakotangento
+{inverse hyperbolic cotangent} hiperbolakotangento
+{Antarctic Ocean} antarkta
+{Southern Ocean} antarkta
+{old world monkeys} cerkopitekedoj
+{sailor beetle} kantarido
+{soldier beetle} kantarido
+{conditional probability} kondiĉaprobablo
+{data type} datumtipo
+{Arbutus berry} arbuto
+{natural gas} tergaso
+{inert gas} noblagaso
+{noble gas} noblagaso
+{center of curvature} kurbecocentro
+{center of rotation} rotaciacentro
+{symmetry center} simetricentro
+{ebb and flow} alfluo
+{release ballast} senbalastigi
+{dialog box} dialogujo
+{eye tooth} kanino
+{partial sum} partasumo
+{be at odds with} konflikti
+{water nymph} najado
+{coconut palm} kokosarbo
+{clove tree} kariofilujo
+{logarithmic derivative} logaritmaderivaĵo
+{partial derivative} partaderivaĵo
+{roe deer} kapreolo
+{department store} ĉiovendejo
+{dot above} superpunkto
+{fixed point} fiksapunkto
+{ear wax} cerumeno
+{eat away} korodi
+{fall on} incidi
+{dog cart} kariolo
+{earless seals} fokedoj
+{branding iron} brulmarkilo
+{clonic spasm} klonika
+{southern wormwood} abrotano
+{lad's love} abrotano
+{old man} abrotano
+{lock up} karcero
+{be ashamed} honti
+{background processing} fona
+{output data} eligaĵo
+{output device} eligilo
+{inlay work} inkrustaĵo
+{grey gurnard} gurnardo
+{Bering Strait} beringa
+{Bering Sea} beringa
+{input data} enigaĵo
+{input device} enigilo
+{look like} aspekti
+{in appearance} aspekte
+{The Netherlands} nederlando
+{lignum vitae} gajako
+{flying machine} flugaparato
+{cotton cloth} katuno
+{heating oil} benzolo
+{partial graph} subgrafeo
+{graph theory} grafeteorio
+{oriented graph} orientitagrafeo
+{directed graph} orientitagrafeo
+{non-oriented graph} neorientitagrafeo
+{non-directed graph} neorientitagrafeo
+{ordinary graph} simplagrafeo
+{simple graph} simplagrafeo
+{Roman Catholic} katoliko
+{Roman Catholic} romkatolika
+{jeer at} moki
+{scoff at} moki
+{make a butt of} moki
+{make sport of} moki
+{poke fun at} moki
+{stand out} antaŭiĝi
+{International Monetary Fund} internaciamona
+{asa fœtida} asafetido
+{assa foetida} asafetido
+{visual display unit} ekranbloko
+{Cartesian oval} karteziaovalo
+{be in line with} konformi
+{share profits} dividendo
+{pepper shaker} piprujo
+{pepper cellar} piprujo
+{bishop's weed} egopodio
+{Golden Horde} orahordo
+{probability distribution} probablodistribuo
+{run down} kalumnii
+{false charge} kalumnio
+{malicious misrepresentation} kalumnio
+{slanderous report} kalumnio
+{leap about} kaprioli
+{rough draft} malneto
+{first draft} malneto
+{die out} formorti
+{die off} formorti
+{become extinct} formorti
+{deadly nightshade} beladono
+{devil's cherry} beladono
+{thorn apple} daturo
+{jimson weed} daturo
+{antique dealer} antikvaĵisto
+{stag beetle} lukano
+{snow board} neĝtabulo
+{homothetic figure} homotetiaĵo
+{overcharge with blood} kongesti
+{Ancient Rome} romio
+{crow's nest} topo
+{top mast} topmasto
+{top sail} topvelo
+{put out to tender} adjudiki
+{invitation to tender} adjudiko
+{tender invitation} adjudiko
+{affine hyperplane} afinahiperebeno
+{linear hyperplane} vektorahiperebeno
+{long grace note} apoĝaturo
+{paving block} kahelo
+{integral sign} integralsigno
+{definite integral} difinitaintegralo
+{Lebesgue['s] integral} lebegaintegralo
+{indefinite integral} nedifinitaintegralo
+{Riemann['s] integral} rimanaintegralo
+{next to} apud
+{word processor} verkilo
+{juridical person} jurapersono
+{be early} frui
+{be fast} frui
+{be late} malfrui
+{be slow} malfrui
+{charge a tax} imposti
+{levy a tax} imposti
+{tax declaration} impostdeklaro
+{tax dodger} impostevitulo
+{tax collector} impostisto
+{tax payer} impostpaganto
+{value added tax} aldonvaloraimposto
+{income tax} enspezimposto
+{harbour dues} havenimposto
+{port dues} havenimposto
+{port charges} havenimposto
+{salt duty} salimposto
+{duty free} senimposta
+{tax free} senimposta
+{short-term capital gains tax} spekulimposto
+{stamp duty} stampimposto
+{stamp tax} stampimposto
+{sales tax} vendimposto
+{turnover tax} vendimposto
+{new wine} mosto
+{unfermented grape juice} mosto
+{caustic potash} potaso
+{potassium hydroxide} potaso
+{masked palm civet} pagumo
+{in no case} nenie
+{not anywhere} nenie
+{to one's advantage} avantaĝe
+{Great Bulgaria} grandabulgarujo
+{Volga Bulgaria} kamabulgarujo
+{Slavic language} slava
+{anhydrous ammonia} amoniako
+{neutral element} neŭtra
+{neutral element} neŭtraĵo
+{Pascal['s] limaçon} paskalalimako
+{occipital bone} okcipitalo
+{Amu Darya} amudarjo
+{English daisy} lekanteto
+{black pudding} sangkolbaso
+{blood sausage} sangkolbaso
+{black pudding} sangokolbaso
+{blood sausage} sangokolbaso
+{botanical garden} studĝardeno
+{botanical garden} eksperimentĝardeno
+{botanical garden} botanikaĝardeno
+{very much} treege
+{outer clothing} supervesto
+{New World vultures} katartedoj
+{grass vole} mikroto
+{corporate share} akcio
+{quantum mechanics} kvantummeĥaniko
+{unique factorization} faktoreca
+{Aral Sea} aralo
+{universal joint} kardano
+{Ash Wednesday} cindramerkredo
+{Ash Wednesday} cindromerkredo
+{corn weevil} kalandrao
+{money plant} lunario
+{merino wool} merinolano
+{cigar holder} cigaringo
+{cigar box} cigarujo
+{generalized function} distribucio
+{Dirac['s] distribution} dirakadistribucio
+{prohibited traffic} kontrabando
+{to rivet} niti
+{black hole} nigratruo
+{messenger pigeon} leterkolombo
+{carrier pigeon} leterkolombo
+{Last Supper} sanktamanĝo
+{Organisation of Petroleum Exporting Countries} depetrol
+{viewing platform} belvedero
+{scenic overlook} belvedero
+{humming bird} kolibro
+{integral number} entjero
+{gaussian integer} gaŭsaentjero
+{natural number} naturaentjero
+{The Hague} hago
+{cinnamon tree} cinamujo
+{Holy Spirit} parakleto
+{Soviet Union} sovetunio
+{Union of Soviet Socialist Republics} desovetaj
+{Soviet Union} desovetaj
+{Chukchi man} ĉukĉo
+{Chukchee Sea} ĉukĉa
+{Alaska Peninsula} alaska
+{Gulf of Alaska} alaska
+{dim lamp} lampiono
+{fairy lamp} lampiono
+{sour cream} acidkremo
+{bel étage} beletaĝo
+{main storey} beletaĝo
+{golden syrup} melaso
+{evil sprite} koboldo
+{truth value} vervaloro
+{absolute value} absolutavaloro
+{not any thing} nenio
+{tea towel} sekigtuko
+{feel distressed} angori
+{Ural-Altaic group} urala
+{Turanian language group} urala
+{put on make-up} ŝminki
+{corn weevil} kalandro
+{bring into allegiance} obeigi
+{bring to heel} obeigi
+{linear algebra} alĝebro
+{natural habitat} arealo
+{brown seaweeds} laminario
+{spinal chord} mjelo
+{least common multiple} komunaoblo
+{potential difference} potenciala
+{scalar potential} skalarapotencialo
+{vector potential} vektorapotencialo
+{Volapük speaker} volapukisto
+{toasted bread} rostpano
+{sleeping partner} komanditanto
+{silent partner} komanditanto
+{crockery set} servico
+{combinatorial analysis} kombinatoriko
+{burning at the stake} aŭtodafeo
+{Danube River} danubo
+{ragged robin} liknido
+{stone fruit} drupo
+{book of ABC's} alfabetumo
+{North star} polusa
+{scrambled eggs} ovaĵo
+{air transport} aertransporto
+{astrakhan wool} astrakano
+{spelling checker} literumilo
+{capital letter} grandalitero
+{small letter} malgrandalitero
+{miss one's step} stumbli
+{buyer's oligopoly} oligopsonio
+{Windows user} vindozulo
+{grappling iron} graplo
+{cotton wool} vato
+{commit adultery} adulti
+{hunting dog} ĉashundo
+{hunting hound} ĉashundo
+{probability density} probablodenso
+{gyakorlatias ember} empiriulo
+{North Atlantic Treaty Organisation} atlantikatraktat
+{tooth socket} dentingo
+{stomach tooth} kojnodento
+{stomach tooth} kojnadento
+{commit a crime} krimi
+{be called} nomiĝi
+{first name} antaŭnomo
+{Holy Scripture} sanktaskribo
+{Holy Writ} sanktaskribo
+{boreal forest} tajgo
+{aphthous ulcer} afto
+{stick to} adheri
+{marabou stork} marabuo
+{prepay postage} afranki
+{postage prepaid} afrankite
+{lilly of the valley} konvalo
+{open up} apertigi
+{bank note} banknoto
+{bill of money} banknoto
+{top hat} klakĉapelo
+{high hat} klakĉapelo
+{put into practice} praktiki
+{Mediterranean Sea} mediteraneo
+{Genghis Khan} ĉingisĥano
+{Chinggis Khan} ĉingisĥano
+{arable land} agro
+{color blindness} daltonismo
+{Jacobian determinant} jakobiadeterminanto
+{pop-off valve} savklapo
+{safety valve} savklapo
+{only if} nurse
+{if and only if} se
+{translation memory} tradukmemoro
+{flat symbol} bemolo
+{double-flat symbol} dubemolo
+{arbitrage deal} arbitraĝo
+{be the age of} aĝi
+{over the age of majority} plenaĝa
+{equivalence class} klaso
+{equivalence class} ekvivalentklaso
+{right coset} dekstraklaso
+{left coset} maldekstraklaso
+{residue class} restoklaso
+{coffee pot} kafkruĉo
+{write out of one's will} senheredigi
+{residue class ring} ringo
+{Euclidean ring} eŭklidaringo
+{quotient ring} kvocientaringo
+{polynomial ring} polinomringo
+{with unit} unuhava
+{imaginary unit} imaginaraunuo
+{French fry} frito
+{potatoe chip} frito
+{stinking gum} ferolo
+{devil's dung} ferolo
+{giant fennel} ferolo
+{be jealous} ĵaluzi
+{whooping cough} kokluŝo
+{overhead projector} retroprojekciilo
+{central projection} centraprojekcio
+{canonical projection} kanonaprojekcio
+{skew projection} oblikvaprojekcio
+{orthogonal projection} ortaprojekcio
+{parallel projection} paralelaprojekcio
+{parallel projection} paralelprojekcio
+{n-th moment} amomanto
+{plane of symmetry} simetriebeno
+{affine plane} afinaebeno
+{two-dimensional vector space} vektoraebeno
+{in some sense} iusence
+{central angle} centraangulo
+{angle at circumference} cirkonferencaangulo
+{plane angle} ebenaangulo
+{Pascal['s] triangle} triangulo
+{binomial array} triangulo
+{azimuth angle} polusaangulo
+{polar angle} polusaangulo
+{solid angle} solidaangulo
+{restocking fish} alvuso
+{turtle dove} turto
+{dare to} kuraĝi
+{venture to} kuraĝi
+{cheer on} kuraĝigi
+{tree of heaven} ailanto
+{Huang He} flava
+{Yellow River} flava
+{Yellow Sea} flava
+{jazz band} ĝazbando
+{jazz ensemble} ĝazbando
+{shop assistant} komizo
+{office assistant} komizo
+{Prince's feather} amaranto
+{telephone number} telefonnumero
+{mobile telephone} poŝtelefono
+{cellular telephone} poŝtelefono
+{cell phone} poŝtelefono
+{public telephone} strattelefono
+{pay telephone} strattelefono
+{chi gong} ĉigongo
+{New Zealand} zelando
+{reinforced concrete} ferbetono
+{reinforced concrete} subferigitabetono
+{reinforced concrete} armitabetono
+{post office} poŝtejo
+{mail carrier} poŝtisto
+{general delivery} poŝtrestante
+{poste restante} poŝtrestante
+{lemon balm} citronmeliso
+{sensing device} sensilo
+{coordinate system} koordinatsistemo
+{cylindrical coordinate} cilindrakoordinato
+{semi-polar coordinate} cilindrakoordinato
+{Cartesian coordinate} karteziakoordinato
+{barycentric coordinate} pezocentrakoordinato
+{polar coordinate} polusakoordinato
+{spherical coordinate} sferakoordinato
+{mulberry tree} morusujo
+{the Arctic} arkto
+{Arctic Ocean} arkta
+{stipa grass} alfo
+{scholarly report} referi
+{castor-oil plant} ricino
+{Accipitridae family} akcipitredoj
+{absolutely convergent} absolutekonverĝa
+{convergent in distribution} konverĝa
+{convergent in measure} konverĝa
+{convergent in probability} konverĝa
+{weakly convergent} malfortekonverĝa
+{normally convergent} normekonverĝa
+{almost surely convergent} certekonverĝa
+{convergent with probability one} certekonverĝa
+{simply convergent} simplekonverĝa
+{pointwise convergent} simplekonverĝa
+{uniformly convergent} unuformekonverĝa
+{axis of rotation} rotaciaakso
+{axis of symmetry} simetriakso
+{semi-major axis} duonakso
+{semi-minor axis} duonakso
+{coordinate axis} koordinataakso
+{coordinate axis} koordinatakso
+{polar axis} polusaakso
+{among others} interalie
+{inter alia} interalie
+{become submerged} subakviĝi
+{small of the back} lumbo
+{point of maximum} maksimumiganto
+{well informed} klera
+{Age of Reason} klerismo
+{magic lantern} magialanterno
+{take a bath} baniĝi
+{fixing agent} fiksbano
+{bowling pin} keglo
+{bowling pin} keglaro
+{half sphere} duonsfero
+{wooden fence} tabulbarilo
+{lower bound} subabaro
+{upper bound} superabaro
+{arithmetic sequence} aritmetikavico
+{arithmetic progression} aritmetikavico
+{finite sequence} finiavico
+{finite sequence} finilongavico
+{geometric sequence} geometriavico
+{geometric progression} geometriavico
+{harmonic sequence} harmonavico
+{harmonic progression} harmonavico
+{Cauchy['s] sequence} koŝiavico
+{fundamental sequence} koŝiavico
+{Cauchy['s] sequence} vico
+{fundamental sequence} vico
+{function sequence} vico
+{sequence of functions} vico
+{function sequence} funkcivico
+{sequence of functions} funkcivico
+{beat back} debati
+{beat back} forbati
+{strike out} elbati
+{drive in} enbati
+{beat together} kunbati
+{beat to death} mortbati
+{strike back} rebati
+{blaze a trail} trabati
+{system of equations} ekvaciaro
+{put into an equation} ekvaciigi
+{differential equation} diferencialaekvacio
+{integral equation} integralaekvacio
+{dual basis} dualabazo
+{canonical basis} kanonabazo
+{standard deviation} variancadevio
+{papal bull} buleo
+{question mark} demandosigno
+{chest of drawers} komodo
+{power series} potencoserio
+{entire series} potencoserio
+{function series} serio
+{function series} funkciserio
+{formal power series} potencoserio
+{formal series} potencoserio
+{formal power series} formalaserio
+{formal series} formalaserio
+{get pregnant} gravediĝi
+{East China Sea} orientaĉina
+{Sea of Okhotsk} oĥocka
+{bachelor's degree holder} bakalaŭro
+{on loan} prunte
+{watch television} televidi
+{television set} televidilo
+{T.V. set} televidilo
+{firing range} pafejo
+{shooting range} pafejo
+{machine gun} maŝinpafilo
+{automatic rifle} maŝinpafilo
+{shoot to death} mortpafi
+{artichoke thistle} kardono
+{aromatic herb} aromherbo
+{rain cloud} nimbuso
+{computer science} komputiko
+{information technology} komputiko
+{Pacific Ocean} pacifiko
+{chiseling tool} ĉizilo
+{dwarf chimpanzee} malgrandaĉimpanzo
+{matrix addition} matricaadicio
+{polynomial addition} polinomaadicio
+{biscuit porcelain} biskvito
+{wanton pleasure} ĝuamo
+{comment on} komenti
+{comment out} forkomenti
+{persuade firmly} konvinki
+{assured belief} konvinko
+{be convinced} konvinkiĝi
+{flower bed} bedo
+{wooded steppe} arbarstepo
+{bound vector} punktoparo
+{hit song} ŝlagro
+{buyer's duopoly} duopsonio
+{temporal bone} temporalo
+{Bacchus festival} bakanalo
+{Christian love of fellow men} karitato
+{high-school graduate} abituriento
+{G.E.D. holder} abituriento
+{draw in} brajli
+{haul up} brajli
+{semantic dictionary} tezaŭro
+{cotton plant} kotonarbo
+{cotton plant} kotonujo
+{bunch of grapes} vinberaro
+{Eurasian wild boar} apro
+{eye salve} kolirio
+{eye wash} kolirio
+{eye drops} kolirio
+{Moroccan leather} marokeno
+{cause chaos} ĥaosigi
+{peat bog} torfejo
+{heel bone} kalkaneo
+{source language} fontolingvo
+{be ardent} ardi
+{prolate hypocycloid} longigitahipocikloido
+{curtate hypocycloid} mallongigitahipocikloido
+{of the same area} samarea
+{double dual} dudualo
+{double dual} duobladualo
+{full dual space} algebradualo
+{adjoint space} topologiadualo
+{second adjoint space} dudualo
+{flying buttress} apogarko
+{celtic language} kelta
+{winding gear} kapstano
+{weapon of mass destruction} amasdetruaarmilo
+{Milky Way} lakta
+{black salsify} skorzonero
+{private person} privatulo
+{vocal cord} voĉkordo
+{common whitebeam} alizarbo
+{common whitebeam} alizujo
+{choir singer} ĥorano
+{choir loft} ĥorejo
+{choir director} ĥorestro
+{closed path} fermitavojo
+{indigenous person} indiĝeno
+{conic section} koniko
+{go into} divizori
+{zero divisor} nuldivizoro
+{proper divisor} propradivizoro
+{greatest common divisor} komunadivizoro
+{reductio ad absurdum} redukto
+{possessive pronoun} posesivo
+{track ball} stirglobo
+{rolling ball} stirglobo
+{control character} stirsigno
+{remote control} deforastirado
+{eel pout} lojto
+{old man's beard} klematido
+{traveller's joy} klematido
+{part of speech} parolelemento
+{Book of Revelation} apokalipso
+{Archimedes['] spiral} arĥimedaspiralo
+{hyperbolic spiral} hiperbolaspiralo
+{logarithmic spiral} logaritmaspiralo
+{tropical climbing vine} liano
+{on no account} nenial
+{at no time} neniam
+{not ever} neniam
+{negotiable security} bilo
+{negotiable document of value} bilo
+{negotiable instrument} bilo
+{Banach algebra} banaĥaalgebro
+{Boolean algebra} buleaalgebro
+{field of events} okazalgebro
+{algebra of events} okazalgebro
+{Borel['s] field} algebro
+{insurance agent} asekura
+{insurance certificate} asekuratesto
+{insurance book} asekurlibro
+{insurance broker} asekura
+{blue limestone} liaso
+{suffix rhyme} adasismo
+{toilet accessories} galanterio
+{kapok tree} kapokujo
+{clamp together} agrafi
+{assize court} asizo
+{tin foil} staniolo
+{narrative sentence} indikativa
+{clause of statement} indikativa
+{red pepper} papriko
+{commemorative publication} festlibro
+{right angle} orto
+{set square} ortilo
+{number theory} aritmetiko
+{arithmetic and logical unit} aritmetikilo
+{St. Vitus' dance} ĥoreo
+{Baltic Sea} balta
+{musical switch} kvodlibeto
+{beveled egde} bevelo
+{reduce to order} klasifiki
+{sort out} klasifiki
+{lay asphalt} asfalti
+{stomach acidity} pirozo
+{acid stomach} pirozo
+{china aster} kalistefo
+{bank branch} bankejo
+{bank manager} bankestro
+{bank director} bankestro
+{vertically opposite} kontraŭlatera
+{polygon of n sides} latero
+{sea kale} krambo
+{sperm whale} makrocefaledoj
+{World Meteorological Organisation} primeteologio
+{algebraic fraction} algebrafrakcio
+{continued fraction} ĉenafrakcio
+{continued fraction} ĉenfrakcio
+{common fraction} kvocientafrakcio
+{vulgar fraction} kvocientafrakcio
+{rational fraction} racionalafrakcio
+{Capuchin monk} kapuceno
+{beet soup} barĉo
+{civic virtue} civitismo
+{good citizenship} civitismo
+{world citizen} mondcivitano
+{world citizenship} mondcivitaneco
+{truth table} vertabelo
+{truth table} tabelo
+{Yangtze Kiang} blua
+{Chang Jiang} blua
+{hard outer covering} krusto
+{inner automorphism} internaaŭtomorfio
+{throw off} deĵeti
+{biunique correspondence} dissurĵeto
+{one-to-one mapping} dissurĵeto
+{onto function} surĵeto
+{United Nations Organisation} unuiĝintajnacioj
+{United Nations} unuiĝintajnacioj
+{sing arpeggios} arpeĝi
+{integrated circuit} integra
+{acertain to be true} konstati
+{establish to be a fact} konstati
+{Hindu Kush} hindukuŝo
+{cooper's shop} barelejo
+{barrel factory} barelejo
+{put on weight} bareliĝi
+{load into a barrel} enbareligi
+{Dedekind['s] cut} dedekindatranĉo
+{roll up} ferli
+{take in} ferli
+{green pea} pizo
+{horse chestnut} hipokaŝtano
+{natural logarithm} naturalogaritmo
+{Napierian logarithm} neperalogaritmo
+{common logarithm} ordinaralogaritmo
+{arc tangent} arktangento
+{arc tangent} arkotangento
+{hyperbolic tangent} hiperbolatangento
+{area-hyperbolic tangent} hiperbolatangento
+{inverse hyperbolic tangent} hiperbolatangento
+{title case} nomuskla
+{leap year} superjaro
+{dwarf elder} ebulo
+{stock room} stokejo
+{storage room} stokejo
+{linearly dependent} dependa
+{linearly independent} nedependa
+{linearly independent} sendependa
+{sitting room} salono
+{mail box} leterkesto
+{letter box} leterkesto
+{one's own} propra
+{give suck} suĉigi
+{breast feed} suĉigi
+{fee tail estate} apanaĝo
+{East Siberian Sea} orientsiberia
+{non-commissioned officer} suboficiro
+{paper band} banderolo
+{Dirac['s] measure} dirakamezuro
+{Lebesgue['s] measure} lebegamezuro
+{null vector} nulvektoro
+{position vector} radiusvektoro
+{radius vector} radiusvektoro
+{extreme value} ekstremumo
+{position of an extremum} ekstremumiganto
+{Middle East} okcidentaazio
+{Near East} okcidentaazio
+{Southern Asia} sudaazio
+{Central Asia} internaazio
+{Asia Minor} azio
+{proof of existence} pruvo
+{proof by induction} pruvo
+{proof by reductio ad absurdum} pruvo
+{quod erat demonstrandum} estispruvota
+{film projector} kinematografo
+{movie projector} kinematografo
+{motion picture projector} kinematografo
+{sit on one's heels} kalkansidi
+{articulation point} artikiga
+{intestinal roundworm} askarido
+{toilet seat} necesseĝo
+{toilet bowl} necesseĝo
+{toilet seat} neceseja
+{toilet bowl} neceseja
+{do penance} pentofari
+{speak with a burr} kartavi
+{digit after the radix point} decimalo
+{decimal digit} decimalo
+{everlasting pea} latiro
+{meadow pea} latiro
+{of inflection} transfleksiĝa
+{extend to} ampleksi
+{color photography} kromofotografio
+{tufted duck} fuligulo
+{sense of well-being} komforto
+{at ease} komforta
+{make comfortable} komfortigi
+{front sight} celgrajno
+{handwriting analysis} grafologio
+{handwirting analyst} grafologiisto
+{handwriting expert} grafologiisto
+{spherical layer} globtavolo
+{internal combustion engine} eksplodmotoro
+{steam engine} vapormotoro
+{external combustion engine} vapormotoro
+{simple event} elementaokazo
+{induce labor} akuŝigi
+{new mother} akuŝintino
+{seed case} perikarpo
+{seed vessel} perikarpo
+{relation on a set} internarilato
+{inverse relation} inversarilato
+{n-ary relation} argumentarilato
+{greatest lower bound} infimo
+{lower limit} limesinfimo
+{inferior limit} limesinfimo
+{azotic acid} azotacido
+{greater celadine} kelidonio
+{radius of convergence} radiuso
+{radius of curvature} radiuso
+{Sea of Azov} azova
+{white blood corpuscle} leŭkocito
+{white blood cell} leŭkocito
+{crude oil} nafto
+{gun carriage} afusto
+{city council} magistrato
+{town council} magistrato
+{artificial intelligence} artefaritaintelekto
+{be ambitious of} aspiri
+{be eager for} aspiri
+{desire earnestly} aspiri
+{seek after} aspiri
+{natural symbol} bekvadrato
+{hawse hole} kluso
+{hawse pipe} kluso
+{Holy Spirit} sanktaspirito
+{Holy Ghost} sanktaspirito
+{almond tree} migdalarbo
+{almond tree} migdalujo
+{authority figure} aŭtoritatulo
+{authority figure} aŭtoritato
+{become concentrated} koncentriĝi
+{concentration camp} koncentrejo
+{say yes} jesi
+{say no} maljesi
+{United States of America} usono
+{US citizen} usonano
+{sky blue} lazuro
+{deep red} karmezino
+{barium oxide} barito
+{glossy paper} baritpapero
+{Khazar Empire} ĥazarujo
+{terra alba} kaolino
+{to license} koncesii
+{to franchise} koncesii
+{to concede} koncesii
+{Jacobian determinant} jakobiano
+{crucian carp} karaso
+{make a conjecture} konjekti
+{eagle wood} kalambako
+{camphor tree} kamforarbo
+{camphor tree} kamforujo
+{look after} varti
+{from memory} parkere
+{by heart} parkere
+{Guinea pig} kobajo
+{ant lion} mirmeleono
+{doodle bug} mirmeleono
+{pool hall} bilardejo
+{billiards hall} bilardejo
+{boarding house} pensiono
+{wait for} atendi
+{waiting room} atendejo
+{cherry brandy} kirŝo
+{Late Stone Age} neolitiko
+{apply remedies} kuraci
+{ice cap} bankizo
+{buckle pin} bukdorno
+{date palm} daktilarbo
+{date palm} daktilujo
+{be sorry} bedaŭri
+{rapid transit} metroo
+{identity mapping} bildigo
+{partial mapping} subbildigo
+{inverse mapping} inversabildigo
+{clutch pedal} kluĉopedalo
+{clutch return spring} kluĉorisorto
+{clutch arm} kluĉstango
+{clutch lever} kluĉstango
+{Syr Darya} sirdarjo
+{billy can} gamelo
+{mess tin} gamelo
+{line up} laŭliniigi
+{broken line} rompitalinio
+{speculate in stocks} aĝioti
+{stock jobber} aĝiotisto
+{draw one's attention to} atentigi
+{have the ambition to} ambicii
+{threshing floor} draŝejo
+{threshing machine} draŝmaŝino
+{kneading bowl} knedujo
+{kneading trough} knedujo
+{dura mater} duramatro
+{ampelopsis creeper} ampelopso
+{least upper bound} supremo
+{upper limit} limesosupremo
+{superior limit} limesosupremo
+{become pregnant} koncipi
+{word form} vortformo
+{cancel an order} kontraŭmendi
+{cancel an order} malmendi
+{Jöchi ulus} ĝoĉia
+{Juchi ulus} ĝoĉia
+{shoulder blade} skapolo
+{bill broker} kambiamakleristo
+{brief and comprehensive} konciza
+{brown wash} bistro
+{bistre brown} bistra
+{clay object} argilaĵo
+{linkage editor} bindilo
+{acetic acid} aceto
+{take leave of} adiaŭi
+{say goodbye to} adiaŭi
+{add up} adicii
+{invite tenders for} adjudiki
+{address list} adresaro
+{meteoric stone} aerolito
+{air out} aerumi
+{put on airs} afekti
+{business deal} afero
+{post up} afiŝi
+{put on stamps} afranki
+{set on edge} agaci
+{appointment book} agendo
+{memo book} agendo
+{stir up} agiti
+{be near death} agonii
+{death throes} agonio
+{speed up} akceli
+{accelerator pedal} akcelilo
+{reception room} akceptejo
+{take in} akcepti
+{share of stock} akcio
+{come to an agreement} akordiĝi
+{bring into agreement} akordigi
+{reach an accord} akordiĝi
+{sharp edge} akraĵo
+{storage battery} akumulatoro
+{pile up} akumuli
+{storage battery} akumulilo
+{on time} akurata
+{be in labour} akuŝi
+{give birth} akuŝi
+{lying-in woman} akuŝintino
+{lady's mantle} alĉemilo
+{be present} alesti
+{ABC book} alfabetumo
+{paste up} alglui
+{post up} alglui
+{put right} alĝustigi
+{on the other hand} aliflanke
+{application form} aliĝilo
+{come on} aliri
+{another kind of} alispeca
+{click on} alklaki
+{alcoholic beverage} alkoholaĵo
+{strong drink} alkoholaĵo
+{hook on} alkroĉi
+{hitch on} alkroĉi
+{get caught} alkroĉiĝi
+{at least} almenaŭ
+{put onto} almeti
+{take one's measure for} almezuri
+{extra fee} alpago
+{deal with} alpaŝi
+{take on} alpreni
+{high place} altaĵo
+{impose upon} altrudi
+{of great value} altvalora
+{alum earth} alumino
+{appeal to} alvoki
+{love affair} amafero
+{have a love affair} amaĵi
+{pile up} amasigi
+{embassy building} ambasadorejo
+{give notice} anonci
+{in front of} antaŭ
+{front room} antaŭĉambro
+{fortune teller} antaŭdiristo
+{go forward} antaŭeniri
+{the day before yesterday} antaŭhieraŭ
+{the one before last} antaŭlasta
+{know beforehand} antaŭscii
+{be apprehensive} antaŭtimi
+{take care beforehand} antaŭzorgi
+{take precautions} antaŭzorgi
+{corn chamomile} antemo
+{think ahead} anticipi
+{distinguishing feature} apartaĵo
+{only just} apenaŭ
+{make to appear} aperigi
+{stroke of apoplexy} apopleksio
+{a priori} apriora
+{wild boar} apro
+{near to} apud
+{be present} apudesti
+{fix up} aranĝi
+{glow with heat} ardi
+{arrested person} arestito
+{keeper of the records} arĥivisto
+{come together} ariĝi
+{form a group} ariĝi
+{put together} arigi
+{keeper of the records} arkivisto
+{work of art} artaĵo
+{artistic taste} artismo
+{aspire to} aspiri
+{hope for} aspiri
+{heavenly body} astro
+{watch out for} atenti
+{draw attention} atentigi
+{bear witness of} atesti
+{atomic power station} atomcentralo
+{hearing aid} aŭdilo
+{fortune teller} aŭguristo
+{self-taught man} aŭtodidakto
+{hand-written document} aŭtografo
+{absolute rule} aŭtokratio
+{absolute ruler} aŭtokrato
+{motor car} aŭtomobilo
+{guarantee of a bill} avalo
+{break down} averii
+{eager for} avida
+{Babel tower} babelturo
+{port side} babordo
+{play down} bagateligi
+{house of correction} bagno
+{voting by ballot} balotado
+{polling station} balotejo
+{banana plant} bananujo
+{swimming trunks} bankalsono
+{bank note} bankbileto
+{bank clerk} bankisto
+{bank official} bankisto
+{be bankrupt} bankroti
+{go broke} bankroti
+{bearded man} barbulo
+{low relief} bareliefo
+{weighing machine} baskulo
+{bass voice} baso
+{anti-tank gun} bazuko
+{be sorry about} bedaŭri
+{beautiful sight} belaĵo
+{ground floor} beletaĝo
+{Benedictine monk} benediktano
+{benefit performance} benefico
+{balance sheet} bilanco
+{picture postcard} bildkarto
+{one more time} bis
+{pull someone's leg} blagi
+{sly joke} blago
+{carte blanche} blanketo
+{blank cheque} blanketo
+{make white} blankigi
+{white man} blankulo
+{coat of arms} blazono
+{animal sound} bleko
+{sightless person} blindulo
+{stir up} bloveksciti
+{wind instrument} blovinstrumento
+{piece of candy} bombono
+{something good} bonaĵo
+{extend good wishes} bondeziri
+{of good repute} bonfama
+{in easy circumstances} bonhava
+{nice guy} bonulo
+{be so kind as to} bonvoli
+{stock exchange} borso
+{bovine animal} bovo
+{fine fellow} bravulo
+{able man} bravulo
+{fine-cut gem} brilianto
+{used merchandise} brokantaĵo
+{second-hand item} brokantaĵo
+{deal in second-hand goods} brokanti
+{second-hand dealer} brokantisto
+{bronchial tube} bronko
+{make a noise} brui
+{head of cattle} bruto
+{naughty boy} bubaĉo
+{middle-class citizen} burĝo
+{worry oneself} ĉagreniĝi
+{typewriter carriage} ĉareto
+{take in} ĉarlatani
+{build from wood} ĉarpenti
+{hunt for} ĉaskuri
+{give way} cedi
+{give up} cedi
+{give in} cedi
+{be present} ĉeesti
+{prime minister} ĉefministro
+{capital city} ĉefurbo
+{one hundred} cent
+{power station} centralo
+{puzzle over} cerbumi
+{make certain} certigi
+{rest of} cetera
+{what's more} cetere
+{every kind of} ĉia
+{for every reason} ĉial
+{tour guide} ĉiĉerono
+{all about} ĉie
+{in every way} ĉiel
+{secret code} ĉifro
+{carp at} ĉikani
+{Indian ink} ĉinainko
+{all of it} ĉiom
+{fence off} ĉirkaŭbari
+{chip off} ĉirkaŭĉizi
+{go around} ĉirkaŭiri
+{roundabout way} ĉirkaŭvojo
+{be about} cirkuli
+{each time} ĉiufoje
+{every time} ĉiufoje
+{city state} civito
+{is it} ĉu
+{tidal wave} cunamo
+{dancing hall} dancejo
+{keep on} daŭri
+{go on} daŭrigi
+{proceed with} daŭrigi
+{beat off} debati
+{knock off} debati
+{make a debut} debuti
+{be fitting} deci
+{make up one's mind} decidiĝi
+{fall off} defali
+{tumble down} defali
+{go astray} deflankiĝi
+{get off the subject} deflankiĝi
+{rub off} defroti
+{drip down} deguti
+{trickle down} deguti
+{cut off} dehaki
+{become detached} deiĝi
+{cast off} deĵeti
+{fling off} deĵeti
+{be on duty} deĵori
+{count down} dekalkuli
+{Ten Commandments} dekalogo
+{lead away} dekonduki
+{dissuade from} dekonsili
+{advise against} dekonsili
+{on the right} dekstre
+{get out of a habit} dekutimiĝi
+{break a habit} dekutimiĝi
+{be delirious} deliri
+{for a long time} delonge
+{officially deny} dementi
+{put off} demeti
+{take off} demeti
+{bite off} demordi
+{gnaw off} dentskrapi
+{ever since} depost
+{take away} depreni
+{roll off} deruli
+{roll off} deruliĝi
+{jump off} desalti
+{leap down} desalti
+{tear off} deŝiri
+{in detail} detale
+{cut off} detondi
+{cut off} detranĉi
+{turn away} deturni
+{ought to} devi
+{have to} devi
+{go astray} devojiĝi
+{stray off} devojiĝi
+{diacritical mark} diakritilo
+{tuning fork} diapazono
+{dissolute person} diboĉulo
+{number sign} dieso
+{pound sign} dieso
+{break down} difektiĝi
+{be different} diferenci
+{dam up} digi
+{form an embankment} digi
+{become fat} dikiĝi
+{gain weight} dikiĝi
+{Mother of God} dipatrino
+{knock to pieces} disbati
+{break up} disbati
+{branch off} disbranĉiĝi
+{out of} disde
+{break up} diserigi
+{worship service} diservo
+{break up} disiri
+{worthy of discussion} diskutinda
+{take apart} dispecigi
+{have at one's disposal} disponi
+{make available} disponigi
+{break up} disrompi
+{distinguish oneself} distingiĝi
+{become widespread} disvastiĝi
+{24-hour period} diurno
+{military division} divizio
+{be painful} dolori
+{what a pity} domaĝe
+{that's too bad} domaĝe
+{as a gift} donace
+{Don Juan} donĵuano
+{Don Quixote} donkiĥoto
+{be asleep} dormi
+{put to sleep} dormigi
+{at the back} dorse
+{on one's back} dorsen
+{measure out} dozi
+{wooden cloth} drapo
+{drink to excess} drinki
+{be adrift} drivi
+{in the meantime} dume
+{get drunk} ebriiĝi
+{bring up} eduki
+{be married} edziĝi
+{be married} edziniĝi
+{in fact} efektive
+{have effect} efiki
+{be effective} efiki
+{having equal rights} egalrajta
+{mountain ridge} eĝo
+{analytical geometry} analitikageometrio
+{away we go} ek
+{let's go} ek
+{set afire} ekbruligi
+{come into bloom} ekflori
+{come on} eki
+{set in} eki
+{start out} ekiri
+{start singing} ekkanti
+{get to know} ekkoni
+{become familiar} ekkoni
+{call out} ekkrii
+{church member} ekleziano
+{take up residence} ekloĝi
+{jump up} eksalti
+{find out} ekscii
+{get a divorce} eksedziĝi
+{get divorced} eksedziĝi
+{sit down} eksidi
+{sightseeing trip} ekskurso
+{out of date} eksmoda
+{send off} ekspedi
+{blow up} eksplodigi
+{stand up} ekstari
+{get up} ekstari
+{outside of} ekster
+{foreign country} eksterlando
+{wipe out} ekstermi
+{catch sight of} ekvidi
+{for example} ekzemple
+{for instance} ekzemple
+{out of} el
+{use up} elĉerpi
+{wear out} elĉerpi
+{pick out} elekti
+{fall out} elfali
+{flow out} elflui
+{dig up} elfosi
+{take out} eligi
+{pull out} eligi
+{way out} elirejo
+{go out} eliri
+{throw out} elĵeti
+{hatch out} elkovi
+{work out} ellabori
+{let out} ellasi
+{get up} ellitiĝi
+{make a statement} elpaŝi
+{step out} elpaŝi
+{drive out} elpeli
+{think up} elpensi
+{put up with} elporti
+{carry out} elporti
+{squeeze out} elpremi
+{try out} elprovi
+{push aside} elpuŝi
+{be disappointed} elreviĝi
+{turn off} elŝalti
+{weed out} elsarki
+{tear out} elŝiri
+{thrust out} elŝovi
+{pay out} elspezi
+{stand out} elstari
+{suck out} elsuĉi
+{pour out} elŝuti
+{dig up} elterigi
+{pull out} eltiri
+{cut out} eltranĉi
+{drink up} eltrinki
+{wear out} eluzi
+{pour out} elverŝi
+{retired person} emerito
+{have a tendency} emi
+{go to sleep} endormiĝi
+{cave in} enfali
+{fall in} enfali
+{put away} enfermi
+{get in} eniĝi
+{put in} enigi
+{go in} eniri
+{take into account} enkalkuli
+{allow for} enkalkuli
+{take in} enkasigi
+{take a survey} enketi
+{go to bed} enlitiĝi
+{hand over} enmanigi
+{mix in} enmiksi
+{wrap up} enpaki
+{bring in} enporti
+{put into one's pocket} enpoŝigi
+{take up} enspaci
+{take in} enspezi
+{creep in} enŝteliĝi
+{on the whole} entute
+{as a whole} entute
+{be tired of something} enui
+{be bored} enui
+{come into} enveni
+{pour in} enverŝi
+{fall into line} enviciĝi
+{form up} enviciĝi
+{fall in} enviciĝi
+{line up} enviciĝi
+{put a hex on} envulti
+{epic poem} epopeo
+{epic poem} eposo
+{make a mistake} erari
+{by way of exception} escepte
+{think well of} estimi
+{put out} estingi
+{board of directors} estraro
+{head up} estri
+{stretch out} etendi
+{for ever} eterne
+{little boy} etulo
+{if the occasion arises} eventuale
+{of lore} fabela
+{fairy tale} fabelo
+{fire brigade} fajrobrigado
+{fire department} fajrobrigado
+{make famous} famigi
+{of fantasy} fantazia
+{come about} fariĝi
+{farm out} farmigi
+{be doing} farti
+{ill fate} fatalo
+{have a fever} febri
+{smell bad} fetori
+{something disgusting} fiaĵo
+{become engaged} fianĉiĝi
+{become engaged} fianĉiniĝi
+{faithful person} fidelulo
+{have faith} fidi
+{have faith in} fidi
+{be proud} fieri
+{of ill repute} fifama
+{motion picture} filmo
+{at last} fine
+{come to an end} finiĝi
+{end up} finiĝi
+{read out} finlegi
+{get finished} finpretigi
+{state treasury} fisko
+{flare up} flagri
+{accessory matter} flankaĵo
+{side issue} flankaĵo
+{to the side} flanken
+{stray off} flankiĝi
+{go astray} flankiĝi
+{take care of} flegi
+{patch up} fliki
+{high tide} fluso
+{on occasion} foje
+{leaf through} foliumi
+{cylinder phonograph} fonografo
+{well up} fonti
+{sweep away} forbalai
+{beat off} forbati
+{knock off} forbati
+{strike off} forbati
+{grow in a greenhouse} forci
+{throw away} fordiboĉi
+{be absent} foresti
+{be missing} foresti
+{stray off} forflankiĝi
+{go astray} forflankiĝi
+{do away with} forigi
+{get rid of} forigi
+{absent oneself} foriri
+{go away} foriri
+{throw away} forĵeti
+{ward off} forklini
+{use up} forkonsumi
+{eat up} formanĝi
+{put away} formeti
+{die away} formorti
+{offer up} foroferi
+{pass away} forpasi
+{drive away} forpeli
+{chase away} forpeli
+{take away} forporti
+{carry away} forporti
+{take away} forpreni
+{push aside} forpuŝi
+{put off} forregali
+{send about his business} forregali
+{turn away} forsendi
+{shake off} forskui
+{strike out} forstreki
+{cross out} forstreki
+{keep at a distance} forteni
+{keep at bay} forteni
+{cut off} fortranĉi
+{turn away} forturni
+{use up} foruzi
+{sell off} forvendi
+{drive off} forveturi
+{drive away} forveturi
+{glow in the dark} fosforeski
+{evening dress} frako
+{unmarried woman} fraŭlino
+{visit regularly} frekventi
+{act crazy} frenezi
+{make crazy} frenezigi
+{go crazy} freneziĝi
+{drive insane} frenezigi
+{do something crooked} friponi
+{freezing cold} frosto
+{bear fruit} frukti
+{run away} fuĝi
+{be in} furori
+{screw up} fuŝi
+{gold braid} galono
+{watch over} gardi
+{look after} gardi
+{fit out} garni
+{gas cylinder} gasbotelo
+{gas canister} gasbotelo
+{be a guest of} gasti
+{stay with} gasti
+{put up} gastigi
+{of both sexes} gea
+{be married} geedziĝi
+{family tree} genealogio
+{pain in the ass} ĝenulo
+{high school} gimnazio
+{plaster of Paris} gipso
+{money transfer form} ĝirilo
+{live to see} ĝisvivi
+{survive until} ĝisvivi
+{iron clothes} gladi
+{make smooth} glatigi
+{put on the map} glorigi
+{graphic arts} grafiko
+{big person} grandulo
+{make pregnant} gravedigi
+{be important} gravi
+{small group} grupeto
+{delight in} ĝui
+{grind out} gurdi
+{in time} ĝustatempe
+{at the right time} ĝustatempe
+{put right} ĝustigi
+{spy on} gvati
+{keep an eye on} gvati
+{come to a halt} halti
+{Hanseatic League} hanso
+{fit together} harmonii
+{have got} havi
+{make available} havigi
+{at home} hejme
+{brighten up} heligi
+{cow parsnip} herakleo
+{act of heroism} heroaĵo
+{Indian ink} ĥinainko
+{Chinese lady} ĥinino
+{Chinese woman} ĥinino
+{hypnotic trance} hipnoto
+{standing on end} hirta
+{wind up} hisi
+{hoist up} hisi
+{run up} hisi
+{love of one's neighbour} homamo
+{Zamenhofan humanism} homaranismo
+{human race} homaro
+{human being} homo
+{honest person} honestulo
+{put to shame} hontigi
+{Saint Vitus's dance} ĥoreo
+{abase oneself} humiliĝi
+{humble oneself} humiliĝi
+{some kind of} ia
+{any kind of} iaajn
+{for some reason} ial
+{at some time} iam
+{picture writing} ideografio
+{sweet potato} ignamo
+{imported product} importaĵo
+{tax return} impostdeklaro
+{revenue agent} impostisto
+{system of taxation} impostsistemo
+{tax system} impostsistemo
+{hold against} imputi
+{stir up} inciti
+{get riled} incitiĝi
+{become upset} incitiĝi
+{be worth} indi
+{be worthy of} indi
+{Red Indian} indiana
+{American Indian} indiano
+{be indignant} indigni
+{indicative mood} indikativo
+{be lenient with} indulgi
+{find out} informiĝi
+{be advised} informiĝi
+{informational publication} informilo
+{be inclined} inklini
+{be inclined} inkliniĝi
+{set a trap} insidi
+{set a trap for} insidi
+{pursue one's point} insistadi
+{be inspired} inspiriĝi
+{authoritative source} instanco
+{spur on} instigi
+{among other things} interalie
+{be interested} interesiĝi
+{take an interest} interesiĝi
+{understand each other} interkompreniĝi
+{mix up} intermiksi
+{occur intermittently} intermiti
+{mountain pass} intermonto
+{all the while} intertempe
+{disabled person} invalido
+{do inventory} inventari
+{take stock} inventari
+{to some extent} iom
+{a little} iom
+{by now} jam
+{one-year collection} jarkolekto
+{here is} jen
+{here are} jen
+{the following} jeno
+{daily paper} ĵurnalo
+{just now} ĵus
+{go off} kadukiĝi
+{go downhill} kadukiĝi
+{be on the decline} kadukiĝi
+{infirm person} kadukulo
+{work out} kalkuli
+{bearskin cap} kalpako
+{small room} kamero
+{camping ground} kampadejo
+{camping site} kampadejo
+{be encamped} kampadi
+{camp out} kampadi
+{lie encamped} kampadi
+{camp out} kampi
+{run for election} kandidati
+{Spanish fly} kantarido
+{administrative district} kantono
+{be able to} kapabli
+{be able} kapabli
+{shake one's head} kapnei
+{frolic about} kaprioli
+{firing cap} kapsulo
+{be captured} kaptiĝi
+{get caught} kaptiĝi
+{love of one's neighbour} karito
+{make a uvular R} kartavi
+{play cards} kartludi
+{hiding place} kaŝejo
+{behind one's back} kaŝite
+{cashier's stand} kaso
+{spy upon} kaŝobservi
+{peep upon} kaŝobservi
+{real estate register} katastro
+{little cat} kateto
+{female cat} katino
+{give rise to} kaŭzi
+{several times} kelkfoje
+{what kind of} kia
+{what sort of} kia
+{what for} kial
+{which one's} kies
+{of which} kies
+{movie theatre} kinejo
+{how many} kiom
+{how much} kiom
+{how many} kioma
+{what number} kioma
+{which one} kiu
+{take steps} klopodi
+{bell-shaped cover} kloŝo
+{club member} klubano
+{make love} koiti
+{be unfaithful to} kokri
+{be unfaithful} kokri
+{pick up} kolekti
+{be angry} koleri
+{bill and coo} kolombumi
+{sell door-to-door} kolporti
+{be in command} komandi
+{at first} komence
+{at the outset} komence
+{in the beginning} komence
+{do business} komerci
+{have compassion on} kompati
+{excite pity} kompatigi
+{do a favour} komplezi
+{of course} kompreneble
+{common property} komunaĵo
+{take communion} komuniiĝi
+{means of communication} komunikilo
+{be concentrated} koncentriĝi
+{in question} koncerna
+{set conditions} kondiĉi
+{express condolences} kondolenci
+{conduct oneself} konduti
+{connect up} konekti
+{plug in} konekti
+{have confidence in} konfidi
+{fit in} konformi
+{jumbled up} konfuza
+{congress participant} kongresano
+{site of a congress} kongresejo
+{attend a congress} kongresi
+{fit together} kongrui
+{be acquainted with} koni
+{let know} konigi
+{subjunctive mood} konjunktivo
+{be aware of} konscii
+{be conscious of} konscii
+{academy of music} konservatorio
+{storage room} konservejo
+{make up} konsistigi
+{take note} konstati
+{use up} konsumi
+{come into contact} kontaktiĝi
+{in cash} kontanta
+{in cash} kontante
+{meet with} kontentigi
+{make a contract} kontrakti
+{across from} kontraŭ
+{in exchange for} kontraŭ
+{contend with} kontraŭbatali
+{fight against} kontraŭbatali
+{on the contrary} kontraŭe
+{stand up to} kontraŭstari
+{check up on} kontroli
+{be suitable} konveni
+{be appropriate} konveni
+{fence off} kradi
+{fence in} kradi
+{rail off} kradi
+{rail in} kradi
+{induce to believe} kredigi
+{credit card} kreditkarto
+{mountain ridge} kresto
+{cry out} krii
+{exclamation point} krisigno
+{speak a language other than E} krokodili
+{except for} krom
+{apart from} krom
+{in addition} krome
+{male cook} kuiristo
+{cooking pot} kuirpoto
+{confectioner's shop} kukejo
+{short pants} kuloto
+{mosquito net} kulvualo
+{provide help} kunhelpi
+{come together} kuniĝi
+{go with} kuniri
+{put together} kunmeti
+{bring along} kunporti
+{take along} kunporti
+{bring along} kunpreni
+{hold together} kunteniĝi
+{draw together} kuntiri
+{bring with it} kuntreni
+{care for} kuraci
+{be bold} kuraĝi
+{course participant} kursano
+{exchange rate} kurzo
+{rate of exchange} kurzo
+{lie down} kuŝiĝi
+{brush against the grain} kuspi
+{roll up} kuspi
+{be used to} kutimi
+{be in the habit of} kutimi
+{accustom oneself} kutimiĝi
+{get used to} kutimiĝi
+{paid up} kvita
+{result of work} laboraĵo
+{working man} laboristo
+{labour market} labormerkato
+{working man} laborulo
+{get tired} laciĝi
+{tin plate} lado
+{lame person} lamulo
+{shed tears} larmi
+{according to} laŭ
+{as is being said} laŭdire
+{if possible} laŭeble
+{as much as possible} laŭeble
+{to measure} laŭmezura
+{read aloud} laŭtlegi
+{in turn} laŭvice
+{as you wish} laŭvole
+{at will} laŭvole
+{if desired} laŭvole
+{sky blue} lazura
+{go up} leviĝi
+{get up} leviĝi
+{time off} libertempo
+{spare time} libertempo
+{be permitted} lici
+{be allowed} lici
+{tie up} ligi
+{be limited} limiĝi
+{borrow money on} lombardi
+{for a long time} longe
+{a long time} longe
+{protracted. long-lasting} longedaŭra
+{hanging lamp} lucerno
+{rent out} luigi
+{optical disk} lumdisko
+{magnifying glass} lupeo
+{unleavened bread} maco
+{department store} magazeno
+{tape recorder} magnetofono
+{june bug} majskarabo
+{capital letter} majusklo
+{act as a middleman} makleri
+{in short supply} malabunda
+{put into disarray} malaranĝi
+{house of ill-repute} malĉastejo
+{commit sexual improprieties} malĉasti
+{on the left} maldekstre
+{lazy person} maldiligentulo
+{spread out} malfaldi
+{open up} malfermi
+{become unfaithful} malfideliĝi
+{low tide} malfluso
+{rude person} malĝentilulo
+{be grieved} malĝoji
+{be sorrowful} malĝoji
+{be sad} malĝoji
+{take apart} malimpliki
+{old man} maljunulo
+{dissuade from} malkonsili
+{advise against} malkonsili
+{break down} malkonstrui
+{take down} malkonstrui
+{pull down} malkonstrui
+{go down} malleviĝi
+{take apart} malmunti
+{mess up} malordigi
+{get in a quarrel} malpaciĝi
+{take apart} malplekti
+{be wrong} malpravi
+{far away} malproksime
+{other people's} malpropra
+{another man's} malpropra
+{poor man} malriĉulo
+{switch off} malŝalti
+{shut off} malŝalti
+{turn off} malŝalti
+{be hungry} malsati
+{go down} malsupreniri
+{get off} malsupreniri
+{be defeated} malvenki
+{knives and spoons} manĝilaro
+{mango tree} mangujo
+{manifest itself} manifestiĝi
+{be missing} manki
+{be master over} mastri
+{keep house} mastrumi
+{red of dawn} matenruĝo
+{list of members} matrikulo
+{piece of furniture} meblo
+{practice of medicine} medicino
+{think to oneself} mediti
+{self-taught man} meminstruito
+{self-taught man} memlerninto
+{commit suicide} memmortigi
+{worth mentioning} menciinda
+{tell a lie} mensogi
+{be worthy of} meriti
+{wild cherry} merizo
+{sales activity} merkato
+{lay down} meti
+{put down} meti
+{Middle Ages} mezepoko
+{unit of measurement} mezurunuo
+{wander about} migri
+{one thousand} mil
+{wage war} militi
+{make war} militi
+{military man} militisto
+{prisoner of war} militkaptito
+{small letter} minusklo
+{lower case letter} minusklo
+{marvel at} miri
+{political meeting} mitingo
+{poor man} mizerulo
+{poor devil} mizerulo
+{spinal cord} mjelo
+{make fun of} moki
+{dirty name} moknomo
+{term of derision} moknomo
+{soften up} moligi
+{high society} mondumo
+{monetary system} monsistemo
+{mountain range} montaro
+{point out} montri
+{point out to be} montriĝi
+{monetary unit} monunuo
+{currency unit} monunuo
+{Morse code} morsa
+{send in Morse code} morsi
+{pass away} morti
+{shoot dead} mortpafi
+{mosaic work} mozaiko
+{a lot of} multa
+{a lot} multe
+{of great price} multvalora
+{piece of music} muzikaĵo
+{make music} muziki
+{musical instrument} muzikilo
+{give birth to} naski
+{be born} naskiĝi
+{natural park} naturparko
+{nasal sound} nazalo
+{unheard of} neaŭdita
+{make necessary} necesigi
+{toilet bowl} necesujo
+{impossible to remember} nememorebla
+{no kind of} nenia
+{no . . . whatsoever} nenia
+{in no way} neniel
+{not at all} neniel
+{by no means} neniel
+{cleanly cut} neta
+{final copy} neto
+{not useful} neutila
+{of noble birth} nobela
+{by night} nokte
+{at night} nokte
+{Northern Ireland} nordirlando
+{write down} noti
+{make a note} noti
+{something new} novaĵo
+{short story} novelo
+{nouveau riche} novriĉulo
+{well then} nu
+{back of the neck} nuko
+{assign a number} numeri
+{at present} nun
+{be stubborn} obstini
+{be obstinate} obstini
+{stand in the way of} obstrukci
+{smell bad} odoraĉi
+{give off an odour} odori
+{take offence} ofendiĝi
+{offer up} oferi
+{make an offer of} oferti
+{become frequent} oftiĝi
+{on occasion} okaze
+{by chance} okaze
+{come about} okazi
+{cause to take place} okazigi
+{back of the head} okcipito
+{make eyes at} okulumi
+{stare at} okulumi
+{be concerned} okupiĝi
+{keep busy} okupiĝi
+{pay homage to} omaĝi
+{cast a shadow} ombri
+{surgical operation} operacio
+{be in opposition} opozicii
+{orange tree} oranĝujo
+{put in order} ordigi
+{orient oneself} orientiĝi
+{robes of office} ornato
+{right angle} ortangulo
+{carpenter's square} ortilo
+{egg dish} ovaĵo
+{be patient} pacienci
+{shoot dead} pafmortigi
+{short pants} pantaloneto
+{of paper} papera
+{female relative} parencino
+{turn of speech} parolturno
+{take part} partopreni
+{pass by} pasi
+{frying pan} pato
+{act as patron} patroni
+{take a break} paŭzi
+{take a rest} paŭzi
+{show off} pavi
+{strut around} pavi
+{drive on} peli
+{fur piece} pelto
+{fur coat} pelto
+{cause to think} pensigi
+{boarding school} pensiono
+{by means of} per
+{get lost} perdiĝi
+{be lost} perdiĝi
+{act as agent} peri
+{railway platform} perono
+{taken aback} perpleksa
+{interfere with} perturbi
+{ask for} peti
+{weigh down} pezigi
+{on foot} piede
+{go on foot} piediri
+{step on} piedpremi
+{go on pilgrimage} pilgrimi
+{pine tree} pino
+{dug-out canoe} pirogo
+{chamber pot} pispoto
+{spray gun} pistolo
+{religious person} piulo
+{public square} placo
+{at most} pleje
+{fill in} plenigi
+{fill up} plenigi
+{come true} plenumiĝi
+{be fulfilled} plenumiĝi
+{one more} plia
+{and ... as well} plie
+{and also} plie
+{together with} plie
+{in addition} plue
+{surplus value} plusvaloro
+{at the rate of} po
+{engage in a controversy} polemiki
+{chief of police} policestro
+{insurance policy} poliso
+{palm of the hand} polmo
+{in order to} por
+{so that} porke
+{pocket watch} poŝhorloĝo
+{become late} malfruiĝi
+{paste buffer} poŝo
+{piece of mail} poŝtaĵo
+{stand guard} posteni
+{be on duty} posteni
+{fall back} postiĝi
+{get behind} postiĝi
+{postal box} poŝtkesto
+{leave behind} postlasi
+{the day after tomorrow} postmorgaŭ
+{be detained} postresti
+{be kept in} postresti
+{stay on} postresti
+{follow up with one's eyes} postrigardi
+{look after} postrigardi
+{run after} postsekvi
+{be able to} povi
+{be master of} povoscii
+{be right} pravi
+{above all} precipe
+{award a prize} premii
+{take for granted} premisi
+{lay hold of} preni
+{pick up} preni
+{get ready} prepariĝi
+{printed matter} presaĵo
+{typographic art} presarto
+{printing office} presejo
+{give as an excuse} preteksti
+{straight past} preter
+{pass by} preteriri
+{leave out} preterlasi
+{pass by} preterpasi
+{shine upon} prilumi
+{light up} prilumi
+{prince's son} princido
+{in principle} principe
+{think about} pripensi
+{reflect on} pripensi
+{be answerable} prirespondi
+{be responsible} prirespondi
+{be liable} prirespondi
+{maintain silence about} prisilenti
+{on account of} pro
+{owing to} pro
+{for sake of} pro
+{go to court} procesi
+{act of prowess} prodaĵo
+{programming language} programlingvo
+{get along} progresi
+{move forward} progresigi
+{make a project of} projekti
+{put off} prokrasti
+{bring near to} proksimigi
+{come close} proksimiĝi
+{come closer} proksimiĝi
+{public prosecutor} prokuroro
+{go for a walk} promeni
+{plead for} propeti
+{be successful} prosperi
+{false limb} protezo
+{take the minutes} protokoli
+{take somebody's name} protokoli
+{trial copy} provnumero
+{as a loan} prunte
+{pubic region} pubo
+{chaste behaviour} pudoro
+{cosmetic powder} pudro
+{puff up} pufiĝi
+{forced-labour camp} punlaborejo
+{school desk} pupitro
+{make clean} purigi
+{discharge pus} pusi
+{logical reasoning} racio
+{outer cover} radringo
+{black radish} rafano
+{have the right} rajti
+{go fast} rapidi
+{speed up} rapidigi
+{hit back} rebati
+{editorial office} redakcio
+{frock coat} redingoto
+{give back} redoni
+{once more} ree
+{scholarly report} referaĵo
+{give a report} referi
+{go back} reiri
+{regain consciousness} rekonsciiĝi
+{right angle} rektangulo
+{get back up} releviĝi
+{rise again} releviĝi
+{religious person} religiulo
+{chew the cud} remaĉi
+{come across} renkonti
+{turn over} renversi
+{put back into order} reordigi
+{answer back} repliki
+{take back} reporti
+{bring back} reporti
+{take back} repreni
+{bear responsibility} respondeci
+{reply coupon} respondkupono
+{stay over} resti
+{e-mail address} retadreso
+{hold back} reteni
+{draw back} retiri
+{find again} retrovi
+{touch up} retuŝi
+{come back} reveni
+{travel back} reveturi
+{go back} reveturi
+{see again} revidi
+{come to life again} revigliĝi
+{government inspector} revizoro
+{give up} rezigni
+{bring about} rezultigi
+{become rich} riĉiĝi
+{make rich} riĉigi
+{rich man} riĉulo
+{place of refuge} rifuĝejo
+{take refuge} rifuĝi
+{gape at} rigardaĉi
+{look at} rigardi
+{as to} rilate
+{as regards} rilate
+{repeat oneself} ripetiĝi
+{be repeated} ripetiĝi
+{resting place} ripozejo
+{paddy field} rizkampo
+{fiction writer} romanisto
+{round off} rondigi
+{appear to be} ŝajni
+{strike a balance} saldi
+{turn on} ŝalti
+{diving board} saltotabulo
+{fellow Esperantist} samideano
+{chamois leather} ŝamo
+{on the same level} samranga
+{of equal rank} samranga
+{at the same time} samtempe
+{administer the last sacrament} sanktolei
+{weed out} sarki
+{Salvation Army} savarmeo
+{know how} scii
+{let know} sciigi
+{know how} scipovi
+{provided that} se
+{have sexual intercourse} sekskuniĝi
+{make safe} sekurigi
+{no doubt} sendube
+{free and easy} senĝena
+{deprive ... of} senhavigi
+{poor man} senhavulo
+{homeless person} senhejmulo
+{without hesitation} senhezite
+{deprive ... of} senigi
+{become disillusioned} seniluziiĝi
+{set straight} seniluziigi
+{by accidence} senintence
+{lose consciousness} senkonsciiĝi
+{without money} senmona
+{dead key} senpaŝaklavo
+{at once} senprokraste
+{without delay} senprokraste
+{without a trace} senspure
+{dispose of the dead} sepulti
+{look for} serĉi
+{search engine} serĉilo
+{wind around} serpentumi
+{sit down} sidiĝi
+{character set} signaro
+{point out} signi
+{be quiet} silenti
+{get mouldy} ŝimi
+{crew member} ŝipano
+{scarlet fever} skarlatino
+{scouting movement} skoltismo
+{boy scout} skolto
+{writing implement} skribilo
+{writing desk} skribtablo
+{filing card} slipo
+{make up} ŝminki
+{make up} ŝminko
+{be thirsty} soifi
+{soy sauce} sojo
+{supporting base} soklo
+{standing together} solidara
+{only child} solinfano
+{long for} sopiri
+{push along} ŝovi
+{live to see} sperti
+{go through} sperti
+{in spite of} spite
+{ill humour} spleno
+{sponge down} spongi
+{sports ground} sportejo
+{stir up} sproni
+{spurt out} ŝpruci
+{adjustable wrench} ŝraŭbŝlosilo
+{shrivel up} ŝrumpi
+{relay racer} stafeto
+{relay rider} stafeto
+{get up} stariĝi
+{set up} starigi
+{stand up} stariĝi
+{start off} starti
+{write shorthand} stenografi
+{spread out} sterni
+{lay out} sterni
+{stir up} stimuli
+{scholarship recipient} stipendiulo
+{chunk of wood} ŝtipo
+{steering wheel} stirilo
+{stone age} ŝtonepoko
+{stop up} ŝtopi
+{plug up} ŝtopi
+{electric socket} ŝtopilingo
+{electric plug} ŝtopilo
+{look cross-eyed} strabi
+{look askance} strabi
+{junk jewellery} straso
+{strive for} strebi
+{wind up} streĉi
+{make a stroke} streki
+{pine cone} strobilo
+{go down} subiri
+{corrosive sublimate} sublimato
+{baby's comforter} suĉilo
+{put up with} suferi
+{first-aid station} sukurejo
+{add up} sumigi
+{sum up} sumigi
+{be superabundant} superabundi
+{prevail over} superforti
+{diacritical mark} supersigno
+{accent mark} supersigno
+{cause to suppose} supozigi
+{on top} supre
+{go up} supreniri
+{be washed ashore} surbordiĝi
+{deaf person} surdulo
+{walk upon} suriri
+{put on} surmeti
+{place upon} surmeti
+{try on} surprovi
+{pour out} ŝuti
+{wave about} svingi
+{little table} tableto
+{by day} tage
+{in the daytime} tage
+{midday meal} tagmanĝo
+{24-hour period} tagnokto
+{musical time} takto
+{touch at one point} tanĝi
+{wall covering} tapeto
+{assigned job} tasko
+{of use} taŭga
+{be suitable} taŭgi
+{theatre play} teatraĵo
+{protective cover} tegilo
+{collection of texts} tekstaro
+{see on television} televidi
+{TV set} televidilo
+{pair of pincers} tenajlo
+{camp of tents} tendaro
+{tented camp} tendaro
+{hang onto} teni
+{be tempted} tentiĝi
+{ground wire} terkonekto
+{earth's crust} terkrusto
+{reign of terror} teroro
+{earthquake shock} terskuo
+{make a will} testamenti
+{such a} tia
+{that kind of} tia
+{for the reason that} tialke
+{of that time} tiama
+{over there} tie
+{that ... over there} tiea
+{that one's} ties
+{be afraid of} timi
+{that over there} tio
+{that much} tiom
+{that one} tiu
+{put up with} toleri
+{offer a toast} tosti
+{come through} trabati
+{chop through} trabati
+{on target} trafe
+{to the point} trafe
+{run across} trafi
+{pass through} trairi
+{go through} trairi
+{deal with} trakti
+{let through} tralasi
+{read through} tralegi
+{calm down} trankviliĝi
+{pass the night} tranokti
+{on the other side of} trans
+{on the other side} transa
+{hand over} transdoni
+{go beyond} transiri
+{step across} transpaŝi
+{go beyond} transpasi
+{jump across} transsalti
+{pass through} trapasi
+{push through} trapuŝi
+{cross out} trastreki
+{make a draft} trati
+{travel through. drive through} traveturi
+{see through} travidi
+{spend the winter} travintri
+{live through} travivi
+{very much} tre
+{trample on} treti
+{speaker's platform} tribuno
+{pay tribute} tributi
+{knitting needle} trikilo
+{be fooled} trompiĝi
+{be deceived} trompiĝi
+{figure of speech} tropo
+{be found} troviĝi
+{find oneself} troviĝi
+{be located} troviĝi
+{Indian ink} tuĉo
+{right away} tuj
+{at once} tuj
+{right now} tuj
+{go on tour} turnei
+{theatrical tour} turneo
+{turn around} turni
+{turn round} turni
+{touch lightly} tuŝeti
+{at all} tute
+{first of all} unue
+{one and only} ununura
+{make use of} utiligi
+{make use of} uzi
+{railway carriage} vagono
+{be vacant} vaki
+{be valid} validi
+{be worth} valori
+{in vain} vane
+{variety entertainment} varieteo
+{varicose vein} variko
+{warm up} varmigi
+{spread out} vastigi
+{alarm clock} vekhorloĝo
+{wake up} veki
+{wake up} vekiĝi
+{sailing ship} velŝipo
+{dispose of} vendi
+{avenge oneself} venĝi
+{win over} venki
+{electric fan} ventolilo
+{pass judgement} verdikti
+{take a switch to} vergi
+{piece of verse} versaĵo
+{top of the head} verto
+{evening meal} vespermanĝo
+{article of dress} vestaĵo
+{vestal virgin} vestalo
+{weather forecast} veterprognozo
+{in rows} vice
+{line up} viciĝi
+{line up} vicigi
+{get in line} viciĝi
+{be seen} vidiĝi
+{be visible} vidiĝi
+{keep watch} vigili
+{be vigilant} vigili
+{become active} vigliĝi
+{swaddling cloth} vindotuko
+{male cat} virkato
+{wipe off} viŝi
+{dust rag} viŝtuko
+{dish cloth} viŝtuko
+{stained-glass window} vitralo
+{living being} vivaĵo
+{be alive} vivi
+{call on} viziti
+{tenor violin} vjolo
+{read aloud} voĉlegi
+{cross roads} vojkruciĝo
+{vaulted ceiling} volbo
+{be willing to} voli
+{subjunctive mood} volitivo
+{sexual pleasure} volupto
+{wind up} volvi
+{roll up} volvi
+{throw up} vomi
+{word construction} vortfarado
+{put into words} vortigi
+{take care} zorgi
+{deny oneself} abnegacii
+{total abstainer} abstinenculo
+{disgusting thing} aĉaĵo
+{going shopping} aĉetado
+{become adapted} adaptiĝi
+{keep on} adi
+{adored one} adoratino
+{pick up} akceliĝi
+{win acceptance for} akceptigi
+{turn on} aktivigi
+{switch on} aktivigi
+{brief case} aktujo
+{drop of water} akvero
+{water colour} akvofarbo
+{water wheel} akvorado
+{in addition} aldone
+{another time} alifoje
+{otherwise called} alinome
+{another man} aliulo
+{sew on} alkudri
+{become accustomed} alkutimiĝi
+{get used} alkutimiĝi
+{be washed ashore} alnaĝi
+{mountain climber} alpisto
+{come close} alproksimiĝi
+{bring close together} alproksimigi
+{member of the upper-class} altklasulo
+{institut.of higher education} altlernejo
+{of high stature} altstatura
+{mass accommodations} amasloĝejo
+{mass grave} amastombejo
+{loved one} amatino
+{to both sides} ambaŭflanken
+{ambitious person} ambiciulo
+{circle of friends} amikaro
+{love song} amkanto
+{lovemaking play} amorludo
+{enjoy oneself} amuziĝi
+{have a good time} amuziĝi
+{analytical chemist} analizisto
+{by analogy} analoge
+{Asia Minor} anatolio
+{in English} angle
+{of the soul} anima
+{once more} ankoraŭfoje
+{bulletin board} anonctabulo
+{anonymous writer} anonimulo
+{the Antarctic} antarkto
+{fortune teller} antaŭdiristino
+{look forward} antaŭĝoji
+{eagerly anticipate} antaŭĝoji
+{take care  beforehand} antaŭzorgi
+{come closer} apudiĝi
+{in Arabic} arabe
+{small group} areto
+{small number} areto
+{Armenian woman} armenino
+{art gallery} artgalerio
+{go up} ascendi
+{lady help} asistantino
+{press hard} atakadi
+{atom bomb} atombombo
+{atomic energy} atomenergio
+{atomic theory} atomteorio
+{be heard} aŭdiĝi
+{fortune teller} aŭguristino
+{woman writer} aŭtorino
+{motor road} aŭtoŝoseo
+{make a fool of} azenigi
+{baked goods} bakaĵo
+{baking oven} bakforno
+{ballet dancer} baletistino
+{bathing suit} bankostumo
+{banking secret} banksekreto
+{Christian name} baptonomo
+{man of letters} beletristo
+{beautiful woman} belulino
+{small bench} benketo
+{little animal} besteto
+{beer glass} bierglaso
+{picture book} bildlibro
+{ticket inspector} biletkontrolisto
+{very well} bonege
+{feel fine} bonfarti
+{be well} bonfarti
+{good taste} bongusto
+{become good} boniĝi
+{make good} bonigi
+{sweet smell} bonodoro
+{nice smell} bonodoro
+{in good condition} bonstata
+{good will} bonvolo
+{whole-grain bread} branpano
+{Great Britain} britio
+{loud noise} bruego
+{angina pectoris} brustangoro
+{small ball} buleto
+{bus stop} bushaltejo
+{open-face sandwich} buterpano
+{bread and butter} buterpano
+{most charming} ĉarmega
+{soften up} cedigi
+{leading article} ĉefartikolo
+{main character} ĉefrolulo
+{leading actor} ĉefrolulo
+{main station} ĉefstacidomo
+{main work} ĉefverko
+{major road} ĉefvojo
+{Czech woman} ĉeĥino
+{to a certain degree} certagrade
+{at the table} ĉetable
+{sky blue} ĉielblua
+{sky blue} ĉielbluo
+{at this moment} ĉimomente
+{quotation mark} citilo
+{inverted comma} citilo
+{in all aspects} ĉiuflanke
+{on every side} ĉiuflanke
+{in any case} ĉiukaze
+{any time} ĉiumomente
+{in any event} ĉiuokaze
+{at every step} ĉiupaŝe
+{data bank} datenbanko
+{ten-day period} dekado
+{slope down} deklivi
+{from the outset} dekomence
+{by tens} dekope
+{to the right} dekstren
+{break of a habit} dekutimigi
+{break off} derompiĝi
+{go down} descendi
+{Devonian period} devono
+{churchy person} devotulo
+{divine favour} difavoro
+{out of order} difekta
+{make fat} dikigi
+{fat person} dikulo
+{hard worker} diligentulo
+{turn of speech} dirmaniero
+{cut up} disdividi
+{spread about} dise
+{here and there} dise
+{chop up} dishaki
+{raise the subject of} diskutigi
+{bring up} diskutigi
+{take apart} dismeti
+{peel off} dissendi
+{distance oneself} distanciĝi
+{cut up} distranĉi
+{absence of mind} distriĝemo
+{absence of mind} distriĝo
+{absence of mind} distriteco
+{in various ways} diversmaniere
+{acquire a doctor's degree} doktoriĝi
+{domestic animal} dombesto
+{little present} donaceto
+{thorn bush} dornarbusto
+{reverse side} dorsflanko
+{during the night} dumnokte
+{at night} dumnokte
+{during the day} dumtage
+{by day} dumtage
+{labour contract} dungokontrakto
+{labour agreement} dungokontrakto
+{by twos} duope
+{be possible} ebli
+{be educated} edukiĝi
+{offer of marriage} edziĝpeto
+{offer of marriage} edziĝpropono
+{all the same} egale
+{catch the sound of} ekaŭdi
+{start barking} ekboji
+{catch fire} ekbruli
+{take fire} ekbruli
+{take aim} ekceli
+{fall asleep} ekdormi
+{burst into flames} ekflagri
+{get aloft} ekflugi
+{turn on} ekfunkciigi
+{switch on} ekfunkciigi
+{become abusive} ekinsulti
+{get angry} ekkoleri
+{begin to understand} ekkompreni
+{start running} ekkuri
+{lie down} ekkuŝi
+{kick off} ekludi
+{fire off} ekpafi
+{start raining} ekpluvi
+{take command of} ekregi
+{take power over} ekregi
+{get a divorce} eksedziniĝi
+{go on an excursion} ekskursi
+{become audible} eksoni
+{explosive device} eksplodilo
+{cut into} ektranĉi
+{touch upon} ektuŝi
+{start to use} ekuzi
+{set out} ekvojaĝi
+{drill ground} ekzercejo
+{get out} elaŭtiĝi
+{get out of a car} elaŭtiĝi
+{publishing house} eldonejo
+{be elected} elektiĝi
+{be chosen} elektiĝi
+{send out} elirigi
+{pay off} elpagi
+{take out} elpreni
+{spray out} elŝpruci
+{squirt out} elŝpruci
+{wear off} eluziĝi
+{wear out} eluziĝi
+{wear away} eluziĝi
+{get out} elvagoniĝi
+{come out} elveni
+{be emancipated} emancipiĝi
+{very well} eminente
+{get into a car} enaŭtiĝi
+{get in} enaŭtiĝi
+{energy source} energifonto
+{become involved} engaĝiĝi
+{swallow up} engluti
+{put to bed} enlitigi
+{put away} enmeti
+{put in} enmeti
+{appointment to office} enoficigo
+{turn on} enŝalti
+{lock up} enŝlosi
+{shut up} enŝlosi
+{by mistake} erare
+{something in Esperanto} esperantaĵo
+{translate into Esperanto} esperantigi
+{community of Esperantists} esperantistaro
+{give hope to} esperigi
+{little thing} etaĵo
+{minor matter} etaĵo
+{lower middle-class} etburĝa
+{petty bourgeoisie} etburĝaro
+{Ethiopian woman} etiopino
+{little girl} etulino
+{something obvious} evidentaĵo
+{to be avoided} evitinda
+{developing country} evolulando
+{tell fables} fabeli
+{manufactured article} fabrikaĵo
+{head of a department} fakestro
+{special school} faklernejo
+{specialised dictionary} fakvortaro
+{become famous} famiĝi
+{family member} familiano
+{head of family} familiestro
+{called for} farenda
+{to be done} farenda
+{a thing that needs to be done} farendaĵo
+{lucky person} feliĉulo
+{happy person} feliĉulo
+{be closed} fermiĝi
+{railroad employee} fervojisto
+{railroad worker} fervojisto
+{public holiday} festotago
+{bank holiday} festotago
+{keynote address} festparolado
+{safety pin} fibolo
+{evil person} fihomo
+{fix up} finaranĝi
+{finish off} finfari
+{at long last} finfine
+{at last} finfine
+{Finnish woman} finnino
+{finish one's studies} finstudi
+{end up} finveni
+{fishing rod} fiŝvergo
+{immoral person} fiulo
+{evil person} fiulo
+{sense of smell} flarsento
+{source language} fontlingvo
+{be burnt down} forbruli
+{burn down} forbruligi
+{give away} fordonaci
+{flow off} forflui
+{flow down} forflui
+{carrying off} forkondukado
+{carrying off} forkonduko
+{wash off} forlavi
+{absent oneself} forresti
+{pull away} fortiri
+{strong person} fortulo
+{be expunged} forviŝiĝi
+{be wiped away} forviŝiĝi
+{set out} forvojaĝi
+{French lady} francino
+{be alienated} fremdiĝi
+{insane asylum} frenezulejo
+{beauty parlor} frizejo
+{female hairdresser} frizistino
+{fruit tree} fruktarbo
+{early in the morning} frumatene
+{funeral service} funebraĵo
+{run amuck} furioziĝi
+{fun guy} gajulo
+{jolly fellow} gajulo
+{accelerator pedal} gaspedalo
+{guest worker} gastlaboristo
+{man of genius} geniulo
+{German woman} germanino
+{German lady} germanino
+{sign language} gestlingvo
+{so long} ĝisrevido
+{wait for} ĝisatendi
+{stay for} ĝisatendi
+{say goodbye} ĝisi
+{ironing board} gladotabulo
+{ball-point pen} globkrajono
+{graphic designer} grafikisto
+{commercial artist} grafikisto
+{gramophone disc} gramofondisko
+{for the greater part} grandparte
+{for the most part} grandparte
+{pregnant woman} gravedulino
+{important person} gravulo
+{Greek woman} grekino
+{layer of earth} grundtavolo
+{form a group} grupiĝi
+{sense of taste} gustumo
+{of The Hague} haga
+{in a hurry} haste
+{by accident} hazarde
+{by chance} hazarde
+{game of chance} hazardludo
+{home region} hejmloko
+{home town} hejmloko
+{home town} hejmurbo
+{light blue} helblua
+{lady help} helpantino
+{readiness to help} helpemo
+{ready to help} helpopreta
+{hydrogen bomb} hidrogenbombo
+{of yesterday} hieraŭa
+{little person} hometo
+{be horrified} horori
+{time zone} horzono
+{humble person} humilulo
+{small dog} hundeto
+{to some extent} iagrade
+{body of thought} idearo
+{idol worship} idolkulto
+{idol worship} idolservo
+{kid's stuff} infanaĵo
+{childish act} infanaĵo
+{nursery school} infanĝardeno
+{child's bed} infanlito
+{information science} informadiko
+{computer science} informadiko
+{female teacher} instruistino
+{on purpose} intence
+{be at loggerheads} interbatali
+{mutual aid} interhelpo
+{mutual understanding} interkompreno
+{get to know one another} interkonatiĝi
+{boarding school} internulejo
+{a little} iomete
+{Italian woman} italino
+{a few} iuj
+{already existing} jama
+{Japanese woman} japanino
+{person celeb. an anniversary} jubileulo
+{Jewish woman} judino
+{young woman} junulino
+{female journalist} ĵurnalistino
+{breach of oath} ĵurrompo
+{cable television} kablotelevido
+{bald man} kalvulo
+{female singer} kantistino
+{carbon paper} karbopapero
+{lie concealed} kaŝiĝi
+{account book} kaslibro
+{treasurer's report} kasraporto
+{under bond} kaŭcie
+{on bail} kaŭcie
+{several times as much} kelkoble
+{to what extent} kiagrade
+{in what way} kiamaniere
+{where ... to} kien
+{in which fashion} kiumaniere
+{which way} kiumaniere
+{class struggle} klasbatalo
+{coconut palm} kokosujo
+{get angry} koleriĝi
+{committee member} komitatano
+{poor person} kompatindulo
+{become complete} kompletiĝi
+{become acquainted} konatiĝi
+{be conceived} koncipiĝi
+{something concrete} konkretaĵo
+{take on concrete form} konkretiĝi
+{become conscious} konsciiĝi
+{make conscious} konsciigi
+{become aware} konsciiĝi
+{make aware} konsciigi
+{be preserved} konserviĝi
+{get over} konsoliĝi
+{be consoled} konsoliĝi
+{construction site} konstruejo
+{have built} konstruigi
+{construction worker} konstrulaboristo
+{cash money} kontanto
+{statement of account} konteltiro
+{look at} kontempli
+{against one's will} kontraŭvole
+{small basket} korbeto
+{piece of correspondence} korespondaĵo
+{royal household} korteganaro
+{Costa Rican} kostarika
+{Costa Rica} kostariko
+{be created} kreiĝi
+{worth criticising} kritikinda
+{something else} kromaĵo
+{additional payment} krompago
+{Teutonic knight} kruckavaliro
+{make the sign of the cross} krucosigni
+{crossword puzzle} krucvortenigmo
+{raw material} krudmaterialo
+{act of cruelty} kruelaĵo
+{hostility to foreigners} ksenofobio
+{female cook} kuiristino
+{guilt feeling} kulposento
+{place of worship} kultejo
+{cultural centre} kulturdomo
+{be together} kunesti
+{sew together} kunkudri
+{play together} kunludi
+{take along} kunvenigi
+{travel together} kunveturi
+{healing arts} kuracarto
+{health resort} kuracloko
+{brave person} kuraĝulo
+{running track} kurejo
+{become qualified} kvalifikiĝi
+{quarter of an hour} kvaronhoro
+{by fours} kvarope
+{as though} kvazaŭ
+{as if} kvazaŭ
+{in a way} kvazaŭ
+{five times as much} kvinoble
+{square up} kvitiĝi
+{employment exchange} laborborso
+{labour exchange} laborborso
+{division of labour} labordivido
+{work hard} laboregi
+{labour force} laboristaro
+{work force} laboristaro
+{female labourer} laboristino
+{female worker} laboristino
+{in working order} laborpreta
+{worn out} lacega
+{tired out} lacega
+{fag out} lacegigi
+{sheet metal} lada
+{tin plate} lada
+{lay status} laikeco
+{the last time} lastfoje
+{where needed} laŭbezone
+{as need be} laŭbezone
+{little by little} laŭgrade
+{to the letter} laŭlitere
+{in due form} laŭorda
+{as one pleases} laŭplaĉe
+{according to plan} laŭplana
+{by sight} laŭvide
+{reading matter} legaĵo
+{worth reading} leginda
+{book collection} libraro
+{be attached} ligiĝi
+{link up} ligiĝi
+{be next to} limtuŝi
+{make a list} listigi
+{Lithuanian woman} litovino
+{place of residence} loĝloko
+{living room} loĝoĉambro
+{sitting room} loĝoĉambro
+{be placed} lokiĝi
+{be positioned} lokiĝi
+{apartment building} ludomo
+{for rent} luebla
+{rent money} luprezo
+{chewing gum} maĉgumo
+{at most} maksimume
+{slow down} malakceli
+{disapprove of} malaprobi
+{go bad} malboniĝi
+{bad luck} malbonŝanco
+{to the left} maldekstren
+{thin out} maldensigi
+{lose weight} maldikiĝi
+{paying off} maldungo
+{on the contrary} male
+{late at night} malfrunokte
+{turn off} malfunkciigi
+{switch off} malfunkciigi
+{shut off} malfunkciigi
+{incredibly insolent} malĝentilega
+{cause pain} malĝojigi
+{give pain to} malĝojigi
+{cause pain to} malĝojigi
+{malicious act} malicaĵo
+{malicious person} maliculo
+{old people's home} maljunulejo
+{old woman} maljunulino
+{lack of education} malklereco
+{cut a connection} malkonekti
+{not fitting} malkonvena
+{be discouraged} malkuraĝiĝi
+{with abandon} malmorale
+{become old} malnoviĝi
+{go down} malplialtiĝi
+{fall off} malpliboniĝi
+{go back} malpliboniĝi
+{blow over} malproksimiĝi
+{not well} malsaneta
+{be ailing} malsani
+{causing illness} malsaniga
+{get wet} malsekiĝi
+{cool off} malvarmiĝi
+{cool off} malvarmigi
+{fashion model} manekeno
+{small meal} manĝeto
+{the Channel} maniko
+{the English Channel} maniko
+{shake hands} manpremi
+{hand signal} mansigno
+{have got hold of} manteni
+{bottom of the sea} marfundo
+{fringe existence} marĝenulo
+{marginalised person} marĝenulo
+{sea level} marnivelo
+{masked ball} maskobalo
+{in the morning} matene
+{morning star} matenstelo
+{Mexico City} meksiko
+{love of self} memamo
+{memorial plaque} memortabulo
+{state of mind} mensostato
+{subway station} metrostacio
+{underground station} metrostacio
+{Central Europe} mezeŭropo
+{Middle East} mezoriento
+{in my view} miaopinie
+{to my thinking} miaopinie
+{in my opinion} miaopinie
+{military base} militbazo
+{military service} militservo
+{at least} minimume
+{false step} mispaŝo
+{machine gun} mitralo
+{temperate person} moderulo
+{soften up} moliĝi
+{world view} mondkoncepto
+{area of the world} mondparto
+{world trip} mondvojaĝo
+{monetary compensation} monkompenso
+{sum of money} monsumo
+{Alpine hut} montkabano
+{climber's hut} montkabano
+{mountain hut} montkabano
+{mountain range} montoĉeno
+{chain of mountains} montoĉeno
+{mountain chain} montoĉeno
+{mountain slope} montodeklivo
+{mountain ridge} montodorso
+{show window} montrofenestro
+{of tomorrow} morgaŭa
+{death penalty} mortpuno
+{on many occasions} multfoja
+{wall newspaper} murgazeto
+{mural painting} murpentraĵo
+{piece of music} muzikverko
+{swimming pool} naĝbaseno
+{naive person} naivulo
+{drug abuse} narkotismo
+{drug addiction} narkotismo
+{giving birth} naskado
+{place of birth} naskiĝejo
+{city of birth} naskiĝurbo
+{birth control} naskolimigo
+{friend of nature} naturamiko
+{natural disaster} naturkatastrofo
+{so so} nemalbone
+{not quite} netute
+{get dim} nebuliĝi
+{become steamy} nebuliĝi
+{get covered with} nebuliĝi
+{be needed} necesi
+{snow white} neĝblanka
+{Little Snow White} neĝulino
+{be destroyed} neniiĝi
+{without fail} nepre
+{absolute necessity} nepreco
+{opponent of polit. involvemen} neŭtralulo
+{for our part} niaflanke
+{pitch black} nigrega
+{noble person} noblulo
+{evening twilight} noktiĝo
+{night club} noktoklubo
+{night spot} noktoklubo
+{saint's day} nomfesto
+{name day} nomtago
+{North American} nordamerika
+{news agency} novaĵagentejo
+{New Year} novjaro
+{New York} novjorko
+{new person} novulo
+{New Zealand} novzelanda
+{New Zealander} novzelandano
+{these days} nuntempe
+{stubborn person} obstinulo
+{easily offended} ofendiĝema
+{term of office} oficperiodo
+{Western European} okcidenteŭropa
+{West European} okcidenteŭropa
+{West German} okcidentgermana
+{number of eight} oko
+{eighth part} okono
+{old man} oldulo
+{Oomoto [Japan. relig. movem.]} oomoto
+{opinion poll} opiniosondo
+{member of opposition} opoziciulo
+{ordinary person} ordinarulo
+{be orphaned} orfiĝi
+{East German} orientgermana
+{gold mine} orminejo
+{orthodox person} ortodoksulo
+{to be paid} pagenda
+{method of payment} pagmaniero
+{piece of straw} pajlero
+{straw hat} pajloĉapelo
+{Palm Sunday} palmodimanĉo
+{Palm Sunday} palmofesto
+{baker's shop} panbutiko
+{scrap of paper} paperaĉo
+{excuse oneself} pardonpeti
+{ask forgiveness} pardonpeti
+{by the way} parenteze
+{parking bay} parkejo
+{car park} parkejo
+{parking place} parkejo
+{member of parliament} parlamentano
+{instalment payment} partopago
+{last year} pasintjare
+{become a minister} pastriĝi
+{become a priest} pastriĝi
+{with effort} pene
+{go on pension} pensiiĝi
+{way of thinking} pensmaniero
+{by force} perforte
+{by hand} permane
+{soccer ball} piedpilko
+{linguistics of constr. lang.} planlingvistiko
+{planned language} planlingvo
+{constructed language} planlingvo
+{greater part} plejparto
+{become full} pleniĝi
+{with all one's heart} plenkore
+{plenary session} plenkunsido
+{full moon} plenluno
+{go up} plialtiĝi
+{grow more beautiful} plibeliĝi
+{blow up} pligravigi
+{swell into a roar} plilaŭtiĝi
+{come on} pliproksimiĝi
+{urge on} plivigligi
+{stir up} plivigligi
+{make cry} plorigi
+{weeping willow} plorsaliko
+{rain cats and dogs} pluvegi
+{rainy season} pluvsezono
+{Polish woman} polino
+{cover with dust} polvokovri
+{folk art} popolarto
+{folk dance} popoldanco
+{for children} porinfana
+{electric torch} poŝlanterno
+{pocket book} poŝlibro
+{pocket money} poŝmono
+{postage stamp} poŝtmarko
+{post office} poŝtoficejo
+{pocket-size dictionary} poŝvortaro
+{holder of power} potenculo
+{capable of} pova
+{able to} pova
+{poor person} povrulo
+{primeval forest} praarbaro
+{prehistoric human being} prahomo
+{second cousin} prakuzo
+{prehistoric time} pratempo
+{prime minister} premiero
+{ready for printing} prespreta
+{be ready} preti
+{get ready} pretiĝi
+{be presented} prezentiĝi
+{price list} prezlisto
+{cast doubt upon} pridubi
+{set of problems} problemaro
+{programme item} programero
+{publicity material} propagandaĵo
+{intercede for} proparoli
+{for the time being} provizore
+{coup d'tat} puĉo
+{puff out} pufigi
+{pullover sweater} pulovero
+{mountain lion} pumo
+{deserving of punishment} punenda
+{cleaning up} purigo
+{beast of prey} rabobesto
+{radio station} radiostacio
+{fast train} rapidtrajno
+{buy back} reaĉeti
+{come true} realiĝi
+{be reduced} reduktiĝi
+{new edition} reeldono
+{bloom later} reflori
+{low tide} refluo
+{grow stronger} refortiĝi
+{get stronger} refortiĝi
+{head of state} regnestro
+{state power} regpovo
+{going down} regreso
+{straight ahead} rekte
+{stand upright} rektiĝi
+{put back together} rekunigi
+{get back together} rekuniĝi
+{put back} remeti
+{be born again} renaskiĝi
+{turn over} renversiĝi
+{make up} repaciĝi
+{demand back} repostuli
+{be reproduced} reproduktiĝi
+{send back} resendi
+{as the case may be} respektive
+{hold responsible} respondecigi
+{piece of rhetoric} retorikaĵo
+{walk back} retropaŝi
+{walk backwards} retropaŝi
+{driving mirror} retrospegulo
+{turn back} returniĝi
+{resign oneself} rezignacii
+{currant juice} ribsuko
+{currant bush} ribujo
+{ridiculous thing} ridindaĵo
+{Roman Empire} romio
+{small group} rondeto
+{Rotary clubs} rotario
+{mobile home} ruldomo
+{roller skate} rulŝuo
+{Russian woman} rusino
+{cunning person} ruzulo
+{sly person} ruzulo
+{grain of sand} sablero
+{act wise} saĝumi
+{show off} saĝumi
+{split hairs} saĝumi
+{dead-end street} sakstrato
+{of the same age} samaĝa
+{of equal degree} samgrada
+{of equal extent} samgrada
+{of the same sex} samseksa
+{having the same sense} samsenca
+{blood pressure} sangopremo
+{blood red} sangoruĝa
+{be well} sani
+{return to health} saniĝi
+{get well} saniĝi
+{adm.of the last sacraments} sanktoleado
+{state of health} sanstato
+{healthy person} sanulo
+{be fond of} ŝategi
+{have enough} sati
+{be full} sati
+{be saved} saviĝi
+{be preserved} saviĝi
+{learn of} sciiĝi
+{find out} sciiĝi
+{worth knowing} sciinda
+{want to know} scivoli
+{head of department} sekciestro
+{sexual desire} seksardo
+{sex organ} seksilo
+{have sex} seksumi
+{free of prejudice} senantaŭjuĝa
+{all the time} senĉese
+{item of mail} sendaĵo
+{without distinction} sendistinge
+{to no avail} senefika
+{free of errors} senerara
+{free of exceptions} senescepta
+{for ... together} senhalte
+{at a stretch} senhalte
+{on end} senhalte
+{with abandon} senhonte
+{without influence} seninflua
+{at a stretch} seninterrompe
+{on end} seninterrompe
+{free of charge} senkosta
+{unemployed person} senlaborulo
+{without fail} senmanke
+{for nothing} senpage
+{without any thought} senpensa
+{without any prospects} senperspektiva
+{without further ado} senplue
+{without compunctions} senplue
+{deprive ... of} senposedigi
+{free of problems} senproblema
+{without penalty} senpune
+{without rights} senrajta
+{without means} senrimeda
+{something worthless} senvaloraĵo
+{without a word} senvorte
+{place to sit} sidloko
+{get mouldy} ŝimiĝi
+{by ship} ŝipe
+{be shipwrecked} ŝiprompi
+{voyage by ship} ŝipveturo
+{be situated} situi
+{skip rope} ŝnursalti
+{accommodating ladder} ŝnurŝtupetaro
+{social stratum} socitavolo
+{be shocked} ŝokiĝi
+{take offence} ŝokiĝi
+{unattached man} solulo
+{single man} solulo
+{audio tape} sonbendo
+{audio file} sondosiero
+{little bell} sonorileto
+{Soviet Union} sovetio
+{transact money} spezi
+{spinning wheel} ŝpinrado
+{state of mind} spiritstato
+{emotional state} spiritstato
+{serve as a trainee} staĝi
+{rubber stamp} stampilo
+{head of state} ŝtatestro
+{state organ} ŝtatorgano
+{coup d'tat} ŝtatrenverso
+{pound sterling} sterlingo
+{style sheet} stilfolio
+{steering wheel} stirrado
+{stomach ache} stomakdoloro
+{odd person} strangulo
+{female student} studentino
+{subject of study} studobjekto
+{as stupid as an ass} stultega
+{become stupid} stultiĝi
+{make dumb} stultigi
+{all of a sudden} subite
+{dependent clause} subpropozicio
+{fine distinction} subtilaĵo
+{South African} sudafrika
+{South Africa} sudafriko
+{South American} sudamerika
+{make succeed} sukcesigi
+{push through} sukcesigi
+{sun oneself} sunumi
+{take a sunbath} sunumi
+{drown out} superbrui
+{upper hand} supereco
+{have an overview of} superrigardi
+{tape recording} surbendigo
+{go deaf} surdiĝi
+{paint over} surpentri
+{be surprised} surpriziĝi
+{on board} surŝipe
+{write upon} surskribi
+{in the street} surstrate
+{tread upon} surtreti
+{walk on} surtreti
+{run over} surveturi
+{on the way} survoje
+{slim down} sveltiĝi
+{day labourer} taglaboristo
+{female tailor} tajlorino
+{something boring} tedaĵo
+{word processor} tekstprilaborilo
+{call box} telefonbudo
+{phone booth} telefonbudo
+{telephone booth} telefonbudo
+{telephone book} telefonlibro
+{small plate} telereto
+{passage of time} tempopaso
+{waste of time} tempoperdo
+{in the abstract} teorie
+{clod of earth} terbulo
+{lump of earth} terbulo
+{first floor} ternivelo
+{ground level} ternivelo
+{ground floor} ternivelo
+{layer of earth} tertavolo
+{such a thing} tiaĵo
+{in that way} tiamaniere
+{like this} tiamaniere
+{this way} tiamaniere
+{that way} tien
+{so much} tioma
+{be pulled} tiriĝi
+{wear on} tiriĝi
+{drag on} tiriĝi
+{pull-down menu} tirmenuo
+{in that way} tiumaniere
+{of that kind} tiuspeca
+{at that time} tiutempe
+{lathe operator} tornisto
+{in all} totale
+{drill through} trabori
+{art of translation} tradukarto
+{means of transportation} trafikilo
+{traffic jam} trafikŝtopiĝo
+{traffic tie-up} trafikŝtopiĝo
+{streetcar stop} tramhaltejo
+{tram stop} tramhaltejo
+{level crossing} transirejo
+{across the mountains} transmonta
+{take on} transpreni
+{in the hereafter} transtera
+{in the next world} transtera
+{look through} trarigardi
+{break through} trarompi
+{suffer through} trasuferi
+{travel through} travojaĝi
+{be soaked} trempiĝi
+{be dragged} treniĝi
+{be towed} treniĝi
+{tribe member} tribano
+{three times} trifoje
+{too much} tro
+{trolley bus} trolebuso
+{turning point} turnopunkto
+{sense of touch} tuŝado
+{with absolute certainty} tutcerte
+{Ukrainian woman} ukrainino
+{unique specimen} unikaĵo
+{for the first time} unuafoje
+{above all} unualoke
+{first and foremost} unuavice
+{at first sight} unuavide
+{one time} unufoje
+{one at a time} unuope
+{one person} unupersona
+{in short} unuvorte
+{in a word} unuvorte
+{city hall} urbdomo
+{town hall} urbdomo
+{city centre} urbocentro
+{city wall} urbomuro
+{city periphery} urborando
+{American woman} usonanino
+{of use} uzebla
+{be used} uziĝi
+{piece of promot. material} varbilo
+{thermos flask} varmbotelo
+{day-care center} vartejo
+{freight car} varvagono
+{the Vatican} vatikano
+{be sold} vendiĝi
+{sales price} vendoprezo
+{send for} venigi
+{be defeated} venkiĝi
+{be beaten} venkiĝi
+{stomach ache} ventrodoloro
+{love of truth} veramo
+{to tell the truth} verdire
+{come true} veriĝi
+{in the evening} vespere
+{get dressed} vestiĝi
+{arms race} vetarmado
+{for your part} viaflanke
+{meat dish} viandaĵo
+{spare tyre} vicrado
+{worth seeing} vidinda
+{be widowed} vidviniĝi
+{be victimised} viktimiĝi
+{wine bottle} vinbotelo
+{little man} vireto
+{male dog} virhundo
+{virtuous person} virtulo
+{way of life} vivmaniero
+{worth visiting} vizitinda
+{tourist agency} vojaĝagentejo
+{travel agency} vojaĝagentejo
+{inclined to travel} vojaĝema
+{be injured} vundiĝi
+{be wounded} vundiĝi
+{AND operator} kajo
+{NAND function} malkajo
+{Sheffer stroke} malkajo
+{leopards bane} arniko
+{cashiers office} kasejo
+{large intestine} dikaintesto
+{small intestine} maldikaintesto
+{locative case} lokkazo
+{possessive case} posedkazo
+{bear witness} atesti
+{regular expression} regulesprimo
+{Euler[s] line} eŭlerarekto
+{drink away} fordrinki
+{be miserable} mizeri
+{be wretched} mizeri
+{become miserable} mizeriĝi
+{become wretched} mizeriĝi
+{goldbeaters skin} baŭdruĉo
+{rack ones brains} cerbumi
+{low-minded person} kotanimulo
+{have the audacity} aŭdaci
+{St. Johns bread} karobo
+{guarantee of payment of a debt by a bill of exchange} avalo
+{rhyming dictionary} rimaro
+{rhyming dictionary} rimvortaro
+{rhyme arrangement} rimaranĝo
+{interal rhyme} internarimo
+{sign of decay} kadukaĵo
+{disjunctive conjunction} disigakonjunkcio
+{adversative conjunction} kontraŭmetakonjunkcio
+{adversative conjunction} korelativajkonjunkcioj
+{aspire to} kandidati
+{account payable} kreditoro
+{Gauss[s] curve} gaŭsakurbo
+{Gauss[s] curve} kloŝformakurbo
+{chemists shop} apoteko
+{Dirac[s] comb} dirakakombilo
+{open somebodys eyes} malblindigi
+{do gymnastics} gimnastiki
+{bay tree} laŭro
+{fibre optics} optikafibro
+{crude person} maldelikatulo
+{vulgar person} maldelikatulo
+{little devil} diableto
+{buyers polypoly} polipsonio
+{proud person} fierulo
+{Euler[s] circle} eŭleracirklo
+{Galois[s] field} galezakorpo
+{Galois[s] extension} superkorpo
+{kings retinue} kortego
+{Heaviside[s] function} hevisidafunkcio
+{buyers monopoly} monopsonio
+{Kepler[s] laws} keplerajleĝoj
+{Red Sea} ruĝa
+{Organisation for Economic Co-operation and Development} porekonomiaj
+{commercial competition} konkurenco
+{World Congress} universalakongreso
+{Euclid[s] algorithm} eŭklidaalgoritmo
+{Galois[s] group} galezagrupo
+{account receivable} debitoro
+{friarss caps} akonito
+{monks hood} akonito
+{wolfs bane} akonito
+{OR operator} aŭo
+{OR operator} kajaŭo
+{XOR operator} disaŭo
+{exclusive disjunction} disaŭo
+{NOR operator} malaŭo
+{Peirce function} malaŭo
+{Nicod function} malaŭo
+{jet stream} ŝprucfluo
+{lads love} abrotano
+{pop-up window} ŝprucfenestro
+{neither ... nor} nek
+{bishops weed} egopodio
+{devils cherry} beladono
+{crows nest} topo
+{invite tenders} adjudiki
+{Lebesgue[s] integral} lebegaintegralo
+{Riemann[s] integral} rimanaintegralo
+{to ones advantage} avantaĝe
+{Pascal[s] limaçon} paskalalimako
+{Dirac[s] distribution} dirakadistribucio
+{ground floor} teretaĝo
+{first floor} teretaĝo
+{book of ABCs} alfabetumo
+{miss ones step} stumbli
+{buyers oligopoly} oligopsonio
+{Belgian endives} cikorio
+{write out of ones will} senheredigi
+{devils dung} ferolo
+{catch fire} ekflami
+{take fire} ekflami
+{flare up} ekflami
+{catch fire} flamiĝi
+{take fire} flamiĝi
+{flare up} flamiĝi
+{Pascal[s] triangle} triangulo
+{be bold enough} kuraĝi
+{Princes feather} amaranto
+{Greater Bear} grandaursino
+{Great Bear} grandaursino
+{Cauchy[s] sequence} koŝiavico
+{Cauchy[s] sequence} vico
+{be based} baziĝi
+{bachelors degree holder} bakalaŭro
+{buyers duopoly} duopsonio
+{old mans beard} klematido
+{travellers joy} klematido
+{Archimedes[] spiral} arĥimedaspiralo
+{for no reason} nenial
+{not for any reason} nenial
+{Borel[s] field} algebro
+{excess weight} plipezo
+{mass media} amasinformilo
+{St. Vitus dance} ĥoreo
+{Jerusalem artichoke} terpiro
+{coopers shop} barelejo
+{Dedekind[s] cut} dedekindatranĉo
+{common logarithm} dekumalogaritmo
+{Dirac[s] measure} dirakamezuro
+{Lebesgue[s] measure} lebegamezuro
+{sit on ones heels} kalkansidi
+{borderline case} limokazo
+{butter tree} basio
+{to make friends} amikiĝi
+{false friend} falsaamiko
+{pay attention} atenti
+{draw ones attention to} atentigi
+{raccoon dog} niktereŭto
+{glazed tile} azuleĥo
+{Seven sisters} plejadoj
+{hapax legomenon} hapakso
+{Arabian Peninsula} araba
+{Arabian Sea} araba
+{Saudi Arabia} saudaarabujo
+{meat dumplings} pelmenoj
+{modus ponens} elimplikaciigo
+{Dalai Lama} dalajlamao
+{high tide} alfluo
+{field hospital} ambulanco
+{topgallant mast} bramo
+{graphic image} grafikaĵo
+{Velcro fastener} lapo
+{manual labour} manlaboro
+{call back} revoki
+{fervent Esperantist} verdulo
+{fitness room} ekzercejo
+{live together} kunvivi
+{in bad taste} malbongusta
+{use the toilet} necesi
+{first run} premiero
+{throw back} reĵeti
+{freedom from care} senzorgeco
+{floor timber} varango
+{find out} konstati
+{In other words} alivorte
+{language problem} lingvoproblemo
+{on the foundation} surbaze
+{in case} kaze
+{in many cases} multkaze
+{in same way} sammaniere
+{be astonishing} mirigi
+{subtlety of expression} esprimpovo
+{working language} laborlingvo
+{to owns heart} enkore
+{linguistic evolutio} lingvoevoluo
+{in the same way} simile
+{not well} nebone
+{expressed oneself} esprimiĝi
+{communication problem} komunikproblemo
+{local people} lokano
+{try again} reprovi
+{login name} salutnomo
+{data base} datumbazo
+{page numbers} paĝnumero
+{by default} norme
+{page title} paĝotitolo
+{lack of harmony} misharmonio
+{write permission} skribopermeso
+{filter rule} filtroregulo
+{terminal window} terminalfenestro
+{text field} tekstkampo
+{parse error} analizeraro
+{secret key} sekretŝlosilo
+{paragraph attribute} alineoatributo
+{user name} uzantnomo
+{edit field} redaktokampo
+{ability to change} ŝanĝebleco
+{color scheme} koloraro
+{command line} komandlinia
+{month name} monatnomo
+{file manager} dosieradministrilo
+{keyboard scheme} klavkombinaro
+{message list} mesaĝlisto
+{system time} sistemtempo
+{network card} retkarto
+{attribute name} atributnomo
+{message number} mesaĝnumero
+{menu system} menuaro
+{mail download} poŝtpreno
+{color model} kolormodelo
+{input field} enmetkampo
+{message body} mesaĝteksto
+{export filter} eksportfiltrilo
+{window manager} fenestroadministrilo
+{menu key} menuklavo
+{network game} retludo
+{import filter} importfiltrilo
+{write access} skribpermeso
+{status messages} statomesaĝo
+{central african} mezafrika
+{graphics mode} grafikmoduso
+{processing time} procezotempo
+{layout of text} tekstoformato
+{archive name} arĥivnomo
+{archive size} arĥivgrandeco
+{near midnight} noktomeze
+{horrible thing} teruraĵo
+{auxiliary language} helplingvo
+{because of} pro

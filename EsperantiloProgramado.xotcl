@@ -1,0 +1,4266 @@
+# automatically generated from XOTclIDE
+# script require component {IDEBaseGUI EspTradukaVortaroGUI}
+@ Component EsperantiloProgramado {
+description {Iloj por programado:
+    * Testado
+    * Deploying
+    * Importado de tekstoj}
+}
+package provide EsperantiloProgramado 0.993
+package require EspTradukaVortaroGUI
+package require IDEBaseGUI
+Class ErarEkzemploLegilo -parameter fname
+@ ::ErarEkzemploLegilo idemeta component EsperantiloProgramado
+ErarEkzemploLegilo instproc destroy {} {
+    my instvar document
+    if {[info exists document]} {
+        $document delete
+    }
+    next
+}
+ErarEkzemploLegilo instproc init args {
+    my instvar fname document
+    if {![info exists fname]} {
+        set fname [IDE::Dialog getOpenFile {{XML *.xml} {{All files} *}}]
+    }
+    if {$fname eq ""} return
+    set f [open $fname r]
+    fconfigure $f -encoding utf-8
+    package require tdom
+    set document [dom parse -simple [read $f]]
+    close $f
+}
+ErarEkzemploLegilo instproc kreuGramErararoHTML {} {
+    my instvar fname
+    SintaksaAnalizo create [self]::@sinanalizo
+    ErarKolektilo create [self]::@erarkolektilo
+    set vortaro [Vortaro prenuVortaron]
+    package require xotcl::htmllib
+    set builder [HtmlBuilder new -volatile]
+    SintaksEkzemploLegilo startDocument $builder "Ekzemploj de Gramatikaj Eraroj"
+
+    $builder addString "<H3>Tipoj de gramatikaj eraroj kaj ebloj de programo</H3>"
+    $builder addString "<a href=\"erarekzemploj.xml\">XML Fonto dosiero</a><br>"
+
+    $builder addString "La listo enhavas la plej oftajn gramatikajn erarojn kaj la masaĝojn de esperantilo"
+
+    $builder startTable
+    $builder startTableRow
+
+    $builder startTableHeaderCell
+    $builder addString n
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString eraro
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString korekto
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString priskribo
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString mesagxoj
+    $builder endTableHeaderCell
+
+    $builder endTableRow
+
+    set ekzemploj 0
+    set nerekonataj 0
+
+    my leguEkzamplojn eraro bona priskribo {
+        if {$eraro ne ""} {
+            incr ekzemploj
+            $builder startTableRow
+
+            $builder startTableCell
+            $builder addString $ekzemploj
+            $builder endTableCell
+
+            $builder startTableCell
+            $builder addString $eraro
+            $builder endTableCell
+
+            $builder startTableCell
+            $builder addString $bona
+            $builder endTableCell
+
+            $builder startTableCell
+            $builder addString $priskribo
+            $builder endTableCell
+
+            $builder startTableCell
+
+            GP::Frazo create [self]::@frazo
+            append protokol "\n$eraro .\n"
+            my @frazo leguFrazonPerLegilo $vortaro $eraro
+            if {[my @frazo havasNekonataj]} {
+                append protokol " !! nekonataj vortoj\n"
+            }
+            my @sinanalizo frazo [self]::@frazo
+            my @sinanalizo analizu
+            my @erarkolektilo sintaksAsto [lindex [my @frazo sintaksoarbo] 0]
+            my @erarkolektilo sxercxiErarojn
+            if {[my @erarkolektilo havasErarojn]} {
+                foreach e [my @erarkolektilo set eraroj] {
+                    $builder addString [lindex $e 1]
+                    if {[llength [lindex $e 2]]>0} {
+                        $builder addString ": <i>[lindex $e 2 0]</i>"
+                    }
+                    $builder addLineBreak
+                }
+            } else {
+                $builder
+                $builder addStringStrong " ne rekonata"
+                incr nerekonataj
+            }
+
+            $builder endTableHeaderCell
+            my @frazo destroy
+            $builder endTableRow
+        }
+    }
+    my @sinanalizo destroy
+    my @erarkolektilo destroy
+
+    $builder endTable
+
+    $builder addString "<H3>Rezulto:</H3>"
+    $builder addString "nombro de ekzemploj: $ekzemploj"
+    $builder addLineBreak
+    $builder addString "nombro de ne rekonataj eraroj: $nerekonataj"
+    $builder addLineBreak
+
+    $builder endDocument
+    set htmlfname [file join [file dirname $fname] erarekzemploj.html]
+    set f [open $htmlfname w]
+    puts -nonewline $f [$builder toString]
+    close $f
+
+    iloj::openHTMLBrowser $htmlfname
+    return $htmlfname
+}
+ErarEkzemploLegilo instproc leguEkzamplojn {eraro_ref bona_ref priskribo_ref script} {
+    my instvar document
+    set rootElement [$document documentElement]
+    upvar $eraro_ref eraro
+    upvar $priskribo_ref priskribo
+    upvar $bona_ref bona
+    foreach p [$rootElement selectNode //ekz] {
+        set enode [lindex [$p selectNode eraro] 0]
+        if {$enode eq ""} {
+            continue
+        }
+        set eraro [[$enode firstChild] nodeValue]
+        set enode [lindex [$p selectNode bona] 0]
+        set bona [[$enode firstChild] nodeValue]
+
+        set enode [lindex [$p selectNode priskribo] 0]
+        if {$enode ne ""} {
+            set priskribo [[$enode firstChild] nodeValue]
+        } else {
+            set priskribo ""
+        }
+        uplevel $script
+    }
+}
+ErarEkzemploLegilo instproc testuGramKorektilon {} {
+    SintaksaAnalizo create [self]::@sinanalizo
+    ErarKolektilo create [self]::@erarkolektilo
+    set vortaro [Vortaro prenuVortaron]
+    my leguEkzamplojn eraro bona priskribo {
+        if {$eraro ne ""} {
+            GP::Frazo create [self]::@frazo
+            append protokol "\n$eraro .\n"
+            my @frazo leguFrazonPerLegilo $vortaro $eraro
+            if {[my @frazo havasNekonataj]} {
+                append protokol " !! nekonataj vortoj\n"
+            }
+            my @sinanalizo frazo [self]::@frazo
+            my @sinanalizo analizu
+            my @erarkolektilo sintaksAsto [lindex [my @frazo sintaksoarbo] 0]
+            my @erarkolektilo sxercxiErarojn
+            if {[my @erarkolektilo havasErarojn]} {
+                foreach e [my @erarkolektilo set eraroj] {
+                    append protokol " - [lindex $e 1]\n"
+                }
+            } else {
+                append protokol " ! eraro ne trovita\n"
+            }
+            my @frazo destroy
+        }
+        # testu bonan frazon
+        GP::Frazo create [self]::@frazo
+        my @frazo leguFrazonPerLegilo $vortaro $bona
+        if {[my @frazo havasNekonataj]} {
+            append protokol "\nbona - $eraro .\n"
+            append protokol " !! nekonataj vortoj\n"
+        }
+        my @sinanalizo frazo [self]::@frazo
+        my @sinanalizo analizu
+        my @erarkolektilo sintaksAsto [lindex [my @frazo sintaksoarbo] 0]
+        my @erarkolektilo sxercxiErarojn
+        if {[my @erarkolektilo havasErarojn]} {
+            foreach e [my @erarkolektilo set eraroj] {
+                append protokol "\nbona - $bona .\n"
+                append protokol " - [lindex $e 1]\n"
+            }
+        }
+        my @frazo destroy
+    }
+    my @sinanalizo destroy
+    my @erarkolektilo destroy
+    EsperantoBrowser redaktoTekston $protokol
+}
+ErarEkzemploLegilo instproc testuVislGramKorektilon esperantiloCentro {
+    set protokol ""
+    my leguEkzamplojn eraro bona priskribo {
+        if {$eraro ne ""} {
+            append protokol "\n$eraro\n"
+            lassign [$esperantiloCentro getVislGramarCheck $eraro] ret teksto
+            if {$ret eq "httperror" && $teksto eq "400"} {
+                puts "retry $ret"
+                lassign [$esperantiloCentro getVislGramarCheck $eraro] ret teksto
+            }
+            if {$ret eq "httperror" && $teksto eq "400"} {
+                puts "retry $ret"
+                lassign [$esperantiloCentro getVislGramarCheck $eraro] ret teksto
+            }
+            # todo
+            if {$ret eq "ok"} {
+                append protokol "senerara\n"
+            } elseif {$ret eq "erara"} {
+                append protokol "eraro: $teksto\n"
+            } else {
+                append protokol " http: $teksto"
+            }
+        }
+    }
+    EsperantoBrowser redaktoTekston $protokol
+}
+@ Class Esperantilozentro {
+description {Malgranda GUI por lancxi porgramadan ilojn specifajn por Esperantilo.
+Gxi ankaux enhavas programeron por kelkaj funkcioj dum programdo}
+}
+Class Esperantilozentro -superclass {::IDE::Browser ::IDE::GUICommands}
+@ ::Esperantilozentro idemeta categories {iloj init-release deploing ttt-ejo testado statistiko skriptoj i18n sintaksa-analizo tradukado}
+@ ::Esperantilozentro idemeta categoriesMethods {{zipDosieron getChangesScript prenuEsperantiloComponents versionAllCoreComponents} {createSystemMenu getMenuStruct specificInit getTitle fillMenuStruct} {kreuMetakitVortaron createEditionForAllComponents kreuVortlistojn kreuMetakit kupiuAlTTTejon} {refresxuTTTejon metuEnMarkilo kupiuAlWin} {testuSintaksoEkzemplojn estasArturMedio kreuGramErararoHTML testGramErarojn} {kalkuluStatistikon montruStatistikon montruStatistikonDeLog prenuStatMallongigxojn analizuStatDeDosiero} {testuPolTradukuDosierojn eksportuPorHTMLFleksio prenuEkzemplojDePomego foriguDuoblijojn prenuGramReportojn} {kreuMsgFromXLIFFtraduko leguAnglanGUITradukon leguGermananGUITradukon leguPolanGUITradukon} {akceptuAnalizoDiferencojn kreuSintaksoEkzemplojn testusAnalizoDiferencojn} {kreuKomparajTradukoj tradukuApertium kreuPagxoTradukojnKunApertium kreuTradukojnCSV testuNaciajTradukojn kreuPagxoNaciajTradukojn testuTradukojn komputuTradukkvaliton kreuPagxoTradukojn}}
+@ ::Esperantilozentro idemeta component EsperantiloProgramado
+Esperantilozentro instproc akceptuAnalizoDiferencojn {} {
+    set slegilo [SintaksEkzemploLegilo new -volatile -dosiero [file join [my prenuFontoDosieron] sintaksekzemploj.xml]]
+    EsperantoBrowser redaktoTekston [$slegilo troviDiferencojn 1]
+}
+Esperantilozentro instproc analizuStatDeDosiero {{dosiero {}}} {
+    if {$dosiero eq ""} {
+        set dosiero [IDE::Dialog getOpenFile]
+        if {$dosiero eq ""} {
+            return
+        }
+    }
+    set mlongigoj [my prenuStatMallongigxojn]
+    set sf [open stat-prog.tab w]
+    lappend record id date version
+    foreach {ml d} $mlongigoj {
+        lappend record $ml
+    }
+    puts $sf [join $record \t]
+    puts $mlongigoj
+
+    
+    array set statArr $mlongigoj
+
+    # 78.139.14.156 - - [20/Jan/2008:22:09:32 +0100] "GET /update.xml?:ST1 HTTP/1.0"
+    set f [open $dosiero r]
+    set x 0
+    while {[gets $f line]>=0} {
+        if {[regexp {\[(\d{2}/\w{3}/200[89]).+update\.xml\?([a-f0-9]*):([A-Z0-9]+).+Esperantilo ([0-9\.]+)} $line _ date id stat version]} {
+            if {$stat ne "ST1" && $id ne ""} {
+                puts "$date id $id - stat $stat"
+                unset -nocomplain sArr
+                foreach {all key value} [regexp -all -inline {([A-Z]+)([0-9]+)} $stat] {
+                    set sArr($key) $value
+                }
+                set record [list]
+                lappend record $id $date $version
+                foreach {ml d} $mlongigoj {
+                    if {[info exists sArr($ml)]} {
+                        lappend record $sArr($ml)
+                        puts -nonewline "$ml-$sArr($ml) "
+                    } else {
+                        lappend record 0
+                    }
+                }
+                puts ""
+                set statArr($id) $record
+                set statOrdoArr($id) $x
+            }
+        }
+        incr x
+    }
+    foreach n [array names statOrdoArr] {
+        lappend ordoListo [list $n $statOrdoArr($n)]
+    }
+    set ordoListo [lsort -index 1 $ordoListo]
+    foreach id $ordoListo {
+        puts $sf [join $statArr([lindex $id 0]) \t]
+    }
+    close $sf
+    close $f
+}
+Esperantilozentro instproc createEditionForAllComponents {} {
+   foreach cname [my prenuEsperantiloComponents] {
+        set cobj [IDE::Component getCompObjectForNameIfExist $cname]
+        if {$cobj ne "" && [$cobj isPersistent] && [$cobj isclosed]} {
+            $cobj createNewEdition
+        }
+   }
+}
+Esperantilozentro instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+Esperantilozentro instproc deployAll {} {
+    set prog [ProgresoMontrilo startProgress "asemblu esperantilon"]
+    set i 0
+    set listo {
+        kreuVortlistojn
+        kreuMetakitVortaron
+        kreuMetakit
+        kreuKomparajTradukoj
+        {testuTradukojn pl}
+        {kreuPagxoTradukojn pl}
+        {testuTradukojn de}
+        {kreuPagxoTradukojn de}
+        {testuTradukojn en}
+        {kreuPagxoTradukojn en}
+        kreuSintaksoEkzemplojn
+        kupiuAlTTTejon
+        kupiuAlWin
+    }
+    foreach k $listo {
+        if {[$prog isStopped]} {
+            break
+        }
+        $prog metuMesagxon $k
+        $prog setProgress [expr {100.0*$i/[llength $listo]}]
+        eval [self] $k
+        incr i
+    }
+}
+Esperantilozentro instproc eksportuPorHTMLFleksio {} {
+    set sql "select t.traduko,d.derivo,fgrupo,t.gramatiko,d.gramatiko from traduko_pl t,derivo d where t.derivoid=d.id and d.typo='verbo' order by t.ordo"
+
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por verboj}]
+    set connection [SQLDBVortaro getVortaroConnection]
+    set query [$connection query $sql]
+
+    set i 0
+    set rows [$query rows]
+    set rezulto ""
+    set countOK 0
+    set countErr 0
+
+    while {[llength [set row [$query fetch]]]>0} {
+        update
+        foreach {traduko derivo fgrupo gramatiko egramatiko} $row {}
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$i/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+        set pvorto $traduko
+        if {[llength $traduko]>2 || ([llength $traduko]==2 && [lindex $traduko 0] eq "się")} {
+            continue
+        }
+        if {![info exists vortaroArr($pvorto)]} {
+            set vortaroArr($pvorto) [list $derivo $fgrupo $gramatiko $egramatiko]
+        }
+        incr i
+    }
+    $query destroy
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+
+    set rezulto ""
+    foreach k [lsort [array names vortaroArr]] {
+        foreach {derivo fgrupo gramatiko egramatiko} $vortaroArr($k) {}
+        set esceptoj [lrange $fgrupo 1 end]
+        set fgrupo [lindex $fgrupo 0]
+        append rezulto "<tr><td>$k</td><td>$derivo</td><td>$fgrupo</td><td>[concat $gramatiko $egramatiko]</td><td>[join $esceptoj ,]</td></tr>\n"
+    }
+    EsperantoBrowser redaktoTekston $rezulto
+}
+Esperantilozentro instproc estasArturMedio {} {
+    if {[Esperantilozentro exists estasSDK] && [Esperantilozentro set estasSDK] eq "1"} {
+        return 0
+    }
+    return 1
+}
+Esperantilozentro instproc fillMenuStruct ms {
+    # enter the body hier
+    $ms enablementHandler [self]
+
+    set tms ${ms}::testoj
+    IDE::MenuStruct $tms {Sintaksa Anlaizo}
+    $tms addCommand {Redaktu sintaksajn ekzeplojn} [list EsperantoBrowser redaktuDosieron [file join [my prenuFontoDosieron] sintaksekzemploj.xml]]
+    $tms addCommand {Kreu ekzempolojn de sintakso} [list [self] kreuSintaksoEkzemplojn]
+    $tms addCommand {Trovu diferencojn en sintakso} [list [self] testusAnalizoDiferencojn]
+    $tms addCommand {Akceptu analizon de sintakso} [list [self] akceptuAnalizoDiferencojn]
+    $ms addCascadeMenu $tms
+
+    set tms ${ms}::gram
+    IDE::MenuStruct $tms {Gramatika Korektado}
+    $tms addCommand {Redaktu erar-ekzeplojn} [list EsperantoBrowser redaktuDosieron [file join [my prenuFontoDosieron] erarekzemploj.xml]]
+    $tms addCommand {Redaktu ekzemplojn de gramatika korektado} [list EsperantoBrowser redaktuDosieron [file join [my prenuFontoDosieron] gramkorektado.txt]]
+    $tms addCommand {Testu gramatikajn erarojn} [list [self] testGramErarojn [file join [my prenuFontoDosieron] erarekzemploj.xml]]
+    $tms addCommand {Kreu ekzemplojn de gram. eraroj} [list [self] kreuGramErararoHTML]
+    $ms addCascadeMenu $tms
+
+    set tms ${ms}::trad
+    IDE::MenuStruct $tms {Tradukado}
+    $tms addCommand {Redaktu traduk-ekzeplojn} [list EsperantoBrowser redaktuDosieron [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]]
+    $tms addCommand {Testu polajn tradukojn} [list [self] testuTradukojn pl]
+    $tms addCommand {Kreu pagxo pri polaj tradukoj} [list [self] kreuPagxoTradukojn pl]
+    $tms addCommand {Testu germanajn tradukojn} [list [self] testuTradukojn de]
+    $tms addCommand {Kreu pagxo pri germanaj tradukoj} [list [self] kreuPagxoTradukojn de]
+    $tms addCommand {Testu anglajn tradukojn} [list [self] testuTradukojn en]
+    $tms addCommand {Kreu pagxo pri anglaj tradukoj} [list [self] kreuPagxoTradukojn en]
+    $tms addCommand {Testu svedajn tradukojn} [list [self] testuTradukojn sv]
+    $tms addCommand {Kreu pagxo pri svedaj tradukoj} [list [self] kreuPagxoTradukojn sv]
+    $tms addCommand {Testu rusajn tradukojn} [list [self] testuTradukojn ru]
+    $tms addCommand {Kreu pagxo pri rusaj tradukoj} [list [self] kreuPagxoTradukojn ru]
+    $tms addCommand {Kreu Komparajn Tradukojn} [list [self] kreuKomparajTradukoj]
+    $ms addCascadeMenu $tms
+
+    set tms ${ms}::pltrad
+    IDE::MenuStruct $tms {Pola Tradukado}
+    $tms addCommand {Testu polajn tradukojn} [list [self] testuPlTradukojn]
+    $tms addCommand {Kreu pagxo pri polaj tradukoj} [list [self] kreuPagxoPlTradukojn]
+    $ms addCascadeMenu $tms
+
+    set tms ${ms}::i18n
+    IDE::MenuStruct $tms {I18N}
+    $tms addCommand {legu polan pl.msg} [list [self] leguPolanGUITradukon]
+    $tms addCommand {legu germanan de.msg} [list [self] leguGermananGUITradukon]
+    $tms addCommand {legu anglan de.msg} [list [self] leguAnglanGUITradukon]
+    $ms addCascadeMenu $tms
+
+    set tms ${ms}::revo
+    IDE::MenuStruct $tms {Revo}
+    $tms addCommand {Ŝargu vortoj de REVO} [list  REVOLegiloRefresxigo legiDosieron]
+    $tms addCommand "Konservu vortojn" [list [self] konvervuVortoj]
+    $tms addCommand "Statistiko" [list [self] kalkuluStatistikon]
+    $tms addCommand "Nuligu vortojn" [list Radiko clearAll]
+    $ms addCascadeMenu $tms
+
+    if {[my estasArturMedio]} {
+        set tms ${ms}::deploy
+        IDE::MenuStruct $tms {Deploying}
+        $tms addCommand "Kreu vortlistojn" [list [self] kreuVortlistojn]
+        $tms addCommand "Kreu tclkit esperantilo" [list [self] kreuMetakit]
+        $tms addCommand "Kreu vortaron" [list [self] kreuSqliteVortaron]
+        #$tms addCommand "Refresxu TTT-ejon" [list [self] refresxuTTTejon]
+        $tms addCommand "Kopiu al TTT-ejon (kreu evortaro.zip)" [list [self] kupiuAlTTTejon]
+        $tms addCommand "Kreu vindozo-Setup" [list [self] kreuVindozoSetup]
+        $tms addCommand "Deploy all" [list [self] deployAll]
+        $ms addCascadeMenu $tms
+    }
+
+}
+Esperantilozentro instproc foriguDuoblijojn {} {
+    set dosiero [IDE::Dialog getOpenFile]
+    if {$dosiero eq ""} return
+    set linioj [list]
+    set rf [open $dosiero r]
+    set wf [open $dosiero.2 w]
+    while {[gets $rf line]>=0} {
+        if {$line in $linioj} {
+            puts "duobligo $line"
+            continue
+        }
+        lappend linioj $line
+        puts $wf $line
+    }
+    close $rf
+    close $wf
+}
+Esperantilozentro instproc getChangesScript {} {
+   set cb [IDE::ChangesBrowser newBrowser]
+   $cb produceChangesScriptFor [my prenuEsperantiloComponents]
+}
+Esperantilozentro instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms "Esperantilo" 0
+}
+Esperantilozentro instproc getTitle {} {
+    return "Esperantilocentro"
+}
+Esperantilozentro instproc getVislGramarCheck teksto {
+    set url {http://beta.visl.sdu.dk/visl/eo/tools/spelling.php}
+    puts "test visl: $teksto"
+    set con [EsperantoStringConverter new -childof [self]]
+    $con initVariables
+    set teksto [$con translateString $teksto ĝ gx]
+    package require http
+    if {[EsperantoConf set httpProxy] ne ""} {
+        http::config -proxyhost [EsperantoConf set httpProxy] -proxyport [EsperantoConf set httpProxyPort]
+    }
+    http::config -useragent {Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8 ( .NET CLR 3.5.30729)}
+    http::config -urlencoding iso8859-1
+
+    # -type application/x-www-form-urlencoded
+    set id [http::geturl $url -binary 0 -query [::http::formatQuery inputlang eo lang en parser spelling text $teksto]]
+    set data [http::data $id]
+    set response [http::ncode $id]
+    if {$response ne "200"} {
+        #my halt
+    }
+    http::cleanup $id
+    if {$response ne "200"} {
+        return [list httperror $response $data]
+    }
+    if {[regexp {<HR>(.+?)<HR>} $data _ data]} {
+        regsub {<SCRIPT.+?</SCRIPT>} $data {} data
+        set rez [list]
+        set havasErraron senerara
+        set urez [list]
+        foreach l [split $data \n] {
+            set l [string trim $l]
+            if {$l eq ""} continue
+            if {[regexp {<b><font color="red">(.+?)</font color></b><sub>(.+?)</sub>} $l _ org nova]} {
+                lappend urez [list $org $nova]
+                set havasErraron erara
+            } else {
+                regsub -all {<.+?>} $l {} lp
+                lappend urez $lp
+            }
+            if {[string first <br> $l]>=0} {
+                lappend rez [list $havasErraron $urez]
+                set havasErraron senerara
+                set urez [list]
+            }
+        }
+        if {[llength $urez]>0} {
+            lappend rez [list $havasErraron $urez]
+            set havasErraron senerara
+        }
+        return [list rezultoj $rez]
+    }
+    return [list deraro $data]
+}
+Esperantilozentro instproc importuCSV lingvo {
+    package require tdom
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+    set csvfile [file join [my prenuFontoDosieron] tradukekzemploj_en_post.csv]
+
+    set f [open $file r]
+    set tradNombro 0
+
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    set ifile [open $csvfile r]
+
+    set nodoj [[$document documentElement] selectNodes */origina]
+
+    gets $ifile
+    set pos 0
+    while {[gets $ifile line]>=0} {
+        foreach v {esp komp homo homo2 rimarkoj} elem [split $line \;] {
+            set $v [string trim $elem \"]
+        }
+        set ekzemploNode [lindex $nodoj $pos]
+        if {$ekzemploNode eq ""} {
+            puts "ende $line"
+            break
+        }
+        incr pos
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+        if {$ekzemploFrazo ne $esp} {
+            puts "frazo ne estas la sama $esp <> $ekzemploFrazo"
+            continue
+        }
+        set etraduko [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        if {$homo eq ""} {
+            set homo $etraduko
+        }
+        iloj::setNodeValueAttr [$ekzemploNode parentNode] traduko $homo $lingvo
+        if {$homo2 ne ""} {
+            iloj::setNodeValueAttr [$ekzemploNode parentNode] traduko2 $homo2 $lingvo
+        }
+        if {$rimarkoj ne ""} {
+            iloj::setNodeValueAttr [$ekzemploNode parentNode] rimarko $rimarkoj $lingvo
+        }
+    }
+    
+    set rez [$document asXML]
+    $document delete
+    
+    #set f [open $file w]
+    #puts -nonewline $f 
+    #close $f
+    
+    close $ifile
+    
+    EsperantoBrowser redaktoTekston $rez
+
+}
+Esperantilozentro instproc kalkuluStatistikon {} {
+    IDE::ResultBrowser newBrowser [Radiko kalkuluStatistikon]
+}
+Esperantilozentro instproc komputuTradukkvaliton {homaTraduko komputilaTraduko frazTraduko originaFrazo lingvo} {
+    set k [TradukKomparilo new -childof [self]]
+    $k komputuTradukkvaliton $homaTraduko $komputilaTraduko $frazTraduko $originaFrazo $lingvo
+    set ret [$k set kvalito]
+    destroy $k
+    return $ret
+}
+Esperantilozentro instproc konvervuVortoj {} {
+    set dosiero [IDE::Dialog getSaveFile *.xotcl]
+    if {$dosiero ne ""} {
+        Radiko konservuVortoj $dosiero
+    }
+}
+Esperantilozentro instproc kreuGramErararoHTML {} {
+    set fdosiero [file join [my prenuFontoDosieron] erarekzemploj.xml]
+    ErarEkzemploLegilo create [self]::@erarlegilo -fname $fdosiero
+    set dosiero [my @erarlegilo kreuGramErararoHTML]
+    if {[my estasArturMedio]} {
+        file copy -force $dosiero /home/joachim/public_html/esperantoedit/
+        file copy -force $fdosiero /home/joachim/public_html/esperantoedit/
+    }
+    my @erarlegilo destroy
+}
+Esperantilozentro instproc kreuKomparajTradukoj {} {
+    set dir [file join [my prenuFontoDosieron] komptradukado]
+    EsperantoConf set tradInteraktiva 0
+
+
+    foreach {lingvo fonto htraduko} {
+        pl claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_pl.txt
+        pl claudepiron.txt claudepiron_pl.txt
+        de claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_de.txt
+        de cp_2052.txt cp_2052_de.txt
+        de cp_3langeuropo.txt cp_3langeuropo_de.txt
+        en claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_en.txt
+        en cp_psychologikajkialoj.txt cp_psychologikajkialoj_en.txt
+        en cp_2052.txt cp_2052_en.txt
+        en cp_psychologikajreagoj.txt cp_psychologikajreagoj_en.txt
+        en cp_3langeuropo.txt cp_3langeuropo_en.txt
+        sv claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_sv.txt} {
+            if {$htraduko ne "cp_3langeuropo_de.txt"} {
+                #continue
+            }
+            EsperantoConf set lingvo $lingvo
+            puts "prilaboru $lingvo $fonto $htraduko"
+            update
+            after 100
+            HTMLKomparadoTradukilo3 tradukuKunKomparo [file join $dir $fonto] [file join $dir $htraduko] [file join [my prenuFontoDosieron] enhavigo_tradukkomparo.html]
+        }
+     puts "fino"
+}
+Esperantilozentro instproc kreuLingvoModulon {delingvo allingvo} {
+    set comp [IDE::Component getCompObjectForNameIfExist Esp${delingvo}Tradukilo]
+    if {$comp eq ""} {
+        error "modulo por lingvo $delingvo ne ekzistas"
+    }
+    set outfile [IDE::Dialog getSaveFile Esp${allingvo}Tradukilo.xotcl]
+    if {$outfile eq ""} {
+        return
+    }
+
+    set ctext [$comp asScript]
+    # \[\[:<:\]\]${method}\[\[:>:\]\]
+    foreach c [$comp getClasses] {
+        if {[regexp "^ET${delingvo}(.+)" $c _ post]} {
+            regsub -all \[\[:<:\]\]ET${delingvo}$post\[\[:>:\]\] $ctext ET${allingvo}$post ctext
+        } elseif {[regexp "^TA${delingvo}(.*)" $c _ post]} {
+            regsub -all \[\[:<:\]\]TA${delingvo}$post\[\[:>:\]\] $ctext TA${allingvo}$post ctext
+        } elseif {[regexp "^${delingvo}TradukElemento" $c]} {
+            regsub -all \[\[:<:\]\]${delingvo}TradukElemento\[\[:>:\]\] $ctext ${allingvo}TradukElemento ctext
+        }
+    }
+    if {$delingvo eq "pl"} {
+        set lnomo Pola
+    } else {
+        set lnomo $delingvo
+    }
+    regsub -all \[\[:<:\]\]${lnomo}Fleksio\[\[:>:\]\] $ctext ${allingvo}Fleksio ctext
+    regsub -all \[\[:<:\]\]${lnomo}Fleksilo\[\[:>:\]\] $ctext ${allingvo}Fleksilo ctext
+    regsub -all \[\[:<:\]\]${lnomo}VortFarado\[\[:>:\]\] $ctext ${allingvo}VortFarado ctext
+    regsub -all \[\[:<:\]\]${lnomo}Importilo\[\[:>:\]\] $ctext ${allingvo}Importilo ctext
+    regsub -all \[\[:<:\]\]Esp${delingvo}Tradukilo\[\[:>:\]\] $ctext Esp${allingvo}Tradukilo ctext
+
+    set out [open $outfile w]
+    puts $out $ctext
+    close $out
+}
+Esperantilozentro instproc kreuMetakit {} {
+    cd $::xotclidedir
+    IDE::Component saveAllToPath
+    Vortaro prenuVortaron
+    Radiko konservuVortoj [file join $::xotclidedir radikoj.xotcl]
+    set act [pwd]
+    cd [file join $::xotclidedir tclkit]
+    puts [exec "/usr/bin/make" "esperantilo"]
+    cd $act
+}
+Esperantilozentro instproc kreuMetakitVortaron {} {
+    [SQLDBVortaro getSQLDBVortaron] kreuMetakit
+    [DBVortaro prenuVortaron] destroy
+}
+Esperantilozentro instproc kreuMsgFromXLIFFtraduko {} {
+    package require tdom
+    set file [::IDE::Dialog getOpenFile]
+    if {$file eq ""} return
+    set f [open $file r]
+
+    set ofile [::IDE::Dialog getSaveFile "pl.msg"]
+    if {$ofile eq ""} return
+    set of [open $ofile w]
+    fconfigure $of -encoding utf-8
+
+    package require tdom
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+    foreach tu [[$document documentElement] selectNodes file/body/trans-unit] {
+        set source [lindex [$tu selectNodes source] 0]
+        set target [lindex [$tu selectNodes target] 0]
+        set source [[$source firstChild] nodeValue]
+        if {$target eq "" || [$target firstChild] eq ""} continue
+        set target [[$target firstChild] nodeValue]
+        puts $of "::msgcat::mcset eo \"$source\" \"$target\""
+    }
+    close $of
+
+    $document delete
+}
+Esperantilozentro instproc kreuPagxoNaciajTradukojn flingvo {
+    package require tdom
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+    set lingvo eo$flingvo
+
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    set tradNombro 0
+    set kvalitoSum 0
+    for {set x 0} {$x<5} {incr x} {
+        set kvalito$x 0
+    }
+
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    package require xotcl::htmllib
+    set builder [HtmlBuilder new -volatile]
+    set lingvol "[TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $flingvo]->esperanto"
+
+    SintaksEkzemploLegilo startDocument $builder "Tradukekzemploj al $lingvol lingvo"
+    $builder addString "<a href=\"tradukoj_ekzemploj.xml\">XML Fonto dosiero</a>"
+    $builder addString "<H3>Tradukekzemploj $lingvol</H3>"
+    $builder startTable
+    $builder startTableRow
+
+    $builder startTableHeaderCell
+    $builder addString origino
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString "homa traduko"
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString "komputila traduko"
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString "kvalito"
+    $builder endTableHeaderCell
+
+    $builder endTableRow
+
+
+    foreach ekzemploNode [[$document documentElement] selectNodes */traduko] {
+        if {[$ekzemploNode getAttribute lang $flingvo] ne $flingvo} continue
+
+        $builder startTableRow
+
+        $builder startTableCell
+
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+        $builder addString $ekzemploFrazo
+        $builder endTableCell
+
+        $builder startTableCell
+        $builder addString [iloj::getNodeValue [$ekzemploNode parentNode] origina]
+        $builder endTableCell
+
+        $builder startTableCell
+        $builder addString [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        $builder endTableCell
+
+        $builder endTableRow
+        incr tradNombro
+    }
+    $document delete
+
+    $builder endTable
+    $builder addString "Nombro de tradukoj: $tradNombro"
+
+    $builder endDocument
+
+    set htmlfname [file join [file dirname $file] ${lingvo}tradukekzemploj.html]
+    set f [open $htmlfname w]
+    puts -nonewline $f [$builder toString]
+    close $f
+    if {[my estasArturMedio]} {
+        file copy -force $htmlfname /home/joachim/public_html/esperantoedit/
+        iloj::openHTMLBrowser [file join /home/joachim/public_html/esperantoedit/ [file tail $htmlfname]]
+    } else {
+        iloj::openHTMLBrowser $htmlfname
+    }
+}
+Esperantilozentro instproc kreuPagxoTradukojn lingvo {
+    package require tdom
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+    
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    set tradNombro 0
+    set kvalitoSum 0
+    for {set x 0} {$x<5} {incr x} {
+        set kvalito$x 0
+    }
+
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    package require xotcl::htmllib
+    set builder [HtmlBuilder new -volatile]
+    set lingvol [TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $lingvo]
+    
+    SintaksEkzemploLegilo startDocument $builder "Tradukekzemploj al $lingvol lingvo"
+    $builder addString "<a href=\"tradukoj_ekzemploj.xml\">XML Fonto dosiero</a>"
+    $builder addString "<H3>Tradukekzemploj al $lingvol lingvo</H3>"
+    $builder startTable
+    $builder startTableRow
+
+    $builder startTableHeaderCell
+    $builder addString origino
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString "homa traduko"
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString "komputila traduko"
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString "kvalito"
+    $builder endTableHeaderCell
+
+    $builder endTableRow
+
+
+    foreach ekzemploNode [[$document documentElement] selectNodes */origina] {
+        $builder startTableRow
+
+        $builder startTableCell
+
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+        $builder addString $ekzemploFrazo
+        $builder endTableCell
+
+        $builder startTableCell
+        $builder addString [iloj::getNodeValueAttr [$ekzemploNode parentNode] traduko $lingvo]
+        $builder endTableCell
+
+        $builder startTableCell
+        set mes [iloj::getNodeValue [$ekzemploNode parentNode] mesagxo]
+        if {$mes ne ""} {
+            $builder addString <i>$mes</i><br>
+        }
+        $builder addString [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        $builder endTableCell
+
+        $builder startTableCell
+        set kvalito [iloj::getNodeValueAttr [$ekzemploNode parentNode] kvalito $lingvo]
+        if {$kvalito eq ""} {
+            set kvalito 0
+        }
+        incr kvalitoSum [expr {round($kvalito)}]
+        incr kvalito[expr {round($kvalito)}]
+        $builder addString [expr {round($kvalito)}]
+        $builder endTableCell
+
+        $builder endTableRow
+        incr tradNombro
+    }
+    $document delete
+
+    $builder endTable
+    $builder addString "Nombro de tradukoj: $tradNombro"
+
+    #set enhavfname [file join [file dirname $file] enhavigo_poltradukoj.html]
+    #set f [open $enhavfname r]
+    #$builder addString [read $f]
+    #close $f
+
+    $builder addString "averaĝa kvalito: [format "%.2f" [expr 1.0*$kvalitoSum/$tradNombro]]<br>"
+    for {set x 4} {$x>=0} {incr x -1} {
+        $builder addString "kvalito ${x}: [set kvalito$x]<br>"
+    }
+    $builder addString "bone kompreneblaj frazoj [format "%.2f" [expr 100.0*($kvalito4+$kvalito3)/$tradNombro]]%"
+    $builder endDocument
+
+    set htmlfname [file join [file dirname $file] ${lingvo}tradukekzemploj.html]
+    set f [open $htmlfname w]
+    puts -nonewline $f [$builder toString]
+    close $f
+    if {[my estasArturMedio]} {
+        file copy -force $htmlfname /home/joachim/public_html/esperantoedit/
+        iloj::openHTMLBrowser /home/joachim/public_html/esperantoedit/${lingvo}tradukekzemploj.html
+    } else {
+        iloj::openHTMLBrowser $htmlfname
+    }
+
+}
+Esperantilozentro instproc kreuPagxoTradukojnKunApertium {} {
+    package require tdom
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    set tradNombro 0
+    set samaj 0
+    set lingvo en
+
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    package require xotcl::htmllib
+    set builder [HtmlBuilder new -volatile]
+
+    SintaksEkzemploLegilo startDocument $builder "Tradukekzemploj komparo Esperantilo kaj Apertium eo-en"
+    $builder addString "<a href=\"http://www.esperantilo.org/tradukoj_ekzemploj.xml\">XML Fonto dosiero</a>"
+    $builder addString "<H3>Tradukekzemploj Komparo de Esperantilo kun Apertium</H3>"
+    $builder startTable
+    $builder startTableRow
+
+    $builder startTableHeaderCell
+    $builder addString origino
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString Esperantilo
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString Apertium
+    $builder endTableHeaderCell
+
+    $builder startTableHeaderCell
+    $builder addString Samaj
+    $builder endTableHeaderCell
+
+
+    $builder endTableRow
+
+
+    foreach ekzemploNode [[$document documentElement] selectNodes */origina] {
+        $builder startTableRow
+
+        $builder startTableCell
+
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+        $builder addString $ekzemploFrazo
+        $builder endTableCell
+
+        set etraduko [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        $builder startTableCell
+        $builder addString $etraduko
+        $builder endTableCell
+
+        set atraduko [my tradukuApertium eo-en $ekzemploFrazo]
+        $builder startTableCell
+        $builder addString $atraduko
+        $builder endTableCell
+
+        $builder startTableCell
+        if {$atraduko eq $etraduko} {
+            $builder addString 1
+            incr samaj
+        } else {
+            $builder addString 0
+        }
+        $builder endTableCell
+
+
+        $builder endTableRow
+        incr tradNombro
+    }
+    $document delete
+
+    $builder endTable
+    $builder addString "Nombro de tradukoj: $tradNombro samaj tradukoj: $samaj"
+
+    $builder endDocument
+
+    set dosnomo tradukekzemploj_apertium_eoen.html
+    set htmlfname [file join [file dirname $file] $dosnomo]
+    set f [open $htmlfname w]
+    puts -nonewline $f [$builder toString]
+    close $f
+    if {[my estasArturMedio]} {
+        file copy -force $htmlfname /home/joachim/public_html/esperantoedit/
+        iloj::openHTMLBrowser /home/joachim/public_html/esperantoedit/$dosnomo
+    } else {
+        iloj::openHTMLBrowser $dosnomo
+    }
+
+}
+Esperantilozentro instproc kreuSintaksoEkzemplojn args {
+    set slegilo [SintaksEkzemploLegilo new -volatile -dosiero [file join [my prenuFontoDosieron] sintaksekzemploj.xml]]
+    set rezDosiero [$slegilo kreuRezultoHTML]
+    if {[my estasArturMedio]} {
+        file copy -force $rezDosiero /home/joachim/public_html/esperantoedit/
+        file copy -force ~/esperanto/sintaksekzemploj.xml /home/joachim/public_html/esperantoedit/
+        foreach sd [glob -dir [file dirname $rezDosiero] *.svg] {
+            file copy -force $sd /home/joachim/public_html/esperantoedit/
+        }
+        foreach sd [glob -dir [file dirname $rezDosiero] sintaksekzemplo*.html] {
+            file copy -force $sd /home/joachim/public_html/esperantoedit/
+        }
+        iloj::openHTMLBrowser /home/joachim/public_html/esperantoedit/sintaksekzemploj.html
+    } else {
+        iloj::openHTMLBrowser $rezDosiero
+    }
+}
+Esperantilozentro instproc kreuSqliteVortaron {} {
+    set v [SQLPrivataVortaro new]
+    $v kreuVortaronDeBaza
+    $v destroy
+}
+Esperantilozentro instproc kreuTradukojnCSV lingvo {
+    package require tdom
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    set tradNombro 0
+    set samaj 0
+
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    set dosnomo tradukekzemploj_${lingvo}.csv
+    set htmlfname [file join [file dirname $file] $dosnomo]
+    set f [open $htmlfname w]
+
+    puts $f "esperanto;komputilo;homo"
+
+
+    foreach ekzemploNode [[$document documentElement] selectNodes */origina] {
+
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+        set etraduko [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        
+        puts $f "$ekzemploFrazo;$etraduko;"
+    }
+    $document delete
+
+
+    close $f
+
+}
+Esperantilozentro instproc kreuVindozoSetup {} {
+    cd $::xotclidedir
+    set act [pwd]
+    cd [file join $::xotclidedir tclkit]
+    puts [exec "/usr/bin/make" "esperantiloSetup"]
+    cd $act
+}
+Esperantilozentro instproc kreuVortlistojn {} {
+    set dbvortaro [SQLDBVortaro getSQLDBVortaron]
+    set zdosierujo /home/joachim/public_html/esperantoedit
+    #file copy -force vortaro.db $zdosierujo
+    #my zipDosieron [file join $zdosierujo vortaro.db]
+    foreach {lng lingvo} [$dbvortaro subtenatajLingvoj] {
+        puts "eksporto vortliston $lng $lingvo"
+        set s [open [file join $zdosierujo vortaro-eo-$lng.txt] w]
+        $dbvortaro eksportuVortliston $s $lng
+        close $s
+        my zipDosieron [file join $zdosierujo vortaro-eo-$lng.txt]
+    }
+    puts "eksportu vortoj"
+    Radiko eksportuVortoj [file join $zdosierujo vortaro-eo.txt]
+    exec sort [file join $zdosierujo vortaro-eo.txt] >[file join $zdosierujo vortaro-eo-sort.txt]
+    file delete [file join $zdosierujo vortaro-eo.txt]
+    file rename [file join $zdosierujo vortaro-eo-sort.txt] [file join $zdosierujo vortaro-eo.txt]
+    my zipDosieron [file join $zdosierujo vortaro-eo.txt]
+
+    Radiko eksportuEblajVortoj [file join $zdosierujo eblaj-vortoj-us.txt]
+    exec sort [file join $zdosierujo eblaj-vortoj-us.txt] >[file join $zdosierujo eblaj-vortoj.txt]
+    file delete [file join $zdosierujo eblaj-vortoj-us.txt]
+    my zipDosieron [file join $zdosierujo eblaj-vortoj.txt]
+
+    Radiko eksportuXMLVortaro [file join $zdosierujo vortaro.xml]
+    my zipDosieron [file join $zdosierujo vortaro.xml]
+
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set f [open [file join $zdosierujo nekonataj-eo-pl.txt] w]
+    foreach v [$dbvortaro sercxuSenTraduko * pl] {
+        puts $f "$v;"
+    }
+    close $f
+    my zipDosieron [file join $zdosierujo nekonataj-eo-pl.txt]
+}
+Esperantilozentro instproc kupiuAlTTTejon {} {
+    set zilo /home/joachim/public_html/esperantoedit/
+    set fonto [file join $::xotclidedir tclkit]
+    file copy -force [file join $fonto esperantilo.kit] $zilo
+    file copy -force [file join $fonto esperantilo.exe] $zilo
+    file copy -force [file join $fonto esperantilo.bin] $zilo
+    file copy -force [file join $fonto esperantiloTM.bin] [file join $zilo tm]
+    #file copy -force [file join $fonto esperantiloTM.exe] [file join $zilo tm]
+
+    set archivo [file join $fonto archieve]
+    set eldono [EsperantoConf prenuEldono]
+
+    file copy -force [file join $fonto esperantilo.kit] [file join $archivo esperantilo$eldono.kit]
+    file copy -force [file join $fonto esperantilo.exe] [file join $archivo esperantilo$eldono.exe]
+    file copy -force [file join $fonto esperantilo.bin] [file join $archivo esperantilo$eldono.bin]
+    file copy -force [file join $fonto esperantiloTM.bin] [file join $archivo esperantiloTM$eldono.bin]
+    file copy -force [file join $fonto esperantiloTM.exe] [file join $archivo esperantiloTM$eldono.exe]
+
+    foreach d [glob -directory [file join [my prenuFontoDosieron] komptradukado] *.html] {
+        file copy -force $d $zilo
+    }
+    set old [pwd]
+    cd $::xotclidedir
+    file delete evortaro.zip
+
+    set dj {
+        evortaro.zip evortaro.sql frazparto_de.txt frazparto_pl.txt eo_frek.txt fparto.fsql eo_ilo.aff eo_ilo.dic eo_morf.aff eo_morf.dic revo.sql eo-eo.txt gramreguloj.txt LICENSE.txt oficialaj.txt pleo_mtradukoj.txt eneo_mtradukoj.txt pl.dict ru-fleks.dict data evortaro-be.sql evortaro-en.sql evortaro-hu.sql evortaro-pl.sql evortaro-ru.sql evortaro-sv.sql evortaro-de.sql evortaro-fr.sql evortaro-nl.sql evortaro-pt.sql plibonajvortoj.txt
+    }
+
+    foreach f [glob falsajamikoj_*.txt] {
+        lappend dj $f
+    }
+
+    exec zip -r {*}$dj
+
+    #file copy -force /home/artur/programs/xotclIDE/tclkit/esperantilo.exe /win/filetransfer/esperantoedit/test
+    #file copy -force /home/artur/programs/xotclIDE/tclkit/esperantileto.exe /win/filetransfer/esperantoedit/test
+    #file copy -force /home/artur/programs/xotclIDE/tclkit/esperantiloTM.exe /win/filetransfer/esperantoedit/test
+    #foreach d {eo_frek.txt frazparto_pl.txt frazparto_de.txt eo-eo.txt gramreguloj.txt oficialaj.txt} {
+    #    file copy -force [file join /home/artur/programs/xotclIDE/ $d] /win/filetransfer/esperantoedit/test
+    #}
+    #exec unzip -o /home/artur/programs/xotclIDE/evortaro.zip -d /win/filetransfer/esperantoedit/test
+
+    cd $old
+    file copy -force [file join $::xotclidedir evortaro.zip] $zilo
+}
+Esperantilozentro instproc kupiuAlWin {} {
+    catch {exec {/home/artur/scripts/copy_ee_win.sh}}
+}
+Esperantilozentro instproc leguAnglanGUITradukon {} {
+    ::msgcat::mclocale en_en
+    source [file join [my prenuFontoDosieron] i18n en.msg]
+}
+Esperantilozentro instproc leguGermananGUITradukon {} {
+    ::msgcat::mclocale de_de
+    source [file join [my prenuFontoDosieron] i18n de.msg]
+}
+Esperantilozentro instproc leguPolanGUITradukon {} {
+    ::msgcat::mclocale pl_pl
+    source [file join [my prenuFontoDosieron] i18n pl.msg]
+}
+Esperantilozentro instproc metuEnMarkilo {teksto markilo enhavo} {
+    if {![regsub "<!-- $markilo start -->.*<!-- $markilo end -->" $teksto "<!-- $markilo start -->$enhavo<!-- $markilo end -->" teksto]} {
+    }
+    return $teksto
+}
+Esperantilozentro instproc montruStatistikon stat {
+    set list [list]
+    foreach {nomo nombro} $stat {
+        set text "statAktiono $nomo"
+        foreach proc [IDE::TclProcsDescription getAllRegisteredMethods] {
+            if {[regexp -- $text [info body ::$proc]]} {
+                lappend list "$nomo - $nombro : proc $proc"
+            }
+        }
+        foreach obj [IDE::IntroProxy getObjects] {
+            foreach proc [$obj info procs] {
+                if {[regexp -- $text [$obj info body $proc]]} {
+                    lappend list "$nomo - $nombro : $obj class>$proc"
+                }
+            }
+        }
+        foreach obj [IDE::IntroProxy getClasses] {
+            foreach proc [$obj info procs] {
+                if {[regexp -- $text [$obj info body $proc]]} {
+                    lappend list "$nomo - $nombro : $obj class>$proc"
+                }
+            }
+            foreach iproc [$obj info instprocs] {
+                if {[regexp -- $text [$obj info instbody $iproc]]} {
+                    lappend list "$nomo - $nombro : $obj>$iproc"
+                }
+            }
+        }
+    }
+    join $list \n
+}
+Esperantilozentro instproc montruStatistikonDeLog stat {
+    set list [list]
+    foreach {all key value} [regexp -all -inline {([A-Z]+)([0-9]+)} $stat] {
+        lappend list $key $value
+    }
+    my montruStatistikon $list
+}
+Esperantilozentro instproc prenuEkzemplojDePomego {{dosiero {}}} {
+#<ul id="i-8cn" class="ekzlisto">
+#<li id="i-2pr"><p id="i-1e3"><em><strong>Kie</strong> estas la libro kaj la krajono?</em><sup><span class="fkr">[</span><cite title="../../../aldonoj/literaturo.html#FE" class="fonto"><abbr title="Ekzercaro de la Fundamento, ekzerco 6">FE.6</abbr></cite><span class="fkr">]</span></sup> = <em>En kiu loko estas la libro...</em> Demanda <em>kie</em>.</p></li>
+#</ul>
+
+    if {$dosiero eq ""} {
+        set dosiero [file join [my prenuFontoDosieron] pmeg_14.1_html_unikodo gramatiko]
+    }
+    set ret ""
+    foreach d [glob -directory $dosiero -nocomplain *] {
+        if {[file isdirectory $d]} {
+            append ret [my prenuEkzemplojDePomego $d]
+        } elseif {[file extension $d] eq ".html" } {
+            set f [open $d r]
+            fconfigure $f -encoding utf-8
+            set teksto [read $f]
+            close $f
+            foreach ekzteksto [regexp -inline -all {<ul id=".+?" class="ekzlisto">.+?</ul>} $teksto] {
+                foreach ekz [regexp -inline -all {<em>.+?</em>} $ekzteksto] {
+                    regsub -all <.+?> $ekz "" ekz
+                    regsub -all {\[.+?\]} $ekz "" ekz
+                    # nur veraj frazoj
+                    if {[regexp {^[A-Z].+[!.?]$} $ekz]} {
+                        append ret "$ekz\n"
+                    }
+                }
+            }
+        }
+    }
+    return $ret
+}
+Esperantilozentro instproc prenuEsperantiloComponents {} {
+   set espcomponents [list]
+   foreach cname [IDE::Component getComponentNames] {
+        if {![string match Esp* $cname]} continue
+        lappend espcomponents $cname
+   }
+   return $espcomponents
+}
+Esperantilozentro instproc prenuFontoDosieron {} {
+    if {[my estasArturMedio]} {
+        return /home/artur/esperanto
+    } else {
+        file join $::progdir esperanto
+    }
+}
+Esperantilozentro instproc prenuGramReportojn {} {
+    set adreso http://www.esperantilo.org/raportoj/listo.php?statuso=nova
+    package require http
+
+    set enhavo [my prenuTTTPagxon $adreso]
+
+    set rez ""
+    foreach tr [regexp -inline -all <tr>.+?</tr> $enhavo] {
+        if {![regexp {<td>(\d+?)</td>} $tr _ nombro]} {
+            continue
+        }
+        if {![regexp {<td>raporto</td>} $tr]} {
+            continue
+        }
+        if {![regexp {<td>GR } $tr]} {
+            continue
+        }
+        if {![regexp {href="(.+?)"} $tr _ href]} {
+            continue
+        }
+        puts "scan $nombro"
+        set pagxo [my prenuTTTPagxon "http://www.esperantilo.org/raportoj/$href"]
+        if {[regexp {Falsa indiko pri gramatika eraro en frazo\n"(.+?)"\n} $pagxo _ frazo]} {
+            set rez "\n\n$nombro\n\n[string trim $frazo \"]$rez"
+        }
+    }
+    EsperantoBrowser redaktoTekston $rez
+}
+Esperantilozentro instproc prenuGutembergoLibrojn {} {
+    set adreso http://www.gutenberg.org/browse/languages/eo
+    set dosierujo [file join [my prenuFontoDosieron] gutemberg]
+    package require http
+
+    set enhavo [my prenuTTTPagxon $adreso]
+
+    set rez ""
+    foreach {dummy link} [regexp -inline -all {<a href="(/etext/[0-9]+)">} $enhavo] {
+        puts "examining $link"
+        set lenhavo [my prenuTTTPagxon http://www.gutenberg.org/$link]
+        if {[regexp {<a href="(/files/[0-9]+/([0-9]+-h.zip))"} $lenhavo _ dlink fname]} {
+            puts "libro $dlink"
+            set ofile [open [file join $dosierujo $fname] w]
+            set id [http::geturl http://www.gutenberg.org/$dlink -binary 1 -channel $ofile]
+            http::cleanup $id
+            close $ofile
+        }
+        # /files/17482/17482-h.zip
+        append rez $link \n
+    }
+    EsperantoBrowser redaktoTekston $rez
+}
+Esperantilozentro instproc prenuOutputDir {} {
+    if {[my estasArturMedio]} {
+        return /home/joachim/public_html/esperantoedit/
+    } else {
+        file join $::progdir rezultoj
+    }
+}
+Esperantilozentro instproc prenuStatMallongigxojn {} {
+    return {
+        EV elektuVortarojn
+        ST lancxo
+        LS writeLingvo
+        EK elektuTradukKampo
+        TA TradukadoAsistento
+        TO Tradukileto
+        RS malfermuPrivatanVortaron
+        TM TMRedaktilo
+        TF tradukuFrazon
+        RV REVOLeksMontrilo
+        VS malfermuPrivatanVortaron
+        FL GramFiniloMontrilo
+        VT TradukaVortaro
+        ER erraro
+        MF fileOpen
+        KV saveFileAs
+        LT spellText
+        TR translate
+        TP tradukuEnposxigon
+        AN analizuTekstonPer
+        SI montruTezauron
+        GR analizuGramatikonTipografion
+        TR tradukuFrazojnMasxine
+        AN prenuLingvoDeTeksto
+        SA sintaksaAnalizo
+        TI tradukuFrazojnInteraktive
+        VR montruVortaron
+        BF FrazpartoFrekMontrilo>specificInit
+        KR Korektilo>korektu
+        PR PreferajxojDialogo
+        RR RadikaroRedaktilo
+    }
+}
+Esperantilozentro instproc prenuTTTPagxon url {
+    set id [http::geturl $url -binary 1]
+    set data [encoding convertfrom utf-8 [http::data $id]]
+    http::cleanup $id
+    return $data
+}
+Esperantilozentro instproc programadoStatistiko {} {
+    set c [IDE::DBPersistence getConnection]
+    set sql "select m.timest from Configmap cm,ConfigmapComponent cc,ComponentObject co,Object o,Method m where cm.configmapid=cc.configmapid and cc.componentid=co.componentid and co.objectid=o.objectid and cm.name='XOTclIDE' and m.objectname=o.name order by m.timest"
+    
+    #set sql "select m.timest from Configmap cm,ConfigmapComponent cc,ComponentObject co,Object o,Method m,Component c where cm.configmapid=cc.configmapid and cc.componentid=co.componentid and co.objectid=o.objectid and cm.name='EsperantoEdit' and m.objectname=o.name and c.name<>'IDEBaseGUI' and c.componentid=cc.componentid and m.timest>'2003-12-21' order by m.timest"
+    
+    set query [$c query $sql]
+    
+    set lday ""
+    set days 0
+    set daybeg ""
+    set sum 0
+    set prot ""
+    while {[llength [set row [$query fetch]]]>0} {
+        if {[lindex $row 0] eq "0000-00-00 00:00:00"} continue
+        set time [clock scan [lindex $row 0]]
+        if {$daybeg eq ""} {
+            set daybeg $time
+            set ltime $time
+        }
+        set day [clock format $time -format "%Y-%m-%d"]
+        if {$lday ne $day} {
+            incr days
+            set dif [expr {$ltime-$daybeg}]
+            incr sum $dif
+            append prot "$lday - $dif - [clock format $dif -gmt 1 -format "%H:%M:%S"]" \n
+            set lday $day
+            set daybeg $time
+        }
+        set ltime $time
+    }
+    $query destroy
+    
+    RezultoFenestro newBrowser "days: $days - long $sum : [expr $sum/(60*60*8)] l. tagoj [clock format $sum -gmt 1 -format "%H:%M:%S"]\n\n$prot"
+}
+Esperantilozentro instproc refresxuTTTejon {} {
+    set zilo /home/joachim/public_html/esperantoedit/
+    set f [open [file join $zilo index.html]]
+    set enhavo [read $f]
+
+    set enhavo [my metuEnMarkilo $enhavo refreshtago [clock format [clock seconds] -format %x]]
+
+    set enhavo [my metuEnMarkilo $enhavo vortarostat "<pre>[[SQLDBVortaro getSQLDBVortaron] metuStatistikon]</pre>"]
+
+    close $f
+    set f [open [file join $zilo index.html] w]
+    puts -nonewline $f $enhavo
+    close $f
+}
+Esperantilozentro instproc specificInit {} {
+    my instvar win
+    button $win.editor -text [mc "Tekstilo"] -command [list EsperantoBrowser newBrowser]
+    button $win.vortaro -text [mc "Vortaro"] -command [list TradukaVortaroMontrilo newBrowser]
+    button $win.todo -text "TODO List" -command [list EsperantoBrowser redaktuDosieron EEToDo.txt]
+    DBVortaro requireNamespace
+    set ::DBVortaro::forceMetakit 0
+    checkbutton $win.forceMetakit -text "uzu metakit vortaron" -variable ::DBVortaro::forceMetakit
+    pack $win.editor $win.vortaro $win.todo $win.forceMetakit -fill x
+    next
+}
+Esperantilozentro instproc testGramErarojn {{fname {}}} {
+    ErarEkzemploLegilo create [self]::@erarlegilo [list -fname $fname]
+    my @erarlegilo testuGramKorektilon
+    my @erarlegilo destroy
+}
+Esperantilozentro instproc testVislGramErarojn {} {
+    ErarEkzemploLegilo create [self]::@erarlegilo [list -fname [file join [my prenuFontoDosieron] erarekzemploj.xml]]
+    my @erarlegilo testuVislGramKorektilon [self]
+    my @erarlegilo destroy
+}
+Esperantilozentro instproc testuNaciajTradukojn flingvo {
+    package require tdom
+    EsperantoConf set lingvo $flingvo
+    set lingvo eo$flingvo
+
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    set tradNombro 0
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    set lingvoFabriko [EsperantoConf prenuLingvoFabriko $flingvo]
+
+    $lingvoFabriko kreuSintaksAnalizilo [self]::@sinanalizo
+    set sxangxoj [list]
+
+    foreach ekzemploNode [[$document documentElement] selectNodes */traduko] {
+        if {[$ekzemploNode getAttribute lang $flingvo] ne $flingvo} continue
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+
+        $lingvoFabriko kreuFrazo [self]::@frazo
+        my @frazo leguFrazonPerLegilo $ekzemploFrazo
+        my @sinanalizo frazo [self]::@frazo
+        my @sinanalizo analizu
+
+        set frazTraduko [$lingvoFabriko kreuFrazTraduko [self] -childof]
+        $frazTraduko sintaksradiko [my @frazo sintaksoarbo]
+        $frazTraduko traduku
+        set komputilaTraduko [$frazTraduko prenuVortojn]
+        set maljunaTraduko [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        if {$maljunaTraduko ne $komputilaTraduko} {
+            iloj::setNodeValueAttr [$ekzemploNode parentNode] akomputilo $komputilaTraduko $lingvo
+            lappend sxangxoj $ekzemploFrazo $maljunaTraduko $komputilaTraduko
+        }
+        iloj::setNodeValue [$ekzemploNode parentNode] akomputilo ""
+        iloj::setNodeValueAttr [$ekzemploNode parentNode] komputilo $komputilaTraduko $lingvo
+        $frazTraduko destroy
+
+        my @frazo destroy
+        incr tradNombro
+        after 50
+    }
+
+    set f [open ${file} w]
+    puts -nonewline $f [$document asXML]
+    close $f
+
+    $document delete
+
+    if {[my estasArturMedio]} {
+        file copy -force "/home/artur/esperanto/tradukoj_ekzemploj.xml" /home/joachim/public_html/esperantoedit/
+    }
+    if {[llength $sxangxoj]>0} {
+        set rez ""
+        foreach {esp alt nov} $sxangxoj {
+            append rez "$esp\n $alt\n $nov\n\n"
+        }
+        IDE::ResultBrowser newBrowser $rez
+    }
+}
+Esperantilozentro instproc testuPolTradukuDosierojn {} {
+    set dosierujo [file join [my prenuFontoDosieron] traduktestoj]
+    set zilo [file join $dosierujo pl]
+    set traddosierojn [list]
+    foreach g [glob -nocomplain -type f -directory $dosierujo *.html *.txt *.xlf *.xlz] {
+        lappend traddosierojn $g
+    }
+    if {[llength $traddosierojn]==0} {
+        return
+    }
+    EsperantiloLancxilo set dosierojn $traddosierojn
+    EsperantiloLancxilo set rezultoDosierujo $zilo
+    EsperantiloLancxilo set fontoFormato AUTO
+    EsperantiloLancxilo tradukuDosierojn 0
+}
+Esperantilozentro instproc testuSintaksoEkzemplojn {{file /home/artur/esperanto/sintaksekzemploj.html}} {
+    package require tdom
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    package require tdom
+    fconfigure $f -encoding utf-8
+    set document [dom parse -html [read $f]]
+    close $f
+    set tableCount 0
+
+    SintaksaAnalizo create [self]::@sinanalizo
+    ErarKolektilo create [self]::@erarkolektilo
+    set vortaro [Vortaro prenuVortaron]
+
+    set protokol ""
+    foreach table [[$document documentElement] selectNodes */table] {
+        set rowCount 0
+        foreach row [$table selectNodes tr] {
+            incr rowCount
+            if {$rowCount==1} {
+                # ignoru kaplinion
+                continue
+            }
+            set tdNodes [$row selectNodes td]
+            if {$tableCount>0} {
+                set ekzemploNode [lindex $tdNodes 3]
+            } else {
+                set ekzemploNode [lindex $tdNodes 4]
+            }
+
+            set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+
+            GP::Frazo create [self]::@frazo
+            my @frazo leguFrazonPerLegilo $vortaro $ekzemploFrazo
+            if {[my @frazo havasNekonataj]} {
+                append protokol " !! nekonataj vortoj\n"
+                append protokol "$ekzemploFrazo\n"
+            } else {
+                my @sinanalizo frazo [self]::@frazo
+                my @sinanalizo analizu
+                my @erarkolektilo sintaksAsto [lindex [my @frazo sintaksoarbo] 0]
+                my @erarkolektilo sxercxiErarojn
+                if {[my @erarkolektilo havasErarojn]} {
+                    append protokol " ERR: $ekzemploFrazo\n"
+                    foreach e [my @erarkolektilo set eraroj] {
+                        append protokol " - [lindex $e 1]\n"
+                    }
+                }
+            }
+            my @frazo destroy
+        }
+        incr tableCount
+    }
+    $document delete
+    EsperantoBrowser redaktoTekston $protokol
+}
+Esperantilozentro instproc testuTradukojn lingvo {
+    package require tdom
+    EsperantoConf set lingvo $lingvo
+
+    set file [file join [my prenuFontoDosieron] tradukoj_ekzemploj.xml]
+
+    if {$file eq "" || ![file exists $file]} {
+        set file [::IDE::Dialog getOpenFile]
+        if {$file eq ""} return
+    }
+    set f [open $file r]
+    set tradNombro 0
+    package require tdom
+
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+
+    SintaksaAnalizo create [self]::@sinanalizo
+    ErarKolektilo create [self]::@erarkolektilo
+    set vortaro [Vortaro prenuVortaron]
+    set sxangxoj [list]
+
+    foreach ekzemploNode [[$document documentElement] selectNodes */origina] {
+
+        set ekzemploFrazo [[$ekzemploNode firstChild] nodeValue]
+
+        #puts "frazo $ekzemploFrazo"
+
+        set homaTraduko [iloj::getNodeValueAttr [$ekzemploNode parentNode] traduko $lingvo]
+
+        GP::Frazo create [self]::@frazo
+        my @frazo leguFrazonPerLegilo $vortaro $ekzemploFrazo
+        my @sinanalizo frazo [self]::@frazo
+        my @sinanalizo analizu
+        my @erarkolektilo sintaksAsto [lindex [my @frazo sintaksoarbo] 0]
+        my @erarkolektilo sxercxiErarojn
+        set trad ""
+        if {[my @frazo havasNekonataj]} {
+            append trad "!! nekonataj vortoj\n"
+        }
+        if {[my @erarkolektilo havasErarojn]} {
+            foreach e [my @erarkolektilo set eraroj] {
+                append trad " - [lindex $e 1]\n"
+            }
+        }
+        iloj::setNodeValue [$ekzemploNode parentNode] mesagxo $trad
+        set frazTraduko [FrazTraduko new -childof [self] -sintaksradiko [my @frazo sintaksoarbo]]
+        $frazTraduko traduku
+        set komputilaTraduko [$frazTraduko prenuVortojn]
+        set maljunaTraduko [iloj::getNodeValueAttr [$ekzemploNode parentNode] komputilo $lingvo]
+        if {$maljunaTraduko ne $komputilaTraduko} {
+            iloj::setNodeValueAttr [$ekzemploNode parentNode] akomputilo $komputilaTraduko $lingvo
+            lappend sxangxoj $ekzemploFrazo $maljunaTraduko $komputilaTraduko
+        }
+        iloj::setNodeValue [$ekzemploNode parentNode] akomputilo ""
+        iloj::setNodeValueAttr [$ekzemploNode parentNode] komputilo $komputilaTraduko $lingvo
+        set kvalito [my komputuTradukkvaliton $homaTraduko $komputilaTraduko $frazTraduko $ekzemploFrazo $lingvo]
+        if {$kvalito ne ""} {
+            iloj::setNodeValueAttr [$ekzemploNode parentNode] kvalito $kvalito $lingvo
+        }
+        $frazTraduko destroy
+
+        my @frazo destroy
+        incr tradNombro
+        after 50
+    }
+
+    set f [open ${file} w]
+    puts -nonewline $f [$document asXML]
+    close $f
+
+    $document delete
+
+    if {[my estasArturMedio]} {
+        file copy -force "/home/artur/esperanto/tradukoj_ekzemploj.xml" /home/joachim/public_html/esperantoedit/
+    }
+    if {[llength $sxangxoj]>0} {
+        set rez ""
+        foreach {esp alt nov} $sxangxoj {
+            append rez "$esp\n $alt\n $nov\n\n"
+        }
+        EsperantoBrowser redaktoTekston $rez
+    }
+}
+Esperantilozentro instproc testusAnalizoDiferencojn {} {
+    set slegilo [SintaksEkzemploLegilo new -dosiero [file join [my prenuFontoDosieron] sintaksekzemploj.xml]]
+    EsperantoBrowser redaktoTekston [$slegilo troviDiferencojn]
+    $slegilo destroy
+}
+Esperantilozentro instproc tradukuApertium {lingvoj frazo} {
+    exec apertium $lingvoj -f txt <<$frazo
+}
+Esperantilozentro instproc versionAllCoreComponents {{versionInfo {}}} {
+   foreach cname [my prenuEsperantiloComponents] {
+        set cobj [IDE::Component getCompObjectForNameIfExist $cname]
+        if {$cobj ne "" && [$cobj isPersistent] && ![$cobj isclosed]} {
+            if {$versionInfo ne ""} {
+               $cobj setVersionInfo $versionInfo
+            }
+            $cobj versionEdition
+        }
+   }
+}
+Esperantilozentro instproc zipDosieron dosiero {
+    puts "zip $dosiero"
+    set d [file tail $dosiero]
+    set old [pwd]
+    cd [file dirname $dosiero]
+    file delete $d.zip
+    exec zip $d.zip $d
+    file delete $dosiero
+    cd $old
+}
+Esperantilozentro proc estasArturMedio {} {
+    if {[Esperantilozentro exists estasSDK] && [Esperantilozentro set estasSDK] eq "1"} {
+        return 0
+    }
+    return 1
+}
+Esperantilozentro proc frekTreGrandaTeksto {} {
+    set nomo [IDE::Dialog getOpenFile]
+    if {$nomo eq ""} return
+    set f [open $nomo r]
+    set vortoNombro 0
+    set l 0
+    while {[gets $f line]>=0} {
+        foreach vorto [regexp -all -inline {\m[[:alpha:]-]{2,}\M} $line] {
+            incr vortoNombro
+            if {[catch {incr vortoArr($vorto)}]} {
+                set vortoArr($vorto) 1
+            }
+        }
+        incr l
+        if {$l % 1000 == 0} {
+            puts "linio $l"
+        }
+    }
+    close $f
+
+
+    puts "komputu liston"
+    for {set sid [array startsearch vortoArr]} {[array anymore vortoArr $sid]} {} {
+        set vorto [array nextelement vortoArr $sid]
+        set nombro $vortoArr($vorto)
+        lappend rez [list $vorto $nombro -1]
+    }
+    array donesearch vortoArr $sid
+    puts "ordigu"
+    set rez [lsort -integer -decreasing -index 1 $rez]
+    set maxf [lindex $rez 0 1]
+
+    puts "komputu freq grupon"
+    for {set i 0} {$i<[llength $rez]} {incr i} {
+        set frek [lindex $rez $i 1]
+        set fgrupo [expr {round(log(double($maxf/$frek))/log(2))}]
+        lset rez $i 2 $fgrupo
+    }
+    puts "skribu rezulton"
+
+    set fout [file rootname $nomo].freq
+    set f [open $fout w]
+    foreach v $rez {
+        puts $f $v
+    }
+    close $f
+    return
+}
+Esperantilozentro proc newBrowser {} {
+    my instvar browser
+    if {![info exists browser] || ![Object isobject $browser]} {
+        EsperantoConf pretiguEspDozierojn
+        if {[EsperantoConf set uzanto] eq ""} {
+            EsperantiloLancxilo aktionoCxeUnuaLancxo
+        }
+        set browser [Esperantilozentro new .esperantiloz]
+    }
+    return $browser
+}
+Esperantilozentro proc prenuFontoDosieron {} {
+    if {[my estasArturMedio]} {
+        return /home/artur/esperanto
+    } else {
+        file join $::progdir esperanto
+    }
+}
+@ Class PoliqarpKliento {
+description {to start poliqarp
+
+cd ~/programs/poliqarp-1.2
+poliqarpd -c ~/.poliqarp.cfg (or with -g as gui)
+
+cd ~/programs/poliqarp-1.2/gui
+jar -jar poliqarp.jar
+
+Usage
+- call preparu
+test queris to makeRunQuery {[base=unikać & pos!=subst] [pos=subst]}}
+}
+Class PoliqarpKliento -parameter {{port 4567}}
+@ ::PoliqarpKliento idemeta categories {api debugNonBlocking}
+@ ::PoliqarpKliento idemeta categoriesMethods {{preparu makeRunQuery} {getsAll getsAllEnd test}}
+@ ::PoliqarpKliento idemeta component EsperantiloProgramado
+PoliqarpKliento instproc debug {direkto mes} {
+    # puts "$direkto $mes"
+}
+PoliqarpKliento instproc destroy {} {
+    my instvar socket
+    catch {close $socket}
+    next
+}
+PoliqarpKliento instproc expext pattern {
+    my instvar socket
+    set line [my getLine]
+    set ret [regexp -inline $pattern $line]
+    if {[llength $ret]==0} {
+        error "expect '$pattern' was '$line"
+    }
+    return $ret
+}
+PoliqarpKliento instproc getContext {} {
+    my instvar socket
+    set num [lindex [my expext {R (\d+)}] 1]
+    for {set x 0} {$x<$num} {incr x} {
+        set l [my getLine]
+        if {[eof $socket]} {
+            break
+        }
+        lappend context [string trimleft [string range $l 2 end]]
+    }
+    return $context
+}
+PoliqarpKliento instproc getLastError {} {
+    my sendSync "GET-LAST-ERROR"
+}
+PoliqarpKliento instproc getLine {} {
+    my instvar socket
+    gets $socket rline
+    my debug < $rline
+    return $rline
+}
+PoliqarpKliento instproc getLineContent {} {
+    string range [my getLine] 2 end
+}
+PoliqarpKliento instproc getsAll {} {
+    my instvar socket
+    fconfigure $socket -blocking 0
+    fileevent $socket readable [list [self] readableEvent]
+}
+PoliqarpKliento instproc getsAllEnd {} {
+    my instvar socket
+    fconfigure $socket -blocking 1
+    fileevent $socket readable {}
+}
+@ PoliqarpKliento instproc makeRunQuery {} {
+description {returns list from poliqarp with
+elems
+{word list link context} {{word base_word tag base_word2 tag2 ...} ...} {rigth context} ...}
+}
+PoliqarpKliento instproc makeRunQuery {query {results 5}} {
+    my instvar socket
+
+    my sendWaitOKorError "MAKE-QUERY $query"
+    # initialBuferSize from java program
+    # my sendWaitOK "RUN-QUERY 500000"
+    my sendWaitOK "RUN-QUERY 50"
+    set num [lindex [my expext {^M QUERY-DONE (\d+)$}] 1]
+    if {$num==0} {
+        return
+    }
+    if {$results>$num} {
+        set results $num
+    }
+    incr results -1
+
+    my sendWaitOK "GET-RESULTS 0 $results"
+
+    set result [list]
+
+    set num 0
+    while 1 {
+        if {[eof $socket] || $num>$results} {
+            return $result
+        }
+        set lcontext [my getContext]
+        set tags [my readTags]
+        set rcontext [my getContext]
+        lappend result [list $lcontext $tags $rcontext]
+        incr num
+        my debug # $num
+    }
+}
+PoliqarpKliento instproc makeSession {} {
+    my send "MAKE-SESSION GUI"
+}
+PoliqarpKliento instproc open file {
+    # /home/artur/2.all.250/all
+    my send "OPEN $file"
+}
+PoliqarpKliento instproc preparu {} {
+    my makeSession
+    my expext "R OK"
+    my open /home/artur/2.all.250/all
+    my expext "R OK"
+    my expext "M OPENED"
+}
+PoliqarpKliento instproc readTags {} {
+    set num [lindex [my expext {R (\d+)}] 1]
+    set tags [list]
+    for {set i 0} {$i<$num} {incr i} {
+        set tag [list]
+        lappend tag [string trimleft [my getLineContent]]
+        set numtags [lindex [my expext {R (\d+)}] 1]
+        for {set t 0} {$t<$numtags} {incr t} {
+            lappend tag [my getLineContent]
+            lappend tag [my getLineContent]
+        }
+        lappend tags $tag
+    }
+    return $tags
+}
+PoliqarpKliento instproc readableEvent {} {
+    my instvar socket
+    gets $socket line
+    if {![fblocked $socket]} {
+        my debug < $line
+    }
+}
+PoliqarpKliento instproc send line {
+    my instvar socket
+    puts $socket $line
+    my debug > $line
+}
+PoliqarpKliento instproc sendSync line {
+    my instvar socket
+    my debug > $line
+    puts $socket $line
+    my getLine
+}
+PoliqarpKliento instproc sendWaitOK line {
+    my instvar socket
+    set line [my sendSync $line]
+    if {$line ne "R OK"} {
+        error "poliqarp expext R OK was $line"
+    }
+}
+PoliqarpKliento instproc sendWaitOKorError line {
+    my instvar socket
+    set line [my sendSync $line]
+    if {$line ne "R OK"} {
+        error [my getLastError]
+    }
+}
+PoliqarpKliento instproc startu {} {
+    my instvar socket
+    set socket [socket localhost [my port]]
+    fconfigure $socket -blocking 1 -translation {auto lf} -buffering line
+    #fileevent $socket readable [list [self] readableEvent]
+}
+PoliqarpKliento instproc test query {
+    my instvar socket
+    my send "MAKE-QUERY $query"
+    my send "RUN-QUERY 500000"
+}
+PoliqarpKliento proc prenuKlienton {} {
+    my instvar kliento
+    if {![info exists kliento] || ![Object isobject $kliento]} {
+        set kliento [PoliqarpKliento new]
+        $kliento startu
+        $kliento preparu
+    }
+    return $kliento
+}
+Class SintaksEkzemploLegilo -parameter {dosiero rezultoDosiero}
+@ ::SintaksEkzemploLegilo idemeta component EsperantiloProgramado
+SintaksEkzemploLegilo instproc destroy {} {
+    my instvar document
+    if {[info exists document]} {
+        $document delete
+    }
+    next
+}
+SintaksEkzemploLegilo instproc init {} {
+    my instvar dosiero document
+    if {![info exists dosiero]} {
+        set dosiero [IDE::Dialog getOpenFile {{XML *.xml} {{All files} *}}]
+    }
+    if {$dosiero eq ""} return
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    package require tdom
+    set document [dom parse -html [read $f]]
+    close $f
+}
+SintaksEkzemploLegilo instproc konserviXML args {
+    my instvar dosiero document
+    set f [open $dosiero w]
+    puts -nonewline $f [$document asXML]
+    close $f
+}
+SintaksEkzemploLegilo instproc konvertu {{rezDosiero ~/esperanto/sintaksekzemploj.xml}} {
+    set doc [dom createDocument sintaksekzemploj]
+    set root [$doc documentElement]
+    my leguEkzamplojn nomo priskribo mall ekzemplo frazo grupo {
+        set ekzNode [$doc createElement ekzamplo]
+        $root appendChild $ekzNode
+        foreach v {nomo priskribo mall ekzemplo frazo} tnomo {nomo priskribo mallongigxo ekzemplo frazo} {
+            set node [$doc createElement $tnomo]
+            $node appendChild [$doc createTextNode [set $v]]
+            $ekzNode appendChild $node
+        }
+        set node [$doc createElement statuso]
+        $node appendChild [$doc createTextNode "nekonata"]
+        $ekzNode appendChild $node
+    }
+    set f [open $rezDosiero w]
+    fconfigure $f -encoding utf-8
+    puts $f [$doc asXML]
+    $doc delete
+    close $f
+}
+SintaksEkzemploLegilo instproc kreuRezultoHTML {} {
+    my instvar dosiero
+    SintaksaAnalizo create [self]::@sinanalizo
+    ErarKolektilo create [self]::@erarkolektilo
+    set vortaro [Vortaro prenuVortaron]
+    package require xotcl::htmllib
+    set indeksoBuilder [HtmlBuilder new -volatile]
+    SintaksEkzemploLegilo startDocument $indeksoBuilder "Ekzemploj de esperanta sintaksa analizo"
+
+    set enh [open [file join [file dirname $dosiero] enhavigo_sintakso.html] r]
+    $indeksoBuilder addString [read $enh]
+    close $enh
+
+    set ekzemploj 0
+    set eraraj 0
+    set vortaro [Vortaro prenuVortaron]
+
+    set lastaGrupo ""
+    set builder ""
+    set grupoNombro 0
+    set frazoNombro 0
+
+    $indeksoBuilder addStringIncr <ul>
+
+    my leguEkzamplojn nomo priskribo mallongigxo ekzemplo frazo statuso grupo {
+        puts "analizas $frazo"
+        if {$grupo ne $lastaGrupo} {
+            if {$lastaGrupo ne ""} {
+                $indeksoBuilder addStringDecr </ul>
+            }
+            set lastaGrupo $grupo
+            if {$builder ne ""} {
+                $builder endDocument
+                set htmlfname [file join [file dirname $dosiero] sintaksekzemploj$grupoNombro.html]
+                set f [open $htmlfname w]
+                puts -nonewline $f [$builder toString]
+                close $f
+                $builder destroy
+            }
+            set builder [HtmlBuilder new -volatile]
+            SintaksEkzemploLegilo startDocument $builder "Ekzemploj de esperanta sintaksa analizo"
+            $builder addString "<a href=\"sintaksekzemploj.html\">Indekso de ekzempol</a> "
+            $builder addString "<a href=\"sintaksekzemploj.xml\">XML Fonto dosiero</a>"
+            $builder addString <h2>$grupo</h2>
+            $builder
+            incr grupoNombro
+            $indeksoBuilder addListItem "<a href=\"sintaksekzemploj$grupoNombro.html\">$grupo</a>"
+            $indeksoBuilder addStringIncr <ul>
+            set frazoNombro 0
+        }
+        $builder addString "<a name=\"f$frazoNombro\"></a>"
+
+        incr ekzemploj
+        $builder startTable -BORDER 0
+        foreach v {nomo priskribo mallongigxo ekzemplo frazo statuso} {
+            $builder startTableRow
+
+            $builder startTableHeaderCell -ALIGN left
+            $builder addString $v
+            $builder endTableHeaderCell
+
+            $builder startTableCell
+            $builder addString [set $v]
+            $builder endTableCell
+
+            $builder endTableRow
+        }
+        $builder startTableRow
+
+        $builder startTableHeaderCell
+        $builder addString "erara analizo"
+        $builder endTableHeaderCell
+
+        GP::Frazo create [self]::@frazo
+        my @frazo leguFrazonPerLegilo $vortaro $frazo
+        set protokol ""
+        set grameraro ""
+        if {0 && [my @frazo havasNekonataj]} {
+            append protokol " !! nekonataj vortoj\n"
+            $builder startTableCell
+            $builder addString $protokol
+            $builder endTableCell
+            $builder endTableRow
+        } else {
+            my @sinanalizo frazo [self]::@frazo
+            my @sinanalizo analizu
+            my @erarkolektilo sintaksAsto [lindex [my @frazo sintaksoarbo] 0]
+            my @erarkolektilo sxercxiErarojn
+            if {[my @erarkolektilo havasErarojn]} {
+                incr eraraj
+                set grameraro "geraro"
+                foreach e [my @erarkolektilo set eraroj] {
+                    append protokol "[lindex $e 1]<br/>"
+                }
+            } else {
+                append protokol "en ordo"
+            }
+            $builder startTableCell
+            $builder addString $protokol
+            $builder endTableCell
+            $builder endTableRow
+
+            $builder startTableRow
+
+            $builder startTableHeaderCell
+            $builder addString "sintaksa arbo"
+            $builder endTableHeaderCell
+
+            $builder startTableCell
+            $builder addString "<pre>"
+            $builder addString "\n[[my @frazo sintaksoarbo] asFormatedList]"
+            $builder addString "</pre>"
+            $builder endTableCell
+            $builder endTableRow
+
+            # svg
+            set graph [SintaksCanvasGraf drawGraph [my @frazo sintaksoarbo]]
+            set file [file join [file dirname $dosiero] sarbo$ekzemploj.svg]
+            $graph eksportuSVG $file
+            foreach {x y width height} [[$graph set cwin] cget -scrollregion] break
+            $graph destroy
+
+            $builder startTableRow
+
+            $builder startTableHeaderCell
+            $builder addString "sintaksa arbo"
+            $builder endTableHeaderCell
+
+            $builder startTableCell
+            $builder addString "<object type=\"image/svg+xml\" data=\"[file tail $file]\" width=\"$width\" height=\"$height\"></object>"
+            $builder endTableCell
+            $builder endTableRow
+
+        }
+        if {$statuso in {{en ordo} nekonata}} {
+            set statuso ""
+        }
+        $indeksoBuilder addListItem "$frazo <a href=\"sintaksekzemploj$grupoNombro.html#f$frazoNombro\">\[montru\]</a> $grameraro $statuso"
+
+        incr frazoNombro
+
+        my @frazo destroy
+
+        $builder endTable
+        $builder addString <hr>
+        update
+        # after 100
+    }
+    my @sinanalizo destroy
+    my @erarkolektilo destroy
+
+    if {$builder ne ""} {
+        if {$lastaGrupo ne ""} {
+            $indeksoBuilder addStringDecr </ul>
+        }
+        $builder endDocument
+        set htmlfname [file join [file dirname $dosiero] sintaksekzemploj$grupoNombro.html]
+        set f [open $htmlfname w]
+        puts -nonewline $f [$builder toString]
+        close $f
+        $builder destroy
+    }
+
+    $indeksoBuilder addStringDecr </ul>
+    $indeksoBuilder addString "<H3>Rezulto:</H3>"
+    $indeksoBuilder addString "nombro de ekzemploj: $ekzemploj"
+    $indeksoBuilder addLineBreak
+    $indeksoBuilder addString "nombro de eraroj: $eraraj"
+    $indeksoBuilder addLineBreak
+
+    $indeksoBuilder endDocument
+    set htmlfname [file join [file dirname $dosiero] sintaksekzemploj.html]
+    set f [open $htmlfname w]
+    puts -nonewline $f [$indeksoBuilder toString]
+    close $f
+    $indeksoBuilder destroy
+    puts "preta"
+    return $htmlfname
+}
+SintaksEkzemploLegilo instproc leguEkzamplojn {nomo_ref priskribo_ref mallongigxo_ref ekzemplo_ref frazo_ref statuso_ref grupo_ref script} {
+    my instvar document
+    set rootElement [$document documentElement]
+    upvar $nomo_ref nomo
+    upvar $priskribo_ref priskribo
+    upvar $mallongigxo_ref mallongigxo
+    upvar $ekzemplo_ref ekzemplo
+    upvar $frazo_ref frazo
+    upvar $statuso_ref statuso
+    upvar $grupo_ref grupo
+
+    foreach grupoNode [$rootElement selectNodes //sintaksekzemploj/grupo] {
+        set grupo [$grupoNode getAttribute nomo]
+        foreach ekzNode [$grupoNode selectNodes ekzemplo] {
+            foreach t {nomo priskribo mallongigxo ekzemplo frazo statuso} {
+                set node [lindex [$ekzNode selectNodes $t] 0]
+                if {$node ne ""} {
+                    set $t [my nodeTextValue $node]
+                }
+            }
+            uplevel $script
+        }
+    }
+}
+SintaksEkzemploLegilo instproc nodeTextValue node {
+    set schild [$node firstChild]
+    if {$schild ne ""} {
+        return [$schild nodeValue]
+    } else {
+        return ""
+    }
+}
+SintaksEkzemploLegilo instproc troviDiferencojn {{akceptu 0}} {
+    my instvar document
+    SintaksaAnalizo create [self]::@sinanalizo
+    set vortaro [Vortaro prenuVortaron]
+
+    set rootElement [$document documentElement]
+    set sxangxoj 0
+    set rez ""
+
+    foreach ekzNode [$rootElement selectNodes /sintaksekzemploj/grupo/ekzemplo] {
+        set frazo [iloj::getNodeTextValue $ekzNode frazo]
+        set sarbo [regsub -all {[\s\n]+} [iloj::getNodeTextValue $ekzNode sarbo] " "]
+
+        GP::Frazo create [self]::@frazo
+        my @frazo leguFrazonPerLegilo $vortaro $frazo
+
+        my @sinanalizo frazo [self]::@frazo
+        my @sinanalizo analizu
+
+        set nsarbo [[my @frazo sintaksoarbo] asList]
+        if {$sarbo eq ""} {
+            set sxangxoj 1
+            append rez "aligu sarbo por: $frazo\n"
+            append rez "sarbo: $nsarbo\n\n"
+            iloj::setNodeValue $ekzNode sarbo $nsarbo
+        } else {
+            if {$nsarbo ne $sarbo} {
+                append rez "differenco en: $frazo\n"
+                append rez "sarbo: $sarbo\n"
+                append rez "narbo: $nsarbo\n\n"
+                incr sxangxoj
+                if {$akceptu} {
+                    iloj::setNodeValue $ekzNode sarbo $nsarbo
+                }
+            }
+        }
+        my @frazo destroy
+    }
+    if {$sxangxoj} {
+        my konserviXML
+    }
+    return $rez
+}
+SintaksEkzemploLegilo proc startDocument {doc title} {
+    $doc addString {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/frameset.dtd">}
+    $doc addWhiteSpace
+    $doc addString {<HTML>}
+    $doc addStringIncr {<HEAD>}
+    $doc addString "<TITLE>$title</TITLE>"
+    $doc addString "<meta name=\"Language\" content=\"eo\">"
+    $doc addString "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">"
+    $doc addString "<LINK REL=\"StyleSheet\" HREF=\"esperantilo.css\" TYPE=\"text/css\">"
+    $doc addStringDecr {</HEAD>}
+    $doc addWhiteSpace
+    $doc addStringIncr {<BODY>}
+    $doc addString {<table class="navigationheader">
+<tr>
+<td>
+<a href="./index.html">Esperantilo ĉefa paĝo</a>
+</td>
+
+</tr>
+</table>}
+}
+Class Tatoeba
+@ ::Tatoeba idemeta component EsperantiloProgramado
+Tatoeba instproc alXML frazo {
+    string map [list & "&amp;" < "&lt;" > "&gt;" \" "&quot;"] $frazo
+}
+Tatoeba instproc destroy {} {
+    my instvar connection
+    catch {$connection close}
+    next
+}
+Tatoeba instproc importuDeDosiero {dosiero tablo kampoj} {
+    my instvar connection
+    set f [open $dosiero r]
+    set i 0
+    while {[gets $f linio]>=0} {
+        if {[$connection insertRow $tablo $kampoj [split $linio \t]] eq ""} {
+            error "sql error [$connection errorMessage]"
+        }
+        incr i
+        if {$i % 300 == 0} {
+            puts "$tablo $i"
+        }
+    }
+    close $f
+}
+Tatoeba instproc impurtuFrazojn {} {
+    my instvar connection
+    set dosierujo [file join [Esperantilozentro prenuFontoDosieron] tatoeba]
+    if {![file isdirectory $dosierujo]} {
+        error "$dosierujo ne ekzistas"
+    }
+    $connection execute {truncate table sentences}
+    $connection execute {truncate table links}
+    $connection execute {truncate table tags}
+    my importuDeDosiero [file join $dosierujo sentences.csv] sentences {id lng frazo}
+    my importuDeDosiero [file join $dosierujo links.csv] links {frazo1 frazo2}
+    my importuDeDosiero [file join $dosierujo tags.csv] tags {frazo tag}
+}
+Tatoeba instproc init {} {
+    my instvar connection
+    set iclass [Sqlinterface loadInterface mysql]
+    set connection [$iclass new]
+    $connection connect {user root dbank tatoeba}
+    my initTablesIfNotExists
+}
+Tatoeba instproc initTablesIfNotExists {} {
+    my instvar connection
+    if {"sequences" ni [$connection getTables]} {
+        $connection execute {
+            CREATE TABLE sentences (
+                id int primary key,
+                lng varchar(10),
+                frazo varchar(2000)
+            )  ENGINE = MyISAM
+        }
+        $connection execute {
+            CREATE TABLE links (
+                frazo1 int,
+                frazo2 int
+            )  ENGINE = MyISAM
+        }
+        $connection execute {
+            CREATE TABLE tags (
+                frazo int,
+                tag varchar(200)
+            )  ENGINE = MyISAM
+        }
+    }
+}
+Tatoeba instproc kreuFrazojnXML {} {
+    set dosiero [file join [Esperantilozentro prenuFontoDosieron] tatoeba frazoj-tatoeba-eo-pl.xml]
+    set f [open $dosiero w]
+    puts $f "<tradukekzemploj>"
+    foreach frazo [my prenuFrazoParojn epo pol] {
+        set eo [lindex $frazo 0]
+        set pl [lindex $frazo 1]
+        puts $f "<ekzemplo>
+   <origina>[my alXML $eo]</origina>
+   <traduko lang=\"pl\">[my alXML $pl]</traduko>
+</ekzemplo>"
+    }
+    puts $f "</tradukekzemploj>"
+    close $f
+}
+Tatoeba instproc kreuHTMLPagonPoKomputilaTraduko {} {
+    set dosiero [file join [Esperantilozentro prenuFontoDosieron] tatoeba frazoj-tatoeba-eo-pl.xml]
+    set espzentro [Esperantilozentro newBrowser]
+    $espzentro kreuPagxoTradukojn pl $dosiero
+}
+Tatoeba instproc kreuKomputilanTradukon {} {
+    set dosiero [file join [Esperantilozentro prenuFontoDosieron] tatoeba frazoj-tatoeba-eo-pl.xml]
+    set espzentro [Esperantilozentro newBrowser]
+    $espzentro testuTradukojn pl $dosiero
+}
+Tatoeba instproc prenuFrazoParojn {lng1 lng2} {
+    my instvar connection
+    $connection queryList "select s1.frazo,s2.frazo from sentences s1,sentences s2,links l where s1.id=l.frazo1 and s2.id=l.frazo2 and s1.lng='$lng1' and s2.lng='$lng2'"
+}
+Tatoeba proc prenuInstancon {} {
+    my instvar inst
+    if {![info exists inst] || $inst eq ""} {
+        set inst [Tatoeba new]
+    }
+    return $inst
+}
+Class TradukEkzemploLegilo -parameter fname
+@ ::TradukEkzemploLegilo idemeta component EsperantiloProgramado
+TradukEkzemploLegilo instproc init args {
+    my instvar fname document
+    if {![info exists fname]} {
+        set fname [IDE::Dialog getOpenFile {{XML *.xml} {{All files} *}}]
+    }
+    if {$fname eq ""} return
+    set f [open $fname r]
+    fconfigure $f -encoding utf-8
+    package require tdom
+    set document [dom parse -simple [read $f]]
+    close $f
+}
+Class TroviNekonatajnTradukojn -superclass ::TradukImportilo
+@ ::TroviNekonatajnTradukojn idemeta component EsperantiloProgramado
+TroviNekonatajnTradukojn instproc importuTraduko {lingvo esperanto traduko sento gramatiko fgrupo} {
+    my instvar tradukojArr
+    lappend tradukojArr($esperanto) $traduko
+}
+TroviNekonatajnTradukojn instproc raportuNekonatajn {} {
+    my instvar tradukojArr lng
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set ret ""
+    for {set sid [array startsearch tradukojArr]} {[array anymore tradukojArr $sid]} {} {
+            set vorto [array nextelement tradukojArr $sid]
+            set tradukoj $tradukojArr($vorto)
+            set ptradukoj [$dbvortaro sxercxuRezListo $vorto $lng]
+            if {[llength $ptradukoj]>0} {
+                set unuatraduko [dict get [lindex $ptradukoj 0] traduko]
+                if {$unuatraduko ni $tradukoj} {
+                    append ret "esperanto = $vorto\n"
+                    set miajtradukoj [list]
+                    foreach t $ptradukoj {
+                        lappend miajtradukoj [dict get $t traduko]
+                    }
+                    append ret "propra = $unuatraduko ne en '[join $tradukoj ,]' aliaj: '[join $miajtradukoj ,]'\n"
+                }
+            }
+        }
+    array donesearch tradukojArr $sid
+    return $ret
+}
+TroviNekonatajnTradukojn proc konvert {} {
+    set filetypes {{{Text Files} *.txt} {{All files} *}}
+    set file [::IDE::Dialog getOpenFile $filetypes]
+    set f [open $file r]
+    fconfigure $f -encoding binary
+    set b [read $f]
+    close $f
+    regsub -all {\0+} $b \# b
+    set ret ""
+    foreach {v t} [split $b \#] {
+        append ret "[encoding convertfrom iso8859-3 $v]; [encoding convertfrom cp1250 $t]\n"
+    }
+    return $ret
+}
+TroviNekonatajnTradukojn proc troviNekonatajnTradukojn {} {
+    set lingvo pl
+    set inst [TroviNekonatajnTradukojn new -lng pl -sep \; -ssep ,]
+    $inst prilaboruVortliston
+    EsperantoBrowser redaktoTekston [$inst raportuNekonatajn]
+    $inst destroy
+}
+Object LiberaFolioLegilo
+@ ::LiberaFolioLegilo idemeta component EsperantiloProgramado
+LiberaFolioLegilo proc ekstraktuTekston {} {
+    set out [open [file join liberafolio liberafolio.txt] w]
+
+    foreach f [glob -directory liberafolio *.html] {
+        set fin [open $f r]
+        set data [read $fin]
+        close $fin
+        if {[regexp {<p class="documentDescription">(.+?)</p>} $data _ t]} {
+            puts $out $t
+        } else {
+            puts "titolo ne trovita en $f"
+        }
+        if {[regexp {<div class="plain">(.+?)</div>} $data _ t] || [regexp {<div class="stx">(.+?)</div>} $data _ t]} {
+            regsub -all {<.+?>} $t " " t
+            set t [string map [list "&nbsp;" " " "&amp;" & "&quot;" \" cx ĉ sx ŝ CX Ĉ Cx Ĉ SX Ŝ Sx Ŝ ux ŭ UX Ŭ Ux Ŭ gx ĝ GX Ĝ Gx Ĝ hx ĥ HX Ĥ Hx Ĥ jx ĵ JX Ĵ Jx Ĵ] $t]
+            puts $out $t
+        } else {
+            puts "enhavo ne trovita en $f"
+        }
+    }
+
+    close $out
+}
+LiberaFolioLegilo proc konvertuFGramatikon {} {
+    set d {c:\Dokumente und Einstellungen\atrzewik\Eigene Dateien\tmp\gf\Program Files\Haskell\gf-3.1\lib\src\esperanto}
+    foreach f [glob -directory $d *.gf] {
+        if {[regexp {(.+)Ina(.*gf)} $f _ pre post]} {
+            set newname ${pre}Eo${post}
+            set from [file tail [file rootname $f]]
+            set to [file tail [file rootname $newname]]
+            lappend map $from $to
+            file rename $f $newname
+        }
+    }
+
+    foreach f [glob -directory $d *.gf] {
+        set fi [open $f r]
+        set content [string map $map [read $fi]]
+        close $fi
+        set fo [open $f w]
+        puts -nonewline $fo $content
+        close $fo
+    }
+}
+LiberaFolioLegilo proc nekonatajPolajTradukoj {} {
+    set e [file join [Esperantilozentro prenuFontoDosieron] liberafolio sentraduko.txt]
+    set f [open $e r]
+    set vortaro [HunspellTestiloEo prenuVortaron]
+    while {[gets $f line]>=0} {
+        if {[regexp {^(\w+)\s+(\d+)$} $line _ vorto nombro]} {
+            if {[$vortaro estasVorto $vorto]!=0} {
+                if {[catch {incr vortoArr($vorto) $nombro}]} {
+                    set vortoArr($vorto) $nombro
+                }
+            }
+        } else {
+            my halt
+        }
+    }
+    close $f
+    foreach n [array names vortoArr] {
+        lappend ordoListo [list $n $vortoArr($n)]
+    }
+    set ordoListo [lsort -integer -decreasing -index 1 $ordoListo]
+    join $ordoListo \n
+}
+Object LiterumiloSkriptoj
+@ ::LiterumiloSkriptoj idemeta component EsperantiloProgramado
+LiterumiloSkriptoj proc trovuGeografiajNomoj {} {
+    set file [file join [Esperantilozentro prenuFontoDosieron] eowiki teksto-all.freq]
+    if {![file isfile $file]} {
+        return "no file $file"
+    }
+    set ifile [open $file r]
+    while {[gets $ifile line]>=0} {
+        if {[regexp {(\w+) (\d+) (\d+)} $line _ vorto ofteco grupo]} {
+            if {$grupo<=19} {
+                set vortoArr($vorto) [list $ofteco $grupo]
+            } else {
+                break
+            }
+        }
+    }
+    close $ifile
+
+    set ret [list]
+    foreach vorto [array names vortoArr] {
+        if {[regexp {^[[:upper:]][[:lower:]]+o$} $vorto]} {
+            set vog $vortoArr($vorto)
+            if {[lindex $vog 1]>13} {
+                continue
+            }
+            if {[info exists vortoArr([string tolower $vorto])]} {
+                continue
+            }
+            set adj [string tolower [string range $vorto 0 end-1]]a
+            if {![catch {set vortoArr($adj)} aog]} {
+                if {[lindex $aog 1]>[lindex $vog 1]} {
+                    lappend ret $vorto
+                }
+            }
+        }
+    }
+
+    # join [lsort $ret] \n
+    
+    set fret [list]
+    
+    foreach v $ret {
+        set art [VikipediaLegilo prenuArtikolon $v eo]
+        if {$art eq ""} {
+            puts "ne artikolo $v"
+            continue
+        }
+        if {[string first urbo [string range $art 0 128]]>=0 || [string first Urbo [string range $art 0 128]]>=0} {
+            lappend fret $v
+            continue
+        }
+        if {[regsub -all {{{.+?}}} $art {} sart]>0} {
+            if {[string first urbo [string tolower [string range $sart 0 128]]]>=0} {
+                lappend fret $v
+                continue
+            }            
+        }
+        if {[regsub -all {{\|.+?\|}} $art {} sart]>0} {
+            if {[string first urbo [string tolower [string range $sart 0 128]]]>=0} {
+                lappend fret $v
+                continue
+            }            
+        }
+        puts "ne urbo $v"
+    }
+    
+    join [lsort $fret] \n
+    
+}
+Object MTSkriptoj
+@ ::MTSkriptoj idemeta component EsperantiloProgramado
+MTSkriptoj proc ekGizza {source target} {
+    cd [my getDosierujo]
+    catch {exec plain2snt.out $source.txt $target.txt}
+    my kreuVortaron $source.vcb $target.vcb dic.txt
+    exec mkcls.exe -m2 -p$source.txt -c50 -V$source.vcb.classes
+    exec mkcls.exe -m2 -p$target.txt -c50 -V$target.vcb.classes
+    puts "GIZA++.exe -S $source.vcb -T $target.vcb -C ${source}_${target}.snt"
+    exec GIZA++.exe -S $source.vcb -T $target.vcb -C ${source}_${target}.snt -d dic.txt -o dictionary -model1iterations 5 -model2iterations 0 -model3iterations 3 -model4iterations 3 -model1dumpfrequency 1 -hmmdumpfrequency 1 -model2dumpfrequency 1 -model345dumpfrequency 1 -transferdumpfrequency 1 >& dictionary.log
+}
+MTSkriptoj proc getDosierujo {} {
+    return "c:\\Dokumente und Einstellungen\\atrzewik\\Eigene Dateien\\esp\\tatoeba"
+}
+MTSkriptoj proc kreuVortaron {source target dir} {
+    set s [open $source r]
+    set t [open $target r]
+    set d [open $dir w]
+
+    while {[gets $t line]>0} {
+        lassign [split $line " "] id vorto
+        set tarr($vorto) $id
+    }
+    
+    set vortaro [DBVortaro prenuVortaron]
+    
+    while {[gets $s line]>0} {
+        lassign [split $line " "] id vorto
+        foreach traduko [$vortaro sxercxuRezListo $vorto pl] {
+            set tvorto [dict get $traduko traduko]
+            if {[info exists tarr($tvorto)]} {
+                puts $d "$id $tarr($tvorto)"
+            } else {
+                puts "ne ekzistas $tvorto por $vorto"
+            }
+        }
+    }
+
+    close $s
+    close $t
+    close $d
+}
+MTSkriptoj proc kreuVortaronDeFrazoj {} {
+    set source frazojp-eo
+    set target frazojp-pl
+    my ekGizza $source $target
+    #my preparuRezulatonVortaron
+    set s [MTSkriptoj]
+    $s puriguRezultanVortaron [file join [$s getDosierujo] $source] [file join [$s getDosierujo] dictionary.actual.ti.final]
+}
+MTSkriptoj proc preparuFrazoj {} {
+    set d [open [file join [my getDosierujo] frazoj-eo.txt] r]
+    set dw [open [file join [my getDosierujo] frazojp-eo.txt] w]
+    set p [open [file join [my getDosierujo] frazoj-pl.txt] r]
+    set pw [open [file join [my getDosierujo] frazojp-pl.txt] w]
+    set evortaro [Vortaro prenuVortaron]
+    set pradikilo [Radikilaro prenuPorLingvo pl]
+    set plignori {nie oto pan albo ani jaki ty cię ile ktoś coś któryś}
+    foreach nombro {singularo pluralo} {
+        foreach kazo {M D C B N Ms} {
+            foreach pronomo {mi vi li ĝi ni oni ŝi ili si kiu kio tio tiu nenio neniu iu io} {
+                lappend plignori [PolaFleksio prenuPersonPronomon $pronomo ms $kazo $nombro]
+            }
+            foreach arto {ms mz mn ze ni} {
+                foreach pronomo {mia via lia ĝia nia onia ŝia ilia sia kiu kia tia tiu neniu nenia iu ia} {
+                    lappend plignori [PolaFleksio prenuPosesivPronomon $pronomo $arto $kazo $nombro]
+                }
+            }
+        }
+    }
+    set plignori [lsort -unique $plignori]
+    while {[gets $d line]>0 && [gets $p pline]>0} {
+        regsub -all {[^\s[:alpha:]]} $line {} line
+        regsub -all {[^\s[:alpha:]]} $pline {} pline
+        set nlinio [list]
+        foreach vorto [string tolower $line] {
+            if {![$evortaro estasVorteto $vorto]} {
+                set eorad [EORadikilo radikigi $vorto]
+                if {$eorad ne "esti"} {
+                    lappend nlinio $eorad
+                }
+            }
+        }
+        set plinio [list]
+        foreach vorto [string tolower $pline] {
+            if {![$pradikilo cxuIgnori $vorto] && $vorto ni $plignori} {
+                set rad [lindex [$pradikilo radikigi $vorto] 0]
+                if {[llength $rad]==0 || [llength $rad]>1} {
+                    lappend plinio $vorto
+                } else {
+                    if {[lindex $rad 0] ne "być"} {
+                        lappend plinio [lindex $rad 0]
+                    }
+                }
+            }
+        }
+        if {[llength $nlinio]>0 && [llength $plinio]>0} {
+            puts $dw [join $nlinio]
+            puts $pw [join $plinio]
+        }
+    }
+    close $d
+    close $dw
+    close $p
+    close $pw
+}
+MTSkriptoj proc preparuRezulatonVortaron {} {
+    set d [open [file join [my getDosierujo] dictionary.actual.ti.final] r]
+    set rezultaVortaro [file join [my getDosierujo] vortaro-eo-pl.txt]
+    set w [open $rezultaVortaro w]
+    while {[gets $d line]>0} {
+        lassign [split $line " "] plvorto eovorto probo
+        if {$plvorto eq "NULL" || $eovorto eq "NULL"} continue
+        if {$probo>0.1} {
+            puts $w "$eovorto; $plvorto"
+        }
+    }
+    close $w
+    close $d
+    return $rezultaVortaro
+}
+MTSkriptoj proc puriguRezultanVortaron {source dictionaryFinal} {
+   set td [open $source.vcb r]
+   while {[gets $td line]>0} {
+        lassign [split $line " "] id vorto nombro
+        set tarr($vorto) $nombro
+   }
+   close $td
+   
+   set pltagger [[EsperantoConf prenuLingvoFabriko pl] prenuTagger]
+   set vortaro [DBVortaro prenuVortaron]
+
+   array set tagarr {subst o verb i adj a adv e}
+
+   set d [open $dictionaryFinal r]
+   set rezultaVortaro [file join [my getDosierujo] vortaro-eo-pl.txt]
+   set w [open $rezultaVortaro w]
+   while {[gets $d line]>0} {
+        lassign [split $line " "] plvorto eovorto probo
+        if {$plvorto eq "NULL" || $eovorto eq "NULL"} continue
+        if {$probo>0.1 && $tarr($eovorto)>=2} {
+            set konvena 0
+            if {$eovorto eq "fakto"} {
+                my halt
+            }
+            foreach {bvorto tag} [$pltagger prenuTag $plvorto] {
+                foreach t $tag {
+                    set plvortkat [lindex [split $t :] 0]
+                    if {[info exists tagarr($plvortkat)] && $tagarr($plvortkat) eq [string index $eovorto end]} {
+                        set konvena 1
+                        break
+                    }
+                }
+                if {$konvena} {
+                    break
+                }
+            }
+            if {!$konvena} {
+                continue
+            }
+            set konata 0
+            foreach traduko [$vortaro sxercxuRezListo $eovorto pl] {
+                set tvorto [dict get $traduko traduko]
+                if {$tvorto eq $plvorto || "$tvorto się" eq $plvorto} {
+                    set konata 1
+                    break
+                }
+            }
+            if {!$konata} {
+                puts $w "$eovorto, $plvorto"
+            }
+        }
+   }
+   close $w
+   close $d
+   return $rezultaVortaro
+
+}
+Object Skiptoj
+@ ::Skiptoj idemeta categoriesMethodsProcs {{eksportuVortojDeRadikaro enleguAff enleguOfizialajn} {ekstraktuRadikojn faruCxapalistoDic faruDic testHunspell} {faruDicDeDosieroj faruPrefiksojDeDosiero faruPrefiksojn faruRadikojn faruRadikojn2 faruSimplaDicDeDosieroj kunliguDicDosierojn markuKonatajnPrefiksojn nombroDeLinioj puriguAfiksojn} {faruDicDeListo faruEsperantiloDic faruEsperantiloMorfDic faruEsperantiloTestDic faruEtoDic faruNomojListoj} {faruVerboSufikojn konstruPrefiksojn leguDerivojDePivXML leguDerivojDePivXMLlisto prenuLiberajSufiksoj} orduLauxLongo faruEsperantiloDicCxio}
+@ ::Skiptoj idemeta categoriesProcs {preparo malnova faru-dic-provate faru-dic iloj private generu-esp-dic}
+@ ::Skiptoj idemeta component EsperantiloProgramado
+Skiptoj proc boniguTransCxeRadikaro {} {
+    foreach i [Radiko chiojRadikoj] {
+        set ider [$i sxercxuDerivonPS {} i]
+        if {[llength $ider]>0} {
+            if {"trans" in [lindex $ider 2]} {
+                foreach d [$i prenuListDerivoj] {
+                    if {[lindex $d 1] eq "i" && "trans" ni [lindex $d 2]} {
+                        puts "trans [$i prenuRadiko]i ne [lindex $d 0][$i prenuRadiko][lindex $d 1]"
+                        $i metuDerivoAttr [lindex $d 0] [lindex $d 1] trans
+                    }
+                }
+            }
+        }
+    }
+}
+Skiptoj proc eksportuVortojDeRadikaro {} {
+    Radiko eksportuEblajVortoj2 cxapelisto/esperantilo-vortoj.txt
+}
+Skiptoj proc ekstraktuGutembergoTekstojn {} {
+    set d [file join [Esperantilozentro prenuFontoDosieron] gutemberg html_all]
+    set o [open [file join $d html_all.txt] w]
+
+    set m [list {&#265;} ĉ {&#349;} ŝ {&#264;} Ĉ {&#348;} Ŝ {&#365;} ŭ {&#364;} Ŭ {&#285;} ĝ {&#284;} Ĝ {&#293;} ĥ {&#292;} Ĥ {&#309;} ĵ {&#308;} Ĵ]
+
+    lappend m {&#161;} ¡ {&#162;} ¢ {&#163;} £ {&#164;} ¤ {&#165;} ¥ {&#166;} ¦ {&#167;} § {&#168;} ¨ {&#169;} © {&#170;} ª {&#171;} « {&#172;} ¬ {&#173;} ­ {&#174;} ® {&#175;} ¯ {&#176;} ° {&#177;} ± {&#178;} ² {&#179;} ³ {&#180;} ´ {&#181;} µ {&#182;} ¶ {&#183;} · {&#184;} ¸ {&#185;} ¹ {&#186;} º {&#187;} » {&#188;} ¼ {&#189;} ½ {&#190;} ¾ {&#191;} ¿ {&#192;} À {&#193;} Á {&#194;} Â {&#195;} Ã {&#196;} Ä {&#197;} Å {&#198;} Æ {&#199;} Ç {&#200;} È {&#201;} É {&#202;} Ê {&#203;} Ë {&#204;} Ì {&#205;} Í {&#206;} Î {&#207;} Ï {&#208;} Ð {&#209;} Ñ {&#210;} Ò {&#211;} Ó {&#212;} Ô {&#213;} Õ {&#214;} Ö {&#215;} × {&#216;} Ø {&#217;} Ù {&#218;} Ú {&#219;} Û {&#220;} Ü {&#221;} Ý {&#222;} Þ {&#223;} ß {&#224;} à {&#225;} á {&#226;} â {&#227;} ã {&#228;} ä {&#229;} å {&#230;} æ {&#231;} ç {&#232;} è {&#233;} é {&#234;} ê {&#235;} ë {&#236;} ì {&#237;} í {&#238;} î {&#239;} ï {&#240;} ð {&#241;} ñ {&#242;} ò {&#243;} ó {&#244;} ô {&#245;} õ {&#246;} ö {&#247;} ÷ {&#248;} ø {&#249;} ù {&#250;} ú {&#251;} û {&#252;} ü {&#253;} ý {&#254;} þ {&#255;} ÿ
+
+    set esc [EsperantoStringConverter new]
+    set m2 [$esc prenuRevoMap]
+    $esc destroy
+
+    set teksto ""
+    foreach f [glob -directory $d *.htm] {
+        set i [open $f r]
+        puts "analizu $f"
+        set found 0
+        while {[gets $i line]>=0} {
+            if {[string first {*** START OF THIS PROJECT} $line]==0} {
+                set found 1
+                break
+            }
+        }
+        if {!$found} {
+            puts "starto ne trovita"
+            continue
+        }
+        while {[gets $i line]>=0} {
+            if {[string first {*** END OF THIS PROJECT} $line]!=0} {
+                append teksto $line \n
+            } else {
+                break
+            }
+        }
+        close $i
+    }
+    set teksto [string map $m $teksto]
+    regsub -all {<!--.+?-->} $teksto { } teksto
+    regsub -all {<.+?>} $teksto { } teksto
+    set teksto [string map [list "&lt;" < "&gt;" > ''' "" '' "" "&amp;" & "&quot;" \" "&mdash;" — "&ndash" – "&lsquo;" ‘ "&rsquo;" ’ "&ldquo;" “ "&rdquo;" ” "&bdquo;" „ "&nbsp;" " " "&uuml;" ü "&#8212;" — "&#8222;" „ "&#8220;" “ "&raquo;" » "&frac14;" ¼ "&frac12;" ½ "&laquo;" «] $teksto]
+    set teksto [string map $m2 $teksto]
+    set dm [list]
+    set konataj [list]
+    foreach {d ud} [regexp -all -inline {&#(\d+);} $teksto] {
+        if {$ud ni $konataj} {
+            lappend dm $d [format %c $ud]
+            lappend konataj $ud
+        }
+    }
+    set teksto [string map $dm $teksto]
+    puts $o $teksto
+    close $o
+}
+Skiptoj proc ekstraktuNovajVortoj {} {
+    set f [open [file join cxapelisto liberafolio_mankantaj.txt] r]
+    set ret ""
+    set t [HunspellTestilo prenuInstancoPorLingvo en]
+    while {[gets $f line]!=-1} {
+        # nur esperantaj literoj
+        if {[regexp {^([a-prstuvzĉŝŭĥĵĝ]{3,}) } $line _ vorto]} {
+            # nur esperanta gramatiko
+            if {[regexp {(en?|[ao]j?n?|[uioa]s?)$} $vorto]} {
+                if {[$t estasVorto $vorto]!=2} {
+                    append ret $line \n
+                }
+            }
+        }
+    }
+    close $f
+    return $ret
+}
+Skiptoj proc ekstraktuNovajVortojGram {} {
+    # set f [open [file join cxapelisto liberafolio_mankantaj.txt] r]
+    set f [open [file join cxapelisto wiki_mankantaj_pur_ilo.txt] r]
+    set ret ""
+    set t [HunspellTestilo prenuInstancoPorLingvo en]
+    while {[gets $f line]!=-1} {
+        # nur esperantaj literoj
+        if {[regexp {^([a-prstuvzĉŝŭĥĵĝ]{3,}) (\d+) (\d+)} $line _ vorto nombro grupo]} {
+            # nur esperanta gramatiko
+            if {[regexp {(en?|[ao]j?n?|[uioa]s?)$} $vorto]} {
+                if {[$t estasVorto $vorto]!=2} {
+                    # append ret $line \n
+                    set rad [EORadikilo radikigi $vorto]
+                    lappend radArr($rad) $vorto $nombro
+                }
+            }
+        }
+    }
+    close $f
+
+    set nombr [list]
+    foreach n [array names radArr] {
+        set nbr 0
+        foreach {v nombro} $radArr($n) {
+            incr nbr $nombro
+        }
+        lappend nombr [list $n $nbr]
+    }
+    set nombr [lsort -integer -integer -index 1 -decreasing $nombr]
+    foreach nl $nombr {
+        set n [lindex $nl 0]
+        append ret "$n $radArr($n)\n"
+    }
+    return $ret
+}
+Skiptoj proc ekstraktuRadikojn {radikoArr_ref count_ref} {
+    upvar $radikoArr_ref radikoArr
+    upvar $count_ref count
+    if {![array exists radikoArr]} {
+        return
+    }
+    set ret ""
+    set eblajSufiksoj {ul ec aĵ ulin eg et egaĵ etaĵ aĵet aĵeg etec egec egul egulin etul etulin ulec ant antin int intin ont ontin em emul emulin kapabl pov at ot it atin otin itin inda indaĵ end endaĵ ebla eblaĵ}
+    set radikoj [my orduLauxLongo [array names radikoArr]]
+
+    set sufdefino {
+        G I {ig igil} {igant igantin igint igintin igont igontin igem igemul igemulin igkapabl igpov igat igot igit igatin igotin igitin iginda igindaĵ igend igendaĵ igebla igeblaĵ} {}
+        D I {ad} {adant adantin adint adintin adont adontin adem ademul ademulin adkapabl adpov} {}
+        L O {il} {} {I}
+        K O {an anin} {} {I}
+        J O {ej} {} I
+        S O {ist istin} {} I
+        U O {uj} {} I
+        M O {ism} {} I
+        R O {ar} {} I
+        P O {er} {} I
+        E O {eg} {} I
+        H O {et} {} I
+    }
+
+    foreach {suf bsuf bazaj forigu bariero} $sufdefino {
+        lappend eblajSufiksoj {*}$bazaj
+        lappend eblajSufiksoj {*}$forigu
+    }
+
+    set verboj [list]
+    foreach vorto $radikoj {
+        set sufiksoj $radikoArr($vorto)
+        if {"I" in $sufiksoj} {
+            lappend verboj $vorto
+        }
+    }
+    foreach v $verboj {
+        foreach s {ant antin int intin ont ontin em emul emulin kapabl pov} {
+            # voli - volonti
+            if {![catch {set radikoArr($v$s)} sufiksoj]} {
+                if {"I" ni $sufiksoj} {
+                    unset radikoArr($v$s)
+                } else {
+                    puts "ne forigi $v$s"
+                }
+            }
+        }
+        set ist 0
+        foreach s {at ot it atin otin itin inda indaĵ end endaĵ ebla eblaĵ} {
+            # vizi - viziti
+            if {![catch {set radikoArr($v$s)} sufiksoj]} {
+                if {"I" ni $sufiksoj} {
+                    set ist 1
+                    unset radikoArr($v$s)
+                } else {
+                    puts "ne forigi $v$s"
+                }
+            }
+        }
+        if {$ist} {
+            lappend radikoArr($v) T
+        }
+    }
+    set radikoj [my orduLauxLongo [array names radikoArr]]
+
+
+    set adjektivoj [list]
+    foreach vorto $radikoj {
+        set sufiksoj $radikoArr($vorto)
+        if {"A" in $sufiksoj} {
+            lappend adjektivoj $vorto
+        }
+    }
+    foreach v $adjektivoj {
+        foreach s {ul ec aĵ ulin eg et egaĵ etaĵ aĵet aĵeg etec egec egul egulin etul etulin ulec ig igat igot igit} {
+            if {![catch {set radikoArr($v$s)} sufiksoj]} {
+                set sekzistas 0
+                foreach e $eblajSufiksoj {
+                    if {"$v$s$e" in $radikoj} {
+                        set sekzistas 1
+                        break
+                    }
+                }
+                if {!$sekzistas} {
+                    unset radikoArr($v$s)
+                } else {
+                    puts "ne forigu adjektivo $v$s - $v$s$e"
+                }
+            }
+        }
+    }
+
+    foreach {suf bsuf bazaj forigu bariero} $sufdefino {
+        set bradikoj [list]
+        set radikoj [my orduLauxLongo [array names radikoArr]]
+        foreach vorto $radikoj {
+            set sufiksoj $radikoArr($vorto)
+            if {$bsuf in $sufiksoj} {
+                lappend bradikoj $vorto
+            }
+        }
+        foreach v $bradikoj {
+            set ekzistas 0
+            foreach s $bazaj {
+                if {![catch {set radikoArr($v$s)} sufiksoj]} {
+                    # tuseti - tuso
+                    if {$bsuf in $sufiksoj && $bariero ni $sufiksoj} {
+                        set ekzistas 1
+                    }
+                    break
+                }
+            }
+            if {$ekzistas} {
+                lappend radikoArr($v) $suf
+                foreach s [concat $bazaj $forigu] {
+                    if {![catch {set radikoArr($v$s)} sufiksoj]} {
+                        set sekzistas 0
+                        foreach e $eblajSufiksoj {
+                            if {"$v$s$e" in $radikoj && "$s$e" ni $forigu} {
+                                set sekzistas 1
+                                break
+                            }
+                        }
+                        if {!$sekzistas} {
+                            unset radikoArr($v$s)
+                        } else {
+                            puts "ne forigu $suf $v$s - $v$s$e"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    #puts "array: [array get radikoArr]"
+
+    for {set sid [array startsearch radikoArr]} {[array anymore radikoArr $sid]} {} {
+        set vorto [array nextelement radikoArr $sid]
+        set sufiksoj $radikoArr($vorto)
+        set radikoDef "$vorto/X"
+        if {"O" in $sufiksoj && "A" ni $sufiksoj && "I" ni $sufiksoj} {
+            append radikoDef O
+        }
+        if {"A" in $sufiksoj} {
+            append radikoDef A
+        }
+        if {"I" in $sufiksoj} {
+            append radikoDef I
+        }
+        if {"T" in $sufiksoj} {
+            append radikoDef T
+        }
+        foreach {suf bsuf bazaj forigu bariero} $sufdefino {
+            if {$suf in $sufiksoj} {
+                if {$suf eq "D" && "T" in $sufiksoj} {
+                    # transitiva ad
+                    append radikoDef F
+                } else {
+                    append radikoDef $suf
+                }
+            }
+        }
+        incr count
+        append ret $radikoDef \n
+    }
+    return $ret
+}
+Skiptoj proc enleguAff input {
+    my instvar sufiksoj prefiksoj
+    array unset sufiksoj
+    array unset prefiksoj
+    set if [open $input r]
+    while {[gets $if linio]!=-1} {
+        if {[regexp {SFX (.?) 0 (.+?)/(.+?) .} $linio _ tipo sufikso gramtipo]} {
+            if {$tipo ni {# <}} {
+                lappend sufiksoj($tipo) $sufikso $gramtipo
+            }
+        }
+        if {[regexp {PFX (.?) 0 (.+?) .} $linio _ tipo prefikso]} {
+            if {$tipo ni {p m}} {
+                lappend prefiksoj($tipo) $prefikso
+            }
+        }
+    }
+    lappend sufiksoj(E) 0 E
+    close $if
+}
+Skiptoj proc enleguOfizialajn {} {
+    my instvar ofizialajnRadikojn
+
+    set d [file join [EsperantoConf prenuFontoDosierujon] oficialaj.txt]
+    if {[file isfile $d]} {
+        set if [open $d r]
+        while {[gets $if line]>=0} {
+            if {$line ne ""} {
+                if {[regexp {^(\w+)(/.*)?$} $line _ rad]} {
+                    lappend ofizialajnRadikojn $rad
+                }
+            }
+        }
+        close $if
+        lappend ofizialajnRadikojn {*}{
+            ekspert distord
+        }
+        set ofizialajnRadikojn [lsort -unique $ofizialajnRadikojn]
+    } else {
+        error "oficialaj radikoj $d ne ekzistas"
+    }
+}
+Skiptoj proc faruCxapalistoDic {} {
+    set c [my faruDicDeDosieroj cxapelisto/ESPERANT.txt cxapelisto/eo_cx.dic.tmp]
+    incr c [my faruDicDeDosieroj cxapelisto/ESPERANT2.txt cxapelisto/eo_cx2.dic.tmp]
+
+    set of [open cxapelisto/eo_cx.dic w]
+    puts $of $c
+    set if [open cxapelisto/eo_cx.dic.tmp r]
+    while {[gets $if linio]!=-1} {
+        puts $of $linio
+    }
+    close $if
+    set if [open cxapelisto/eo_cx2.dic.tmp r]
+    while {[gets $if linio]!=-1} {
+        puts $of $linio
+    }
+    close $if
+    close $of
+}
+Skiptoj proc faruDic {} {
+    set if [open cxapelisto/ESPERANT.txt r]
+    set of [open cxapelisto/eo_cx.dic.tmp w]
+    set v [Vortaro prenuVortaron]
+    set c 0
+    set l3 ""
+    
+    while {[gets $if linio]!=-1} {
+          set w [string trim $linio]
+          if {$w ne ""} {
+              if {[$v estasVorteto $w]} {
+                  set radiko $w
+                  set sufix ""
+              } else {
+                  switch -regexp -matchvar match -- $w {
+                      (.+)i$ {
+                          set radiko [lindex $match 1]
+                          set sufix I
+                      }
+                      (.+)e$ -
+                      (.+)a$ {
+                          set radiko [lindex $match 1]
+                          set sufix A
+                      }
+                      (.+)o$ {
+                          set radiko [lindex $match 1]
+                          set sufix O
+                      }
+                      default {
+                          set radiko $w
+                          set sufix ""
+                      }
+                  }
+              }
+              #puts "radiko $radiko $sufix"
+              if {$sufix eq ""} {
+                  incr c
+                  puts $of $radiko
+              } else {
+                  if {$l3 eq ""} {
+                      set l3 [string range $radiko 0 2]                          
+                  }
+                  if {[string range $radiko 0 2] ne $l3} {
+                      puts -nonewline $of [my ekstraktuRadikojn radikoArr c]
+                      unset -nocomplain radikoArr
+                      set l3 [string range $radiko 0 2]
+                  }
+                  if {[catch {set radikoArr($radiko)} soj]} {
+                      set radikoArr($radiko) [list $sufix]
+                  } else {
+                      if {$sufix ni $soj} {
+                          lappend soj $sufix
+                          set radikoArr($radiko) $soj
+                      }
+                  }
+              }
+          }
+    }
+    puts -nonewline $of [my ekstraktuRadikojn radikoArr c]
+    
+    close $of
+    close $if
+    set if [open cxapelisto/eo_cx.dic.tmp r]
+    set of [open cxapelisto/eo_cx.dic w]
+    puts $of $c
+    while {[gets $if linio]!=-1} {
+        puts $of $linio
+    }
+    close $of
+    close $if
+}
+Skiptoj proc faruDicDeDosieroj {input output} {
+    set if [open $input r]
+    set of [open $output w]
+    set v [Vortaro prenuVortaron]
+    set c 0
+    set l3 ""
+
+    while {[gets $if linio]!=-1} {
+          set w [string trim $linio]
+          if {$w ne ""} {
+              if {[$v estasVorteto $w]} {
+                  set radiko $w
+                  set sufix ""
+              } else {
+                  switch -regexp -matchvar match -- $w {
+                      (.+)i$ {
+                          set radiko [lindex $match 1]
+                          set sufix I
+                      }
+                      (.+)e$ {
+                          set radiko [lindex $match 1]
+                          set sufix E
+                      }
+                      (.+)a$ {
+                          set radiko [lindex $match 1]
+                          set sufix A
+                      }
+                      (.+)o$ {
+                          set radiko [lindex $match 1]
+                          set sufix O
+                      }
+                      default {
+                          set radiko $w
+                          set sufix ""
+                      }
+                  }
+              }
+              #puts "radiko $radiko $sufix"
+              if {$sufix eq ""} {
+                  incr c
+                  puts $of $radiko
+              } else {
+                  if {$l3 eq ""} {
+                      set l3 [string range $radiko 0 1]
+                  }
+                  if {[string range $radiko 0 1] ne $l3} {
+                      puts -nonewline $of [my faruRadikojn radikoArr c]
+                      unset -nocomplain radikoArr
+                      set l3 [string range $radiko 0 1]
+                  }
+                  if {[catch {set radikoArr($radiko)} soj]} {
+                      set radikoArr($radiko) [list $sufix]
+                  } else {
+                      if {$sufix ni $soj} {
+                          lappend soj $sufix
+                          set radikoArr($radiko) $soj
+                      }
+                  }
+              }
+          }
+    }
+    puts -nonewline $of [my faruRadikojn radikoArr c]
+
+    close $of
+    close $if
+
+    return $c
+}
+Skiptoj proc faruDicDeListo {} {
+    set fnomo [IDE::Dialog getOpenFile]
+    if {$fnomo eq ""} return
+    set nomo [file rootname [file tail $fnomo]]
+
+    my faruSimplaDicDeDosieroj $fnomo cxapelisto/eo_$nomo.dic.tmp
+
+    file copy -force cxapelisto/eo_simpla.aff cxapelisto/eo_$nomo.aff
+
+    Skiptoj kunliguDicDosierojn cxapelisto/eo_$nomo.dic cxapelisto/nombroj_tvortoj.dic  cxapelisto/eo_$nomo.dic.tmp
+}
+Skiptoj proc faruEsperantiloDic {} {
+    file copy -force cxapelisto/eo_test.aff cxapelisto/eo_ilo.aff
+
+    Skiptoj enleguAff cxapelisto/eo_ilo.aff
+    my enleguOfizialajn
+
+
+    set c [my faruDicDeDosieroj cxapelisto/esperantilo-vortoj-sort.txt cxapelisto/eo_ilo.dic.tmp]
+
+    set c [my faruPrefiksojDeDosiero cxapelisto/eo_ilo.dic.tmp cxapelisto/eo_ilo.dic.tmpp]
+
+    # wc -l eo_vortetoj.dic
+
+    Skiptoj kunliguDicDosierojn cxapelisto/eo_ilo.dic cxapelisto/eo_ilo.dic.tmpp cxapelisto/nombroj_tvortoj.dic cxapelisto/eo_vortetoj.dic cxapelisto/mallongigojn.txt cxapelisto/urboj.dic cxapelisto/landnomoj-kontinentoj.dic cxapelisto/lingvoj.dic cxapelisto/esperantilo_perditaj_vortoj.txt
+}
+Skiptoj proc faruEsperantiloDicCxio {} {
+    Vortaro prenuVortaron
+    my eksportuVortojDeRadikaro
+    my preparuVortoListo
+    my faruEsperantiloDic
+    # manaj korektoj
+    # kontraux / + I (kontrauxanto)
+    # disput / + T (disputebla)
+    # probo - kiom da vortoj estas en malnove sed ne en nova
+    # hunspell -d eo_ilo991 -L -G <~/esperanto/eowiki/teksto-all.freq | hunspell -d cxapelisto/eo_ilo -l -L | awk 'BEGIN{ i=0 } {i=i+$2} END{print "summe " i}'
+}
+Skiptoj proc faruEsperantiloMorfDic {} {
+    set fi [open [file join cxapelisto eo_ilo.dic] r]
+    set fo [open [file join cxapelisto eo_morf.dic] w]
+
+    while {[gets $fi line]>0} {
+        if {[regexp {^(.{2})/(.+)$} $line _ rad affiksoj]}  {
+            puts $fo "$rad/[string map {A Ā I Ī O Ō} $affiksoj]"
+        } else {
+            puts $fo $line
+        }
+    }
+
+    close $fi
+    close $fo
+}
+Skiptoj proc faruEsperantiloTestDic {} {
+    my enleguAff cxapelisto/eo_test.aff
+    my enleguOfizialajn
+    
+    set c [my faruDicDeDosieroj cxapelisto/esperantilo-test-vortoj-sort.txt cxapelisto/eo_test.dic.tmp]
+    
+    set c [my faruPrefiksojDeDosiero cxapelisto/eo_test.dic.tmp cxapelisto/eo_test.dic.tmpp]
+
+    set of [open cxapelisto/eo_test.dic w]
+    puts $of $c
+    set if [open cxapelisto/eo_test.dic.tmpp r]
+    while {[gets $if linio]!=-1} {
+        puts $of $linio
+    }
+    close $if
+    close $of
+}
+Skiptoj proc faruEtoDic {} {
+    file copy -force cxapelisto/eo_test.aff cxapelisto/eo_eto.aff
+    Skiptoj kunliguDicDosierojn cxapelisto/eo_eto.dic cxapelisto/nombroj_tvortoj.dic cxapelisto/eo_vortetoj.dic cxapelisto/mallongigojn.txt cxapelisto/urboj.dic cxapelisto/landnomoj-kontinentoj.dic cxapelisto/lingvoj.dic
+}
+Skiptoj proc faruNomojListoj {} {
+    set if [open "cxapelisto/urboj.txt" r]
+    set of [open "cxapelisto/urboj.dic" w]
+
+    while {[gets $if linio]>=0} {
+        if {$linio eq ""} continue
+        if {[regexp {^(.+)o$} $linio _ rad]} {
+            puts $of "$rad/X@"
+        } else {
+            puts $of $linio
+        }
+    }
+    close $if
+    close $of
+
+    set if [open "cxapelisto/landnomoj-kontinentoj.txt" r]
+    set of [open "cxapelisto/landnomoj-kontinentoj.dic" w]
+
+    while {[gets $if linio]>=0} {
+        if {$linio eq ""} continue
+        if {[regexp {^(.+)o$} $linio _ rad]} {
+            puts $of "$rad/X@"
+        } else {
+            puts $of $linio
+        }
+    }
+    close $if
+    close $of
+
+    set if [open "cxapelisto/lingvoj.txt" r]
+    set of [open "cxapelisto/lingvoj.dic" w]
+
+    while {[gets $if linio]>=0} {
+        if {$linio eq ""} continue
+        if {[regexp {^(.+)a$} $linio _ rad]} {
+            puts $of "$rad/X-"
+        } else {
+            puts $of $linio
+        }
+    }
+    close $if
+    close $of
+}
+Skiptoj proc faruPrefiksojDeDosiero {input output} {
+    my instvar ofizialajnRadikojn
+    
+    set of [open $output w]
+    set v [Vortaro prenuVortaron]
+    set c 0
+    set l3 ""
+
+    set if [open $input r]
+    # bona malbona nebona plibonigi
+    while {[gets $if linio]!=-1} {
+          set w [string trim $linio]
+          if {$w ne ""} {
+               if {[regexp {^((ne|pli|malpli|plimal|mal).+?)/(.+?)$} $w _ vorto _ sufiksoj]} {
+                   set iakandidatoj($vorto) $sufiksoj
+               }
+          }
+    }
+    close $if
+
+    set if [open $input r]
+    set purigoListo [list]
+    set blokListo [list]
+    # kreu arr por purigado (malbona ...)
+    while {[gets $if linio]!=-1} {
+          set w [string trim $linio]
+          if {$w ne ""} {
+              if {[regexp {^(.+?)/(.+?)$} $w _ vorto sufiksoj]} {
+                  my markuKonatajnPrefiksojn $vorto $sufiksoj iakandidatoj purigoListo blokListo
+              }
+          }
+    }
+    close $if
+    set purigoListo [lsort -unique $purigoListo]
+    set ofizialajnRadikojn [lsort -unique [concat $ofizialajnRadikojn $blokListo]]
+    
+
+    set if [open $input r]
+    set rvortoj [list]
+    while {[gets $if linio]!=-1} {
+          set w [string trim $linio]
+          if {$w ne ""} {
+              if {![regexp {^(.+?)/(.+?)$} $w _ vorto sufiksoj]} {
+                  lappend rvortoj [string reverse $w]
+              } else {
+                  if {[lsearch -sorted -exact $purigoListo $vorto]<0} {                
+                      lappend rvortoj [string reverse $vorto]/$sufiksoj
+                  }
+             }
+          }
+    }
+    close $if
+
+    
+    foreach rw [lsort $rvortoj] {
+        if {[regexp {^(.+?)/(.+?)$} $rw _ rv sufiksoj]} {
+            if {$l3 eq ""} {
+                set l3 [string range $rv 0 1]
+            }
+            if {[string range $rv 0 1] ne $l3} {
+                puts -nonewline $of [my faruPrefiksojn radikoArr c]
+                unset -nocomplain radikoArr
+                set l3 [string range $rv 0 1]
+            }
+            set radikoArr($rv) $sufiksoj
+        } else {
+            puts $of [string reverse $rw]
+            incr c
+        }
+    }
+    
+    puts -nonewline $of [my faruPrefiksojn radikoArr c]
+
+    close $of
+
+    return $c
+}
+Skiptoj proc faruPrefiksojn {radikoArr_ref count_ref} {
+    upvar $radikoArr_ref radikoArr
+    upvar $count_ref count
+    my instvar sufiksoj prefiksoj ofizialajnRadikojn  
+
+    if {![array exists radikoArr]} {
+        return
+    }
+    set ret ""
+    set radikoj [my orduLauxLongo [array names radikoArr]]
+    
+    foreach r $radikoj {
+        set ignorita 1
+        set rsufiksoj [list]
+        set radafiksoj [split $radikoArr($r) ""]
+        foreach is $radafiksoj {
+            array unset sufiksojArr
+            lappend rsufiksoj $is
+            if {[info exists radignoru($r)] && $is in $radignoru($r)} {
+                continue
+            }
+            set ignorita 0
+            foreach s [array names prefiksoj] {
+                set eblaj [list]
+                foreach pf $prefiksoj($s) {
+                    set sf [string reverse $pf]
+                    set radikosufikso $r$sf
+                    if {![catch {set radikoArr($radikosufikso)} hsufiksoj]} {
+                        if {[lsearch -sorted -exact $ofizialajnRadikojn [string reverse $radikosufikso]]<0} {
+                            foreach hs [split $hsufiksoj ""] {
+                                if {$hs in $radafiksoj || 
+                                    ($hs eq "Å" && ("O" in $radafiksoj || "A" in $radafiksoj)) ||
+                                    ($hs eq "O" && "A" in $radafiksoj)} {
+                                    lappend sufiksojArr($s) [list $sf $hs]
+                                    lappend eblaj [list $sf $hs]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if {$ignorita} {
+            continue
+        }
+        set sufj [my puriguAfiksojn [concat X $rsufiksoj [array names sufiksojArr]]]
+        append ret "[string reverse $r]/[join $sufj ""]\n"
+        incr count
+        #puts "$r/[join $sufj ""]"
+        foreach se [array names sufiksojArr] {
+            foreach s $sufiksojArr($se) {
+                set m [lindex $s 0]
+                set t [lindex $s 1]
+                if {$m ne ""} {
+                    lappend radignoru($r$m) $t
+                    if {"A" in $radafiksoj} {
+                        # vol/AI malvol/IE (E estas ankaux en A)
+                        lappend radignoru($r$m) E
+                    }
+                }
+            }
+        }
+    }
+    return $ret
+}
+Skiptoj proc faruRadikojn {radikoArr_ref count_ref} {
+    # trovu kaj forigu la bazajn derivojn por I O A E
+    
+    upvar $radikoArr_ref radikoArr
+    upvar $count_ref count
+    
+    my instvar sufiksoj prefiksoj ofizialajnRadikojn
+
+    if {![array exists radikoArr]} {
+        return
+    }
+    set ret ""
+    set radikoj [my orduLauxLongo [array names radikoArr]]
+
+    foreach r $radikoj {
+        # cxu jam kovrita per baza radiko?
+        set rsufiksoj $radikoArr($r)
+        array unset sufiksojArr
+        foreach s $rsufiksoj {
+            if {[info exists radignoru($r)] && $s in $radignoru($r)} {
+                continue
+            }
+            set eblaj [list]
+            foreach {sf gramtipo} $sufiksoj($s) {
+                if {$sf eq "0"} {
+                    set sf ""
+                }
+                set radikosufikso $r$sf
+                if {![catch {set radikoArr($radikosufikso)} hsufiksoj]} {
+                    # regi - regula (ne estas ulo kiu estas rega) - ekzistas reguleco
+                    set estasRadikoDeAliaj 0
+                    if {$sf ne ""} {
+                        if {[lsearch -sorted -exact $ofizialajnRadikojn $radikosufikso]>=0} {
+                            set estasRadikoDeAliaj 1
+                        } else {
+                            foreach p {um ul ec et ig eg iĝ iĝad etad umad etiĝ aĉ igad etig} {
+                                if {![catch {set radikoArr($radikosufikso$p)}]} {
+                                    set estasRadikoDeAliaj 1
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    if {!$estasRadikoDeAliaj} {
+                        foreach hs $hsufiksoj {
+                            switch $hs {
+                                A -
+                                O {
+                                    set dsufikso N
+                                }
+                                E {
+                                    set dsufikso E
+                                }
+                                I {
+                                    set dsufikso V
+                                }
+                                default {
+                                    set dsufikso ""
+                                }
+                            }
+                            if {[string first $dsufikso $gramtipo]>=0} {
+                                lappend sufiksojArr($s) [list $sf $hs]
+                                lappend eblaj [list $sf $hs]
+                            }
+                        }
+                    }
+                }
+            }
+            #puts "eblaj $r $s - $eblaj"
+        }
+        set names [array names sufiksojArr]
+        if {[llength $names]==0} {
+            continue
+        }
+        
+        
+        set sufj [list]
+        if {"O" in $names && "A" ni $names && "I" ni $names} {
+             lappend sufj O
+        } elseif {"O" in $names && "A" in $names && "I" ni $names} {
+            if {[llength $sufiksojArr(O)]>=[llength $sufiksojArr(A)]} {
+                lappend sufj O
+            } else {
+                lappend sufj A
+            }
+        } else {
+            if {"I" in $names && "A" in $names} {
+                set apurigita [ide::lselect e $sufiksojArr(A) {[lindex $e 0] ni {ig iĝ aĵ igot igat igit igant igont igint}}]
+                if {[llength $sufiksojArr(I)]>=[llength $apurigita]} {
+                    lappend sufj I
+                    unset sufiksojArr(A)
+                } else {
+                    lappend sufj A
+                    # estas definitive ankaux verba (festi uzi)
+                    if {"${r}at" in $radikoj || "${r}it" in $radikoj || "${r}ad" in $radikoj || "${r}ig" in $radikoj} {
+                        lappend sufj I
+                    } else {
+                        unset sufiksojArr(I)
+                    }
+                }
+            } elseif {"I" in $names} {
+                lappend sufj I
+            } elseif {"A" in $names} {
+                if {[llength [array names sufiksojArr]]==1} {
+                    lappend sufj Å
+                } else {
+                    lappend sufj A
+                }
+            } else {
+                if {[llength $names] == 1 && "E" in $names} {
+                    #lappend sufj E
+                } else {
+                    lappend sufj O
+                }
+            }
+        }
+        if {"E" in $names} {
+            lappend sufj E
+        }
+        
+        if {"E" in $names} {
+            if {[string range $r end-1 end] in {an il ej uj  ar er eg et id aĉ in aĵ um ad ig on} || 
+                [string range $r end-2 end] in {ism ist ind end ebl ing}} {
+                set blokRadiko($r) 1
+            }
+        }
+        if {"I" in $names} {
+            if {[string range $r end-1 end] in {it at ot}} {
+                set blokRadiko($r) 1
+            }
+        }
+        
+        set radikoArr2($r) $sufj
+        # puts "$r/[join $sufj ""]"
+        foreach s $sufj {
+            if {$s eq "Å"} {
+                set s A
+            }
+            if {![info exists sufiksojArr($s)]} {
+                my halt
+            }
+            foreach s $sufiksojArr($s) {
+                set m [lindex $s 0]
+                set t [lindex $s 1]
+                if {$m ne ""} {
+                    set blokRadiko($r) 1
+                    lappend radignoru($r$m) $t
+                }
+            }
+        }
+    }
+    my faruRadikojn2 radikoArr2 radikoArr count blokRadiko
+}
+Skiptoj proc faruRadikojn2 {radikoArr_ref radikoArrOrig_ref count_ref blokRadiko_arr} {
+    upvar $radikoArr_ref radikoArr
+    upvar $radikoArrOrig_ref radikoArrOrig
+    upvar $count_ref count
+    upvar $blokRadiko_arr blokRadiko
+    
+    my instvar sufiksoj prefiksoj ofizialajnRadikojn
+
+    if {![array exists radikoArr]} {
+        return
+    }
+    set ret ""
+    set radikoj [my orduLauxLongo [array names radikoArr]]
+    
+    array set esufiksojArr {
+        O {K S L J U M R P W H Y Ż Q Ü Ó Ł Ą Ć Ę !}
+        Å {K S L J U M R P W H Y Ż Q Ü Ó Ł Ą Ć Ę !}
+        A {K S L J U M R P W H Y Ż Q Ü Ó Ł Ą Ć Ę !}
+        I {T G D F ! ) § ? % & ( K S L J U M R P W H Y Ż Q Ü Ó Ą Ć À Â Ã Ç È É Ê Ê Ë Ì}
+    }
+
+    foreach r $radikoj {
+        set ignorita 1
+        set rsufiksoj [list]
+        array unset sufiksojArr
+        foreach is $radikoArr($r) {
+            if {[info exists radignoru($r)] && $is in $radignoru($r)} {
+                continue
+            }
+            set ignorita 0
+            lappend rsufiksoj $is
+            if {![info exists esufiksojArr($is)]} {
+                continue
+            }
+            foreach s $esufiksojArr($is) {
+                set eblaj [list]
+                foreach {sf gramtipo} $sufiksoj($s) {
+                    if {$sf eq "0"} {
+                        set sf ""
+                    }
+                    set radikosufikso $r$sf
+                    if {[info exists blokRadiko($radikosufikso)]} {
+                        continue
+                    }
+                    if {[lsearch -sorted -exact $ofizialajnRadikojn $radikosufikso]>=0} {
+                         # reala
+                         continue
+                    }
+                    if {![catch {set radikoArr($radikosufikso)} hsufiksoj]} {
+                        foreach hs $hsufiksoj {
+                            switch $hs {
+                                A -
+                                Å -
+                                O {
+                                    set dsufikso N
+                                }
+                                E {
+                                    set dsufikso E
+                                }
+                                I {
+                                    set dsufikso V
+                                }
+                                default {
+                                    set dsufikso ""
+                                }
+                            }
+                            if {[string first $dsufikso $gramtipo]>=0} {
+                                lappend sufiksojArr($s) [list $sf $hs]
+                                lappend eblaj [list $sf $hs]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+
+        if {$ignorita} {
+            continue
+        }
+        set sufj [concat $rsufiksoj [array names sufiksojArr]]
+        # F - ad transitiva
+        # D - ad ne transitiva
+        foreach {trans netrans} {F D % ) & § ( / Ê Â Ï Ã Ì È} {
+            if {$trans in $sufj} {
+                ide::lremove sufj $netrans
+            }
+        }
+
+        append ret "$r/[join $sufj ""]\n"
+        incr count
+        # puts "$r/[join $sufj ""]"
+        foreach s [array names sufiksojArr] {
+            foreach s $sufiksojArr($s) {
+                set m [lindex $s 0]
+                set t [lindex $s 1]
+                if {$m ne ""} {
+                    lappend radignoru($r$m) $t
+                }
+            }
+        }
+    }
+    return $ret
+}
+Skiptoj proc faruSimplaDicDeDosieroj {input output} {
+    set if [open $input r]
+    set of [open $output w]
+    set v [Vortaro prenuVortaron]
+    set c 0
+    set l3 ""
+
+    while {[gets $if linio]!=-1} {
+          set w [string trim $linio]
+          if {[string index $w 0] eq "-" 
+          || [string index $w end] eq "-"
+          || [string index $w end] eq "." || [string length $w]==1} continue
+          if {[string first " " $w]>=0} {
+              puts "multvorta linio $w - nur lasta vorto"
+              set w [lindex $w end]
+          }
+          if {$w ne ""} {
+              if {[$v estasVorteto $w]} {
+                  set radiko $w
+                  set sufix ""
+              } else {
+                  switch -regexp -matchvar match -- $w {
+                      (.+)i$ {
+                          set radiko [lindex $match 1]
+                          set sufix IT
+                      }
+                      (.+)a$ {
+                          set radiko [lindex $match 1]
+                          set sufix A
+                      }
+                      (.+)o$ {
+                          set radiko [lindex $match 1]
+                          set sufix O
+                      }
+                      default {
+                          set radiko $w
+                          set sufix ""
+                      }
+                  }
+              }
+              #puts "radiko $radiko $sufix"
+              if {$sufix eq ""} {
+                  incr c
+                  puts $of $radiko
+              } else {
+                  incr c
+                  puts $of "${radiko}/X${sufix}"
+              }
+          }
+    }
+    close $of
+    close $if
+
+    return $c
+}
+Skiptoj proc faruVerboSufikojn {} {
+    my instvar sufiksoj
+    set def {
+        D ad {! iĝ ) et § eg ? um}
+        F ad {% et & eg ( um}
+    }
+    set def {
+        D ad {À iĝad Â etad Ã umad Ç etiĝ È aĉ}
+        F ad {É igad Ê etad Ï umad Ë etig Ì aĉ}
+    }
+    # iĝadi 112
+    # igadi 81
+    # etadi 25
+    # umadi 11
+    # etigi 9
+    # etiĝi 11
+    # aĉi 39
+    # B C X Z À Á Â Ã Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ô Õ Ø Ù Ú Û Ý Þ Ā Ă Ĉ Ċ Č
+    # Ď Đ Ē Ĕ Ė Ě Ĝ Ğ Ġ Ģ Ĥ Ħ Ĩ Ī Ĭ Į İ Ĳ Ĵ Ķ Ĺ Ļ Ľ Ŀ Ń Ņ Ň Ŋ Ō Ŏ Ő Œ Ŕ Ŗ Ř Ś Ŝ Ş Š Ţ Ť Ŧ Ũ Ū Ŭ Ů Ű Ų Ŵ Ŷ Ÿ Ź Ž
+
+    set ret ""
+    foreach {hs s ekz} $def {
+        set count [llength $sufiksoj($hs)]
+        foreach {hss ss} $ekz {
+            append ret "\nSFX $hss Y [expr {$count/2}]\n"
+            foreach {hsj add} $sufiksoj($hs) {
+                append ret "SFX $hss 0 $ss[string range $hsj [string length $s] end]/$add .\n"
+            }
+        }
+    }
+    return $ret
+}
+Skiptoj proc frekTreGrandaTeksto {} {
+    set nomo [IDE::Dialog getOpenFile]
+    if {$nomo eq ""} return
+    set f [open $nomo r]
+    set vortoNombro 0
+    set l 0
+    while {[gets $f line]>=0} {
+        foreach vorto [regexp -all -inline {\m[[:alpha:]-]{2,}\M} $line] {
+            incr vortoNombro
+            if {[catch {incr vortoArr($vorto)}]} {
+                set vortoArr($vorto) 1
+            }
+        }
+        incr l
+        if {$l % 1000 == 0} {
+            puts "linio $l"
+        }
+    }
+    close $f
+
+
+    puts "komputu liston"
+    for {set sid [array startsearch vortoArr]} {[array anymore vortoArr $sid]} {} {
+        set vorto [array nextelement vortoArr $sid]
+        set nombro $vortoArr($vorto)
+        lappend rez [list $vorto $nombro -1]
+    }
+    array donesearch vortoArr $sid
+    puts "ordigu"
+    set rez [lsort -integer -decreasing -index 1 $rez]
+    set maxf [lindex $rez 0 1]
+
+    puts "komputu freq grupon"
+    for {set i 0} {$i<[llength $rez]} {incr i} {
+        set frek [lindex $rez $i 1]
+        set fgrupo [expr {round(log(double($maxf/$frek))/log(2))}]
+        lset rez $i 2 $fgrupo
+    }
+    puts "skribu rezulton"
+
+    set fout [file rootname $nomo].freq
+    set f [open $fout w]
+    foreach v $rez {
+        puts $f $v
+    }
+    #puts $f "* $vortoNombro"
+    close $f
+    return
+}
+Skiptoj proc konstruPrefiksojn {} {
+    my instvar prefiksoj
+    set konataj [list]
+    foreach {k v} [array get prefiksoj] {
+        lappend konataj {*}$v
+    }
+    lappend konataj m p
+    set konataj [lsort $konataj]
+    set eblaj [list]
+    for {set x 0} {$x<2000} {incr x} {
+	set c [format %c $x]
+	if {[string is alpha $c] && [string is lower $c] && ![info exists prefiksoj($c)]} {
+		lappend eblaj $c
+	}
+    }
+    # Vidu Radiko proc doniPrefiksoj
+    # Radiko doniSufiksoj
+    set eprefiksoj {
+        mal 2123
+sen 943
+ne 825
+ek 694
+en 669
+el 656
+re 560
+kun 345
+inter 337
+for 336
+al 323
+dis 285
+de 282
+sub 231
+pri 216
+sur 211
+antaŭ 205
+sam 193
+kontraŭ 192
+trans 182
+tra 181
+laŭ 178
+bon 170
+mis 160
+pli 160
+super 144
+duon 136
+ĉef 132
+mem 120
+unu 119
+post 115
+ĉirkaŭ 111
+mult 108
+plen 107
+labor 101
+akvo 101
+ali 100
+sin 100
+du 99
+plur 85
+fin 84
+grand 83
+lingvo 76
+tut 76
+ge 73
+ter 73
+ĉiu 71
+tri 71
+mar 70
+eks 69
+man 69
+malbon 68
+ekster 68
+kor 66
+alt 65
+mond 65
+mon 63
+vort 62
+milit 62
+viv 60
+tiu 59
+mez 58
+preter 58
+fi 56
+per 56
+nov 55
+brul 54
+hom 53
+kap 53
+divers 52
+libro 52
+pied 51
+kvar 51
+tro 49
+ŝip 49
+krom 48
+aer 47
+natur 46
+por 43
+ĝis 43
+ret 41
+ĉe 41
+sun 40
+    }
+    set ret ""
+    set i 0
+    foreach {p _} $eprefiksoj {
+        if {[lsearch -sorted -exact $konataj $p]<0} {
+            set c [lindex $eblaj $i]
+            append ret "PFX $c Y 1
+PFX $c 0 $p .
+
+"
+            incr i
+        }
+    }
+    return $ret
+}
+Skiptoj proc kunliguDicDosierojn {cilo args} {
+    set i 0
+    foreach f $args {
+        incr i [my nombroDeLinioj $f]
+    }
+    set of [open $cilo w]
+    puts $of $i
+    foreach f $args {
+        set if [open $f r]
+        while {[gets $if linio]>=0} {
+            puts $of $linio
+        }
+        close $if
+    }
+    close $of
+}
+Skiptoj proc leguDerivojDePivXML {} {
+    EsperantoBrowser redaktoTekston [join [my leguDerivojDePivXMLlisto] \n]
+}
+Skiptoj proc leguDerivojDePivXMLlisto {} {
+    package require tdom
+    set f [open [file join cxapelisto piv2.xml] r]
+    fconfigure $f -encoding utf-8
+    set document [dom parse [read $f]]
+    close $f
+    set ret [list]
+    foreach n [[$document documentElement] selectNodes radiko/drv] {
+        set d [$n getAttribute form]
+        if {$d ne ""} {
+            lappend ret $d
+        }
+    }
+    $document delete
+    return $ret
+}
+Skiptoj proc markuKonatajnPrefiksojn {vorto sufiksojn iakandidatoj_ref purigoListo_ref bloklisto_ref} {
+    upvar $iakandidatoj_ref iakandidatoj
+    upvar $purigoListo_ref purigoListo
+    upvar $bloklisto_ref bloklisto
+
+    array set defArr {
+        I {ne {{} ant antin ont ontin int intin em emul emulin pob kapabl}}
+        T {ne {{} at atin ot otin it itin ind indaĵ end endaĵ ebl eblaĵ aĵ}}
+        A {
+            ne {{} eg et ul ulin ec egec aĵ egaĵ aĵeg etaĵ aĵet egul egulin etul etulin}
+            mal {{} eg et ul ulin ec egec aĵ egaĵ aĵeg etaĵ aĵet ig igat igot igit igant igont igint igil egul egulin etul etulin}
+            pli {ig igat igot igit igant igont igint igil}
+            malpli {ig igat igot igit igant igont igint igil}
+            plimal {ig igat igot igit igant igont igint igil}
+        }
+    }
+    #
+
+    foreach s [split $sufiksojn ""] {
+        if {![catch {set defArr($s)} def]} {
+            foreach {p psufiksoj} $def {
+                foreach ps $psufiksoj  {
+                    set kandidato $p$vorto$ps
+                    if {![catch {set iakandidatoj($kandidato)} ksufiksoj]} {
+                        set found 0
+                        set ksufiksojList [split $ksufiksoj ""]
+                        foreach k $ksufiksojList {
+                            if {$k in {T D F ! ) § ? % & ( K S L J U M R P W H Y Ż Q Ö Ä Ü Ó Ą Ć Ę}} {
+                                set found 1
+                                break
+                            }
+                        }
+                        # vol/A - malvol/IE (malvolema)
+                        if {$s eq "A" && $ps eq "" && "I" in $ksufiksojList} {
+                            set found 1
+                        }
+                        if {$ps ne "" && "E" in $ksufiksojList} {
+                            set found 1
+                        }
+                        # begatel/I nebagetele
+                        if {($s eq "I" || $s eq "T") && $ps eq "" && "E" in $ksufiksojList} {
+                            set found 1
+                        }
+                        if {($s eq "I" || $s eq "T") && $ps eq "" && "A" in $ksufiksojList} {
+                            set found 1
+                        }
+                        if {!$found} {
+                            if {$kandidato eq "nesci"} {
+                                #my halt
+                            }
+                            lappend purigoListo $kandidato
+                            lappend bloklisto $vorto
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+Skiptoj proc nombroDeLinioj dosiero {
+    set i 0
+    set if [open $dosiero r]
+    while {[gets $if linio]>=0} {
+            incr i
+    }
+    close $if
+    return $i
+}
+Skiptoj proc orduLauxLongo radikoj {
+    set l [list]
+    foreach r $radikoj {
+        lappend l [list $r [string length $r]]
+    }
+    set r [list]
+    foreach e [lsort -index end -integer $l] {
+        lappend r [lindex $e 0]
+    }
+    return $r
+}
+Skiptoj proc prenuLiberajSufiksoj {} {
+    my instvar sufiksoj
+    set eblaj [list]
+    set aldonaj {N V}
+    for {set x 0} {$x<2000} {incr x} {
+	set c [format %c $x]
+	if {[string is alpha $c] && [string is upper $c] && ![info exists sufiksoj($c)] && $c ni $aldonaj} {
+		lappend eblaj $c
+	}
+    }
+    return $eblaj
+}
+Skiptoj proc prenuRevoDrv {} {
+    set f [open [file join revo insert_drv.sql] r]
+    set d [read $f]
+    set ret [list]
+    foreach {_ d} [regexp -all -inline {\(\d+,\d+,'[^']+?','([^']+?)'} $d] {
+        lappend ret $d
+    }
+    close $f
+    EsperantoBrowser redaktoTekston [join $ret \n]
+    return
+}
+Skiptoj proc preparuVortoListo {} {
+    set d [pwd]
+    cd [file join [EsperantoConf prenuVortaroDosierujo] cxapelisto]
+    exec hunspell -d eo_eto -l <esperantilo-vortoj.txt >esperantilo-vortoj-sen-eto.txt
+    exec ./sort-adapted.sh
+    cd $d
+}
+Skiptoj proc purigiWikiFreq {} {
+    #   awk 'BEGIN{ i=0 } {i=i+$2} END{print "summe " i}' wiki_mankantaj_pur_ilo.txt
+
+    set f [open [file join cxapelisto wiki_freq.txt] r]
+    set o1 [open [file join cxapelisto wiki_freq_pur.txt] w]
+    set o2 [open [file join cxapelisto wiki_freq_pur_iso3.txt] w]
+    fconfigure $o2 -encoding iso8859-3
+    while {[gets $f line]!=-1} {
+        # nur esperantaj literoj
+        if {[regexp -nocase {^([a-prstuvzĉŝŭĥĵĝ]{2,}) } $line _ vorto]} {
+            puts $o1 $line
+            puts $o2 $line
+        }
+    }
+    close $f
+    close $o1
+    close $o2
+}
+Skiptoj proc puriguAfiksojn afiksoj {
+    if {"E" in $afiksoj && "A" in $afiksoj} {
+        ide::lremoveAll afiksoj E
+    }
+    if {"Å" in $afiksoj && ("O" in $afiksoj || "A" in $afiksoj)} {
+        ide::lremoveAll afiksoj Å
+    }
+    if {"Å" in $afiksoj && ("A" ni $afiksoj)} {
+        ide::lremoveAll afiksoj Å
+        lappend afiksoj A
+    }
+    return $afiksoj
+}
+Skiptoj proc puriguPivKontrauWiki {} {
+    set f [open [file join cxapelisto wiki_freq_pur.txt] r]
+    fconfigure $f -encoding utf-8
+    while {[gets $f line]>=0} {
+        if {[regexp {^(\w+) (\d+)} $line _ vorto nombro]} {
+            if {[regexp {(en?|[ao]j?n?|[uioa]s?)$} $vorto]} {
+                set rad [EORadikilo radikigi [string tolower $vorto]]
+                if {[catch {incr wikiArr($rad) $nombro}]} {
+                    set wikiArr($rad) $nombro
+                }
+            }
+        }
+    }
+    close $f
+    set hun [HunspellTestiloEo prenuVortaron]
+    set ret [list]
+    foreach v [my leguDerivojDePivXMLlisto] {
+        set vm [string tolower $v]
+        if {[$hun estasVorto $v]!=2 && ![catch {set wikiArr($vm)} nombro]} {
+            lappend ret [list $v $nombro]
+        }
+    }
+    set ret [lsort -index 1 -integer -decreasing $ret]
+    EsperantoBrowser redaktoTekston [join $ret \n]
+}
+Skiptoj proc testHunspell {} {
+    package require xotcl::hunspell
+    set hunspell [Hunspell new -childof [self]]
+    #puts "$hunspell open $afiksoj $vortaro"
+    $hunspell open test_spell/eo_atk.aff test_spell/eo_atk.dic
+    $hunspell encoding [string tolower [$hunspell getDicEncoding]]
+    return $hunspell
+}
+

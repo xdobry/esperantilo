@@ -1,0 +1,1 @@
+./tclkit-linux-x86-852enc mainXOTclIDE.tcl -startMode ideDB -nodialog -configmapdb Esperantilo -preferences "interface sqlite connection {sqlfile repository.sql}"

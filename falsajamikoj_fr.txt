@@ -1,0 +1,16 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+chie 	fekas 	ŝi 	elle
+con 	piĉo 	kono 	connaissance
+image 	bildo 	imago 	imagination
+lac 	lago 	lako 	laque
+marché 	bazaro, merkato 	marĉo 	marais
+péter 	furzi 	peti 	demander (quelque chose)
+-phone (francophone) 	-lingva (franclingva) 	fono 	fond
+homo 	homo 		mallongigo da homosexuel (samseksemulo)
+forêt 	arbaro 	foresto 	absence
+marteau 	martelo 	marto 	mars

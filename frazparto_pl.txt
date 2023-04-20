@@ -1,0 +1,234 @@
+# Tiu dosiero estas publikigita laŭ GPL Permesilo
+# legu: http://www.gnu.org
+#
+# This file is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# Priskriboj
+# rekonataj sekvoj
+# substantivo adjektivo : s-expr
+# adjektivo adverbo : a-expr
+# verbo adverbo : v-expr
+
+# {traduko arto {variablo valuo}}
+# arto : i v o a k (konstanto)
+
+
+# konsideri
+# Li ne estas prava
+# Li estas tute prava
+esti prava : {mieć i {fgrupo {I {1lp mam} {p3lm mieli} {p3lmn miały} {roz miej}}}} {rację k}
+# perdi la vojon
+# perdi sian vojon
+perdi vojon : {zabłądzić i {fgrupo VIa}}
+telefono portebla : telefon {komórkowy a {gramatiko def}}
+kazeo ŝafa : {bryndza s {fgrupo 122}}
+bone sufiĉe : nieźle
+malĝojo senlima : smutek bezdenny
+sistemo mastruma : system {operacyjny a {gramatiko def}}
+# lasi
+alfabeto kirila	: cyrylica
+alianco triobla	: trójprzymierze
+alkoholo hejmfarita : samogon
+alkoholo pura : spirytus
+alvoko juĝa : pozew
+vespero antaŭkristnaska : wigilia
+manĝo antaŭvespera : podwieczorek
+aperi en sonĝo : {{przyśnić się} v}
+artikolo nedifina : przedimek {nieokreślony a {gramatiko def}}
+# atingi sian celon : dopiąć swego
+babili sensence	: ględzić
+paroli hake  : {{jąkać się} v {fgrupo I}}
+besto sovaĝa : {bestia v {fgrupo 102}}
+signo demanda : pytajnik
+lavi sin : {{myć się} v {fgrupo Xa}}
+# mi parolas la polan lingvon
+lingvo pola : {{po polsku} k} {} {kunobj paroli}
+lingvo angla : {{po angielsku} k} {} {kunobj paroli}
+lingvo rusa : {{po rosyjsku} k} {} {kunobj paroli}
+lingvo germana : {{po niemiecku} k} {} {kunobj paroli}
+lingvo esperanta : {{w języku esperanto} k} {} {kunobj paroli}
+
+# grupo
+# komplejksaj formuloj
+# unu post la alia
+{	
+   tipo frazj
+   radiko unu
+   folioj {
+       v unu
+       s PREP
+       v la
+       v alia
+   }
+   tradukoj {
+       jeden
+       %vortaro
+       %nuligu
+       drugim
+   }
+}
+# ili venis unu post alia.
+{	
+   tipo frazj
+   radiko unu
+   folioj {
+       v unu
+       s PREP
+       v alia
+   }
+   tradukoj {
+       jeden
+       %vortaro
+       drugim
+   }
+}
+# mi venis, antaŭ ol tio okazis
+{
+   tipo grupo radiko ol
+   folioj { v antaŭ v ol }
+   tradukoj {{przed tym} jak}
+}
+# mi venis, post kiam tio okazis. : po tym jak
+{
+   tipo advp radiko kiam
+   folioj { v post v kiam }
+   tradukoj {{po tym} jak}
+}
+# antaŭ kiam
+{
+   tipo advp radiko kiam
+   folioj { v antaŭ v kiam }
+   tradukoj {{przed tym} jak}
+}
+# li parolis en la pola
+{
+   tipo pp radiko en
+   folioj { v en v la v pola } tradukoj {po %nuligu polsku}
+}
+# li parolis en la angla
+{
+   tipo pp radiko en
+   folioj { v en v la v angla } tradukoj {po %nuligu angielsku}
+}
+# li vivis en la okcidento
+{
+   tipo pp radiko en
+   folioj { v en v la v okcidento } tradukoj {na %nuligu zachodzie}
+}
+# en la oriento
+{
+   tipo pp radiko en
+   folioj { v en v la v oriento } tradukoj {na %nuligu wschodzie}
+}
+# iom post iom tio okazis
+{
+   tipo frazj radiko iom
+   folioj { v iom v post v iom } tradukoj {krok po kroku}
+}
+# vi konas lin, ĉu ne
+{
+   tipo npmain radiko ĉu
+   folioj {v ĉu v ne} tradukoj {czyż nie}
+}
+# neniam plu -> nigdy więcej
+{
+   tipo grupo radiko plu
+   folioj {v neniam v plu} tradukoj {nigdy więcej}
+}
+# jen kaj jen -> stopniowo
+{
+   tipo konj radiko jen
+   folioj {v jen v kaj v jen} tradukoj {stopniowo %nuligu %nuligu}
+}
+# je ĉiu prezo -> za wszęlką cenę
+{
+   tipo pp radiko je
+   folioj {v je v ĉiu v prezo} tradukoj {za wszęlką cenę}
+}
+# per la volo -> z woli
+{
+   tipo pp radiko per
+   folioj {v per v la v volo} tradukoj {z %nuligu woli}
+}
+# unu la alian -> siebie na wzajem
+{
+   tipo frazj radiko unu
+   folioj {v unu v la v alian} tradukoj {siebie na wzajem}
+}
+# de sub -> spod
+{
+   tipo grupo radiko de
+   folioj {v de v sub} tradukoj {spod %nuligu}
+}
+# de sur -> znad
+{
+   tipo grupo radiko de
+   folioj {v de v sub} tradukoj {znad %nuligu}
+}
+# multe pli -> o wiele
+{
+   tipo grupo radiko pli
+   folioj {v multe v pli} tradukoj {{o wiele}}
+}
+# inter alie -> między innymi
+{
+   tipo frazj radiko inter
+   folioj {v inter v alie} tradukoj {między innymi}
+}
+# kiom multe -> jak wiele
+{
+   tipo advp radiko multe
+   folioj {v kiom v multe} tradukoj {jak wiele}
+}
+# de alte -> z góry
+{
+   tipo frazj radiko de
+   folioj {v de v alte} tradukoj {z góry}
+}
+# de sube -> od doł
+{
+   tipo frazj radiko de
+   folioj {v de v sube} tradukoj {od doł}
+}
+# de supre -> z góry
+{
+   tipo frazj radiko de
+   folioj {v de v supre} tradukoj {z góry}
+}
+# amaso da homoj -> tłum ludzi
+{
+   tipo subsup radiko amaso
+   folioj {b amaso v da v homoj} tradukoj {tłum {} ludzi}
+}
+# antaŭ longe
+{
+   tipo frazj radiko antaŭ
+   folioj {v antaŭ v longe} tradukoj {dawno temu}
+}
+# antaŭ nelonge
+{
+   tipo frazj radiko antaŭ
+   folioj {v antaŭ v nelonge} tradukoj {niedawno temu}
+}
+# ĝis nun
+{
+   tipo advp radiko nun
+   folioj {v ĝis v nun} tradukoj {dotąd %nuligu}
+}
+# de nun
+{
+   tipo advp radiko nun
+   folioj {v de v nun} tradukoj {odtąd %nuligu}
+}

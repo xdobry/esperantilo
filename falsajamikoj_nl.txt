@@ -1,0 +1,59 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+angora 	anguro 	angoro 	angst
+band 	bendo 	bando 	bende
+bed 	lito 	bedo 	bloemperk
+beer 	urso 	bero 	bes
+begin 	komenco 	begino 	begijn
+bende 	bando 	bendo 	band
+bot (been) 	osto 	boto 	laars, bot
+darm 	intesto 	darmo 	dharma
+draad 	fadeno 	drato 	ijzerdraad
+doos 	skatolo 	dozo 	dosis
+fiche 	slipo 	fiŝo 	vis
+fort 	fotikaĵo 	forto 	kracht, sterkte
+fossiel 	fosilio 	fosilo 	schop
+glas (materiaal) 	vitro 	glaso 	(drink)glas
+gras 	herbo 	graso 	vet
+gros 	groco, plimulto 	groso 	kruisbes
+humor 	humuro 	humoro 	humeur
+juist 	ĝusta, ĵus 	justa 	rechtvaardig
+kaal 	kalva 	kala 	eeltig
+kaart (land~) 	mapo, karto 	karto 	kaart, maar niet: stadsplannetje
+kandelaar 	kandelingo 	kandelo 	kaars
+kant 	flanko, rando, punto 	kanto 	lied
+kast 	ŝranko 	kasto 	kaste
+keel 	gorĝo 	kelo 	kelder
+kin 	mentono 	kino 	filmkunst
+koord 	ŝnuro 	kordo 	snaar
+kramp 	kramfo 	krampo 	nietje, haakje
+laag 	tavolo 	lago 	meer
+lam 	paralizita 	lama 	mank, kreupel
+lekken 	liki 	leki 	likken
+letter 	litero 	letero 	brief
+likken 	leki 	liki 	lekken
+list 	ruzaĵo 	listo 	lijst
+liter 	litro 	litero 	letter
+mier 	formiko 	miro 	verwondering
+perron 	kajo 	perono 	stoep, bordes
+pint 	pindo (mezurunuo), glaso (da biero) 	pinto 	punt (spits)
+plank 	tabulo, breto 	planko 	vloer
+plassen 	pisi 	plasi 	beleggen
+punt 	punkto, pinto, poento 	punto 	kant (weefsel)
+raar 	stranga 	rara 	zeldzaam
+restaurant 	restoracio 	restaŭranto 	restaurateur (hersteller)
+riet 	fragmito 	rito 	rite
+stoep 	perono 	ŝtupo 	trede
+toer 	rivoluo 	turo 	toren
+velo (fiets) 	biciklo 	velo 	zeil
+vent 	vir(aĉ)o, ulo 	vento 	wind
+viool 	violono 	violo 	viooltje
+visie 	opinio 	vizio 	visioen
+vork (eetgerei) 	forketo 	forko 	(mest)vork, riek
+vraag 	demando 	frago 	aardbei
+wind 	vento 	vindo 	windsel
+wip 	baskulo 	vipo 	zweep

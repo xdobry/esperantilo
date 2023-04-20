@@ -1,0 +1,3276 @@
+# automatically generated from XOTclIDE
+# script require component EspTradukilo
+@ Component EspSvTradukilo {
+description {Specifaj elementoj por sveda tradukado}
+}
+package provide EspSvTradukilo 0.993
+package require EspTradukilo
+Class ETSvSubstantivoartaMix -superclass ::ETSubstantivoartaMix
+@ ::ETSvSubstantivoartaMix idemeta component EspSvTradukilo
+ETSvSubstantivoartaMix instproc distinguSubstantivanDifinilon {} {
+    next
+    my instvar npArto
+    if {[info exists npArto]} {
+        my metuAttributonEnRadikaFunkcion npArto $npArto
+    }
+}
+ETSvSubstantivoartaMix instproc estasDefinitiva {} {
+    return 1
+}
+ETSvSubstantivoartaMix instproc kazoTrans esperantaKazo {
+    switch $esperantaKazo {
+        N -
+        nominativo {
+            return N
+        }
+        default {
+            return A
+        }
+    }
+}
+ETSvSubstantivoartaMix instproc preparuFunkcion_nekonata radikaTradukElemento {
+    my instvar arto persono
+    # nepura programado pro kazo
+    # multe de (substantiv) en rolo de subjekto
+    # la frazo "multe da viroj estas malgranda"
+    # attributo estas en pluralo
+    # verbo en singularo
+    set pparent [$radikaTradukElemento parenco]
+    if {$pparent ne "" && [[$pparent set elemento] prenuFunkcioNomo] eq "pos"} {
+        set pparent [$pparent set parenco]
+        set pelemento [$pparent set elemento]
+        if {[$pelemento istype SintaksAsto::advsup] && [$pelemento eblasKielSubstantivo] && [$pelemento set funkcio] eq "subj"} {
+            set taMain [$pparent parenco]
+            $taMain set persono $persono
+            $taMain set nombro pluralo
+            $taMain set arto $arto
+        }
+    }
+}
+Class SvTradukElemento
+@ ::SvTradukElemento idemeta component EspSvTradukilo
+SvTradukElemento instproc prenuFleksilon {} {
+    SvFleksilo
+}
+SvTradukElemento instproc prenuParticiponMix {} {
+    ETSvParticipoMix
+}
+SvTradukElemento instproc probuVortfaradon bazaformo {
+    SvVortFarado prenuVortfaradoj2 $bazaformo
+}
+Class ETSvAdjektivo -superclass {::ETSvSubstantivoartaMix ::SvTradukElemento ::ETAdjektivo}
+@ ::ETSvAdjektivo idemeta component EspSvTradukilo
+ETSvAdjektivo instproc distinguGramatikon frazTraduko {
+    my instvar parenco elemento kazo nombro arto npArto substantivaPrefikso bazaTraduko
+    next
+    set npArto [my sxercxuAttributonSupren npArto]
+    my bazaTraduko [$frazTraduko prenuVortaron]
+    if {![my testuSentradukeco]} {
+        if {[string index $bazaTraduko end] eq "~" || [string index $bazaTraduko end] eq "-"} {
+            set def [my prenuDefinilanElementon]
+            if {[$def istype ETSubstantivo]} {
+                set substantivaPrefikso 1
+                $def set adjektivaPrefikso [string trimright $bazaTraduko ~]
+            }
+        }
+    }
+}
+ETSvAdjektivo instproc kreuKomperativon gparenco {
+    my instvar bazaTraduko fgrupo
+    set bazaTraduko [[my prenuFleksilon] prenuKompAdjektivo $bazaTraduko $fgrupo]
+    my aliguMerkmalon senfleksio
+    return 1
+}
+ETSvAdjektivo instproc kreuSuperlativon {gparenco i} {
+    my instvar bazaTraduko traduko fgrupo
+    set bazaTraduko [[my prenuFleksilon] prenuKompAdjektivo $bazaTraduko $fgrupo 1]
+    my aliguMerkmalon senfleksio
+    return 1
+}
+ETSvAdjektivo instproc traduku vortaro {
+    my instvar bazaTraduko kazo nombro traduko arto elemento fgrupo parenco npArto substantivaPrefikso
+    if {[info exists substantivaPrefikso] && $substantivaPrefikso} {
+        set traduko ""
+        return
+    }
+
+    if {![my testuSentradukeco]} {
+        if {[string first one's $bazaTraduko]>=0 || [string first ones $bazaTraduko]>=0} {
+            set main [my trovuMainVerboAston]
+            if {$main ne "" && [$main exists persono]} {
+                set pers [$main set persono]
+                if {[$main exists nombro]} {
+                    set nomb [$main set nombro]
+                    if {[$main exists arto]} {
+                        set art [$main set arto]
+                        set bazaTraduko [SvFleksilo tradukuOnes $bazaTraduko $pers $nomb $art]
+                    }
+                }
+            }
+        }
+        next
+        if {[my hasclass ETSvParticipoMix]} {
+            set traduko [my prenuParticipon $bazaTraduko $fgrupo $arto $nombro $npArto]
+        } else {
+            if {![my havasMerkmalon senfleksio]} {
+                set traduko [SvFleksilo prenuAdjektivon $bazaTraduko $fgrupo $arto $nombro $npArto]
+            } else {
+                set traduko $bazaTraduko
+            }
+        }
+    }
+}
+Class ETSvAdverbo -superclass {::SvTradukElemento ::ETAdverbo}
+@ ::ETSvAdverbo idemeta component EspSvTradukilo
+ETSvAdverbo instproc kreuKomperativon {} {
+    my instvar bazaTraduko fgrupo
+    set bazaTraduko [[my prenuFleksilon] prenuKompAdjektivo $bazaTraduko $fgrupo]
+    return 1
+}
+ETSvAdverbo instproc kreuSuperlativon {} {
+    my instvar bazaTraduko fgrupo
+    set bazaTraduko "[[my prenuFleksilon] prenuKompAdjektivo $bazaTraduko $fgrupo 1]"
+    return 1
+}
+ETSvAdverbo instproc prenuBazanFormon {} {
+    my instvar sens
+    if {[info exists sens] && $sens eq "1"} {
+        set adv [next]
+        return [string range $adv 0 end-1]a
+    } else {
+        next
+    }
+}
+ETSvAdverbo instproc traduku vortaro {
+    my instvar bazaTraduko traduko elemento fgrupo parenco sens
+    set sens [my sxercxuAttributonSupren sens]
+    if {$sens eq "1"} {
+        # estu adjektivo
+        # She looks good. It smell great.
+        my bazaTraduko [[my info parent] prenuVortaron]
+    } else {
+        my bazaTraduko $vortaro
+    }
+    if {![my testuSentradukeco]} {
+        if {[string first one's $bazaTraduko]>=0 || [string first ones $bazaTraduko]>=0} {
+            set main [my trovuMainVerboAston]
+            if {[$main exists persono]} {
+                set pers [$main set persono]
+                if {[$main exists nombro]} {
+                    set nomb [$main set nombro]
+                    if {[$main exists arto]} {
+                        set art [$main set arto]
+                        set bazaTraduko [SvFleksilo tradukuOnes $bazaTraduko $pers $nomb $art]
+                    }
+                }
+            }
+        }
+        next
+    }
+    if {[$elemento estasVorto multe] && [$elemento exists parenco] && [[$elemento set parenco] istype SintaksAsto::advsup]} {
+        set traduko mycket
+    } else {
+        set traduko $bazaTraduko
+    }
+}
+Class ETSvDifinilo -superclass {::SvTradukElemento ::ElemTraduko}
+@ ::ETSvDifinilo idemeta component EspSvTradukilo
+ETSvDifinilo instproc distinguGramatikon frazTraduko {
+    my instvar parenco elemento kazo nombro arto havasAdjektivon
+
+    set kazo [my sxercxuAttributonSupren kazo]
+    if {$kazo eq ""} {
+        my metuMesagxon "kazo por adjektivo ne trovita" kazo
+        set kazo N
+    }
+    # por interaktiva tradukado ni devus nuligi fruan rezulton
+    set arto ""
+    set arto [my sxercxuAttributonSupren arto]
+    if {$arto eq ""} {
+        my metuMesagxon "arto por difinilo ne trovita" arto
+        set arto u
+    }
+    set nombro [$parenco sxercxuAttributonSupren nombro]
+    if {$nombro eq ""} {
+        my metuMesagxon "nombro por difinilo ne trovita" nombro
+        set nombro singularo
+    }
+    set havasAdjektivon 0
+    # diferenco inter "la domo" kaj "la granda domo"
+    if {[$parenco exists elemento] && [[$parenco elemento] istype SintaksAsto::np]} {
+        foreach e [[$parenco elemento] set astoj] {
+            if {[[$e prenuRadiko] hasclass GP::Adjektivo]} {
+                set havasAdjektivon 1
+                break
+            }
+            if {[$e istype SintaksAsto::adjp]} {
+                set havasAdjektivon 1
+                break
+            }
+        }
+    }
+    # la plej bona komputilo - problemo [[la plej bona] komputilo]
+    # ne [la [plej bona] komputilo]
+    if {[$parenco exists elemento] && [[$parenco elemento] istype SintaksAsto::adjp]} {
+        set pelem [$parenco elemento]
+        set p [$pelem set parenco]
+        if {$p ne "" && [$p istype SintaksAsto::np]} {
+            foreach e [$p set astoj] {
+                if {[[$e prenuRadiko] hasclass GP::Adjektivo]} {
+                    set havasAdjektivon 1
+                    break
+                }
+                if {[$e istype SintaksAsto::adjp]} {
+                    set havasAdjektivon 1
+                    break
+                }
+            }
+        }
+    }
+}
+ETSvDifinilo instproc traduku vortaro {
+    my instvar elemento traduko havasAdjektivon arto nombro
+    if {[$elemento prenuVorton] eq "la"} {
+        if {!$havasAdjektivon} {
+            my set traduko ""
+        } else {
+            if {$nombro eq "pluralo"} {
+                set traduko de
+            } else {
+                if {$arto eq "n"} {
+                    set traduko det
+                } else {
+                    set traduko den
+                }
+            }
+        }
+    } else {
+        next
+    }
+}
+Class ETSvInterjekcio -superclass ::ElemTraduko
+@ ::ETSvInterjekcio idemeta component EspSvTradukilo
+ETSvInterjekcio instproc distinguDifinilon frazTraduko {
+    my instvar elemento
+    if {[$elemento estasVorto ĉu] && [$elemento prenuAntauxElemento] eq ""} {
+        my metuAttributonEnMainAsto demandaFrazo 1
+    }
+    if {[$elemento estasVorto ke] && [set koma [my prenuAntauxElemento]] ne ""} {
+        if {[$koma exists elemento] && [[$koma elemento] estasVorto ","]} {
+            $koma foriguDeParenco
+        }
+    }
+}
+ETSvInterjekcio instproc traduku votaro {
+    my instvar elemento traduko keUFrazo
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    switch [$elemento prenuVorton] {
+        kaj {
+            set traduko och
+        }
+        ĉu {
+           if {[$elemento prenuAntauxElemento] eq ""} {
+                my class ETNul
+                set traduko ""
+            } else {
+                # la vorto "månne" anstaŭigas la vorton "om"
+                set traduko månne
+            }
+        }
+        ke {
+            set traduko att
+        }
+        se {
+            set traduko om
+        }
+        sed {
+            set traduko men
+        }
+        ĉar {
+            set traduko "därför att"
+        }
+        default {
+            next
+        }
+    }
+}
+Class ETSvKonjunkcio -superclass ::ElemTraduko
+@ ::ETSvKonjunkcio idemeta component EspSvTradukilo
+ETSvKonjunkcio instproc tradukoPostSinonimoSxangxo {} {
+    my set traduko [my set bazaTraduko]
+}
+ETSvKonjunkcio instproc traduku vortaro {
+    my instvar elemento traduko parenco
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    switch [$elemento prenuVorton] {
+        kaj {
+            if {[info exists elemento]
+                && [[$elemento set parenco] istype SintaksAsto::konj]
+                && [[$elemento set parenco] estasDuobla kaj]} {
+                set id [lsearch [$parenco astoj] [self]]
+                if {$id==0} {
+                    set traduko endera
+                } else {
+                    set traduko eller
+                }
+            } else {
+                set traduko och
+            }
+        }
+        aŭ {
+            set traduko eller
+        }
+        ol {
+            set traduko än
+        }
+        nek {
+            set id [lsearch [$parenco astoj] [self]]
+            if {$id==0} {
+                set traduko varken
+            } else {
+                set traduko eller
+            }
+        }
+        default {
+            next
+        }
+    }
+}
+Class ETSvKonstanto -superclass {::SvTradukElemento ::ElemTraduko}
+@ ::ETSvKonstanto idemeta component EspSvTradukilo
+ETSvKonstanto instproc estasDefinitiva {} {
+    return 3
+}
+ETSvKonstanto instproc traduku vortaro {
+    my instvar elemento traduko
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    switch -- [$elemento prenuVorton] {
+        ktp. {
+            set traduko o.s.v.
+        }
+        ekz. {
+            set traduko ex.
+        }
+        p. {
+            set traduko sid.
+        }
+        tn. {
+            set traduko s.k.
+        }
+        t.n. {
+            set traduko s.k.
+        }
+        default {
+            set traduko [$elemento prenuVorton]
+        }
+    }
+}
+Class ETSvNedefinitaDefinilo -superclass {::SvTradukElemento ::ETSenOrigina} -parameter {{arto 0}}
+@ ::ETSvNedefinitaDefinilo idemeta component EspSvTradukilo
+ETSvNedefinitaDefinilo instproc bazaTraduko vortaro {
+
+}
+ETSvNedefinitaDefinilo instproc distinguGramatikon frazTraduko {
+    my instvar genro parenco
+    set genro ""
+    set genro [$parenco sxercxuAttributonSupren arto]
+    if {$genro eq ""} {
+        set genro u
+    }
+}
+ETSvNedefinitaDefinilo instproc posttradukaPlibonigo {indekso folioj} {
+    my instvar traduko
+    if {$traduko ne "a"} return
+    set f ""
+    for {set i [expr {$indekso+1}]} {$i<[llength $folioj]} {incr i} {
+        set tf [lindex $folioj $i]
+        if {[$tf set traduko] ne ""} {
+            set f $tf
+            break
+        }
+    }
+    if {$f eq "" || [$f testuSentradukeco]} return
+    if {[string first [string index [$f set traduko] 0] "aeo"]>=0} {
+        set traduko an
+    }
+}
+ETSvNedefinitaDefinilo instproc prenuFunkcioNomo {} {
+    return "ein"
+}
+ETSvNedefinitaDefinilo instproc prenuSimbolo {} {
+    return "de"
+}
+ETSvNedefinitaDefinilo instproc traduku vortaro {
+    my instvar arto nombro parenco genro
+    if {$arto==4} {
+        set rad [$parenco prenuRadiko]
+        # KaGu - simple traduko anglaj vortoj post "set traduko"
+        if {$nombro eq "pluralo"} {
+            my set traduko någon
+        } else {
+            my set traduko nej
+        }
+    } else {
+        set rad [$parenco prenuRadiko]
+        if {[$rad exists gramatiko] && [lsearch [$rad set gramatiko] uncount]>=0} {
+            my set traduko något
+        } else {
+            if {$genro eq "u"} {
+                my set traduko en
+            } else {
+                my set traduko ett
+            }
+        }
+    }
+}
+Class ETSvNumeralo -superclass {::SvTradukElemento ::ETNumeralo}
+@ ::ETSvNumeralo idemeta component EspSvTradukilo
+ETSvNumeralo instproc distinguDifinilon frazTraduko {
+    my instvar parenco elemento
+    if {[info exists elemento] && [$elemento estasVorto unu]
+        && [$parenco exists elemento] && [[$parenco elemento] istype SintaksAsto::np]} {
+        my class ETSvNedefinitaDefinilo
+        my set arto 0
+        my distinguDifinilon $frazTraduko
+    }
+}
+ETSvNumeralo instproc traduku vortaro {
+    my instvar traduko bazaTraduko elemento arto kazo nombro veraNombro npArto
+    if {[my tradukuNeVorto $vortaro]} {
+        return
+    }
+
+    set fleksiolo [my prenuFleksilon]
+    set traduko [$elemento set vorto]
+    if {[$elemento hasclass GP::Adjektivo] || [regexp {aj?n?$} [$elemento set vorto]]} {
+        set numarto [$elemento set arto]
+        switch $numarto {
+            {} {
+                set mstraduko [$fleksiolo prenuNumero $bazaTraduko ordo]
+            }
+            op {
+                set mstraduko [$fleksiolo prenuNumero $bazaTraduko opo]
+            }
+            default {
+                next
+                set traduko $traduko
+                return
+            }
+        }
+        set traduko $mstraduko
+        return
+    }
+    if {[$elemento hasclass GP::Adverbo]} {
+        my bazaTraduko $vortaro
+        if {![my testuSentradukeco]} {
+            set traduko $bazaTraduko
+            return
+        }
+        set numarto [$elemento set arto]
+        switch $numarto {
+            {} {
+                set traduko [$fleksiolo prenuNumero $bazaTraduko ordo]
+                # KaGu - angle first->firstly
+                append traduko " för det"
+                # "för det" första = firstly. "för det" andra = secondly o.s.v. T.e. "apend" antau la numeralo
+            }
+            default {
+                my metuMesagxon "nombroarto $numarto nun ne subtenata" subteno
+                return
+            }
+        }
+        return
+    }
+    set traduko [$fleksiolo prenuNumero $bazaTraduko]
+}
+Class ETSvParticipoMix -superclass ::ETParticipoMix
+@ ::ETSvParticipoMix idemeta component EspSvTradukilo
+ETSvParticipoMix instproc bazaTraduko vortaro {
+    my instvar elemento tempo preTraduko
+    # KaGu - kiel traduki participoj - vidu vortojn en ""
+    
+    if {![my bazaTradukoDirekte $vortaro]} {
+        # divenu partizipon de verbo
+        next
+        my instvar bazaTraduko tempo gramatiko fgrupo nombro mesagxoTipo arto kazo tradukoListoj
+        if {![my testuSentradukeco]} {
+            set vtempo $tempo
+            if {[my istype ETAdverbo] && $bazaTraduko eq "vara"} {
+                switch $tempo {
+                    ante {
+                        set bazaTraduko "aktuell"
+                    }
+                    onte {
+                        set bazaTraduko "framtida"
+                    }
+                    inte {
+                        # KaGu vorto por estinta
+                        set bazaTraduko "former"
+                    }
+                }
+            } else {
+                switch $vtempo {
+                    ota {
+                        set preTraduko "future"
+                        set vtempo ata
+                    }
+                    ita {
+                        set vtempo ata
+                    }
+                    ont -
+                    onta -
+                    onte {
+                        set preTraduk "future"
+                        if {$vtempo eq "ont"} {
+                            set vtempo anta
+                        } else {
+                            set vtempo ant[string index $vtempo end]
+                        }
+                    }
+                    int -
+                    inta -
+                    inte {
+                        if {[my istype ETAdverbo] && [lsearch $gramatiko dk]>=0} {
+                            # set vtempo inte
+                        } else {
+                            set preTraduko "former"
+                            if {$vtempo eq "int"} {
+                                set vtempo anta
+                            } else {
+                                set vtempo ant[string index $vtempo end]
+                            }
+                        }
+                    }
+                }
+                if {[lindex $bazaTraduko 0] eq "not"} {
+                    set bazaTraduko [lrange $bazaTraduko 1 end]
+                    lappend preTraduko not
+                }
+                if {[llength $bazaTraduko]>1} {
+                    # ekzemple: rajti -> miec racje (majacy racje)
+                    my set postTraduko [join [lrange $bazaTraduko 1 end]]
+                    set nurverbo [lindex $bazaTraduko 0]
+                } else {
+                    set nurverbo $bazaTraduko
+                }
+                if {[my istype ETSvSubstantivo]} {
+                    if {[my exists nombro] && [my set nombro] eq "pluralo"} {
+                        set p "person som "
+                    } else {
+                        set p "personar som "
+                    }
+                    set bazaTraduko
+                    switch $vtempo {
+                        into {
+                            set vtempo is
+                        }
+                        anto {
+                            set vtempo as
+                        }
+                        onto {
+                            set vtempo os
+                        }
+                        ito {
+                            if {[my exists nombro] && [my set nombro] eq "pluralo"} {
+                                append p "were "
+                            } else {
+                                append p "was "
+                            }
+                            set vtempo pis
+                        }
+                        ato {
+                            append p "is "
+                            set vtempo pis
+                        }
+                        oto {
+                            append p "will be "
+                            set vtempo pis
+                        }
+                    }
+                } else {
+                    set p ""
+                }
+                set bazaTraduko $p[SvFleksilo prenuVerbon $nurverbo $fgrupo 3 singularo $vtempo]
+                set novTradukListo {}
+                foreach {svorto sfgrupo sgramatiko} $tradukoListoj {
+                    set sbazaTraduko $p[SvFleksilo prenuVerbon $svorto $sfgrupo 3 singularo $vtempo]
+                    if {[my istype ETAdverbo] && $vtempo ne "ite"} {
+                        set sbazaTraduko [string range $bazaTraduko 0 end-1]
+                    }
+                    lappend novTradukListo $sbazaTraduko $sfgrupo $sgramatiko
+                }
+                set tradukoListoj $novTradukListo
+            }
+        }
+    }
+}
+ETSvParticipoMix instproc prenuParticipon {bazaTraduko fgrupo arto nombro npArto} {
+    my instvar elemento
+    if {[$elemento estasPasiva]} {
+        foreach e $fgrupo {
+            set fArr([lindex $e 0]) [lindex $e 1]
+        }
+        if {$nombro eq "singularo" && $arto eq "n" && !($npArto==1 || $npArto==3) } {
+            if {[info exists fArr(ett)]} {
+                return $fArr(ett)
+            }
+            return [string range $bazaTraduko 0 end-2]et
+        } elseif {$nombro eq "pluralo" || $npArto==1 || $npArto==3} {
+            if {[info exists fArr(pl)]} {
+                return $fArr(pl)
+            }
+            if {[lindex $fgrupo 0] ne "4" && [string range $bazaTraduko end-1 end] ne "en"} {
+                return [string range $bazaTraduko 0 end-2]ade
+            } else {
+                return [string range $bazaTraduko 0 end-2]na
+            }
+        }
+    }
+    return $bazaTraduko
+}
+Class ETSvPersonPronomo -superclass {::SvTradukElemento ::ElemTraduko ::ETSvSubstantivoartaMix}
+@ ::ETSvPersonPronomo idemeta component EspSvTradukilo
+ETSvPersonPronomo instproc bazaTraduko vortaro {
+    my set bazaTraduko ?
+}
+ETSvPersonPronomo instproc cxuArtoGravas {} {
+    return 0
+}
+ETSvPersonPronomo instproc distinguDifinilon frazTraduko {
+    my instvar elemento arto nombro persono
+    set nombro [$elemento prenuNombron]
+    set vorto [$elemento prenuVorton]
+    set persono [$elemento prenuPersonon]
+    if {$persono==4} {
+        set persono 3
+        set nombro singularo
+        $elemento set nombro singularo
+    }
+    switch [string trimright $vorto n] {
+        vi {
+            set arto u
+        }
+        li {
+            set arto u
+        }
+        ŝi {
+            set arto u
+        }
+        ĝi {
+            set arto n
+        }
+        ni {
+            set arto u
+        }
+        ili {
+            set arto u
+        }
+        oni {
+            set arto u
+        }
+        si {
+            set arto u
+        }
+        default {
+            set arto u
+        }
+    }
+    my distinguSubstantivanDifinilon
+}
+ETSvPersonPronomo instproc distinguDifinilonPost frazTraduko {
+    set radikaTradukElemento [my miAuxRadikaElemento]
+    set dfunkcio [[$radikaTradukElemento elemento] set funkcio]
+    if {$dfunkcio eq "subj"} {
+        my distinguSubstantivanDifinilon
+        set krad [my trovuMainAston]
+        if {$krad ne ""} {
+            set vrad [$krad prenuRadiko]
+            if {$vrad ne ""} {
+                $vrad distinguGramatikon $frazTraduko
+                $vrad traduku [$frazTraduko prenuVortaron]
+            }
+        }
+        foreach a [$krad astoj] {
+            if {[$a exists elemento] && [[$a elemento] prenuFunkcioNomo] eq "attr"} {
+                $a distinguGramatikon $frazTraduko
+                $a traduku [$frazTraduko prenuVortaron]
+            }
+        }
+    }
+}
+ETSvPersonPronomo instproc distinguGramatikon frazTraduko {
+    my instvar parenco kazo elemento arto nombro persono
+    set skazo [$parenco sxercxuAttributonSupren kazo]
+    if {$skazo ne ""} {
+        set kazo $skazo
+    }
+    if {[$elemento prenuVorton] eq "sin"} {
+        set arto [$parenco sxercxuAttributonSupren arto]
+        set nombro [$parenco sxercxuAttributonSupren nombro]
+        set persono [$parenco sxercxuAttributonSupren persono]
+    }
+}
+ETSvPersonPronomo instproc traduku vortaro {
+    my instvar persono parenco traduko
+    if {$persono==4} {
+        # KaGu - simple traduko anglaj vortoj post "set traduko"
+        set traduko man
+    } else {
+        set bazaformo [[my elemento] prenuBazanFormon]
+        my instvar kazo arto nombro
+        if {$bazaformo eq "si"} {
+            set traduko [SvFleksilo prenuSin $persono $arto $nombro]
+        } else {
+            set traduko [SvFleksilo prenuPersonPronomon $bazaformo $arto $kazo $nombro]
+        }
+    }
+}
+Class ETSvPosesivPronomo -superclass {::SvTradukElemento ::ElemTraduko}
+@ ::ETSvPosesivPronomo idemeta component EspSvTradukilo
+ETSvPosesivPronomo instproc bazaTraduko vortaro {
+    my set bazaTraduko ?
+}
+ETSvPosesivPronomo instproc distinguGramatikon frazTraduko {
+    my instvar elemento kazo arto nombro parenco
+    set p [my trovuUnuanPerenconKiu par {[$par exists kazo]}]
+    if {$p ne ""} {
+        set kazo [$p set kazo]
+    } else {
+        switch [$elemento prenuKazon] {
+            nominativo {
+                set kazo N
+            }
+            akuzativo {
+                set kazo A
+            }
+        }
+    }
+    set arto [my sxercxuAttributonSupren arto]
+    if {$arto eq ""} {
+        my metuMesagxon "arto ne konata" arto
+        set arto m
+    }
+    set nombro [$elemento prenuNombron]
+}
+ETSvPosesivPronomo instproc traduku vortaro {
+    set bazaformo [[my elemento] prenuBazanFormon]
+    my instvar kazo arto nombro
+    my set traduko [[my prenuFleksilon] prenuPosesivPronomon $bazaformo $arto $kazo $nombro]
+}
+Class ETSvPrepozicio -superclass {::SvTradukElemento ::ETPrepozicio}
+@ ::ETSvPrepozicio idemeta component EspSvTradukilo
+ETSvPrepozicio instproc preparuFunkcion_iobj {} {
+    my instvar bazaTraduko traduko kazo elemento
+    my set testuIObj 1
+    set npRad [my selektu {elemento miAuxRadikaElemento prenuNPParton prenuRadiko}]
+    set kazo A
+    # doni al mi -> mig
+    if {[$npRad istype GP::PersonPronomo]} {
+        set basaTraduko ""
+        set traduko ""
+        [my miAuxRadikaElemento] aliguMerkmalon pronomo
+    } else {
+        set basaTraduko till
+        set traduko till
+    }
+}
+ETSvPrepozicio instproc preparuFunkcion_je {} {
+    my instvar bazaTraduko traduko kazo
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    # la plej versxajna prepozicio "mi kredas je Dio" = jag tror PÅ Gud"  je tiu eldiro li = vid detta uttalande han ...
+    set traduko på
+    set kazo A
+}
+ETSvPrepozicio instproc preparuFunkcion_porinf {} {
+    my instvar traduko
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    set traduko för
+}
+ETSvPrepozicio instproc preparuFunkcion_pos {} {
+    my instvar bazaTraduko traduko kazo elemento parenco
+    set pparenco [$parenco set parenco]
+    if {[$pparenco istype TASv::subsup]} {
+        $pparenco set ppos [self]
+    }
+    set kazo N
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    set bazaTraduko av
+    set traduko av
+}
+ETSvPrepozicio instproc preparuFunkcion_psubj {} {
+    my instvar bazaTraduko traduko kazo
+    set kazo A
+    set bazaTraduko "av"
+    set traduko "av"
+}
+ETSvPrepozicio instproc traduku vortaro {
+    my instvar traduko testuIObj
+    if {![info exists traduko]} {
+        next
+    } elseif {$traduko eq "{je}"} {
+        my metuMesagxon "prepozicio ne konata" traduko
+    } elseif {[info exists testuIObj] && $testuIObj eq "1"} {
+        if {[my havasMerkmalonSupren iobjto]} {
+            set traduko åt
+        }
+    }
+}
+ETSvPrepozicio instproc tradukuHoron {} {
+    my instvar traduko parenco kazo
+    set traduko vid
+    # sxangxis "at" al "vid"
+    set npTrad ""
+    set kazo A
+    foreach a [$parenco set astoj] {
+        if {$a ne [self] && [$a istype ::TradukAsto]} {
+            set npTrad $a
+        }
+    }
+    if {$npTrad eq ""} return
+    foreach a [$npTrad set astoj] {
+        if {[$a istype ETSvDifinilo]} {
+            $a class ETNul
+            $a set traduko ""
+        } elseif {[$a istype ETSvNumeralo]} {
+            if {![$a tradukuNeVorto ""]} {
+                $a class ETSenOrigina
+                $a traduko [SvFleksilo prenuNumero [$a set bazaTraduko]]
+            }
+        } elseif {[$a istype ETSvSubstantivo]} {
+            $a class ETSenOrigina
+            # KaGu - simple traduko anglaj vortoj post "set traduko"
+            $a set traduko "klockan"
+        }
+    }
+
+}
+Class ETSvPrimitivaAdverbo -superclass {::SvTradukElemento ::ElemTraduko}
+@ ::ETSvPrimitivaAdverbo idemeta component EspSvTradukilo
+ETSvPrimitivaAdverbo instproc distinguDifinilon frazTraduko {
+    my instvar elemento parenco
+    set vorto [$elemento prenuVorton]
+    if {$vorto eq "ĉi"} {
+        my set traduko ""
+        $parenco set cxi 1
+    } elseif {$vorto eq "ne"} {
+        set pelemento [$parenco prenuRadiko]
+        # ne cxe Verbo - se frazo havas objekton, konvertu al "no"
+        if {[[$pelemento set elemento] istype GP::Verbo] && [$pelemento estasRadiko]} {
+            set main [my trovuMainAston]
+            if {$main eq "" || [$pelemento miAuxRadikaElemento] ne $main} return
+            $main metuVerboKielNegativa [self]
+        }
+    }
+}
+ETSvPrimitivaAdverbo instproc tradukoPostSinonimoSxangxo {} {
+    my set traduko [my set bazaTraduko]
+}
+ETSvPrimitivaAdverbo instproc traduku vortaro {
+    my instvar elemento parenco
+    set vorto [$elemento prenuVorton]
+    if {$vorto eq "ĉi"} {
+        my set traduko ""
+    } elseif {$vorto eq "pli" && [[$parenco elemento] istype SintaksAsto::padj]} {
+        # KaGu - simple traduko anglaj vortoj post "set traduko"
+        my set traduko "mer"
+    } elseif {$vorto eq "ne"} {
+        if {[info exists elemento] && [set par [$elemento selektu {miAuxRadikaElemento parenco}]] ne "" && [$par istype SintaksAsto::ne]} {
+            my set traduko inte
+        } else {
+            my set traduko nej
+        }
+    } elseif {$vorto eq "mem"} {
+        if {[my selektu {parenco prenuRadiko elemento prenuVorton}] eq "si"} {
+            my foriguDeParenco
+        } else {
+            my instvar arto persono nombro
+            set arto [$parenco sxercxuAttributonSupren arto]
+            set persono [$parenco sxercxuAttributonSupren persono]
+            set nombro [$parenco sxercxuAttributonSupren nombro]
+            my set traduko [SvFleksilo prenuPersonPronomon mem $arto N $nombro]
+        }
+    } else {
+        next
+    }
+}
+Class ETSvSubstantivo -superclass {::SvTradukElemento ::ETSubstantivo ::ETSvSubstantivoartaMix}
+@ ::ETSvSubstantivo idemeta component EspSvTradukilo
+ETSvSubstantivo instproc distinguDifinilon frazTraduko {
+    my instvar elemento arto bazaTraduko parenco nombro fgrupo persono npArto gramatiko senTraduko
+
+    my distinguDifinilonBaza $frazTraduko
+
+    if {[my testuSentradukeco]} {
+        if {$senTraduko==2} {
+            # vortfarado "lingvokono -> kono de lingvo"
+            return
+        }
+        set arto u
+        set npArto 1
+        my distinguSubstantivanDifinilon
+        return
+    }
+
+    # distingu arton de np frazo
+    # 0 - sen definiloj (
+    # 1 - kun definilo 'la'
+    # 2 - kun nedefinitiva definilo 'a'
+    # 3 - Mit Possesivpronomen und kein
+    # 4 - 'kein' definilo (kein estos kunmetota)
+    # 5 - kun abstrakta definilo "some"
+    # 6 - kun any
+
+    if {![info exists npArto] || $npArto!=4} {
+        if {[lsearch $gramatiko abst]>=0} {
+            set npArto 0
+        } else {
+            if {[info exists elemento] && $elemento ne "" && [$elemento senDifinilo]} {
+                set npArto 0
+            } else {
+                set npArto [my estasDefinitiva]
+            }
+        }
+    }
+
+    my distinguArtonKajDefinilon
+}
+ETSvSubstantivo instproc distinguGramatikon frazTraduko {
+    my instvar kazo parenco elemento npArto arto nombro bazaTraduko havasEin
+
+    next
+    # cxu substantivo bezonas nedifinitan difinilon "ett" "en"
+    if {(($nombro eq "singularo" && $npArto==2) || $npArto==4) && ![info exists havasEin]} {
+        set pelem [my selektu {parenco elemento}]
+        if {$pelem ne "" && [$pelem istype SintaksAsto::np]} {
+            set frazoRadiko $parenco
+        } else {
+            set frazoRadiko [self]
+        }
+        set ndef [ETSvNedefinitaDefinilo new -childof [my info parent] -parenco $frazoRadiko -arto $npArto]
+        $ndef set genro $arto
+        $ndef set kazo $kazo
+        $ndef set nombro $nombro
+        if {[$frazoRadiko exists elemento] && [[$frazoRadiko set elemento] istype SintaksAsto::konj]} {
+            set frazoRadiko [$frazoRadiko prenuDirektaRadiko]
+        }
+
+        if {$frazoRadiko ne [self]} {
+            set pastoj [$frazoRadiko astoj]
+            set pastoj [linsert $pastoj 0 $ndef]
+            $frazoRadiko astoj $pastoj
+        } else {
+            set ta [TradukAsto new -childof [my info parent]]
+            $ndef parenco $ta
+            lappend tastoj $ndef
+            lappend tastoj [self]
+            $ta astoj $tastoj
+            $ta elemento [my elemento]
+            if {[lsearch [[my parenco] set astoj] [self]]<0} {
+                puts "TO DO"
+            } else {
+                [my parenco] intersxangxiElementoj [self] $ta
+                set parenco $ta
+            }
+        }
+        set havasEin 1
+    }
+}
+ETSvSubstantivo instproc distinguGramatikonDeElementoPost {elemento frazTraduko} {
+    if {[$elemento istype ETSvNedefinitaDefinilo] || [$elemento istype ETSvDifinilo]} {
+        $elemento distinguGramatikon $frazTraduko
+        $elemento traduku [$frazTraduko prenuVortaron]
+    }
+}
+ETSvSubstantivo instproc estasDefinitiva {} {
+    # cxu np-subfrazo bezonus "ein"
+    set frazoRadiko [[my miAuxRadikaElemento] set elemento]
+    # TODO multaj subsup
+    if {[$frazoRadiko istype SintaksAsto::subsup] || [$frazoRadiko istype SintaksAsto::npmain]  || [$frazoRadiko istype SintaksAsto::konj]} {
+        set frazoRadiko [$frazoRadiko set radiko]
+    }
+    if {[$frazoRadiko istype SintaksAsto]} {
+        if {[[my miAuxRadikaElemento] exists npArto]} {
+            return [[my miAuxRadikaElemento] set npArto]
+        }
+        foreach aa [$frazoRadiko astoj] {
+            set a [$aa prenuRadiko]
+            if {$a eq ""} continue
+            if {[$aa istype SintaksAsto::adjp] && [$aa estasPlej]} {
+                return 1
+            }
+            if {[$a istype GP::Difinilo] || [$a istype GP::TabloVorto]} {
+                if {[$a istype GP::TabloVorto] && [$a set bazo] eq "neni" && [$a set arto] eq "u"} {
+                    return 3
+                } elseif {[$a istype GP::TabloVorto] && [$a set bazo] eq "ti" && [$a set arto] eq "a"} {
+                    return 5
+                } else {
+                    return 1
+                }
+            } elseif {[$a istype GP::Numeralo] && [$a set arto] eq ""} {
+                return 5
+            } elseif {[$a istype GP::PosesivPronomo]} {
+                return 3
+            }
+        }
+    }
+    return 2
+}
+ETSvSubstantivo instproc estasPersono {} {
+    my instvar elemento gramatiko
+    if {[$elemento istype GP::Substantivo] && [$elemento estasPersono]} {
+        return 1
+    }
+    if {[info exists gramatiko] && [lsearch $gramatiko pers]>=0} {
+        return 1
+    }
+    return 0
+}
+ETSvSubstantivo instproc estasViva {} {
+    my instvar elemento gramatiko
+    if {[$elemento istype GP::Substantivo] && [$elemento estasPersono]} {
+        return 1
+    }
+    if {[info exists gramatiko] && ([lsearch $gramatiko pers]>=0 || [lsearch $gramatiko anim]>=0)} {
+        return 1
+    }
+    return 0
+}
+ETSvSubstantivo instproc traduku vortaro {
+    my instvar traduko bazaTraduko kazo elemento arto nombro fgrupo gramatiko npArto adjektivaPrefikso
+    if {[my testuSentradukeco]} {
+        set nombro [$elemento prenuNombron]
+        return
+    }
+    if {[$elemento estasVorto %]} {
+        set traduko %
+        return
+    }
+
+    if {[info exists adjektivaPrefikso] && $adjektivaPrefikso ne ""} {
+        set bazaTraduko $adjektivaPrefikso[string tolower $bazaTraduko]
+    }
+    set fleksilo [my prenuFleksilon]
+    set havasDifinilon [expr {$npArto==1}]
+    if {$fgrupo eq ""} {
+        set traduko [$fleksilo prenuSubstantivon $bazaTraduko $nombro $kazo $havasDifinilon]
+    } else {
+        set traduko [$fleksilo prenuKompleksanSubstantivonLauxTipo $bazaTraduko $fgrupo $nombro $kazo $havasDifinilon]
+    }
+}
+Class ETSvTabloVorto -superclass {::SvTradukElemento ::ElemTraduko ::ETSvSubstantivoartaMix}
+@ ::ETSvTabloVorto idemeta component EspSvTradukilo
+ETSvTabloVorto instproc distinguDifinilon frazTraduko {
+    my instvar elemento persono nombro arto estasRelativPronomo parenco
+    set estasRelativPronomo [$elemento estasRelativPronomo]
+
+    set apudFrazo 0
+    if {[$elemento hasclass GP::Substantivo]} {
+        set persono 3
+        if {$estasRelativPronomo} {
+            set arto [my sxercxuAttributonCxeDisk arto]
+            set apudFrazo 1
+            my metuMerkmalonEnMainAsto apudFrazo
+        } else {
+            if {[$elemento set bazo] eq "ki" || [$elemento set arto] eq "u"} {
+                set arto n
+            } else {
+                set arto u
+            }
+            if {[$elemento estasKunliga]} {
+                set apudFrazo 1
+                my metuMerkmalonEnMainAsto apudFrazo
+            }
+        }
+        set nombro [$elemento prenuNombron]
+        my distinguSubstantivanDifinilon
+    } elseif {[$elemento estasKunliga]} {
+        set apudFrazo 1
+        my metuMerkmalonEnMainAsto apudFrazo
+    } elseif {[$elemento set bazo] eq "ki"} {
+        set pelemento [$parenco set elemento]
+        # Frazo: kiam mi estas preta, tion ne scias neniu.
+        if {[$pelemento istype SintaksAsto::main] && ![$pelemento estasDemando]} {
+            foreach a [$pelemento astoj] {
+                if {[$a istype SintaksAsto::main]} {
+                    set apudFrazo 1
+                    my metuMerkmalonEnMainAsto apudFrazo
+                    break
+                }
+            }
+            if {[$pelemento exists parenco] && [$pelemento set parenco] ne ""} {
+                set apudFrazo 1
+                my metuMerkmalonEnMainAsto apudFrazo
+            }
+        }
+    }
+    # Demandaj frazoj kun 'kiu' funkcias en angla lingvo kiel kutimaj frazoj
+    # frazoj kiel: kiam, kie, kiom, kiel, kial
+
+    if {[string index [$elemento prenuVorton] 0] eq "k" && ![$elemento estasVorto kiu] && !$estasRelativPronomo} {
+        # nur kiam en unua pozitiono
+        # ne forgesu demandaj pp "pri kiu", "sur kiu"
+        set aelemento [[$elemento miAuxRadikaElemento] prenuAntauxElemento]
+
+        if {$aelemento eq "" || [$aelemento prenuFunkcioNomo] eq "fkonj"} {
+            if {[$elemento set funkcio] eq "adv"} {
+                $elemento set funkcio kadv
+            }
+            my aliguMerkmalon estasDemanda
+            if {!$apudFrazo} {
+                my metuAttributonEnMainAsto demandaFrazo 2
+            }
+        } elseif {[[$elemento parenco] istype SintaksAsto::pp] && [[$elemento set parenco] prenuAntauxElemento] eq ""} {
+            my aliguMerkmalon estasDemanda
+            [$elemento set parenco] set funkcio kadv
+            if {!$apudFrazo} {
+                my metuAttributonEnMainAsto demandaFrazo 2
+            }
+        }
+    } elseif {[string index [$elemento prenuVorton] 0] eq "k" && !$estasRelativPronomo} {
+        set aelemento [[$elemento miAuxRadikaElemento] prenuAntauxElemento]
+
+        if {[[$elemento parenco] istype SintaksAsto::pp] && ($aelemento eq "" || [$aelemento prenuFunkcioNomo] eq "fkonj")} {
+            my aliguMerkmalon estasDemanda
+            [$elemento set parenco] set funkcio kadv
+            if {!$apudFrazo} {
+                my metuAttributonEnMainAsto demandaFrazo 2
+            }
+        }
+    }
+}
+ETSvTabloVorto instproc distinguGramatikon frazTraduko {
+    my instvar kazo parenco elemento nombro arto estasRelativPronomo persono
+    set kazo [my sxercxuAttributonSupren kazo]
+    if {$kazo eq ""} {
+        if {[$elemento exists kazo]} {
+            switch [$elemento set kazo] {
+                nominativo {
+                    set kazo N
+                }
+                akuzativo {
+                    set kazo A
+                }
+            }
+        }
+    }
+    if {$estasRelativPronomo} {
+        # TODO jxus konata
+        set arto [my sxercxuAttributonCxeDisk arto]
+    } else {
+        set arto [my sxercxuAttributonSupren arto]
+    }
+    if {$arto eq ""} {
+        my metuMesagxon "arto ne destingebla" arto
+        set arto u
+    }
+    if {[$elemento hasclass GP::NombroKazo]} {
+        set nombro [$elemento prenuNombron]
+    } elseif {[$elemento estasArto es]} {
+        set nombro [my sxercxuAttributonSupren nombro]
+    }
+}
+ETSvTabloVorto instproc traduku vortaro {
+    my instvar traduko bazaTraduko elemento arto kazo nombro estasRelativPronomo parenco
+    set bazaTraduko [$elemento prenuBazanFormon]
+    set traduko ($bazaTraduko)
+    # KaGu - simple traduko anglaj vortoj post "set traduko"
+    set aliguKolwiek 0
+    if {[[$elemento set parenco] istype SintaksAsto::grupo] && [[[$elemento set parenco] prenuLastan] prenuVorton] eq "ajn"} {
+        [lindex [$parenco astoj] end] class ETNul
+        set aliguKolwiek 1
+    }
+    set fleksilo [my prenuFleksilon]
+
+    if {[$elemento hasclass GP::Substantivo] && !$estasRelativPronomo} {
+        # kiu estas tie? = vem är där? tio estas bona. = det är bra.
+        set traduko [$fleksilo prenuPersonPronomon $bazaTraduko $arto $kazo $nombro]
+        if {$aliguKolwiek} {
+            set traduko "$traduko som helst"
+        }
+        return
+    }
+    if {[$elemento hasclass GP::NombroKazo] || $estasRelativPronomo} {
+        # tie povas esti du kazoj
+        # relativ pronomo aux demanda pronomo
+        # Kiu viriono estas la plej bela?
+        # Mi vidis virinon, kiu estas bela.
+        if {[$elemento estasVorto kies]} {
+            # kobieta, czyjej spiew był bardzo piekny
+            # virino, kies kantado estis tre bela
+            set tnombro [my sxercxuAttributonCxeDisk nombro]
+            if {$tnombro ne ""} {
+                set nombro $tnombro
+            }
+        }
+        if {[$elemento set arto] eq "u" && $estasRelativPronomo && ($kazo eq "N" || ($elemento ne "" && [$elemento funkcio] eq "obj"))} {
+            # kiu en rolo de relativa pronomo
+            if {[$parenco prenuFunkcioNomo] eq "pp"} {
+                set traduko [$fleksilo prenuPosesivPronomon kiu $arto $kazo $nombro]
+            } else {
+                set traduko som
+            }
+        } elseif {$bazaTraduko eq "kiu" || $bazaTraduko eq "kiun"} {
+           set darto [my sxercxuAttributonCxeDisk arto]
+           if {$darto eq "m"} {
+               if {$bazaTraduko eq "kiu"} {
+                   set traduko vem
+               } else {
+                   set traduko den
+               }
+           } else {
+               set traduko [$fleksilo prenuPosesivPronomon kiu $arto $kazo $nombro]
+           }
+        } else {
+            set traduko [$fleksilo prenuPosesivPronomon $bazaTraduko $arto $kazo $nombro]
+        }
+        if {$aliguKolwiek} {
+            append traduko " som helst"
+        }
+        if {$bazaTraduko eq "tiu" && [my sxercxuAttributonSupren cxi] eq "1"} {
+            if {$nombro eq "pluralo"} {
+                set traduko dessa
+            } else {
+                set traduko "den här"
+            }
+        }
+        return
+    }
+    if {[$elemento estasVorto kies]} {
+        if {$kazo eq ""} {
+            set traduko vems
+        } else {
+            set traduko [$fleksilo prenuPosesivPronomon kies $arto $kazo $nombro]
+        }
+        if {$aliguKolwiek} {
+            append traduko " som helst"
+        }
+        return
+    }
+    # de kie de tie
+    if {[$elemento set arto] eq "e" && [[$parenco elemento] istype SintaksAsto::advp] && [[[$parenco elemento] prenuUnuan] estasVorto "de"]} {
+        set estasDeIe 1
+        set dobj [lindex [$parenco set astoj] 0]
+        $dobj class ETNul
+        $dobj traduko ""
+    } else {
+        set estasDeIe 0
+    }
+
+    switch [$elemento prenuVorton] {
+        kien  {
+            set traduko vart
+        }
+        kie {
+            if {$estasDeIe} {
+                set main [my trovuMainVerboAston]
+                if {$main ne ""} {
+                    set prep [ETSenOrigina new -childof [my info parent] -traduko from]
+                    set traduko var
+                    $main movuAlPozicio $prep end
+                } else {
+                    set traduko varifrån
+                }
+            } else {
+                set traduko var
+            }
+        }
+        ie {
+            if {$estasDeIe} {
+                set traduko någonstans
+            } else {
+                set traduko någonstans
+            }
+        }
+        nenien {
+            set traduko ingenstans
+        }
+        ĉie {
+            set traduko "överallt"
+        }
+        tien {
+            set cxi [my sxercxuAttributonSupren cxi]
+            if {$cxi eq "1"} {
+                set traduko dit
+            } else {
+                set traduko dit
+            }
+        }
+        tie {
+            set cxi [my sxercxuAttributonSupren cxi]
+            if {$cxi eq "1"} {
+                set traduko här
+            } else {
+                if {$estasDeIe} {
+                    set traduko där
+                } else {
+                    set traduko där
+                }
+            }
+        }
+        nenie {
+            if {$estasDeIe} {
+                # TODO - de nenie !
+                set traduko ingenstans
+            } else {
+                set traduko ingenstans
+            }
+        }
+        ien {
+            if {$estasDeIe} {
+                # TODO - de ien
+                set traduko {någonstans ifrån}
+            } else {
+                set traduko {någonstans ifrån}
+            }
+        }
+        ĉien {
+            if {$estasDeIe} {
+                set traduko {från alla platser}
+            } else {
+                set traduko "alla platser"
+            }
+        }
+        ties {
+            set traduko dess
+        }
+        nenies {
+            set traduko ingens
+        }
+        ĉies {
+            set traduko allas
+        }
+        ies {
+            set traduko någons
+        }
+        kiam {
+            set traduko när
+        }
+        tiam {
+            set traduko då
+        }
+        ĉiam {
+            set traduko alltid
+        }
+        iam {
+            set traduko "någon gång"
+        }
+        neniam {
+            my set funkcio never
+            set traduko aldrig
+        }
+        kiom {
+            set traduko "hur mycket"
+        }
+        tiom {
+            set traduko "så mycket"
+        }
+        kial {
+            set traduko varför
+        }
+        kiel {
+            if {[my havasMerkmalon estasDemanda]} {
+                set traduko hur
+            } else {
+                set traduko som
+            }
+        }
+        tiel {
+            set traduko så
+        }
+        default {
+            my bazaTraduko $vortaro
+            next
+        }
+    }
+    if {$aliguKolwiek} {
+        append traduko " som helst"
+    }
+}
+Class ETSvVerbo -superclass {::SvTradukElemento ::ETVerbo}
+@ ::ETSvVerbo idemeta component EspSvTradukilo
+ETSvVerbo instproc aliguPrepAlObjekto {prepPriskribo objElemento} {
+    if {[$objElemento istype ElemTraduko] && [[$objElemento set elemento] estasBasaVorto "kio"]} {
+        set parenco [$objElemento parenco]
+        set prep [ETSenOrigina new -childof [my info parent] -traduko [lindex $prepPriskribo 0]]
+        $parenco movuAlPozicio $prep end
+    } else {
+        next
+    }
+}
+ETSvVerbo instproc distinguGramatikon frazTraduko {
+    my instvar bazaTraduko fgrupo tempo gramatiko parenco traduko elemento
+    next
+    if {[my testuSentradukeco]} return
+    if {[$elemento prenuVorton] eq "bonvolu"} {
+        # bonvola ordono estas tradukota al "please"
+        set smain [my trovuMainAston]
+        if {$smain ne ""} {
+            $smain set bonvolaOrdono 1
+            my class ETSenOrigina
+            set bazaTraduko "var vänlig"
+            set traduko "var vänlig"
+        }
+    }
+    if {[string first " " $bazaTraduko]>0} {
+        if {[llength $bazaTraduko]>=2} {
+            if {[lindex $bazaTraduko 0] eq "be"} {
+                set tobj [ETSenOrigina new -childof [my info parent] -funkcio attr -traduko [lrange $bazaTraduko 1 end]]
+                set pid [lsearch [$parenco astoj] [self]]
+                incr pid
+                set bazaTraduko [lindex $bazaTraduko 0]
+                $parenco movuAlAbsPozicio $tobj $pid
+            } elseif {[llength $bazaTraduko]==2 && [lindex $bazaTraduko 0] eq "make"} {
+                set tobj [ETSenOrigina new -childof [my info parent] -funkcio attr -traduko [lrange $bazaTraduko 1 end]]
+                set pid [lsearch [$parenco astoj] [self]]
+                incr pid
+                set bazaTraduko [lindex $bazaTraduko 0]
+                $parenco movuAlAbsPozicio $tobj $pid
+            }
+        }
+    }
+    # pritraktu "sens" verboj
+    if {[lsearch $gramatiko sens]>=0} {
+        my metuAttributonEnRadikaFunkcion sens 1
+    }
+    if {[lsearch $gramatiko iobjto]>=0} {
+        my metuMermalonEnRadikaFunkcion iobjto
+    }
+}
+ETSvVerbo instproc metuVerboKielNegativa negObjekto {
+    #my muvuElementonEnPostKampoLauFunkcio $negObjekto not
+    my set negObjekto $negObjekto
+    my aliguMerkmalon negativa
+}
+ETSvVerbo instproc muvuElementonEnPostKampo {nelemento pozicio {funkcio verb}} {
+    my instvar postkampo parenco elemento
+    $nelemento set vfunkcio $funkcio
+    if {![info exists postkampo]} {
+        set main [my trovuMainVerboAston]
+        if {$main eq ""} {
+            set main $parenco
+        }
+        set tastoj [$main astoj]
+        set prep [TASv::PreVerbo new -childof [my info parent] -parenco $main]
+        #$prep set elemento $elemento
+        $nelemento foriguDeParenco
+        $prep astoj $nelemento
+        $nelemento parenco $prep
+        $main movuAlPozicio $prep end
+        set postkampo $prep
+    } else {
+       $postkampo movuAlPozicio $nelemento $pozicio
+    }
+}
+ETSvVerbo instproc muvuElementonEnPostKampoLauFunkcio {melemento funkcio} {
+    my instvar postkampo persono tempo elemento parenco
+    set ordo {ask will not}
+
+    if {![info exists postkampo]} {
+        my muvuElementonEnPostKampo $melemento 0 $funkcio
+        return
+    }
+    set i 0
+    set pos [lsearch $ordo $funkcio]
+    # ne permesi du elementoj kun sama funkcio
+    foreach e [$postkampo astoj] {
+        if {[$e set vfunkcio] eq $funkcio} {
+            return
+        }
+    }
+    foreach e [$postkampo astoj] {
+        if {[lsearch $ordo [$e set vfunkcio]]>=$pos} {
+            my muvuElementonEnPostKampo $melemento $i $funkcio
+            return
+        }
+        incr i
+    }
+    my muvuElementonEnPostKampo $melemento $i $funkcio
+}
+ETSvVerbo instproc selektuBazanTradukon tradukojListojTemp {
+    my selektuBazanTradukonKunFiltro $tradukojListojTemp
+}
+ETSvVerbo instproc tradukoOrdonon vortaro {
+    my instvar persono tempo nombro bazaTraduko traduko fgrupo negObjekto
+    set main [my trovuMainAston]
+    if {$main eq "" || ($main ne "" && [[$main elemento] estasOrdonoSenSubjekto])} {
+        if {[EsperantoConf set tradDeOrdonoAlSubstantivo]} {
+            set traduko [SvFleksilo prenuVerbon $bazaTraduko $fgrupo 3 $nombro o]
+            my aliguMerkmalon veraOrdono
+        } else {
+            set traduko [SvFleksilo prenuVerbon $bazaTraduko $fgrupo 3 $nombro u]
+            my aliguMerkmalon veraOrdono
+            if {[my havasMerkmalon negativa]} {
+                $negObjekto traduku $vortaro
+                # KaGu cxi tie oni tradukas negadon
+                my muvuElementonEnPostKampoLauFunkcio $negObjekto not
+                set vpersono 1
+                set sobj [ETSenOrigina new -childof [my info parent]]
+                $sobj set traduko do
+                my muvuElementonEnPostKampoLauFunkcio $sobj will
+            }
+        }
+        return
+    }
+    set sobj [ETSenOrigina new -childof [my info parent]]
+    if {[my havasMerkmalon negativa]} {
+        $negObjekto foriguDeParenco
+        $sobj traduko "må inte"
+    } else {
+        $sobj traduko må
+    }
+    my muvuElementonEnPostKampoLauFunkcio $sobj will
+    set traduko $bazaTraduko
+}
+ETSvVerbo instproc traduku vortaro {
+    my instvar traduko bazaTraduko persono nombro tempo fgrupo gramatiko elemento keUFrazo parenco negObjekto arto
+    if {[my testuSentradukeco]} return
+
+    set vtempo $tempo
+    set vpersono $persono
+    if {$keUFrazo eq "1" && $vtempo eq "u"} {
+        set vtempo as
+        set vpersono $persono
+    } elseif {$vtempo eq "u"} {
+        my tradukoOrdonon $vortaro
+        return
+    }
+
+    set not ""
+    if {[my havasMerkmalon negativa]} {
+        $negObjekto traduku $vortaro
+    }
+
+    # Li estis finanta - On konczyl
+    set main [my selektu {trovuMainVerboAston elemento}]
+    if {$main ne "" && [$main estasKompleksaTempo] && $bazaTraduko eq "vara"} {
+        set attrobj [[$main trovuKunFunkcio attr] prenuRadiko]
+        if {$attrobj ne "" && [$attrobj estasPartizipo]} {
+            set preta 0
+            set atrad [[my trovuMainAston] trovuKunFunkcio attr]
+            if {$atrad ne ""} {
+                set atrad [$atrad prenuRadiko]
+                if {$tempo eq "is"} {
+                    set atempo [$attrobj set tempo]
+                    if {$atempo eq "inta"} {
+                        set traduko hade
+                        $atrad set tempo sup
+                        $atrad set persono 3
+                        $atrad set keUFrazo 0
+                        $atrad class ETSvVerbo
+                        $atrad mixin delete [ETSvParticipoMix]
+                        $atrad bazaTraduko $vortaro
+                        set preta 1
+                    } elseif {$atempo eq "onta"} {
+                        set traduko skulle
+                        $atrad set persono 3
+                        $atrad set keUFrazo 0
+                        $atrad class ETSvVerbo
+                        $atrad mixin delete [ETSvParticipoMix]
+                        $atrad bazaTraduko $vortaro
+                        $atrad set tempo i
+                        set preta 1
+                    }
+                }
+                if {!$preta} {
+                    [$atrad prenuRadiko] foriguDeParenco
+                    my mixin add ETSpecialaTradukoMix
+                    my set bazaVorto [$attrobj prenuBazanFormon]
+                    my bazaTraduko $vortaro
+                } else {
+                    return
+                }
+
+            }
+        }
+    }
+
+    set traduko [SvFleksilo prenuVerbon [lindex $bazaTraduko 0] $fgrupo $vpersono $nombro $vtempo]
+
+    if {$tempo eq "os" || $tempo eq "pis" || $tempo eq "us" && [llength $traduko]>1} {
+        set werdenVerbo [lindex $traduko 0]
+        set sorg [ETSenOrigina new -childof [my info parent]]
+        $sorg set traduko $werdenVerbo
+        set wirkVerbo [lrange $traduko 1 end]
+        set traduko $wirkVerbo
+        my muvuElementonEnPostKampoLauFunkcio $sorg will
+    }
+    set bazaTraduko [SvFleksilo tradukuOnes $bazaTraduko $persono $nombro $arto]
+    set traduko [join [concat $traduko $not [lrange $bazaTraduko 1 end]]]
+    if {$tempo eq "i"} {
+        set mrFunk [[my miAuxRadikaElemento] prenuFunkcioNomo]
+        if {$mrFunk eq "nfvp"} {
+            set masto [my trovuMainAston]
+            if {$masto ne ""} {
+                if {[$masto exists bonvolaOrdono]} {
+                    $elemento set funkcio radiko
+                    #$masto movuAlPozicio [self] 1
+                    ## [SvFleksilo prenuVerbon [lindex $bazaTraduko 0] $fgrupo $vpersono $nombro ing]
+                    set traduko $bazaTraduko
+                } else {
+                    set mverbo [$masto prenuRadiko]
+                    if {$mverbo ne "" && $mverbo ne [self] && [$mverbo istype ETVerbo]} {
+                        set traduko $bazaTraduko
+                    }
+                }
+            }
+        } elseif {$mrFunk eq "pos"} {
+            # Patro ĉiam havas la respondecon helpi siajn infanojn.
+            set traduko "att $bazaTraduko"
+        }
+    }
+}
+Class TASv -superclass ::TradukAsto
+@ ::TASv idemeta component EspSvTradukilo
+Class TASv::PreVerbo -superclass ::TASv
+@ ::TASv::PreVerbo idemeta component EspSvTradukilo
+TASv::PreVerbo instproc miAuxRadikaElemento {} {
+    return  [self]
+}
+TASv::PreVerbo instproc prenuFunkcioNomo {} {
+    return "preverbo"
+}
+Class TASv::VerboParentezo -superclass ::TASv
+@ ::TASv::VerboParentezo idemeta component EspSvTradukilo
+TASv::VerboParentezo instproc miAuxRadikaElemento {} {
+    return  [self]
+}
+Class TASv::ktempo -superclass {::TradukAstoKTempo ::TASv}
+@ ::TASv::ktempo idemeta component EspSvTradukilo
+Class TASv::main -superclass {::TradukAstoMain ::TASv}
+@ ::TASv::main idemeta component EspSvTradukilo
+TASv::main instproc estasEkzistoEsprimo verbo {
+    my instvar elemento
+
+    # ekzemple: En arbaro estas bestaro.
+    # 1) Verbo havas markilon en gramatiko "det"
+    # 2) La subjekto ne estas difinita, sen "la, mia, tiu, ..."
+
+    set r [$elemento prenuRadiko]
+    set s [$elemento prenuSubjekton]
+
+    if {$s eq "" || $r eq "" || [$s istype GP::PersonPronomo] || [$s istype GP::TabloVorto]}  {
+        return 0
+    }
+    if {[$elemento trovuKunFunkcio attr] ne "" || [$elemento trovuKunFunkcio comp] ne ""} {
+        return 0
+    }
+    set subj [$elemento prenuSubjekton]
+    if {$subj ne ""} {
+        set rsubj [$subj prenuRadiko]
+        if {![$rsubj istype GP::Substantivo]} {
+            return 0
+        }
+        if {$subj ne $rsubj} {
+            set np [$rsubj trovuUnuanPerenconKiu e {[$e istype SintaksAsto::np]}]
+            if {$np ne ""} {
+                foreach e [$np astoj] {
+                    set re [$e prenuRadiko]
+                    if {[$re istype GP::Difinilo] || [$re istype GP::PosesivPronomo] || [$re istype GP::TabloVorto]} {
+                        return 0
+                    }
+                }
+            }
+        }
+    }
+    return 1
+}
+TASv::main instproc metuVerboKielNegativa negObjekto {
+   [my prenuRadiko] metuVerboKielNegativa $negObjekto
+}
+TASv::main instproc preparuElementoPorKreuArbon {} {
+    my transformuSubsupDePrononom
+}
+TASv::main instproc reordigu {} {
+    next
+    my instvar astoj demandaFrazo elemento iobjto
+    # KaGu - tio estas eble la plej malfacila loko en programo
+    # Cxi tie estas farata la reordigo de vortoj
+    # Mi ankoraux ne solvis tio perfekte por angla kaj germana lingvoj
+
+
+    set verbo [my prenuRadiko]
+    set verboAsto [my trovuKunFunkcio radiko]
+    set subj [my trovuKunFunkcio subj]
+    set comp [my trovuKunFunkcio comp]
+    set kadv [my trovuKunFunkcio kadv]
+    set obj [my trovuKunFunkcio obj]
+    set iobj [my trovuKunFunkcio iobj]
+    set fkonj [my trovuKunFunkcio fkonj]
+    if {$fkonj ne "" && [$fkonj istype ETSimbolo]} {
+        if {[[lindex $astoj 1] prenuFunkcioNomo] eq "fkonj"} {
+            set fkonj [lindex $astoj 1]
+        } else {
+            set fkonj ""
+        }
+    }
+    set adv [my trovuKunFunkcio adv]
+    set nepos ""
+    set apudFrazo [my havasMerkmalon apudFrazo]
+
+    # nepos - estas verto en pozicio de vorteto "ne"
+    if {$adv ne "" && [$adv istype ElemTraduko] && [lsearch {aldrig alltid} [$adv set traduko]]>=0} {
+        set nepos $adv
+    } elseif {$adv ne "" && [$adv istype ETSvAdverbo] && [$adv exists gramatiko] && [lsearch [$adv set gramatiko] nepos]>=0} {
+        set nepos $adv
+    }
+
+    set demandaParto ""
+
+    if {$verbo ne "" && [$verbo istype ETVerbo]} {
+        if {[$verbo havasMerkmalon veraOrdono]} {
+            set verboPozicio 0
+        } else {
+            set verboPozicio 1
+        }
+
+        # sed, aux kaj
+        if {$fkonj ne ""} {
+            incr verboPozicio
+        }
+        if {$kadv ne ""} {
+            incr verboPozicio
+        }
+        if {([info exists demandaFrazo] && $demandaFrazo==2)} {
+            # kie estas la kapo?
+            # kiun viron vi amas?
+            # kiun vi vidas?
+            # kiu estas tie?
+            set demandaParto [my trovuUnunanInfanonKiu infano {[$infano havasMerkmalon estasDemanda]}]
+        } elseif {[$verbo havasMerkmalon demandaFrazoKunEsti]} {
+            set verboPozicio 0
+        } elseif {$apudFrazo} {
+            set demandaParto [lindex $astoj 1]
+            if {$demandaParto ne $subj} {
+                incr verboPozicio
+            }
+        }
+
+        # enmetu fiktivan subjektivo "es" se la frazo ne estas ordono
+        if {($subj eq "" || [$subj istype ETVerbo]) && [[$verbo elemento] istype GP::Verbo] && ([[$verbo elemento] estasEst] || ![[$verbo elemento] necesasSubjekton]) && [my prenuFunkcioNomo] ne "subfrazo" && ![$elemento estasOrdonoSenSubjekto]} {
+            set subj [ETSenOrigina new -childof [my info parent] -parenco [self]]
+            $subj traduko det
+            if {$apudFrazo} {
+                my movuAlPozicio $subj 2
+            } else {
+                my movuAlPozicio $subj [expr {$verboPozicio-1}]
+            }
+        } elseif {![$verbo testuSentradukeco] && [lsearch [$verbo set gramatiko] det]>=0 && [my estasEkzistoEsprimo $verbo] && (![info exists demandaFrazo] || $demandaFrazo!=2)} {
+            # todo estas -> finns
+            set subj [ETSenOrigina new -childof [my info parent] -parenco [self]]
+            $subj traduko det
+            if {$apudFrazo} {
+                my movuAlPozicio $subj 2
+            } else {
+                my movuAlPozicio $subj [expr {$verboPozicio-1}]
+            }
+            # Hack!
+            switch -- [$verbo set traduko] {
+                är {
+                    $verbo set traduko finns
+                }
+                varit {
+                    $verbo set traduko fanns
+                }
+                {kommer att vara} {
+                    $verbo set traduko {kommer att finnas}
+                }
+            }
+        }
+        # ordigi subjekton
+        # pritraktu ->
+        # kie vi estas?
+        # kiu estas tie?
+        # kiu homo legas ofte?
+        if {[info exists demandaFrazo] && $demandaFrazo==2} {
+            if {$subj ne "" && [$subj havasMerkmalonSuben estasDemanda]} {
+                set subjpos [expr {$verboPozicio-1}]
+            } else {
+                set subjpos [expr {$verboPozicio+1}]
+            }
+        } elseif {[info exists demandaFrazo] && $demandaFrazo==1} {
+            # normala "cxu" frazo
+            set subjpos [expr {$verboPozicio+1}]
+        } else {
+            # lasu "pp" kaj "adverbon" en unua pozicio
+            if {[set unuaf [my selektu {0 prenuFunkcioNomo}]] eq "pp" || $unuaf eq "adv"} {
+                set subjpos [expr {$verboPozicio+1}]
+            } else {
+                set subjpos [expr {$verboPozicio-1}]
+            }
+        }
+        if {$comp ne "" && [[$comp prenuRadiko] istype ETSvTabloVorto]} {
+            # Demandoj kun kiu kaj tablovortoj
+            # Tio estas granda urbo.
+            # Kiu estas tiu homo=
+            my movuAlPozicio $comp [expr {$verboPozicio-1}]
+        } elseif {$subj ne ""} {
+            if {$verboPozicio>$subjpos} {
+                my movuAlPozicio $subj $subjpos
+            }
+        }
+        if {[[$verbo elemento] eblasObjAdjComp] || [string range [[$verbo elemento] prenuBazanFormon] end-2 end] eq "igi"} {
+            # se atributiva frazo metu "ne" antaux atributo
+            set attr [my trovuKunFunkcio oattr]
+            if {$attr eq ""} {
+                set attr [[$verbo set parenco] trovuKunFunkcio oattr]
+            }
+            if {$attr ne ""} {
+                $verbo muvuElementonEnPostKampoLauFunkcio $attr attr
+            }
+        }
+        # metu la pozicion de preverbo
+        set preverbo [my trovuKunFunkcio preverbo]
+        if {$preverbo ne ""} {
+            if {[my exists demandaFrazo] && [my set demandaFrazo]} {
+                if {$kadv ne "" || $demandaFrazo==2} {
+                    if {$kadv eq ""} {
+                        # kion vi vidas? (ne estas kadv)
+                        incr verboPozicio
+                    }
+                    my movuAlPozicio $preverbo [expr {$verboPozicio-1}]
+                    # ne nur cxe "kiu homo dormas ofte?"
+                    if {$subj eq "" || ![$subj havasMerkmalonSuben estasDemanda]} {
+                        set verboPozicio [expr {$subjpos+1}]
+                    }
+                } else {
+                    my movuAlPozicio $preverbo 0
+                    incr verboPozicio
+                }
+            } else {
+                my movuAlPozicio $preverbo $verboPozicio
+                incr verboPozicio
+            }
+        }
+        # metu la pozicion de verbo
+
+        if {$verbo ne ""} {
+            my movuAlPozicio $verboAsto $verboPozicio
+        }
+
+        # nepos - "neniam" , "ofte" , "cxiam"
+        if {$nepos ne ""} {
+            incr verboPozicio
+            my movuAlPozicio $nepos $verboPozicio
+        }
+
+
+        # verbo antaux subjekto - ekzemple cxe demendoj kun "esti"
+        # Cxu vi estas preta?
+        if {$verboPozicio<$subjpos && $subj ne ""} {
+            my movuAlPozicio $subj $subjpos
+            set objpos [expr {$subjpos+1}]
+        } else {
+            # Cxu vian libron mi povas legi?
+            set objpos [expr {$verboPozicio+1}]
+        }
+        # pozicio de indirekta objekto
+        if {$iobj ne "" && $iobj ne $demandaParto} {
+            my movuAlPozicio $iobj $objpos
+            incr objpos
+        }
+        # pozicio de direkta objekto
+        if {$obj ne "" && ![$obj havasMerkmalonSuben estasDemanda] && $obj ne $demandaParto} {
+            my movuAlPozicio $obj $objpos
+            incr objpos
+        }
+    }
+}
+Class TASv::ne -superclass ::TASv
+@ ::TASv::ne idemeta component EspSvTradukilo
+TASv::ne instproc reordigu {} {
+    my instvar astoj elemento
+    set radObj [my prenuRadiko]
+    set main [my selektu {trovuMainVerboAston elemento}]
+    if {$main ne "" && [$main set funkcio] ne "subfrazo"} {
+        if {[$radObj istype ETSvVerbo]} {
+            set rad [my prenuLokaRadiko]
+            if {[lindex $astoj 0] ne $rad} {
+                my movuAlAbsPozicio $rad 0
+            }
+        }
+    }
+    next
+}
+Class TASv::nfvp -superclass ::TASv
+@ ::TASv::nfvp idemeta component EspSvTradukilo
+TASv::nfvp instproc metuVerboKielNegativa negObjekto {
+   [my prenuRadiko] metuVerboKielNegativa $negObjekto
+}
+TASv::nfvp instproc reordigu {} {
+    next
+    my instvar astoj
+    set verbo [my prenuRadiko]
+    set pos 0
+    foreach a [my prenuTradukoj] {
+        if {[lsearch {neither nor not} $a]>=0} {
+            incr pos
+        }
+        break
+    }
+    my movuAlPozicio $verbo $pos
+    if {$verbo ne "" && [$verbo istype ETVerbo]} {
+        # se atributiva frazo metu "ne" antaux atributo
+        set attr [my trovuKunFunkcio attr]
+        if {$attr ne ""} {
+            $verbo muvuElementonEnPostKampoLauFunkcio $attr attr
+        }
+        set attr [my trovuKunFunkcio oattr]
+        if {$attr eq ""} {
+            set attr [[$verbo set parenco] trovuKunFunkcio oattr]
+        }
+        if {$attr ne ""} {
+            $verbo muvuElementonEnPostKampoLauFunkcio $attr attr
+        }
+    }
+}
+Class TASv::np -superclass {::TradukAstoNp ::TASv}
+@ ::TASv::np idemeta component EspSvTradukilo
+TASv::np instproc reordigu {} {
+    my instvar astoj elemento
+    set rad [my prenuLokaRadiko]
+    set reloku 1
+    if {[info exists elemento] && [string tolower [$elemento prenuVortoj]] eq "vi ĉiuj"} {
+        set reloku 0
+    } elseif {[info exists elemento] && [[$elemento prenuUnuan] estasVorto "io"]} {
+        set reloku 0
+    }
+    if {$reloku && [lindex $astoj end] ne $rad} {
+        my movuAlAbsPozicio $rad end
+    }
+    next
+}
+Class TASv::pp -superclass ::TASv
+@ ::TASv::pp idemeta component EspSvTradukilo
+TASv::pp instproc reordigu {} {
+    my instvar funkcio
+    next
+    if {[my prenuFunkcioNomo] eq "kadv"} {
+        set main [my trovuMainAston]
+        if {$main ne ""} {
+            $main movuAlPozicio [my prenuRadiko] end
+        }
+    }
+}
+Class TASv::smain -superclass ::TASv::main
+@ ::TASv::smain idemeta component EspSvTradukilo
+Class TASv::subsup -superclass {::TradukAstoSubsup ::TASv}
+@ ::TASv::subsup idemeta component EspSvTradukilo
+TASv::subsup instproc distinguDifinilon frazTraduko {
+    my instvar elemento parenco
+    if {[$elemento estasDePronomo]} {
+        set rez [$elemento tranformuPronomoAlPropraPronomo]
+        if {$rez ne ""} {
+            set cl [TradukAsto klasoPorAsto $rez sv]
+            set elem [$cl new -childof [my info parent] -elemento $rez -parenco $parenco]
+            $elem kreuArbon [my info parent]
+            $parenco tausxuAstoj [self] $elem
+            $elem distinguDifinilon $frazTraduko
+            return
+        }
+    }
+    next
+}
+TASv::subsup instproc distinguGramatikon frazTraduko {
+    my instvar ppos
+    if {[info exists ppos] && $ppos ne ""} {
+        # libro de frato -> a brother's book
+        if {[my tradukoPosFunkcion]} {
+            $ppos set traduko ""
+            $ppos set bazaTraduko ""
+        } else {
+            unset ppos
+        }
+    }
+    next
+}
+TASv::subsup instproc reordigu {} {
+    my instvar ppos
+    if {[info exists ppos] && $ppos ne ""} {
+        set pos [my trovuKunFunkcio pos]
+        set elem [$pos elemento]
+        set selem [[$elem prenuNPParton] prenuCxefRadiko]
+        set spos [my trovuUnunanInfanonKiu e {[$e exists elemento] && [$e elemento] eq $selem}]
+        if {$spos ne ""} {
+            my movuAlPozicio $spos 0
+        }
+    }
+}
+TASv::subsup instproc tradukoPosFunkcion {} {
+   set pos [my trovuKunFunkcio pos]
+   if {$pos eq ""} { return 0 }
+   set prad [[lindex [$pos set astoj] end] prenuRadiko]
+   if {[$prad istype ETSvSubstantivo] && [$prad estasViva]} {
+        # libro de frato
+        # brother's book
+        set srad [my prenuRadiko]
+        $prad metuAttributonEnRadikaFunkcion kazo G
+        $pos set kazo G
+        if {[$srad exists npArto] && ([$srad set npArto]==1 || [$srad set npArto]==2)} {
+            # la libro de frato -> the brother's book
+            foreach e [[$prad set parenco] set astoj] {
+                if {[$e istype ETSvDifinilo]} {
+                    if {[$prad exists npArto] && ([$prad set npArto]==1 || [$prad set npArto]==3)} {
+                        $e class ETNul
+                        set trovita 1
+                        break
+                    } else {
+                        [$prad set parenco] movuAlPozicio $e 0
+                        $prad set npArto 1
+                    }
+                }
+            }
+            $prad set havasEin 1
+        }
+        $srad set npArto 0
+        return 1
+   }
+   return 0
+}
+TASv::subsup instproc traduku vortaro {
+    my instvar elemento astoj
+    if {[info exists elemento] && [$elemento estasDato]} {
+        # forigu 'la'
+        my selektu {parenco 0 foriguDeParenco}
+        set sobj [ETSenOrigina new -childof [my info parent] -traduko on]
+        my movuAlPozicio $sobj 0
+        set pp [lindex $astoj end]
+        set np [$pp selektu {end prenuRadiko}]
+        $pp traduku $vortaro
+        $np traduku $vortaro
+        set pp [$pp prenuRadiko]
+        $pp foriguDeParenco
+        set rad [my prenuRadiko]
+        $rad traduku $vortaro
+    } else {
+        next
+    }
+}
+Object SvFleksilo
+@ ::SvFleksilo idemeta categoriesMethodsProcs {{prenuKompleksanSubstantivonLauxTipo prenuVerbon prenuKompAdjektivo prenuAdjektivon} {prenuVerboEsceptoj prenuSubstantivoEsceptoj prenuFleksgrupojPorVerbo prenuFleksgrupojPorSubstantivo prenuAdjektivoEsceptoj prenuAdverboEsceptoj metaPriskribojPor}}
+@ ::SvFleksilo idemeta categoriesProcs {fleksio meta}
+@ ::SvFleksilo idemeta component EspSvTradukilo
+SvFleksilo proc divenuTiponDeSubstantivo bazaFormo {
+    # Cxu en sveda lingvo oni povas derivi la fleksian grupon de finilo de substantivo
+    # Nun la "default" grupo estas 3 kiel minut-minuter
+    #
+    # cerbumoj
+    # hus hus
+    # flera hus -> hus-en = de
+    # domo = ett hus -> la domo = hus-et = det
+    # la domoj = hus-en  -> de
+    #
+    #
+    #la knaboj = pojk-arna ->de
+    # minuto en minut -> minutoj =minut-er -> de
+    # pluraj minutoj = flera minuter -> la minutoj = minuter-na -> de
+    # minuto = minut - la minuto = minuten -> den
+    #
+  # Kiel vi vidas ne estas klaraj reguloj por derivi la gxustan formon. Mi kredas ke oni devas fari apartan vortareton kiu
+  # enhavas frazpartojn aux aparte kodigi liston kun la "radikoj" de la vortoj
+  # 4domo = ett hus = det       hus-et (neutrum) +2et
+  # 3benko = en bänk = den      bänk-en (realgenus / utrum)+3en
+  # 2knabino = en flicka = hon  flick-an +2an
+  # 1knabo = en pojke = han     pojk-en +1en
+  #
+  #Por esperanto - sveda vortaro estus bezonata, ke oni klasifikas la substantivojn laux la supre indikita metodo aux iu
+  #simila metodo.
+  #4dom  hus
+  #4tabl bord
+  #2knabin flick
+  #1knab  pojk
+  #3benk  bänk
+  #
+  # eble oni ankaux devas fari la samon por singularo kaj pluralo
+  # 4dom+0  hus (singularo kaj pluralo estas similaj)
+  # 4tabl+0 bord
+  # 2knabin+2 flick -> flick-or +or
+  # 1knab+3 pojk -> pojk-ar     +ar
+  # 3benk+3 bänk -> bänk-ar     +ar
+  # 2sinjorin+4 -> dam-er       +er
+  #
+  #Aux laux jena metodo
+  # 40+dom, 22+knabin, 13+knab, 33benk, 24sinjorin, 13sinjor  ktp.
+  #
+  # eble la plej facila metodo estus enmeti problemaj vortkombinoj en aparta frazlisto
+  #
+  # knaboj; pojkar, la knaboj; pojkarna, knabinoj; flickorna
+
+    # KaGu
+    return 3
+}
+SvFleksilo proc divenuTiponDeVerbo bazaFormo {
+    # laux vikipedio 80% de verboj apartenas al grupo 1
+    return 1
+}
+SvFleksilo proc esceptoj2Arr {fgrupo arr_ref} {
+    upvar $arr_ref arr
+    foreach e $fgrupo {
+        foreach {k v} $e {}
+        set arr($k) $v
+    }
+}
+SvFleksilo proc estasVovel char {
+## la litero y ne estas vokalo. om det är fel tar vi bort
+    set vovel "aeiuo"
+    expr {[string first $char $vovel]>=0}
+
+    }
+SvFleksilo proc initNumeralojn {} {
+    my instvar  cxefNumeraloj ordoNumeraloj
+
+    # KaGu
+    # Post la sxangxo de kodo revoku la funkcion
+    # Method->Invoke Procs
+    array set cxefNumeraloj {0 noll 1 ett 2 två 3 tre 4 fyra 5 fem 6 sex 7 sju 8 åtta 9 nio 10 tio 11 elva 12 tolv 13 tretton 14 fjorton 15 femton 16 sexton 17 sjutton 18 a(de)rton 19 nitton 20 tjugo 30 trettio 40 fyrtio 50 femtio 60 sextio 70 sjutio 80 åttio 90 nitio 100 hundra 1000 tusen 1000000 milion 1000000000 miljard}
+
+    array set ordoNumeraloj {0 nolte 1 första 2 andra 3 tredje 4 fjärde 5 femte 6 sjätte 7 sjunde 8 åttonde 9 nionde 10 tionde 11 elfte 12 tolfte 13 trettonde 14 fjortonde 15 femtonde 16 sextonde 17 sjuttonde 18 artonde 19 nittonde 20 tjugonde}
+
+}
+SvFleksilo proc initPronomojn {} {
+    my instvar pronomojArr posPronomojArr pos3PronomojArr
+
+    array set pronomojArr {
+        mi {jag mig}
+        vi {du dig}
+        vij {ni er}
+        ŝi {hon henne}
+        li {han honom}
+        ĝi {det det}
+        ni {vi oss}
+        ili {de dem}
+        si {{er själva} er}
+        kiu {vem vems}
+        kio vad
+        neniu ingen
+        nenia inget
+        nenio inget
+        iu någon
+        ĉiu alla
+        io något
+        tio det
+        ĉio allt
+        tiu den
+        kia {hurudan}
+        tia den
+        oni man
+        mem själv
+        memj själva
+    }
+    array set posPronomojArr {
+        kiu vems
+        lia hans
+        ŝia hennes
+        ĝia dess
+        ilia deras
+        kia {hurudan}
+        nenia {inget slags}
+        neniu  ingen
+        tiu den
+        tia {sådan}
+        ia {någon slags}
+        iu {någon}
+        ĉiu {alla}
+        ĉia {alla sorters}
+        iom {något lite}
+        tiom {så mycket}
+        ĉiom {allt}
+        kiom {hur mycket}
+        onia {ens}
+        kies {vems}
+        sia {sin}
+    }
+    array set pos3PronomojArr {
+        mia {min mitt mina}
+        via {din ditt dina}
+        nia {vår vårt våra}
+        viaj {er ert era}
+        sia {sin sitt sina}
+        tia {sådan sådan sådana}
+        kiu {vilken vilket vilka}
+    }
+}
+SvFleksilo proc initializeAfterLoad {} {
+    my initNumeralojn
+    my initPronomojn
+
+    my instvar fleksioSubstantivoj fleksioVerboj
+## test orna arna erna ändrade till na na na
+    # numero (difinita-singularo pluralo difinita-pluralo)
+    array set fleksioSubstantivoj {
+        1 {an or orna}
+        2 {en ar arna}
+        3 {en er erna}
+        4 {et en ena}
+        5 {et {} en}
+        6 {er {} na}
+    }
+
+    # grupo {1-4} persens past, supine, past participe
+    # 4 estas escepta kaj devas esti en vortaro
+    array set fleksioVerboj {
+        1 {ar ade at ad}
+        2 {er de t d}
+        3 {r dde tt dd}
+        4 {er {} {} en}
+        5 {er te t d}
+        1d {as ades ats {}}
+        2d {s des ts {}}
+        3d {s ddes tts {}}
+        4d {s s ts {}}
+    }
+
+}
+SvFleksilo proc metaPriskribojPor vortarto {
+    set p {}
+    switch -- $vortarto {
+        Substantivo {
+            set p {
+                {coll {(coll - collective) nomo de kolektivo} {abst pers anim}}
+                {abst {(abst - abstraktum) sen singularo} {pers coll anim}}
+                {pers {(pers - person) persono} {abst coll anim}}
+                {anim {anim - living being} {abst coll pers}}
+                {uncount {(uncount - uncountable) nekalkulebla} {abst coll}}
+                {op {(op - without plural) sen pluralo} os}
+                {os {(os - without singular) sen singularo} op}
+            }
+        }
+        Verbo {
+            set p {
+                {trans {transitiva verbo} netrans}
+                {ntrans {netransitiva verbo} trans}
+                {det {necesas artikolon 'det'}}
+                {aux {auxiliary}}
+            }
+        }
+        Adjektivo {
+            set p {
+                {sub {kiel sola substantivo}}
+            }
+        }
+        Adverbo {
+            set p {
+                {midpos mid-position {}}
+            }
+        }
+    }
+    return $p
+}
+SvFleksilo proc prenuAdjektivoEsceptoj {} {
+    return {
+        pl pluralo
+        ett {nedifinita 'neuter'}
+        komp komperativo
+        sup superlativo
+    }
+}
+SvFleksilo proc prenuAdjektivon {bazaformo fgrupo genro nombro npArto} {
+    # genro: u (en) n (ett)
+    # nombro: singularo pluralo
+    # estasDifinilo 0 1
+    # definilo npArto = 1 || npArto = 3
+    # esceptoj "ett" kaj "pl"
+    foreach e $fgrupo {
+        set esceptojArr([lindex $e 0]) [lindex $e 1]
+    }
+
+    if {$nombro eq "pluralo" || $npArto==1 || $npArto==3} {
+        if {[string index $bazaformo end] eq "m"} {
+            # dum -> dumma
+            if {$fgrupo ne ""} {
+                foreach e $fgrupo {
+                    if {[lindex $e 0] eq "pl"} {
+                        return [lindex $e 1]
+                    }
+                }
+                # extrema
+                return $fgrupo
+            }
+            append bazaformo [string index $bazaformo end]
+        }
+        if {[info exists esceptojArr(pl)]} {
+            return $esceptojArr(pl)
+        } elseif {[string range $bazaformo end-1 end] eq "al"} {
+            # gamla
+            return [string range $bazaformo 0 end-2]la
+        } elseif {[string range $bazaformo end-1 end] eq "el"} {
+            return [string range $bazaformo 0 end-2]la
+        } elseif {[string range $bazaformo end-1 end] eq "en"} {
+            return [string range $bazaformo 0 end-2]na
+        } elseif {[string range $bazaformo end-1 end] eq "er"} {
+            return [string range $bazaformo 0 end-2]ra
+        } else {
+            return ${bazaformo}a
+        }
+    } else {
+        if {$genro eq "u"} {
+            return $bazaformo
+        } else {
+            # singularo nedifinila genro - neuter
+            if {$fgrupo ne ""} {
+                my esceptoj2Arr $fgrupo arr
+                if {[info exists arr(ett)]} {
+                    return $arr(ett)
+                }
+            }
+            if {[lsearch {et at ut} [string range $bazaformo end-1 end]]>=0} {
+                return $bazaformo
+            }
+            if {[lsearch {en er} [string range $bazaformo end-1 end]]>=0} {
+                set bazaformo [string range $bazaformo 0 end-1]
+            }
+            return ${bazaformo}t
+        }
+    }
+}
+SvFleksilo proc prenuAdverboEsceptoj {} {
+    return {
+        komp komperativo
+        sup superlativo
+    }
+}
+SvFleksilo proc prenuArtoDeTipo fgrupo {
+    # Temas pri genro
+    set indekso [lindex $fgrupo 0]
+    if {[string is integer $indekso]} {
+        return [lindex {"" u u u n n u} $indekso]
+    } else {
+        # eraro en vortaro, tamen ne ĉeŝu la laboron.
+        return u
+    }
+}
+SvFleksilo proc prenuEstVerbon {persono nombro tempo} {
+    # KaGu se verbo "esti" ne estas en svada lingvo malregulo vi povas forigi la metodon
+    # sed ankaux in metodo prenuVeron
+    # see Method->Search Senders->In Component
+
+    # persono: 1 2 3
+    # nombro: singularo pluralo
+    # tempo: as os is u us ata oto ita anta onta inta
+
+    switch $tempo {
+        as {
+            return är
+        }
+        is {
+            return varit
+        }
+        os {
+            #return "will be"
+            return "kommer att vara"
+        }
+        ont {
+            return future
+        }
+        int {
+            return formar
+        }
+        ant {
+            return current
+        }
+        u {
+            #return be
+            return var
+        }
+        us {
+            return "skulle vara"
+        }
+        i {
+            #return be
+            return vara
+        }
+        o {
+            #return being
+            return "er"
+        }
+        ate {
+            # TODO
+            #return being
+            return "er"
+        }
+        ing {
+            #return being
+            return "er"
+        }
+        defualt {
+            error "{esti}"
+        }
+    }
+}
+SvFleksilo proc prenuFleksgrupojPorSubstantivo {} {
+    my instvar fleksioSubstantivoj
+
+    lsort [array names fleksioSubstantivoj]
+}
+SvFleksilo proc prenuFleksgrupojPorVerbo {} {
+    my instvar fleksioVerboj
+
+    lsort [array names fleksioVerboj]
+}
+SvFleksilo proc prenuGenronDeTipo fgrupo {
+    my prenuArtoDeTipo $fgrupo
+}
+SvFleksilo proc prenuKazojn {} {
+    return {
+        N nominativo
+        A aktuzativo
+    }
+}
+SvFleksilo proc prenuKompAdjektivo {bazo fgrupo {superlativo 0}} {
+    # KaGu traduko de "pli *a" (pli ampleksa"
+    my esceptoj2Arr $fgrupo arr
+    
+    if {$superlativo==0 && [info exists arr(komp)]} {
+        return $arr(komp)
+    } elseif {$superlativo && [info exists arr(sup)]} {
+        return $arr(sup)
+    } else {
+        # normale por vortoj kun pli ol unu silabo
+        if {[string length $bazo]>7 || [string first [string index $bazo end] aes]>=0 || [string range $bazo end-1 end] eq "ad" || [string range $bazo end-2 end] eq "isk"} {
+            if {$superlativo} {
+                return "mest $bazo"
+            } else {
+                return "mera $bazo"
+            }
+        } else {
+            if {[lsearch {el en er} [string range $bazo end-1 end]]>=0} {
+                set bazo [string range $bazo 0 end-2]
+                if {$superlativo} {
+                    return ${bazo}nast
+                } else {
+                    return ${bazo}nare
+                }
+            } else {
+                if {$superlativo} {
+                    return ${bazo}ast
+                } else {
+                    return ${bazo}are
+                }
+            }
+        }
+    }
+}
+SvFleksilo proc prenuKompleksanSubstantivonLauxTipo {bazaformo fleksGrupo nombro kazo {estasDifinilo 0}} {
+    if {$kazo eq "G"} {
+        set add s
+    } else {
+        set add ""
+    }
+    if {[llength $bazaformo]==1} {
+        return [my prenuSubstantivonLauxTipo $bazaformo $fleksGrupo $nombro $estasDifinilo]$add
+    } elseif {[llength $bazaformo]>2} {
+        # ekz: Butik mit Nähbedarf
+        # versxajne prepozicia suplemento
+        join [concat [my prenuSubstantivonLauxTipo [lindex $bazaformo 0] $fleksGrupo $nombro $estasDifinilo]$add [lrange $bazaformo 1 end]]
+    } else {
+        # Versxajne adjektivo
+        set adj [lindex $bazaformo 0]
+        set sub [my prenuSubstantivonLauxTipo [lindex $bazaformo 1] $fleksGrupo $nombro $estasDifinilo]
+        return "$adj $sub$add"
+    }
+}
+SvFleksilo proc prenuNumero {numero {arto cxef}} {
+    # cxef ordo subs opo
+    if {[lsearch {cxef ordo subs opo} $arto]<0} {
+        error "atendas 'cxef ordo subs opo' kiel arto. estis $arto"
+    }
+    my instvar cxefNumeraloj
+    set rez [list]
+    if {$numero==0} {
+        return zero
+    }
+    # KaGu
+    set seplisto {1000000000000 trillion
+                  1000000000    billion
+                  1000000       million
+                  1000          tusen}
+
+    foreach {num 1vorto} $seplisto {
+        if {$numero>=$num} {
+            set mdlimo [expr {$num/1000}]
+            set rnum [expr {round($numero/$num)}]
+            if {$rnum==0} continue
+            if {$rnum!=1} {
+                foreach r [my prenuNumeroGis1000 $rnum] {
+                    lappend rez $r
+                }
+            }
+            lappend rez $1vorto,
+            set numero [expr {$numero%$num}]
+        }
+    }
+    if {$numero!=0} {
+        foreach r [my prenuNumeroGis1000 $numero $arto] {
+            lappend rez $r
+        }
+    }
+    set r [join $rez " "]
+    return $r
+}
+SvFleksilo proc prenuNumeroGis1000 {numero {arto cxef}} {
+    my instvar cxefNumeraloj ordoNumeraloj
+    set rez [list]
+    set sparatilo 100
+    set num [expr {$numero%$sparatilo}]
+    if {$arto ne "ordo"} {
+        set arto cxef
+    }
+    if {$num<20} {
+        if {$num>0} {
+            lappend rez [set ${arto}Numeraloj($num)]
+        }
+        set arto cxef
+    } else {
+        set j [expr {$num%10}]
+        set d [expr {$num-$j}]
+        if {$j>0} {
+            if {$d>0} {
+                if {$arto eq "ordo"} {
+                    set arto cxef
+                }
+            }
+            lappend rez [set ${arto}Numeraloj($j)]
+            if {$d>0} {
+                lappend rez -
+            }
+        }
+        if {$d>0} {
+            if {$arto ne "ordo"} {
+                set arto cxef
+            }
+            set r $cxefNumeraloj($d)
+            if {$arto eq "ordo"} {
+                append r ste
+            }
+            lappend rez $r
+        }
+        set arto cxef
+    }
+    set 100num [expr {round($numero/100)*100}]
+    if {$100num>=100} {
+        # KaGu
+        lappend rez " " hundra " " [set ${arto}Numeraloj([expr {$100num/100}])]
+    }
+    set rrez [list]
+    for {set i [expr {[llength $rez]-1}]} {$i>=0} {incr i -1} {
+        append rrez [lindex $rez $i]
+    }
+    return $rrez
+}
+SvFleksilo proc prenuPersonPronomon {bazaformo arto kazo nombro} {
+    # kazo: N A
+    my instvar pronomojArr
+    if {($bazaformo eq "vi" || $bazaformo eq "mem") && $nombro eq "pluralo"} {
+        append bazaformo j
+    }
+    if {[catch {set pronomojArr($bazaformo)} l]} {
+        return [SvFleksilo prenuPosesivPronomon $bazaformo $arto $kazo $nombro]
+    }
+    if {$kazo eq "A"} {
+        lindex $l end
+    } else {
+        lindex $l 0
+    }
+}
+SvFleksilo proc prenuPosesivPronomon {bazaformo genro kazo nombro {arto 0}} {
+    my instvar posPronomojArr pos3PronomojArr
+    if {$bazaformo eq "tiu" && $nombro eq "pluralo"} {
+        return dessa
+    }
+    if {![catch {set pos3PronomojArr($bazaformo)} l]} {
+        if {$nombro eq "pluralo"} {
+            set index 2
+        } else {
+            if {$genro eq "u"} {
+                set index 0
+            } else {
+                set index 1
+            }
+        }
+        return [lindex $l $index]
+    }
+    return $posPronomojArr($bazaformo)
+}
+SvFleksilo proc prenuSin {persono arto nombro} {
+    # Tradukado de frazoj kiel
+    # Li vidis sin.
+    # Sxi vidis sin.
+    # Oni vidis sin (persono = 4)
+    # Li kredis je si.
+    return sig
+}
+SvFleksilo proc prenuSubstantivoEsceptoj {} {
+    return {
+        def {singularo difinita}
+        pl {Pluarlo ne difinita}
+        pld {Pluarlo difinita}
+    }
+}
+SvFleksilo proc prenuSubstantivon {bazaformo nombro kazo {estasDifinilo 0}} {
+    my prenuKompleksanSubstantivonLauxTipo $bazaformo [my divenuTiponDeSubstantivo $bazaformo] $nombro $kazo $estasDifinilo
+}
+SvFleksilo proc prenuSubstantivonLauxTipo {bazaformo fleksGrupoPri nombro {estasDifinilo 0}} {
+    set fleksnum [lindex $fleksGrupoPri 0]
+
+    if {$nombro eq "singularo" && !$estasDifinilo} {
+        return $bazaformo
+    }
+    if {$nombro eq "singularo" && $estasDifinilo} {
+        set i 0
+    } elseif {$estasDifinilo} {
+        set i 2
+    } else {
+        set i 1
+    }
+    my instvar fleksioSubstantivoj
+
+    if {[catch {lindex $fleksioSubstantivoj($fleksnum) $i} finilo]} {
+        set fleksnum [my divenuTiponDeSubstantivo $bazaformo]
+        puts "nekonata fgrupo $fleksnum cxe $bazaformo"
+        set finilo [lindex $fleksioSubstantivoj($fleksnum) $i]
+        set fleksGrupoPri [linsert $fleksGrupoPri 0 $finilo]
+    }
+
+    # ekzistas escpetoj
+    if {[llength $fleksGrupoPri]>1} {
+        foreach e [lrange $fleksGrupoPri 1 end] {
+            foreach {k v} $e {}
+            set esceptojArr($k) $v
+        }
+        if {$estasDifinilo && $nombro eq "singularo" && [info exists esceptojArr(def)]} {
+            return $esceptojArr(def)
+        } elseif {$nombro eq "pluralo"} {
+            if {!$estasDifinilo && [info exists esceptojArr(pl)]} {
+                return $esceptojArr(pl)
+            } elseif {$estasDifinilo && [info exists esceptojArr(pld)]} {
+                return $esceptojArr(pld)
+            }
+        }
+    }
+
+
+    if {[lsearch {el or er} [string range $bazaformo end-1 end]]>=0} {
+       if {$nombro eq "pluralo"} {
+           set bazaformo [string range $bazaformo 0 end-2][string index $bazaformo end]
+       } else {
+           set finilo [string trimleft $finilo e]
+       }
+    } else {
+       set bazaformo [string trimright $bazaformo "ae"]
+    }
+    return $bazaformo$finilo
+}
+SvFleksilo proc prenuVerboEsceptoj {} {
+    return {
+        pres {Pres - estanta tempo}
+        past {Past - estinta tempo}
+        sup {Sup - supine}
+        perf {Perfekt - estinta tempo}
+    }
+}
+SvFleksilo proc prenuVerbon {bazaformo fleksGrupoPri persono nombro tempo} {
+    # lau priskribo en vikipedio svedaj verbon havas 4 fleksiaj grupoj I,II,III,IV
+    # lau pola vikipedio ekzistas IIa kaj IIb
+
+    # nombro: singularo pluralo
+    # tempo: as os is u us ata oto ita anta onta inta pis sup
+    # sub - supine
+    # pis - past perfect
+    my instvar fleksioVerboj
+
+    if {$bazaformo eq "vara"} {
+        return [my prenuEstVerbon $persono $nombro $tempo]
+    }
+    if {$fleksGrupoPri eq ""} {
+        set fleksGrupoPri [my divenuTiponDeVerbo $bazaformo]
+    }
+    
+    set fnum [lindex $fleksGrupoPri 0]
+    foreach e [lrange $fleksGrupoPri 1 end] {
+        foreach {k v} $e {}
+        set esceptojArr($k) $v
+    }
+    set deponens 0
+    if {$fnum eq "1" || $fnum eq "2" || $fnum eq "4" || $fnum eq "5"} {
+        set bazo [string trimright $bazaformo ae]
+    } elseif {[string index $fnum end] eq "d"} {
+        set deponens 1
+        if {($fnum eq "1d" || $fnum eq "2d") && [string range $bazaformo end-1 end] eq "as"} {
+            set bazo [string range $bazaformo 0 end-2]
+        } elseif {$fnum eq "3d"} {
+            set bazo [string range $bazaformo 0 end-1]
+        } else {
+            set bazo $bazaformo
+        }
+        
+    } else {
+        set bazo $bazaformo
+    }
+
+    switch $tempo {
+        as {
+            if {![catch {set esceptojArr(pres)} rez]} {
+                return $rez
+            }
+            if {$deponens && [string index $bazo end] eq "s"} {
+                append bazo e
+            }
+            if {$fnum eq "1d"} {
+                return $bazaformo
+            }
+            set indekso 0
+        }
+        is {
+            if {![catch {set esceptojArr(past)} rez]} {
+                return $rez
+            }
+            set indekso 1
+        }
+        pis {
+            # past participe
+            if {![catch {set esceptojArr(perf)} rez]} {
+                return $rez
+            }
+            set indekso 3
+        }
+        sup {
+            # supine
+            if {![catch {set esceptojArr(sup)} rez]} {
+                return $rez
+            }
+            set indekso 2
+        }
+        os {
+            return [concat kommer att $bazaformo]
+        }
+        i {
+            return $bazaformo
+        }
+        into -
+        inta -
+        int {
+            return "former [my prenuVerbon $bazaformo $fleksGrupoPri $persono $nombro ant]"
+        }
+        anto -
+        anta -
+        ant {
+            return [string trimright $bazaformo ae]ande
+        }
+        onto -
+        onta -
+        ont {
+            return "future [my prenuVerbon $bazaformo $fleksGrupoPri $persono $nombro ant]"
+        }
+        ito -
+        ato -
+        ita -
+        ata -
+        it -
+        at {
+            # robiony
+            return [my prenuVerbon $bazaformo $fleksGrupoPri 1 singular pis]
+        }
+        ota -
+        ot {
+            return "future [my prenuVerbon $bazaformo $fleksGrupoPri $persono $nombro at]"
+        }
+        u {
+            return $bazaformo
+        }
+        us {
+            return "skulle $bazaformo"
+        }
+        inte -
+        ite -
+        ante -
+        ate {
+            return [string trimright $bazaformo ae]ande
+        }
+        o {
+            return $bazaformo
+        }
+        default {
+            error "nekonato tipo $tempo"
+        }
+    }
+    return $bazo[lindex $fleksioVerboj($fnum) $indekso]
+}
+SvFleksilo proc tradukuOnes {bazaTraduko persono nombro arto} {
+    # KaGu
+    if {[llength $bazaTraduko]>1} {
+        if {[llength $bazaTraduko]==2 && [lindex $bazaTraduko 1] eq "oneself"} {
+            if {$persono eq "3" && $nombro eq "singularo"} {
+                switch -exact -- $arto {
+                    f {
+                        set refprep "hon själv"
+                    }
+                    n {
+                        set refprep "självt"
+                    }
+                    m {
+                        set refprep "han själv"
+                    }
+                }
+            } else {
+                set s {"jag själv" "du själv" "han själv" "vi själva" "ni själva" "de själva"}
+                set i [expr {$persono-1}]
+                if {$nombro eq "pluralo"} {
+                    incr i 3
+                }
+                set refprep [lindex $s $i]
+            }
+            set bazaTraduko [lreplace $bazaTraduko 1 1 $refprep]
+        }
+        if {[set oi [lsearch $bazaTraduko ones]]>=0 || [set oi [lsearch $bazaTraduko one's]]>=0} {
+            if {$persono eq "3" && $nombro eq "singularo"} {
+                switch -exact -- $arto {
+                    f {
+                        set prep hennes
+                    }
+                    m {
+                        set prep hans
+                    }
+                    default {
+                        set prep dess
+                    }
+                }
+            } else {
+                set s {min din hans vår eder deras}
+                set i [expr {$persono-1}]
+                if {$nombro eq "pluralo"} {
+                    incr i 3
+                }
+                set prep [lindex $s $i]
+            }
+            set bazaTraduko [lreplace $bazaTraduko $oi $oi $prep]
+        }
+    }
+    return $bazaTraduko
+}
+Object SvImportilo
+@ ::SvImportilo idemeta component EspSvTradukilo
+SvImportilo proc changxuFGrupoPorDerivo {fgrupo ekz tipo {gramatiko {}} {force 0}} {
+    set connection [SQLDBVortaro getVortaroConnection]
+
+    set sql "select t.id,fgrupo,t.gramatiko from traduko_sv t,derivo d where traduko='$ekz' and t.derivoid=d.id and d.typo='$tipo'"
+    set found 0
+    foreach l [$connection queryList $sql] {
+        set found 1
+        set id [lindex $l 0]
+        set fagrupo [lindex $l 1]
+        set agramatiko [lindex $l 2]
+        if {($fagrupo eq "" || $force) && $fgrupo ne "ignoru"} {
+            puts "updating fgrupo $id - $ekz=$fgrupo"
+            set qfgrupo [$connection escape $fgrupo]
+            $connection execute "update traduko_sv set fgrupo='$qfgrupo' where id=$id"
+        }
+        if {$gramatiko ne "" && ($agramatiko eq "" || $force)} {
+            puts "updating gramtiko $ekz=$gramatiko"
+            set qfgrupo [$connection escape $gramatiko]
+            $connection execute "update traduko_sv set gramatiko='$qfgrupo' where id=$id"
+        }
+    }
+    if {$found == 0} {
+        puts "$ekz estis ne trovita"
+    }
+}
+SvImportilo proc foreachSQL {sql sargs script} {
+
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por substantivoj}]
+    set connection [SQLDBVortaro getVortaroConnection]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        update
+        incr i
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$i/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+        set ci 0
+        foreach var $sargs val $row {
+            uplevel [list set $var $val]
+        }
+        uplevel $script
+    }
+    $query destroy
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+   }
+}
+SvImportilo proc foriguFleksTradukoj {} {
+    set vortaro [Vortaro prenuVortaron]
+    foreach f {oj on ojn aj an ajn u us is os as} {
+
+        set sql "select t.id,traduko,derivo,d.typo,d.id from traduko_sv t,derivo d where d.id=t.derivoid and d.derivo like '%$f'"
+        set connection [SQLDBVortaro getVortaroConnection]
+
+        my foreachSQL $sql {tid traduko derivo typo did} {
+            if {[$vortaro estasVorteto $derivo]} continue
+            $connection execute "delete from traduko_sv where id=$tid"
+            $connection execute "delete from derivo where id=$did"
+        }
+    }
+}
+SvImportilo proc importuFleksSubstantivo {} {
+    DBVortaroLogMix malsxaltuLog
+    set f [open [file join [my prenuFontoDozierujo] vortoj-eo-sv2.txt] r]
+
+    while {[gets $f line]>=0} {
+        if {$line eq "" || [string index $line 0] eq "#"} continue
+        foreach {vorto traduko} [split $line \;] break
+        set vorto [string trim $vorto]
+        set traduko [string trim $traduko]
+        if {![string is alpha $vorto] || ![string is alpha $traduko]} continue
+        if {[string index $vorto end] eq "o"} {
+            set trado($vorto) $traduko
+        } elseif {[string range $vorto end-1 end] eq "oj"} {
+            set tradoj($vorto) $traduko
+        }
+    }
+    close $f
+
+    set rez ""
+    #my halt
+    foreach v [array names trado] {
+        set vorto ${v}j
+        if {[catch {set tradoj($vorto)} pluralo]} continue
+        set singularo $trado($v)
+        set fgrupo 0
+        if {$singularo eq $pluralo} {
+            set fgrupo 5
+        } elseif {[string range $singularo 0 end-1] eq [string range $pluralo 0 end-2]} {
+            set fs [string range $singularo end end]
+            set fp [string range $pluralo end-1 end]
+            if {$fs eq "a" && $fp eq "or"} {
+                set fgrupo 1
+            } elseif {$fs eq "e" && $fp eq "ar"} {
+                set fgrupo 2
+            } elseif {$fs eq "e" && $fp eq "en"} {
+                set fgrupo 4
+            } elseif {$fs eq "e" && $fp eq "er"} {
+                set fgrupo 3
+            }
+        } elseif {$singularo eq [string range $pluralo 0 end-2] && [string range $pluralo end-1 end] eq "er"} {
+            set fgrupo 3
+        } elseif {$singularo eq [string range $pluralo 0 end-2] && [string range $pluralo end-1 end] eq "ar"} {
+            set fgrupo 2
+        }
+        if {$fgrupo>0} {
+            append rez "DBVortaro modifuTradukonDeVorto $v $singularo [list [list fgrupo $fgrupo]] sv\n"
+        } else {
+            append rez "#grupo ne konata $v $singularo $pluralo\n"
+        }
+    }
+    return $rez
+}
+SvImportilo proc importuFleksVerboj {} {
+    DBVortaroLogMix malsxaltuLog
+    set f [open [file join [my prenuFontoDozierujo] vortoj-eo-sv2.txt] r]
+
+    while {[gets $f line]>=0} {
+        if {$line eq "" || [string index $line 0] eq "#"} continue
+        foreach {vorto traduko} [split $line \;] break
+        set vorto [string trim $vorto]
+        set traduko [string trim $traduko]
+        if {![string is alpha $vorto] || ![string is alpha $traduko]} continue
+        if {[string index $vorto end] eq "i"} {
+            set trado($vorto) $traduko
+        } elseif {[string range $vorto end-1 end] eq "as"} {
+            set tradoAs($vorto) $traduko
+        }
+    }
+    close $f
+
+    set rez ""
+    foreach v [array names trado] {
+        set vorto [string range $v 0 end-1]as
+        if {[catch {set tradoAs($vorto)} present]} continue
+        set infinitivo $trado($v)
+        set fgrupo 0
+        if {[string index $infinitivo end] eq "a"} {
+            if {[string range $present end-1 end] eq "ar"} {
+                set fgrupo 1
+            } elseif {[string range $present end-1 end] eq "er"} {
+                set fgrupo 2
+            }
+        } elseif {[string range $present end-1 end] eq "er"} {
+            set fgrupo 3
+        }
+        if {$fgrupo>0} {
+            append rez "DBVortaro modifuTradukonDeVorto $v $infinitivo [list [list fgrupo $fgrupo]] sv\n"
+        } else {
+            append rez "#grupo ne konata $v $infinitivo $present\n"
+        }
+    }
+    return $rez
+}
+SvImportilo proc importuKompAdjektivoj {} {
+ set listo {alt älter
+arg ärger
+arm ärmer
+dumm dümmer
+grob gröber
+gross grösser
+hart härter
+hoch höher
+jung jünger
+kalt kälter
+klug klüger
+krank kränker
+kurz kürzer
+lang länger
+scharf schärfer
+schwach schwächer
+schwarz schwärzer
+stark stärker
+warm wärmer
+}
+
+    foreach {a komp} $listo {
+        set fgrupo [list [list komp $komp]]
+        my changxuFGrupoPorDerivo $fgrupo $a Adjektivo {} 1
+        my changxuFGrupoPorDerivo $fgrupo $a Adverbo {} 1
+    }
+}
+SvImportilo proc importuNeregulajnPluralojn {{file english-irregular-nouns.txt}} {
+    set file [file join [my prenuFontoDozierujo] $file]
+    if {![file exists $file]} {
+        set f [IDE::Dialog getOpenFile]
+    } else {
+        set f $file
+    }
+    if {$f eq ""} return
+    set fh [open $f r]
+    fconfigure $fh -encoding utf-8
+    while {[gets $fh line]!=-1} {
+        foreach {baza pluralo} $line {}
+        my changxuFGrupoPorDerivo [list [list pl $pluralo]] $baza Substantivo {} 0
+    }
+    close $fh
+}
+SvImportilo proc importuStarkeVerbenDeListo {{file list_starke_verben_sv.txt}} {
+    set file [file join [my prenuFontoDozierujo] $file]
+    if {![file exists $file]} {
+        set f [IDE::Dialog getOpenFile]
+    } else {
+        set f $file
+    }
+    if {$f eq ""} return
+    set fh [open $f r]
+    fconfigure $fh -encoding utf-8
+    while {[gets $fh line]!=-1} {
+        foreach {baza presento past supine perfekt} $line {}
+        my changxuFGrupoPorDerivo [list 4 [list pres $presento] [list sup $supine] [list past $past] [list perf $perfekt]] $baza Verbo {} 1
+    }
+    close $fh
+}
+SvImportilo proc prenuConnDeVortoj {} {
+    my instvar deconnection
+    if {![info exists deconnection]} {
+        set tconnection [MySql new]
+        $tconnection connect {user root dbank thesaurus}
+        set deconnection $tconnection
+    }
+    return $deconnection
+}
+SvImportilo proc prenuFontoDozierujo {} {
+    return {/home/artur/esperanto/sv_fontoj}
+}
+SvImportilo proc sercxuDubindajTradukoj {} {
+    set sql "select d.derivo,t.traduko from traduko_en t,derivo d where t.derivoid=d.id"
+    set aspell [AspellTestilo prenuInstancoPorLingvo sv]
+    set rez ""
+    my foreachSQL $sql {deVorto espVorto} {
+        set tvortoj [list]
+        foreach v [split $espVorto] {
+            if {[string is alpha $v]} {
+                lappend tvortoj $v
+            }
+        }
+        if {[llength $tvortoj]>0} {
+            if {[llength [$aspell testuVortoj $tvortoj]]>0} {
+                puts "$deVorto; $espVorto"
+                append rez "$deVorto; $espVorto\n"
+            }
+        }
+    }
+    IDE::ResultBrowser newBrowser $rez
+}
+SvImportilo proc sercxuFGrupoPorSubstantivo substantivo {
+    set eblajFgrupoj [list]
+    set spell [HunspellTestilo prenuInstancoPorLingvo sv]
+
+    foreach indekso {1 2 3 4 5} {
+        set konata 1
+        foreach estasDifinilo {0 1} {
+            foreach nombro {singularo pluralo} {
+                set formo [SvFleksilo prenuSubstantivonLauxTipo $substantivo $indekso $nombro $estasDifinilo]
+                if {[$spell estasVorto $formo]!=2} {
+                    #puts "$indekso $estasDifinilo $nombro - $formo"
+                    set konata 0
+                    break
+                }
+            }
+            if {!$konata} {
+                break
+            }
+        }
+        if {$konata} {
+            lappend eblajFgrupoj $indekso
+        }
+    }
+    return $eblajFgrupoj
+}
+SvImportilo proc sercxuFGrupoPorSubstantivoj {} {
+    set sql "select t.fgrupo,t.traduko from traduko_sv t,derivo d where t.derivoid=d.id and (length(fgrupo)=0 or fgrupo is null) and d.typo='substantivo'"
+
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por substantivoj}]
+    set connection [SQLDBVortaro getVortaroConnection]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        update
+        set afgrupo [lindex $row 0]
+        set substantivo [lindex $row 1]
+        incr i
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$i/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+        if {[llength $substantivo]>1} {
+            continue
+        }
+        set fgrupoj [my sercxuFGrupoPorSubstantivo $substantivo]
+        if {[llength $fgrupoj] == 0} {
+            # puts "fgrupo por substantivo $substantivo ne trovita"
+        } elseif {[llength $fgrupoj]>1} {
+            puts "multaj fgrupoj por substantivo $substantivo = $fgrupoj"
+
+        } else {
+            puts " trovita por $substantivo [lindex $fgrupoj 0]"
+            my changxuFGrupoPorDerivo [lindex $fgrupoj 0] $substantivo Substantivo {} 1
+        }
+    }
+    $query destroy
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+   }
+}
+SvImportilo proc sercxuFGrupoPorVerbo verbo {
+    set eblajFgrupoj [list]
+    set spell [HunspellTestilo prenuInstancoPorLingvo sv]
+
+    foreach indekso {1 2 3 1d 2d 3d} {
+        set konata 1
+        foreach tempo {as is sup i} {
+            set formo [SvFleksilo prenuVerbon $verbo $indekso 3 singularo $tempo]
+            if {[$spell estasVorto $formo]!=2} {
+                #puts "$indekso $tempo - $formo"
+                set konata 0
+                break
+            }
+        }
+        if {$konata} {
+            lappend eblajFgrupoj $indekso
+        }
+    }
+    return $eblajFgrupoj
+}
+SvImportilo proc sercxuFGrupoPorVerboj {} {
+    set sql "select t.fgrupo,t.traduko from traduko_sv t,derivo d where t.derivoid=d.id and (length(fgrupo)=0 or fgrupo is null) and d.typo='verbo'"
+
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por substantivoj}]
+    set connection [SQLDBVortaro getVortaroConnection]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        update
+        set afgrupo [lindex $row 0]
+        set substantivo [lindex $row 1]
+        incr i
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$i/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+        if {[llength $substantivo]>1} {
+            continue
+        }
+        set fgrupoj [my sercxuFGrupoPorVerbo $substantivo]
+        if {[llength $fgrupoj] == 0} {
+            # puts "fgrupo por substantivo $substantivo ne trovita"
+        } elseif {[llength $fgrupoj]>1} {
+            puts "multaj fgrupoj por verbo $substantivo = $fgrupoj"
+
+        } else {
+            puts " trovita por $substantivo [lindex $fgrupoj 0]"
+            my changxuFGrupoPorDerivo [lindex $fgrupoj 0] $substantivo Verbo {} 1
+        }
+    }
+    $query destroy
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+   }
+}
+Object SvVortFarado
+@ ::SvVortFarado idemeta component EspSvTradukilo
+SvVortFarado proc initializeAfterLoad {} {
+    my instvar definoj
+    set definoj [list]
+    lappend definoj {(.+)e ${v}a ${t}ly}
+    lappend definoj {ge(.+o) $v $t}
+    lappend definoj {ne(.+a) $v {un$t}}
+    lappend definoj {ne(.+o) $v {not $t}}
+    lappend definoj {ne(.+i) $v {not $t}}
+    lappend definoj {ne(.+e) $v {un$t}}
+    lappend definoj {mal(.+) $v {$t the other way around}}
+    lappend definoj {eks(.+o) $v eks-$t}
+    lappend definoj {pra(.+o) $v pra-$t}
+    lappend definoj {re(.+i) $v re$t}
+    lappend definoj {(.+)o ${v}i $t}
+    lappend definoj {(.+)a ${v}o $t}
+}
+SvVortFarado proc prenuVortfaradoj {espVorto dbvoraro} {
+    my instvar definoj
+    foreach def $definoj {
+        if {[regexp ^[lindex $def 0]$ $espVorto _ v]} {
+            set v [subst [lindex $def 1]]
+            set rezListo [$dbvoraro sxercxuRezListo $v en]
+            if {[llength $rezListo]==0} continue
+            set rez [list]
+            foreach rd $rezListo {
+                set t [dict get $rd traduko]
+                set g [dict get $rd fgrupo]
+                set r [subst [lindex $def 2]]
+                if {[llength $def]>2} {
+                    eval [lindex $def 3]
+                    dict set rd fgrupo $g
+                }
+                dict set rd traduko $r
+                lappend rez $rd
+            }
+            return $rez
+        }
+    }
+    return
+}
+SvVortFarado proc prenuVortfaradoj2 espVorto {
+    my prenuVortfaradoj $espVorto [DBVortaro prenuDepVortaron]
+}
+SvFleksilo initializeAfterLoad
+SvVortFarado initializeAfterLoad
+

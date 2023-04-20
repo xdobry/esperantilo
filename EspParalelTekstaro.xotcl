@@ -1,0 +1,3529 @@
+# automatically generated from XOTclIDE
+# script require component {IDEBaseGUI EspSintaksaAnalizo}
+@ Component EspParalelTekstaro {
+description {Iloj por paralela analizo de teksto.
+La iloj helpas konstrui TM-segmentoj el dulingvaj (paralelaj) tekstoj
+kaj ankaux deveni de tiuj tekstoj vortaroj.}
+}
+package provide EspParalelTekstaro 0.993
+package require EspSintaksaAnalizo
+package require IDEBaseGUI
+Class DERadikilo
+@ ::DERadikilo idemeta component EspParalelTekstaro
+DERadikilo instproc aliguIregularVerbs args {
+    my instvar radArr
+
+        set liste {backen bäckt
+blasen bläst
+braten brät
+empfangen empfängt
+fahren fährt
+fallen fällt
+fangen fängt
+graben gräbt
+halten hält
+halten hältst
+laden lädt
+lassen lässt
+laufen läuft
+raten rät
+saufen säuft
+schlafen schläft
+schlagen schlägt
+stoßen stößt
+tragen trägt
+wachsen wächst
+waschen wäscht
+befehlen befiehlt
+bergen birgt
+brechen bricht
+dreschen drischt
+empfehlen empfiehlt
+erlöschen erlischt
+erschrecken erschrickt
+essen isst
+fechten ficht
+flechten flicht
+fressen frisst
+geben gibt
+gelten gilt
+geschehen geschieht
+helfen hilft
+lesen liest
+messen misst
+nehmen nimmt
+quellen quillt
+schmelzen schmilzt
+schwellen schwillt
+sehen sieht
+sprechen spricht
+stechen sticht
+stehlen stiehlt
+sterben stirbt
+treffen trifft
+treten tritt
+verderben verdirbt
+vergessen vergisst
+werben wirbt
+werden wird
+werfen wirft}
+
+    foreach {rad vorto} $liste {
+         set radArr($vorto) $rad
+         if {[string index $vorto end] eq "t"} {
+             set radArr([string range $vorto 0 end-1]st) $rad
+         }
+    }
+    set listo {
+backen backte gebacken befehlen befahl befohlen beginnen begann begonnen beißen biss gebissen bergen barg geborgen
+biegen bog gebogen bieten bot geboten binden band gebunden bitten bat gebeten blasen blies geblasen bleiben blieb geblieben
+braten briet gebraten brechen brach gebrochen brennen brannte gebrannt bringen brachte gebracht denken dachte gedacht
+dreschen drosch gedroschen dringen drang gedrungen dürfen durfte gedurft empfehlen empfahl empfohlen erschrecken erschrak erschrocken
+essen aß gegessen erwägen erwog erwogen fahren fuhr gefahren fallen fiel gefallen fangen fing gefangen finden fand gefunden
+fliegen flog geflogen fliehen floh geflohen fließen floss geflossen fressen fraß gefressen frieren fror gefroren gären gor gegoren
+gebären gebar geboren geben gab gegeben gedeihen gedieh gediehen gehen ging gegangen gelingen gelang gelungen gelten galt gegolten
+genesen genas genossen genießen genoss genossen geschehen geschah geschehen gewinnen gewann gewonnen gießen goss gegossen
+gleichen glich geglichen gleiten glitt geglitten graben grub gegraben greifen griff gegriffen haben hatte gehabt halten hielt gehalten
+hängen hing gehangen hauen haute gehauen heben hob gehoben heißen hieß geheißen helfen half geholfen kennen kannte gekannt
+klingen klang geklungen kneifen kniff gekniffen kommen kam gekommen können konnte gekonnt kriechen kroch gekrochen
+laden lud geladen lassen ließ gelassen laufen lief gelaufen leiden litt gelitten leihen lieh geliehen lesen las gelesen
+liegen lag gelegen lügen log gelogen meiden mied gemieden messen maß gemessen misslingen misslang misslungen mögen mochte gemocht
+müssen musste gemusst nehmen nahm genommen nennen nannte genannt pfeifen pfiff gepfiffen preisen pries gepriesen
+quellen quoll gequollen raten riet geraten reiben rieb gerieben reißen riss gerissen reiten ritt geritten rennen rannte gerannt
+riechen roch gerochen ringen rang gerungen rinnen rann geronnen rufen rief gerufen saufen soff gesoffen schaffen schuf geschaffen
+scheiden schied geschieden scheinen schien geschienen schelten schalt gescholten scheren schor geschoren schieben schob geschoben
+schießen schoss geschossen schinden schindete geschunden schlafen schlief geschlafen schlagen schlug geschlagen
+schleichen schlich geschlichen schließen schloss geschlossen schlingen schlang geschlungen schmeißen schmiss geschmissen
+schmelzen schmolz geschmolzen schneiden schnitt geschnitten schreiben schrieb geschrieben schreien schrie geschrien schreiten
+schritt geschritten schweigen schwieg geschwiegen schwellen schwoll geschwollen schwimmen schwamm geschwommen
+schwinden schwand geschwunden schwingen schwang geschwungen schwören schwor geschworen sehen sah gesehen sein war gewesen
+singen sang gesungen sinken sank gesunken sinnen sann gesonnen sitzen saß gesessen sollen sollte gesollt speien spie gespien
+spinnen spann gesponnen sprechen sprach gesprochen sprießen spross gesprossen springen sprang gesprungen
+stechen stach gestochen stehen stand gestanden stehlen stahl gestohlen steigen stieg gestiegen sterben starb gestorben
+streichen strich gestrichen streiten stritt gestritten tragen trug getragen treffen traf getroffen treiben trieb getrieben
+treten trat getreten trinken trank getrunken trügen trog getrogen tun tat getan verderben verdarb verdorben
+vergessen vergaß vergessen verlieren verlor verloren wachsen wuchs gewachsen waschen wusch gewaschen weichen wich gewichen
+weisen wies gewiesen werben warb geworben werden wurde geworden werfen warf geworfen wiegen wog gewogen
+wissen wusste gewusst wollen wollte gewollt wringen wrang gewrungen ziehen zog gezogen zwingen zwang gezwungen
+    }
+    foreach {base der1 der2} $listo {
+        set radArr($der1) $base
+        set radArr($der2) $base
+    }
+}
+DERadikilo instproc cxuCertaj vorto {
+    expr {[lsearch -exact {ein eine einer eines habe hat haben wäre wärest wären} $vorto]>=0}
+}
+DERadikilo instproc cxuIgnori vorto {
+    expr {[lsearch -exact {ein eine einer eines habe hat haben wäre wärest wären} $vorto]>=0}
+}
+DERadikilo instproc init {} {
+    my instvar radArr
+    my aliguIregularVerbs
+    # verbo - be, have
+    array set radArr {bin sein bist sein ist sein sind sein sei sein seien sein wäre sein wären sein war sein waren sein warst sein wärst sein seid sein hast haben hat haben hatte haben hätte haben}
+    # alial malregulaj
+    array set radArr {besser gut besten gut}
+}
+DERadikilo instproc radikigi vorto {
+    if {[string length $vorto]<=3} {
+        return $vorto
+    }
+    my instvar radArr
+    if {[info exists radArr($vorto)]} {
+        return $radArr($vorto)
+    }
+    # brachten
+    if {[string range $vorto end-1 end] eq "en"} {
+        set radiko [string range $vorto 0 end-1]
+        # brachte
+        if {[info exists radArr($radiko)]} {
+            return $radArr($radiko)
+        }
+        # logen
+        set radiko [string range $vorto 0 end-2]
+        if {[info exists radArr($radiko)]} {
+            return $radArr($radiko)
+        }
+    }
+    lappend res $vorto
+    if {[regexp {^(.+)(en|er|es|em|e)$} $vorto _ radiko]} {
+        lappend res $radiko
+        if {[regexp -indices {.+([äöü])} $radiko _ literoj]} {
+            set i [lindex $literoj 0]
+            lappend res [string replace $radiko $i $i [string map {ä a ö o ü u} [string index $radiko $i]]]
+        }
+    }
+    if {[regexp {^(.+[bdfghklmnrt])s$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    if {[regexp {^(ab|an|auf|aus|bei|ein|fern|fort|her|hin|los|mit|nach|statt|vor|vorbei|weg|zu|zurück|zusammen|durch|voll|weiter|daher|daneben|darauf|darein|darüber|darunter|drauf|drein|drüber|drunter|dazu|heraus|hin|mit|nieder|raus|rein)(.+)$} $vorto _ pre radiko]} {
+        if {[string range $vorto end-1 end] eq "en"} {
+            set rad [string range $radiko 0 end-1]
+            if {[info exists radArr($rad)]} {
+                return "${pre}$radArr($rad)"
+            }
+            set rad [string range $radiko 0 end-2]
+            if {[info exists radArr($rad)]} {
+                return "${pre}$radArr($rad)"
+            }
+        } else {
+            if {[info exists radArr($radiko)]} {
+                return "${pre}$radArr($radiko)"
+            }
+        }
+    }
+    if {[regexp {^(ab|an|auf|aus|bei|ein|fern|fort|her|hin|los|mit|nach|statt|vor|vorbei|weg|zu|zurück|zusammen)ge(.+[bdfghklmnrt])t$} $vorto _ pre radiko]} {
+        lappend res $pre${radiko}en
+    } elseif {[regexp {^ge(.+[bdfghklmnrt])t$} $vorto _ radiko]} {
+        lappend res ${radiko}en
+    } elseif {[regexp {^(.+[bdfghklmnrt])(st|t)$} $vorto _ radiko]} {
+        lappend res ${radiko}en
+    }
+    if {[regexp {^(.+)e$} $vorto _ radiko]} {
+        lappend res ${radiko}en
+    }
+    if {[regexp -indices {.+([äöü])} $vorto _ literoj]} {
+        set i [lindex $literoj 0]
+        lappend res [string replace $vorto $i $i [string map {ä a ö o ü u} [string index $vorto $i]]]
+    }
+    return $res
+}
+Class EkzistoTradukVortaro
+@ ::EkzistoTradukVortaro idemeta component EspParalelTekstaro
+EkzistoTradukVortaro instproc initPorLingvo lingvo {
+    my instvar tradukoj fontoj
+    set tradukoj [list]
+    set fontoj [list]
+    set f [open fontoj.txt r]
+    while {[gets $f line]>=0} {
+        lappend fontoj [string tolower $line]
+    }
+    close $f
+
+    set f [open tradukoj.txt r]
+    while {[gets $f line]>=0} {
+        lappend tradukoj [string tolower $line]
+    }
+    close $f
+
+    set fontoj [lsort -unique $fontoj]
+    set tradukoj [lsort -unique $tradukoj]
+}
+EkzistoTradukVortaro instproc konasFonton {vorto fonto} {
+    my instvar fontoj
+    expr {[lsearch -sorted $fontoj $vorto]>=0}
+}
+EkzistoTradukVortaro instproc konasTradukon {vorto fonto} {
+    my instvar tradukoj
+    expr {[lsearch -sorted $tradukoj $vorto]>=0}
+}
+EkzistoTradukVortaro instproc sxercxuRezListo {vorto lingvo} {
+    if {[my konasFonton $vorto $lingvo]} {
+        return {{vorto v traduko t fgrupo f gramatiko g}}
+    }
+    return
+}
+EkzistoTradukVortaro instproc sxercxuRezListoPorTraduko {vorto lingvo} {
+    if {[my konasTradukon $vorto $lingvo]} {
+        return {{vorto v traduko t fgrupo f gramatiko g}}
+    }
+    return
+}
+Class EspVortfaradoEco -superclass ::EspReVortfarado
+@ ::EspVortfaradoEco idemeta component EspParalelTekstaro
+EspVortfaradoEco instproc aliguMerkmalon merkmalo {
+    my instvar merkmaloj
+    if {![info exists merkmaloj]} {
+        lappend merkmaloj $merkmalo
+        return
+    }
+    if {$merkmalo ni $merkmaloj} {
+        lappend merkmaloj $merkmalo
+    }
+}
+EspVortfaradoEco instproc funkcio {{val {}}} {
+    return ne
+}
+EspVortfaradoEco instproc havasMerkmalon merkmalo {
+    my instvar merkmaloj
+    if {![info exists merkmaloj]} {
+        return 0
+    }
+    if {[lsearch -exact $merkmaloj $merkmalo]>=0} {
+        return 1
+    }
+    return 0
+}
+EspVortfaradoEco instproc prenuBazanFormon {} {
+    my set vorto
+}
+EspVortfaradoEco instproc prenuVorton {} {
+    my set vorto
+}
+EspVortfaradoEco instproc reanalizuFrazparton subfrazo {
+    # ni ne necesas sintaksan arbon cxi tie
+    return $subfrazo
+}
+EspVortfaradoEco instproc remorfiguVorton {vorto vortaro lingvo} {
+    my set vorto $vorto
+    my funkcio ne
+    my remorfigu $vortaro $lingvo
+}
+Class LokalaVikipedioLegilo
+@ ::LokalaVikipedioLegilo idemeta categories tekstaro
+@ ::LokalaVikipedioLegilo idemeta categoriesMethods {{kreuVortaron kreuListoParalelaj kreuTekstoDeVikipedio puriguArtikoloPorTekstaro}}
+@ ::LokalaVikipedioLegilo idemeta component EspParalelTekstaro
+LokalaVikipedioLegilo instproc destroy {} {
+    my instvar lingvoj dosieroj
+    catch {
+    if {[llength $lingvoj]>0} {
+        foreach d $dosieroj {
+            close $d
+        }
+    }
+    }
+}
+LokalaVikipedioLegilo instproc faruIndekso dosiero {
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    set rname [file rootname $dosiero].idx
+    set o [open $rname w]
+    set pos [tell $f]
+    set progreso [ProgresoMontrilo startProgress [mc "kreu indekso por loka vikipedio"]]
+    set lineNum 0
+    set dosieroSize [file size $dosiero]
+    while {[gets $f line]>=0} {
+        if {[regexp {<title>(.+?)</title>} $line _ titolo]} {
+            if {[string first : $titolo]<0} {
+                # puts "getting title $titolo"
+                puts $o "[list $titolo] $pos"
+            }
+        }
+        if {$lineNum%20==20} {
+            set pos [tell $f]
+            $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+            if {[$progreso isStopped]} {
+                   break
+            }
+        }
+        incr lineNum
+        set pos [tell $f]
+    }
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    close $o
+    close $f
+}
+LokalaVikipedioLegilo instproc faruIndeksoPorLingvo lingvo {
+    set d [my prenuDosieruonPorLingvo $lingvo]
+    if {$d eq ""} {
+        EsperantoBrowser message [mc "vikipedia dosiero por lingvo %s ne trovita en %s" $lingvo [my getDosierujo]]
+        return 0
+    }
+    my faruIndekso $d
+    return 1
+}
+LokalaVikipedioLegilo instproc faruIndeksoj {} {
+    foreach d [glob -directory [my getDosierujo] *.xml] {
+        if {[string range $d 0 1] eq "pl"} continue
+        my faruIndekso $d
+    }
+}
+LokalaVikipedioLegilo instproc getDosierujo {} {
+    EsperantoConf set wikipediaDosierujo
+}
+LokalaVikipedioLegilo instproc getEoWiki {titolo {lingvo eo}} {
+    while {[regexp {%[A-Fa-f\d]{2}} $titolo hex]} {
+        scan [string range $hex 1 end] %x i
+        set c [encoding convertfrom iso8859-2 [format %c $i]]
+        set titolo [string map [list $hex $c] $titolo]
+    }
+    my puriguWiki [my prenuArtikolon $titolo $lingvo]
+}
+LokalaVikipedioLegilo instproc kreuListoParalelaj {} {
+    # laboro metodo por krei nekonataj tradukoj de indeksoj
+    my instvar eoIdx eoNIdx
+    set rez ""
+    for {set sid [array startsearch eoNIdx]} {[array anymore eoNIdx $sid]} {} {
+        set vorto [array nextelement eoNIdx $sid]
+        set artikolo [my prenuArtikolon $vorto eo]
+        if {[regexp {\[\[pl:(.+?)\]\]} $artikolo _ traduko]} {
+            append rez [list $vorto $traduko] \n
+        }
+    }
+    array donesearch eoNIdx $sid
+    EsperantoBrowser redaktoTekston $rez
+}
+LokalaVikipedioLegilo instproc kreuTekstoDeVikipedio {} {
+    set lingvo eo
+    if {![my testuLingvon $lingvo]} {
+        return
+    }
+    set eldosiero [IDE::Dialog getSaveFile out.txt]
+    if {$eldosiero eq ""} return
+    set ofile [open $eldosiero w]
+
+    my instvar lingvoj dosieroj
+    if {![my testuLingvon $lingvo]} {
+        return
+    }
+    set f [lindex $dosieroj [lsearch $lingvoj $lingvo]]
+
+    set progreso [ProgresoMontrilo startProgress [mc "kreu indekso por loka vikipedio"]]
+    set lineNum 0
+    set dosieroSize [file size [my prenuDosieruonPorLingvo $lingvo]]
+    seek $f 0
+
+    set a 0
+
+    while {[gets $f line]>=0} {
+        if {[regexp {<title>(.+?)</title>} $line _ titolo]} {
+            incr a
+            #if {$a>500} {
+            #    break
+            #}
+            if {[string first : $titolo]<0} {
+                #puts $ofile "#### $titolo"
+                puts $ofile [my puriguArtikoloPorTekstaro [my prenuArtikolonDePos $f]]
+            }
+        }
+        if {$lineNum%20==20} {
+            set pos [tell $f]
+            $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+            if {[$progreso isStopped]} {
+                   break
+            }
+        }
+        incr lineNum
+    }
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+
+
+    close $ofile
+}
+LokalaVikipedioLegilo instproc kreuVortaron {} {
+    # laboro metodo por krei nekonataj tradukoj de indeksoj
+    my instvar eoIdx
+    set espVortaro [Vortaro prenuVortaron]
+    set tradVortaro [DBVortaro prenuDepVortaron]
+    set rez ""
+    for {set sid [array startsearch eoIdx]} {[array anymore eoIdx $sid]} {} {
+        set vorto [array nextelement eoIdx $sid]
+        if {[regexp {\W} $vorto]} continue
+        if {[$espVortaro estasVorto $vorto]!=2} {
+            continue
+        }
+        if {[llength [$tradVortaro sxercxuRezListo $vorto pl]]>0} {
+            continue
+        }
+        set artikolo [my prenuArtikolon $vorto eo]
+        if {[regexp {\[\[pl:(.+?)\]\]} $artikolo _ traduko]} {
+            set traduko [string tolower $traduko]
+            append rez "$vorto; $traduko\n"
+        }
+    }
+    array donesearch eoIdx $sid
+    EsperantoBrowser redaktoTekston $rez
+}
+LokalaVikipedioLegilo instproc leguIndekson lingvo {
+    my instvar ${lingvo}Idx ${lingvo}NIdx
+    if {[regexp {^dic-(\w+)$} $lingvo _ lng]} {
+        set idosiero [lindex [glob -nocomplain -directory [my getDosierujo] ${lng}wiktionary-*.idx] 0]
+    } else {
+        set idosiero [lindex [glob -nocomplain -directory [my getDosierujo] ${lingvo}wiki-*.idx] 0]
+    }
+
+    if {$idosiero eq ""} {
+        if {[my faruIndeksoPorLingvo $lingvo]==0} {
+            return 0
+        }
+    }
+    set f [open $idosiero r]
+    fconfigure $f -encoding utf-8
+    while {[gets $f line]>=0} {
+        set titolo [lindex $line 0]
+        set ${lingvo}NIdx($titolo) [lindex $line 1]
+        set titolo [string tolower $titolo]
+        set ${lingvo}Idx($titolo) [lindex $line 1]
+    }
+    close $f
+    return 1
+}
+LokalaVikipedioLegilo instproc prenuArtikolon {titolo lingvo} {
+    my instvar lingvoj dosieroj
+    if {![my testuLingvon $lingvo]} {
+        return
+    }
+    set f [lindex $dosieroj [lsearch $lingvoj $lingvo]]
+    my instvar ${lingvo}Idx ${lingvo}NIdx
+    set pos ""
+    if {[info exists ${lingvo}NIdx($titolo)]} {
+        set pos [set ${lingvo}NIdx($titolo)]
+    }
+    if {$pos ne "" || [info exists ${lingvo}Idx($titolo)]} {
+        if {$pos eq ""} {
+            set titolo [string tolower $titolo]
+            set pos [set ${lingvo}Idx($titolo)]
+        }
+        seek $f $pos
+        set rez ""
+        while {[gets $f line]>=0} {
+             if {[regexp {<text xml:space=\"preserve\">(.+$)} $line _ r]} {
+                 break
+             }
+        }
+        if {[regexp {(^.+)</text>} $r _ r]} {
+            append rez $r
+        } else {
+            append rez $r \n
+            while {[gets $f line]>=0} {
+                 if {[regexp {(^.+)</text>} $line _ r]} {
+                     append rez $r
+                     break
+                 }
+                 append rez $line \n
+            }
+        }
+        return $rez
+    }
+    return
+}
+LokalaVikipedioLegilo instproc prenuArtikolonDePos file {
+    while {[gets $file line]>=0} {
+        if {[regexp {<text xml:space=\"preserve\">(.+$)} $line _ r]} {
+            break
+        }
+    }
+    if {[regexp {(^.+)</text>} $r _ r]} {
+        append rez $r
+    } else {
+        append rez $r \n
+        while {[gets $file line]>=0} {
+            if {[regexp {(^.+)</text>} $line _ r]} {
+                append rez $r
+                break
+            }
+            append rez $line \n
+        }
+    }
+    return $rez
+}
+LokalaVikipedioLegilo instproc prenuDosieruonPorLingvo lingvo {
+    if {[regexp {^dic-(\w+)$} $lingvo _ lng]} {
+        lindex [glob -nocomplain -directory [my getDosierujo] ${lng}wiktionary-*.xml] 0
+    } else {
+        lindex [glob -nocomplain -directory [my getDosierujo] ${lingvo}wiki-*.xml] 0
+    }
+}
+LokalaVikipedioLegilo instproc prenuHazardanArtikolonomo {{lingvo eo}} {
+    if {![my testuLingvon $lingvo]} {
+        return
+    }
+    set arrNomo ${lingvo}NIdx
+    my instvar $arrNomo
+    set list [array names $arrNomo]
+    set len [llength $list]
+    lindex $list [expr {int(rand()*$len)}]
+}
+LokalaVikipedioLegilo instproc puriguArtikoloPorTekstaro artikolo {
+    regsub {(.+)== Eksteraj ligiloj ==.+} $artikolo "\\1" artikolo
+    regsub -all {\[\[[a-z]{2,3}:.+?\]\]} $artikolo {} artikolo
+    set artikolo [my puriguWiki $artikolo]
+    regsub -all {\[\[\w{2,10}:.+?\]\]} $artikolo "" artikolo
+    regsub -all -line {^#REDIRECT.+?$} $artikolo {} artikolo
+    regsub -all -line {^#ALIDIREKTU.+?$} $artikolo {} artikolo
+    regsub -all {<gallery>.+?</gallery>} $artikolo "\n" artikolo
+    # xml tagoj
+    regsub -all -line {<[^>]+?>} $artikolo {} artikolo
+    regsub -all -line {http://[^ ]+?} $artikolo {} artikolo
+    # tablo {| 
+    # ...
+    # |}
+    regsub -all {(\n|\A){\|.+?\n\s*\|}} $artikolo "\n" artikolo
+    regsub -all {(\n|\A)\{\{.+?\n\s*\}\}} $artikolo "\n" artikolo
+    regsub -all -line {{{[ \w()]+?\|([ \w]+?)}}} $artikolo {\1} artikolo
+    regsub -all -line {{{[^\{]+?}}} $artikolo {} artikolo
+    # == Titolo ==
+    regsub -all -line {^=+(.+?)=+$} $artikolo "\n\\1\n" artikolo
+    # * ewwe
+    regsub -all -line {^\s*[\*:#]+(.+)$} $artikolo "\n\\1\n" artikolo
+    regsub -all {\n{2,}} $artikolo "\n\n" artikolo
+    set artikolo [string map [list "\[\[" {} "\]\]" {}] $artikolo]
+    return $artikolo
+}
+LokalaVikipedioLegilo instproc testuLingvon lingvo {
+    my instvar lingvoj dosieroj
+    if {![info exists lingvoj] || [lsearch $lingvoj $lingvo]<0} {
+        if {[my leguIndekson $lingvo]==0} {
+            EsperantoBrowser message [mc "Dosiero kun vikipedia xml ne trovita en %s" [my getDosierujo]]
+            return 0
+        }
+        lappend lingvoj $lingvo
+        set wdosiero [my prenuDosieruonPorLingvo $lingvo]
+        set f [open $wdosiero r]
+        fconfigure $f -encoding utf-8
+        lappend dosieroj $f
+    }
+    return 1
+}
+LokalaVikipedioLegilo proc aldonuSintaksoAlBazoDeFrazpartoj {sintaksoArbojDosiero frazoPartoBazo} {
+    set sa [SintaksoAnaliziloSQLIncr new]
+    $sa analizuDeDosieroAlBazo $sintaksoArbojDosiero $frazoPartoBazo
+    return $sa
+}
+LokalaVikipedioLegilo proc kreuSintaksArboj {} {
+    set fnomo [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj-pur]
+
+    set analizilo [SintaksaAnalizo new]
+    set vortaro [Vortaro prenuVortaron]
+
+    foreach f [glob -directory [file join [Esperantilozentro prenuFontoDosieron] eowiki] tekstaro-frazoj-pur*.txt] {
+        if {[string first arboj $f]>=0} {
+            continue
+        }
+        set bnomo [file join [file dirname $f] [file rootname [file tail $f]]-arboj.txt]
+        if {[file exists $bnomo]} {
+            puts "jam ekzistas $bnomo"
+            continue
+        }
+        my kreuSintaksArbojPorDosiero $analizilo $vortaro $f $bnomo
+        if {[file exists [file join [Esperantilozentro prenuFontoDosieron] eowiki stop]]} {
+            break
+        }
+    }
+}
+LokalaVikipedioLegilo proc kreuSintaksArbojPorDosiero {analizilo vortaro dedosiero aldosiero} {
+    set fi [open $dedosiero r]
+    set fo [open $aldosiero w]
+    while {[gets $fi line]>=0} {
+        set line [string trim $line]
+        if {$line eq ""} continue
+        if {[catch {llength $line}]} {
+            continue
+        }
+        if {[catch {my prenuSintaksArbon $fo $analizilo $vortaro $line}]} {
+            puts "problemoj kun $line"
+            set pf [open [file join [Esperantilozentro prenuFontoDosieron] eowiki problemoj-sanalizo.txt] a]
+            puts $pf [join $line]
+            puts $pf "## $::errorInfo\n"
+            close $pf
+        }
+    }
+    update
+    close $fi
+    close $fo
+}
+LokalaVikipedioLegilo proc kreuSintaksBazon {} {
+    set dosierejo [file join [Esperantilozentro prenuFontoDosieron] eowiki]
+    set mdos [file join [Esperantilozentro prenuFontoDosieron] eowiki bazo]
+    set bazo [file join [Esperantilozentro prenuFontoDosieron] eowiki bazo.fsql]
+
+    set sa [SintaksoAnaliziloSQLIncr new]
+    $sa malfermuDatumbazon $bazo
+    $sa leguVortoIndeksojn
+
+    foreach f [glob -directory [file join [Esperantilozentro prenuFontoDosieron] eowiki] tekstaro-frazoj-pur*-arboj.txt] {
+        set bnomo [file join $mdos [file tail $f]]
+        if {[file exists $bnomo]} {
+            puts "jam ekzistas $bnomo"
+            continue
+        }
+        $sa analizuDeDosiero $f
+        set tf [open $bnomo w]
+        puts $tf "preta"
+        close $tf
+        if {[file exists [file join [Esperantilozentro prenuFontoDosieron] eowiki bstop]]} {
+            break
+        }
+    }
+    $sa destroy
+}
+LokalaVikipedioLegilo proc prenuSintaksArbon {fo analizilo vortaro line} {
+    set frazo [GP::Frazo new]
+    #TempoMezurilo startuMezurilon leguFrazon
+    $frazo leguFrazon $vortaro [split $line]
+    #TempoMezurilo malstartuMezurilon leguFrazon
+    if {[$frazo exists elementoj]} {
+          $analizilo frazo $frazo
+          #TempoMezurilo startuMezurilon analizu
+          $analizilo analizu
+          #TempoMezurilo malstartuMezurilon analizu
+          puts $fo "[[$frazo set sintaksoarbo] prenuListon]\n"
+    }
+    $frazo destroy
+}
+LokalaVikipedioLegilo proc puriguFrazojnDeViki {} {
+    set fi [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj.txt]
+    set fnomo [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj-pur]
+    set x 0
+    set linen 0
+
+    set if [open $fi r]
+    set of [open $fnomo${x}.txt w]
+
+    set evortaro [HunspellTestiloEo prenuVortaron]
+
+    while {[gets $if line]>=0} {
+        if {$line eq "" || [string first | $line]>=0
+          || [string first mathbf $line]>=0 || [string first \} $line]>=0} continue
+        if {$line eq "Vidu ankaŭ" || $line eq "Aliaj projektoj"} {
+            continue
+        }
+        if {$linen>=10000} {
+            incr x
+            set linen 0
+            close $of
+            set of [open $fnomo${x}.txt w]
+            puts "dosiero $x"
+            update
+        }
+        if {![info complete $line]} {
+            while {[gets $if cline]>=0} {
+                append line $cline \n
+                if {[info complete $cline]} {
+                    break
+                }
+            }
+            continue
+        }
+        if {[catch {llength [split $line]} len]} {
+            continue
+        }
+        if {$len==1} continue
+        if {"|" in $line || "/" in $line} continue
+        set symbol 0
+        set espvorto 0
+        foreach v [split $line] {
+            if {[string is control $v] || [string is double $v]} {
+                incr symbol
+                continue
+            }
+            if {[$evortaro estasVorto $v]!=0} {
+                incr espvorto
+            }
+        }
+        if {$espvorto<=2 && $espvorto<$len*0.70} {
+            continue
+        }
+        puts $of $line
+        incr linen
+    }
+
+    close $of
+    close $if
+}
+LokalaVikipedioLegilo proc tekstoAlFrazoj {} {
+    set fi [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro.txt]
+    set fo [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj.txt]
+    DosieroAnalizilo analizuDosieron $fi $fo TekstoFrazoTokenizer
+}
+LokalaVikipedioLegilo proc testo {} {
+    set fi [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro2000.txt]
+    set fo [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj2000.txt]
+    if {![file exists $fo]} {
+        DosieroAnalizilo analizuDosieron $fi $fo TekstoFrazoTokenizer
+    }
+
+    set fo [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj2000-arboj.txt]
+    set analizilo [SintaksaAnalizo new]
+    set vortaro [Vortaro prenuVortaron]
+    TempoMezurilo puriguMezurilon
+    TempoMezurilo startuMezurilon cxio
+    set time [time {my kreuSintaksArbojPorDosiero $analizilo $vortaro [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj2000.txt] $fo}]
+    TempoMezurilo malstartuMezurilon cxio
+    TempoMezurilo protokoluMezurilojn
+    $analizilo destroy
+    puts $time
+
+}
+LokalaVikipedioLegilo proc testoTempo {} {
+    set fo [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj2000-arboj.txt]
+    set analizilo [SintaksaAnalizo new]
+    set vortaro [Vortaro prenuVortaron]
+    set time [time {my kreuSintaksArbojPorDosiero $analizilo $vortaro [file join [Esperantilozentro prenuFontoDosieron] eowiki tekstaro-frazoj2000.txt] $fo}]
+    puts $time
+
+}
+LokalaVikipedioLegilo proc testuFrazon line {
+    set analizilo [SintaksaAnalizo new]
+    set vortaro [Vortaro prenuVortaron]
+    my prenuSintaksArbon stdout $analizilo $vortaro $line
+    $analizilo destroy
+    # LokalaVikipedioLegilo testuFrazon {La mondo ŝajnis fali .}
+}
+Class PLRadikilo
+@ ::PLRadikilo idemeta component EspParalelTekstaro
+PLRadikilo instproc cxuBonajLiteroj vorto {
+    regexp {^[aąbcćdeęfghijklłmnńoóprsśtuwyzźżAĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ]+$} $vorto
+}
+PLRadikilo instproc cxuCertaj vorto {
+    expr {[lsearch -sorted {a aby ale bardziej bardzo bez bo bowiem był była było były będzie co czy czyli dla dlatego do dotąd gdy gdzie go i ich im innych itp iż jak jako jednak jego jej jest jeszcze jeśli już kiedy kilka która które którego której który których którym którzy lub ma mi między mnie mogą może można na nad nam nas naszego naszych nawet nich nie niech niezbyt nim niż o od odtąd oraz po pod poza przed przede przez przy również się sobie swoje są ta tak takie także tam te tego tej ten też to trzeba tu tych tylko tym tzw u w warto we wiele wielu więc wszystkich wszystkim wszystko właśnie z za zawsze ze że} $vorto]>=0}
+}
+PLRadikilo instproc cxuIgnori vorto {
+    expr {[lsearch -sorted {a aby ale bardziej bardzo bez bo bowiem był była było były będzie co czy czyli dla dlatego do dotąd gdy gdzie go i ich im innych itp iż jak jako jednak jego jej jest jeszcze jeśli już kiedy kilka która które którego której który których którym którzy lub ma mi między mnie mogą może można na nad nam nas naszego naszych nawet nich nie niech niezbyt nim niż o od odtąd oraz po pod poza przed przede przez przy również się sobie swoje są ta tak takie także tam te tego tej ten też to trzeba tu tych tylko tym tzw u w warto we wiele wielu więc wszystkich wszystkim wszystko właśnie z za zawsze ze że} $vorto]>=0}
+}
+PLRadikilo instproc init {} {
+    my instvar tagger
+    set tagger [[EsperantoConf prenuLingvoFabriko pl] prenuTagger]
+}
+PLRadikilo instproc radikigi vorto {
+    my instvar tagger
+    $tagger prenuRadikojn $vorto
+}
+Class ParalelFrazoAnalizilo -parameter {vortaro fradikilo zradikilo zlingvo flingvo}
+@ ::ParalelFrazoAnalizilo idemeta component EspParalelTekstaro
+@ ParalelFrazoAnalizilo instproc analizuFrazoj {} {
+description {Tiu klaso analizas frazoj de du lingvoj.
+Gxi radikigas la vortojn kaj pruvas helpe de vortaro kunordigi vortoj de du frazoj.
+Restas vortoj sen direkta traduko.
+Gxi povas esti uzata por trovo de segmentoj aux por ekstraktado de vortaroj de segmentoj.}
+}
+ParalelFrazoAnalizilo instproc analizuFrazoj {frazo1 frazo2} {
+    my metuFrazoj $frazo1 $frazo2
+    my radikuVortojn
+    my tradukuVortojn
+    my kunliguVortojn
+}
+ParalelFrazoAnalizilo instproc analizuFrazolistojn {frazol1 frazol2} {
+    my instvar ffrazo zfrazo
+    set ffrazo $frazol1
+    set zfrazo $frazol2
+    my radikuVortojn
+    my tradukuVortojn
+    my kunliguVortojn
+}
+ParalelFrazoAnalizilo instproc foriguTradArr {} {
+    my instvar tradArr
+    unset -nocomplain tradArr
+}
+ParalelFrazoAnalizilo instproc init {} {
+    my instvar fliterumilo cliterumilo flingvo zlingvo
+    next
+    if {$flingvo ne "eo"} {
+        set fliterumilo [HunspellTestilo prenuInstancoPorLingvo $flingvo]
+    } else {
+        set fliterumilo ""
+    }
+    if {$zlingvo ne "eo"} {
+        set cliterumilo [HunspellTestilo prenuInstancoPorLingvo $zlingvo]
+    } else {
+        set cliterumilo ""
+    }
+}
+ParalelFrazoAnalizilo instproc kunliguVortojn {} {
+    my instvar szfrazo sffrazo tradArr zresto fresto
+    set fresto ""
+    set zresto $szfrazo
+    set zeresto [list]
+    # multaj radikoj pro vorto estas eblaj
+    foreach vl $szfrazo {
+        foreach v $vl {
+            lappend zeresto $v
+            set radArr($v) $vl
+        }
+    }
+    foreach vlist $sffrazo {
+        foreach vorto $vlist {
+            set f 0
+            if {![info exists tradArr($vorto)]} {
+                # !!! nur por esperanto
+                if {[regexp {^(.+)[iao]nta$} $vorto _ radiko]} {
+                    set vorto ${radiko}i
+                } elseif {[regexp {^(.+)[iao]ta$} $vorto _ radiko]} {
+                    set vorto ${radiko}i
+                }
+            }
+            if {[llength $tradArr($vorto)]==0} {
+                # forigi sentradukitaj vortoj (nomoj)
+                if {[set id [lsearch $zeresto $vorto]]>=0} {
+                    set zeresto [lreplace $zeresto $id $id]
+                    set rad $radArr($vorto)
+                    set rid [lsearch $zresto $rad]
+                    set zresto [lreplace $zresto $rid $rid]
+                    set f 1
+                }
+            } else {
+                foreach tradl [concat $tradArr($vorto) $vorto] {
+                    # 1 -> n (tradukado)
+                    foreach trad $tradl {
+                        if {[set id [lsearch $zeresto $trad]]>=0} {
+                            set zeresto [lreplace $zeresto $id $id]
+                            set rad $radArr($trad)
+                            set rid [lsearch $zresto $rad]
+                            set zresto [lreplace $zresto $rid $rid]
+                            set f 1
+                        }
+                    }
+                }
+            }
+            if {!$f} {
+                lappend fresto $vorto
+            }
+        }
+    }
+}
+ParalelFrazoAnalizilo instproc metuFrazoj {frazo1 frazo2} {
+    my instvar ffrazo zfrazo
+    set ffrazo [esp::frazoAlvortoj $frazo1]
+    set zfrazo [esp::frazoAlvortoj $frazo2]
+}
+ParalelFrazoAnalizilo instproc prenuIndico {} {
+    my instvar fresto zresto sffrazo szfrazo ffrazo zfrazo
+    if {[llength $sffrazo]==0 || [llength $szfrazo]==0 || [llength $zfrazo]==0 || [llength $ffrazo]==0} {
+        return [expr {100.0*[estrings::stringFuzzyMatch [join $ffrazo] [join $zfrazo]]}]
+    }
+    set min [expr {[llength $ffrazo]<[llength $zfrazo]?[llength $ffrazo]:[llength $zfrazo]}]
+    set max [expr {[llength $ffrazo]>[llength $zfrazo]?[llength $ffrazo]:[llength $zfrazo]}]
+
+    # La vera max ne estas bone afero, kiam kreskas nur unu pli granda flanko
+    set maxresto [expr {[llength $fresto]+[llength $zresto]/2.0}]
+    set maxlen [expr {[llength $sffrazo]+[llength $szfrazo]/2.0}]
+
+    expr {100.0*double($maxlen-$maxresto)/$maxlen*(1.0-($max-$min)*0.5/$max)}
+}
+ParalelFrazoAnalizilo instproc prenuRestoj {} {
+    my instvar fresto zresto
+    list $fresto $zresto
+}
+ParalelFrazoAnalizilo instproc prenuTradProponojn {} {
+    my instvar fresto zresto tradArr
+    set prop [list]
+    foreach v $fresto {
+        if {$tradArr($v) eq ""} {
+            lappend prop $v
+        }
+    }
+    list $prop $zresto
+}
+ParalelFrazoAnalizilo instproc radikuFrazoListo {frazo radikilo literumilo} {
+    set sfrazo [list]
+    foreach v $frazo {
+        if {![string is alpha $v]} continue
+        set v [string tolower $v]
+        if {[$radikilo cxuCertaj $v]} continue
+        set rlisto [$radikilo radikigi $v]
+        set rekzistas [list]
+        foreach r $rlisto {
+            if {$literumilo ne ""} {
+                if {[$literumilo estasVorto $r]==2} {
+                    lappend rekzistas $r
+                }
+            } else {
+                lappend rekzistas $r
+            }
+        }
+        if {[llength $rekzistas]==0} {
+            set rekzistas $rlisto
+        }
+        lappend sfrazo [string tolower $rekzistas]
+    }
+    return $sfrazo
+}
+ParalelFrazoAnalizilo instproc radikuVortojn {} {
+    my instvar ffrazo zfrazo sffrazo szfrazo fradikilo zradikilo fliterumilo cliterumilo
+    set sffrazo [my radikuFrazoListo $ffrazo $fradikilo $fliterumilo]
+    set szfrazo [my radikuFrazoListo $zfrazo $zradikilo $cliterumilo]
+}
+ParalelFrazoAnalizilo instproc tradukuVortojn {} {
+    my instvar sffrazo vortaro tradArr flingvo zlingvo
+    foreach vorto $sffrazo {
+        set tradlisto [list]
+        if {[info exists tradArr($vorto)]} {
+            continue
+        }
+        set rezlisto [$vortaro sxercxuRezListo $vorto $zlingvo]
+        foreach vtrad $rezlisto {
+            lappend tradlisto [string tolower [dict get $vtrad traduko]]
+        }
+        if {[llength $rezlisto]==0} {
+            if {[regexp {^(.+)[iao]n?ta$} $vorto _ radiko]} {
+                set vorto ${radiko}i
+                set rezlisto [$vortaro sxercxuRezListo $vorto $zlingvo]
+            } elseif {[string index $vorto end] eq "a" && $zlingvo eq "en"} {
+                set rezlisto [$vortaro sxercxuRezListo [string range $vorto 0 end-1]o $zlingvo]
+            }
+            foreach vtrad $rezlisto {
+                lappend tradlisto [string tolower [dict get $vtrad traduko]]
+            }
+        }
+        set tradArr($vorto) $tradlisto
+    }
+}
+ParalelFrazoAnalizilo proc newForLingvo lingvo {
+    EsperantoConf pretiguLingvoTradukado $lingvo
+    set inst [my new -fradikilo [Radikilaro prenuPorLingvo eo] -zradikilo [Radikilaro prenuPorLingvo $lingvo] -vortaro [DBVortaro prenuDepVortaron] -flingvo eo -zlingvo $lingvo]
+    return $inst
+}
+Class ParalelTekstaroView -superclass {::IDE::Browser ::IDE::GUICommands}
+@ ::ParalelTekstaroView idemeta component EspParalelTekstaro
+ParalelTekstaroView instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+ParalelTekstaroView instproc destroy {} {
+    my instvar analizilo
+    if {[info exists analizilo]} {
+        catch { $analizilo destroy}
+    }
+    next
+}
+ParalelTekstaroView instproc elektuCilanDosieron {} {
+    my instvar win fontoDosiero cilaDosiero cilaLingvo
+    set file [IDE::Dialog getOpenFile]
+    if {$file eq ""} {
+        set cilaDosiero ""
+    }
+    set cilaDosiero $file
+}
+ParalelTekstaroView instproc elektuFontanDosieron {} {
+    my instvar win fontoDosiero cilaDosiero cilaLingvo
+    set file [IDE::Dialog getOpenFile]
+    if {$file eq ""} {
+        set fontoDosiero ""
+    }
+    set fontoDosiero $file
+    set c [file rootname $fontoDosiero]_$cilaLingvo[file extension $fontoDosiero]
+    if {[file isfile $c]} {
+        set cilaDosiero $c
+    }
+}
+ParalelTekstaroView instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+
+    $ms addCommand [mc "Testu per Literumilo"] [list [self] testuPerAspell] {} Control-L
+}
+ParalelTekstaroView instproc getMenuStruct {} {
+    IDE::MenuStruct [self]::ms [mc "Paralela Tekstaro Segmentilo"] 0
+}
+ParalelTekstaroView instproc getTitle {} {
+    return "Parala Tekstaro - Ilo"
+}
+ParalelTekstaroView instproc initAnalizilon {} {
+    my instvar cilaLingvo analizilo
+    if {![info exists analizilo] || ![Object isobject $analizilo]} {
+        set analizilo [ParalelTekstoAnalizilo new]
+    }
+    $analizilo cilaLingvo $cilaLingvo
+}
+ParalelTekstaroView instproc kreuHTMLDosieron {} {
+    my instvar win fontoDosiero cilaDosiero cilaLingvo analizilo
+    my initAnalizilon
+    set htmlfile [file rootname $fontoDosiero].html
+    set htmlfile [IDE::Dialog getSaveFile $htmlfile {{HTML *.html}}]
+    if {$htmlfile ne ""} {
+        set html [$analizilo kreuHTMLAlignmentDeDosieroj $fontoDosiero $cilaDosiero]
+        set f [open $htmlfile w]
+        fconfigure $f -encoding utf-8
+        puts -nonewline $f $html
+        close $f
+        # Malfermu en TTT-Montrilo
+    }
+}
+ParalelTekstaroView instproc kreuTMXDosieron {} {
+    my instvar win fontoDosiero cilaDosiero cilaLingvo analizilo
+    my initAnalizilon
+    EsperantoBrowser redaktoTekston [$analizilo kreuParalelTekstaroDeDosieroj $fontoDosiero $cilaDosiero]
+}
+ParalelTekstaroView instproc kreuVortaron {} {
+    my instvar win fontoDosiero cilaDosiero cilaLingvo analizilo
+    my initAnalizilon
+    EsperantoBrowser redaktoTekston [$analizilo kreuParalelTekstaroDeDosieroj $fontoDosiero $cilaDosiero]
+}
+ParalelTekstaroView instproc kreuVortaronDeTMX {} {
+    my instvar analizilo
+    set file [IDE::Dialog getOpenFile {{TMX *.tmx}}]
+    if {$file ne ""} {
+        my initAnalizilon
+        $analizilo analizuTMX $file
+        $analizilo komputuVortaroPropono
+    }
+}
+ParalelTekstaroView instproc specificInit {} {
+    my instvar win fontoDosiero cilaDosiero cilaLingvo
+    set cilaLingvo en
+    set fontoDosiero ""
+    set cilaDosiero ""
+    my requireNamespace
+
+    label $win.lfd -text [mc "Fonta dosiero. Teksto en esperanto"]
+    entry $win.fd -textvariable [self]::fontoDosiero
+    button $win.bfd -text "Elektu" -command [list [self] elektuFontanDosieron]
+    label $win.lcd -text [mc "Cela dosiero"]
+    entry $win.cd -textvariable [self]::cilaDosiero
+    button $win.bcd -text "Elektu" -command [list [self] elektuCilanDosieron]
+
+    label $win.ltradukolingvo -text [mc "lingvo de celo:"]
+    label $win.tlingvo -textvariable [self]::cilaLingvo
+    button $win.tradukolingvo -text [mc "Ŝanĝu"] -command [list [self] sxangxuLingvon]
+
+    frame $win.b
+    button $win.kreuTMX -text [mc "Kreu TMX-Dosieron"] -command [list [self] kreuTMXDosieron]
+    button $win.kreuHTML -text [mc "Kreu HTML-Dosieron"] -command [list [self] kreuHTMLDosieron]
+    button $win.kreuVortaro -text [mc "Kreu vortaron"] -command [list [self] kreuVortaron]
+    button $win.kreuVortaroDeTMX -text [mc "Kreu vortaron de TMX"] -command [list [self] kreuVortaronDeTMX]
+    pack $win.kreuTMX $win.kreuHTML $win.kreuVortaro $win.kreuVortaroDeTMX -padx 5 -pady 5 -side left -in $win.b
+
+    grid $win.lfd -column 0 -row 0 -sticky w
+    grid $win.fd -column 0 -row 1 -sticky ew -columnspan 2
+    grid $win.bfd -column 2 -row 1 -sticky w -padx 3 -pady 3
+    grid $win.lcd -column 0 -row 2 -sticky w
+    grid $win.cd -column 0 -row 3 -sticky ew -columnspan 2
+    grid $win.bcd -column 2 -row 3 -sticky w -padx 3 -pady 3
+    grid $win.ltradukolingvo -column 0 -row 4 -sticky e
+    grid $win.tlingvo -column 1 -row 4 -sticky w
+    grid $win.tradukolingvo -column 2 -row 4 -sticky w  -padx 3 -pady 3
+    grid $win.b -column 0 -row 5 -columnspan 3 -sticky w
+    grid columnconfigure $win 0 -weight 1
+    grid columnconfigure $win 1 -weight 1
+    my testuEkzistoDosieroj
+}
+ParalelTekstaroView instproc sxangxuLingvon {} {
+    my instvar cilaLingvo
+    set lingvoj [list]
+    foreach {abr nomo} {en angla de germana} {
+        lappend lingvoj [list $abr [mc $nomo]]
+    }
+    set nunLingvo [list $cilaLingvo [mc [TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $cilaLingvo]]]
+    set lng [IDE::IDialogList getListItem [mc "Elektu la tradukan lingvon"] $lingvoj $nunLingvo]
+    if {$lng ne ""} {
+        set cilaLingvo [lindex $lng 0]
+    }
+}
+ParalelTekstaroView instproc testuEkzistoDosieroj {} {
+    my instvar win fontoDosiero cilaDosiero
+    if {$fontoDosiero ne "" && $cilaDosiero ne ""} {
+        set state normal
+    } else {
+        set state disabled
+    }
+    foreach w {kreuTMX kreuHTML kreuVortaro} {
+        $win.$w configure -state $state
+    }
+}
+ParalelTekstaroView proc newBrowser {} {
+    my new [Object autoname .ptekstaro]
+}
+Class ParalelTekstoAnalizilo
+@ ::ParalelTekstoAnalizilo idemeta component EspParalelTekstaro
+ParalelTekstoAnalizilo instproc analizo analizilo {
+    my instvar analizajRezultoj
+    if {[$analizilo prenuIndico]<45.0} {
+        set prop [$analizilo prenuTradProponojn]
+        if {[llength [lindex $prop 0]]>0} {
+            lappend analizajRezultoj $prop
+        }
+    }
+}
+ParalelTekstoAnalizilo instproc analizuTMX {{dosiero {}}} {
+   my instvar cilaLingvo
+   if {$dosiero eq ""} {
+       set dosiero [IDE::Dialog getOpenFile {{{TMX File} *.tmx} {{All files} *}}]
+   }
+   if {$dosiero eq ""} return
+   #  ::sample0 analizuTekstojn cp_3langeuropo.txt cp_3langeuropo_en.txt
+   #  ::sample0 analizuTekstojn cp_psychologikajreagoj.txt cp_psychologikajreagoj_en.txt
+   #  ::sample0 analizuTekstojn cp_2052.txt cp_2052_en.txt
+   #  ::sample0 analizuTekstojn cp_psychologikajkialoj.txt cp_psychologikajkialoj_en.txt
+   #  ::sample0 analizuTekstojn claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_en.txt
+
+    package require tdom
+
+
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    set doc [dom parse -channel $f]
+    close $f
+
+    set rnode [$doc documentElement]
+
+    set nodes [$rnode selectNodes body/tu]
+
+    set prog [ProgresoMontrilo startProgress "Anlizu tekston"]
+    # set prog ""
+    set pcount [llength $nodes]
+    set count 0
+
+    set fanalizilo [ParalelFrazoAnalizilo newForLingvo $cilaLingvo]
+    set enRadikilo [Radikilaro prenuPorLingvo $cilaLingvo]
+
+    set ret ""
+
+    foreach node $nodes {
+        if {$prog ne ""} {
+            $prog setProgress  [expr {100.0*$count/$pcount}]
+            update
+            if {[$prog isStopped]} {
+                break
+            }
+        }
+        incr count
+
+        set fnode [lindex [$node selectNodes {tuv[@xml:lang='eo']/seg}] 0]
+        if {$fnode eq ""} {
+            set fnode [lindex [$node selectNodes {tuv[@xml:lang='EO']/seg}] 0]
+        }
+        set znode [lindex [$node selectNodes "tuv\[@xml:lang='$cilaLingvo'\]/seg"] 0]
+        if {$znode eq ""} {
+            set znode [lindex [$node selectNodes "tuv\[@xml:lang='[string toupper $cilaLingvo]'\]/seg"] 0]
+        }
+
+        set fp [[$fnode firstChild] nodeValue]
+        set zp [[$znode firstChild] nodeValue]
+
+        set zp [$enRadikilo aliformuTekston $zp]
+
+        set frazlegilo1 [FrazoLegilo newOn $fp]
+        set frazlegilo2 [FrazoLegilo newOn $zp]
+        while {[llength [set fl [$frazlegilo1 prenuFrazon]]]>0} {
+            set zl [$frazlegilo2 prenuFrazon]
+            if {[llength $zl]==0} {
+                break
+            }
+            $fanalizilo analizuFrazolistojn $fl $zl
+            append ret "############" \n
+            append ret "$fl" \n
+            append ret "$zl" \n
+            append ret " [$fanalizilo prenuIndico]= [$fanalizilo prenuTradProponojn]" \n
+            my analizo $fanalizilo
+            after 100
+        }
+        $frazlegilo1 destroy
+        $frazlegilo2 destroy
+    }
+    if {$prog ne ""} {
+        $prog cleanUpAfterSignal
+        $prog destroy
+    }
+
+    $doc delete
+    $fanalizilo destroy
+}
+ParalelTekstoAnalizilo instproc analizuTMXDeDosierujo {{dosiero {}}} {
+    set d [IDE::Dialog getDir]
+    if {$d eq ""} return
+    foreach f [glob -directory $d *.tmx] {
+        my analizuTMX $f
+    }
+}
+ParalelTekstoAnalizilo instproc analizuTekstojn {dosiero1 dosiero2} {
+   my instvar cilaLingvo
+   #  ::sample0 analizuTekstojn cp_3langeuropo.txt cp_3langeuropo_en.txt
+   #  ::sample0 analizuTekstojn cp_psychologikajreagoj.txt cp_psychologikajreagoj_en.txt
+   #  ::sample0 analizuTekstojn cp_2052.txt cp_2052_en.txt
+   #  ::sample0 analizuTekstojn cp_psychologikajkialoj.txt cp_psychologikajkialoj_en.txt
+   #  ::sample0 analizuTekstojn claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_en.txt
+
+    my set analizajRezultoj [list]
+
+    set f1 [open $dosiero1 r]
+    fconfigure $f1 -encoding utf-8
+    set t [read $f1]
+    while {[set pos [string first \n\n $t]]>=0} {
+        lappend fparagrafoj [string range $t 0 $pos]
+        set t [string range $t [expr {$pos+2}] end]
+    }
+    lappend fparagrafoj $t
+    close $f1
+
+    set f2 [open $dosiero2 r]
+    fconfigure $f2 -encoding utf-8
+    set t [read $f2]
+    while {[set pos [string first \n\n $t]]>=0} {
+        lappend zparagrafoj [string range $t 0 $pos]
+        set t [string range $t [expr {$pos+2}] end]
+    }
+    lappend zparagrafoj $t
+    close $f2
+
+
+    set fanalizilo [ParalelFrazoAnalizilo newForLingvo $cilaLingvo]
+    set ret ""
+
+    set enRadikilo [Radikilaro prenuPorLingvo $cilaLingvo]
+
+    set prog [ProgresoMontrilo startProgress "Anlizu tekston"]
+    set pcount [llength $fparagrafoj]
+    set count 0
+
+    foreach fp $fparagrafoj zp $zparagrafoj {
+        update
+        if {$prog ne ""} {
+            $prog setProgress  [expr {100.0*$count/$pcount}]
+            if {[$prog isStopped]} {
+                break
+            }
+        }
+        incr count
+        set zp [$enRadikilo aliformuTekston $zp]
+        set frazlegilo1 [FrazoLegilo newOn $fp]
+        set frazlegilo2 [FrazoLegilo newOn $zp]
+        while {[llength [set fl [$frazlegilo1 prenuFrazon]]]>0} {
+            set zl [$frazlegilo2 prenuFrazon]
+            if {[llength $zl]==0} {
+                break
+            }
+            $fanalizilo analizuFrazolistojn $fl $zl
+            append ret "############" \n
+            append ret "$fl" \n
+            append ret "$zl" \n
+            append ret " [$fanalizilo prenuIndico]= [$fanalizilo prenuTradProponojn]" \n
+            my analizo $fanalizilo
+            after 50
+        }
+        $frazlegilo1 destroy
+        $frazlegilo2 destroy
+    }
+    if {$prog ne ""} {
+        $prog cleanUpAfterSignal
+        $prog destroy
+    }
+
+    $fanalizilo destroy
+    EsperantoBrowser redaktoTekston $ret
+}
+ParalelTekstoAnalizilo instproc foriguRezultojn {} {
+    my instvar analizajRezultoj
+    set analizajRezultoj [list]
+}
+ParalelTekstoAnalizilo instproc komputuKolektivon listo {
+    # ordigu la liston laux frekventeco de elementoj
+    # {aa bb bb cc cc cc} -> {cc bb aa}
+    if {[llength $listo]==0} return
+    foreach k $listo {
+        if {[catch {incr arr($k)}]} {
+            set arr($k) 0
+        }
+    }
+    foreach {k v} [array get arr] {
+        lappend items [list $k $v]
+    }
+    foreach item [lsort -integer -decreasing -integer -index 1 $items] {
+        lappend ret [lindex $item 0]
+    }
+    return $ret
+}
+ParalelTekstoAnalizilo instproc komputuVortaroPropono {} {
+    my instvar analizajRezultoj
+    foreach rezulto $analizajRezultoj {
+        foreach {vortoj ziloj} $rezulto {}
+        foreach vorto $vortoj {
+            ide::addToValueForKey tradProp $vorto $ziloj
+        }
+    }
+    set ret ""
+    set ret2 ""
+    set vortaro [Vortaro prenuVortaron]
+    
+    for {set sid [array startsearch tradProp]} {[array anymore tradProp $sid]} {} {
+        set vorto [array nextelement tradProp $sid]
+        if {[$vortaro estasVorto $vorto]==0} continue
+        set tradukoj $tradProp($vorto)
+        if {[llength $tradukoj]>1} {
+            set kol [my komputuKolektivon $tradukoj]
+            if {[llength $kol]==0} {
+                append ret "$vorto; * [join $tradukoj]" \n
+            } else {
+                append ret "$vorto; $kol" \n
+            }
+        } else {
+            append ret2 "$vorto; [join $tradukoj]" \n
+        }
+    }
+    array donesearch tradProp $sid
+    return "$ret\n###\n$ret2"
+}
+ParalelTekstoAnalizilo instproc kreuHTMLAlignment {} {
+    set filetypes {{{Text Files} *.txt}}
+    set fonto [IDE::Dialog getOpenFile $filetypes]
+    if {$fonto eq ""} return
+    set pre [file rootname $fonto]_en.txt
+    set zilo [IDE::Dialog getOpenFile $filetypes]
+
+    if {$fonto eq "" || $zilo eq ""} return
+    set ret [my kreuHTMLAlignmentDeDosieroj $fonto $zilo]
+
+    set out [file rootname $fonto].html
+    set f [open $out w]
+    fconfigure $f -encoding utf-8
+    puts $f $ret
+    close $f
+    iloj::openHTMLBrowser $out
+}
+ParalelTekstoAnalizilo instproc kreuHTMLAlignmentDeDosieroj {fontodosiero zilodosiero} {
+
+    set file [open $fontodosiero r]
+    fconfigure $file -encoding utf-8
+    set f1 [FrazoLegilo newOn [read $file]]
+    close $file
+
+    set file [open $zilodosiero r]
+    fconfigure $file -encoding utf-8
+    set f2 [FrazoLegilo newOn [read $file]]
+    close $file
+
+    set rez [my kreuParalelTekstaro $f1 $f2]
+
+    set sl1 [$f1 set signoLegilo]
+    set sl2 [$f2 set signoLegilo]
+
+    set ret "<html>\n<meta http-equiv='content-type' content='text/html; charset=utf-8'>\n<body>\n<table border='1'>\n"
+
+    set lfino1 0
+    set lfino2 0
+
+    foreach segmento [lindex $rez 1] {
+        foreach {k1 fino1 k2 fino2 indico} $segmento {}
+        set prefonto [string trim [$sl1 prenuRegionon $lfino1 $k1]]
+        set prezilo [string trim [$sl2 prenuRegionon $lfino2 $k2]]
+        if {$prefonto ne "" || $prezilo ne ""} {
+            append ret "<tr>\n <td><i>$prefonto</i></td>\n <td><i>$prezilo</i></td>\n</tr>\n"
+        }
+        set fonto [string trim [$sl1 prenuRegionon $k1 $fino1]]
+        set zilo [string trim [$sl2 prenuRegionon $k2 $fino2]]
+        append ret "<tr>\n <td><b>$indico</b> $fonto</td>\n <td>$zilo</td>\n</tr>\n"
+        set lfino1 $fino1
+        set lfino2 $fino2
+    }
+
+    $f1 destroy
+    $f2 destroy
+
+    append ret "</table></body></html>\n"
+    return $ret
+}
+ParalelTekstoAnalizilo instproc kreuPTekstaroPorCiu {} {
+    set d [IDE::Dialog getDir]
+    if {$d eq ""} return
+
+    foreach f [glob -directory $d *.txt] {
+        set zf [file root $f]
+        set zf [file tail $zf]
+        set tnomo $zf
+        set zf [file join $d ${zf}_en.txt]
+        if {![file exists $zf]} {
+            continue
+        }
+        set ret [my kreuParalelTekstaroDeDosieroj $f $zf]
+        set h [open [file join $d ${tnomo}.tmx] w]
+        fconfigure $h -encoding utf-8
+        puts $h $ret
+        close $h
+    }
+
+}
+ParalelTekstoAnalizilo instproc kreuParalelTekstaro {fontoLegilo ziloLegilo} {
+    my instvar akceptoLimo maksNeAkceptitaj nombroNeAkceptitaj nombroAkceptitaj minIndico maxTroMalalta cilaLingvo
+
+    set nombroAkceptitaj 0
+    set nombroNeAkceptitaj 0
+
+    set progreso [ProgresoMontrilo startProgress "Analizu tekston"]
+    #set progreso ""
+
+    set fontoFrazoj [list]
+    set fontoIndeksoj [list]
+    while {[llength [set frazo [$fontoLegilo prenuFrazon]]]!=0} {
+        lappend fontoFrazoj $frazo
+        lappend fontoIndeksoj [list [$fontoLegilo set frazokomenco] [[$fontoLegilo set signoLegilo] kursoro]]
+    }
+    set fontoNumero 0
+
+    set ziloFrazoj [list]
+    set ziloIndeksoj [list]
+    while {[llength [set frazo [$ziloLegilo prenuFrazon]]]!=0} {
+        lappend ziloFrazoj $frazo
+        lappend ziloIndeksoj [list [$ziloLegilo set frazokomenco] [[$ziloLegilo set signoLegilo] kursoro]]
+    }
+    set ziloNumero 0
+
+    set paralelajFrazoj [list]
+    set paralelajIndeksoj [list]
+
+    set analizilo [ParalelFrazoAnalizilo newForLingvo $cilaLingvo]
+
+    set troalta 0
+
+    # fonto-komenco zilo-komenco fonto-fino zilo-fino pli-bona malpli-bona
+    set programo {
+        {0 0 0 1 3 1}
+        {0 0 1 0 2 2}
+        {1 0 1 0 0 3}
+        {0 1 0 1 0 0}
+    }
+
+    while {$ziloNumero<[llength $ziloFrazoj] && $fontoNumero<[llength $fontoFrazoj]} {
+
+        update
+        if {$progreso ne ""} {
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        $progreso setProgress [expr {100.0*$ziloNumero/[llength $ziloFrazoj]}]
+
+        set fset [lindex $fontoFrazoj $fontoNumero]
+        set zset [lindex $ziloFrazoj $ziloNumero]
+        $analizilo analizuFrazolistojn $fset $zset
+        set indico [$analizilo prenuIndico]
+        my prot " p: $ziloNumero,$fontoNumero <$indico> $fset = $zset"
+
+        # diff fonto, diff zilo, salto-indekso pli, salto-indekso malpli
+        set prog 0
+        set afdiff 0
+        set azdiff 0
+        set akfdiff 0
+        # (alto komenzo fonto difernco)
+        set akzdiff 0
+
+        while 1 {
+            after 100
+            foreach {kfdiff kzdiff fdiff zdiff tpli tmalpli} [lindex $programo $prog] {}
+            set nindico 0.0
+            # cxu fino de listo
+            if {$fontoNumero+$fdiff<[llength $fontoFrazoj] && $ziloNumero+$zdiff<[llength $ziloFrazoj]} {
+                set fset [list]
+                foreach f [lrange $fontoFrazoj [expr {$fontoNumero+$kfdiff}] [expr {$fontoNumero+$fdiff}]] {
+                    set fset [concat $fset $f]
+                }
+                set zset [list]
+                foreach f [lrange $ziloFrazoj [expr {$ziloNumero+$kzdiff}] [expr {$ziloNumero+$zdiff}]] {
+                    set zset [concat $zset $f]
+                }
+                $analizilo analizuFrazolistojn $fset $zset
+                set nindico [$analizilo prenuIndico]
+                my prot " <n $nindico> $fset = $zset"
+            }
+            if {$nindico>$indico} {
+                puts " $nindico - $indico $fdiff $zdiff"
+                set indico $nindico
+                set prog $tpli
+                set afdiff $fdiff
+                set azdiff $zdiff
+                set akfdiff $kfdiff
+                set akzdiff $kzdiff
+            } else {
+                set prog $tmalpli
+            }
+            if {$prog==0} {
+                break
+            }
+        }
+        if {$indico>$minIndico} {
+            set troalta 0
+            incr nombroAkceptitaj [expr {1+$afdiff}]
+            my prot "prog - $prog ($indico) : [expr {$fontoNumero+$akfdiff}] - [expr {$fontoNumero+$afdiff}] : [expr {$ziloNumero+$akzdiff}] - [expr {$ziloNumero+$azdiff}]"
+            my prot "adding [lrange $fontoFrazoj [expr {$fontoNumero+$akfdiff}] [expr {$fontoNumero+$afdiff}]] [lrange $ziloFrazoj [expr {$ziloNumero+$akzdiff}] [expr {$ziloNumero+$azdiff}]]"
+            lappend paralelajFrazoj [lrange $fontoFrazoj [expr {$fontoNumero+$akfdiff}] [expr {$fontoNumero+$afdiff}]] [lrange $ziloFrazoj [expr {$ziloNumero+$akzdiff}] [expr {$ziloNumero+$azdiff}]]
+            lappend paralelajIndeksoj [list [lindex [lindex $fontoIndeksoj [expr {$fontoNumero+$akfdiff}]] 0] [lindex [lindex $fontoIndeksoj [expr {$fontoNumero+$afdiff}]] 1] [lindex [lindex $ziloIndeksoj [expr {$ziloNumero+$akzdiff}]] 0] [lindex [lindex $ziloIndeksoj [expr {$ziloNumero+$azdiff}]] 1] $indico]
+        } else {
+            incr troalta
+            my prot " troalta $indico - $troalta"
+            incr nombroNeAkceptitaj [expr {1+$afdiff}]
+            if {$troalta>$maxTroMalalta} {
+                my prot "$indico tro alta\ncxe fonto: $fontoNumero $fset\ncxe zilo: $ziloNumero $zset"
+                break
+            }
+        }
+
+        incr fontoNumero [expr {$afdiff+1}]
+        incr ziloNumero [expr {$azdiff+1}]
+    }
+    if {$progreso ne ""} {
+        $progreso cleanUpAfterSignal
+        $progreso destroy
+    }
+
+    $analizilo destroy
+    my prot "akceptitaj: $nombroAkceptitaj neakceptitaj: $nombroNeAkceptitaj"
+
+    list  $paralelajFrazoj $paralelajIndeksoj
+}
+ParalelTekstoAnalizilo instproc kreuParalelTekstaroDeDosieroj {fontodosiero zilodosiero} {
+    my instvar cilaLingvo
+
+    set file [open $fontodosiero r]
+    fconfigure $file -encoding utf-8
+    set f1 [FrazoLegilo newOn [read $file]]
+    close $file
+
+    set file [open $zilodosiero r]
+    fconfigure $file -encoding utf-8
+    set f2 [FrazoLegilo newOn [read $file]]
+    close $file
+
+    set rez [my kreuParalelTekstaro $f1 $f2]
+
+    set sl1 [$f1 set signoLegilo]
+    set sl2 [$f2 set signoLegilo]
+
+    set ret "<tmx>\n<body>\n"
+
+    foreach segmento [lindex $rez 1] {
+        foreach {k1 fino1 k2 fino2 precizo} $segmento {}
+        if {$fino1 eq "" || $fino2 eq ""} {
+            #my halt
+        }
+        set fonto [string trim [$sl1 prenuRegionon $k1 $fino1]]
+        set zilo [string trim [$sl2 prenuRegionon $k2 $fino2]]
+        append ret "<tu>\n<tuv xml:lang=\"eo\"><seg>$fonto</seg></tuv>\n<tuv xml:lang=\"$cilaLingvo\"><seg>$zilo</seg></tuv>\n</tu>\n"
+    }
+
+
+    $f1 destroy
+    $f2 destroy
+
+    append ret "</body>\n</tmx>\n"
+
+    return $ret
+}
+ParalelTekstoAnalizilo instproc kreuVortaroDeDosieroj {fontodosiero zilodosiero} {
+    my instvar cilaLingvo
+
+    set file [open $fontodosiero r]
+    fconfigure $file -encoding utf-8
+    set f1 [FrazoLegilo newOn [read $file]]
+    close $file
+
+    set file [open $zilodosiero r]
+    fconfigure $file -encoding utf-8
+    set f2 [FrazoLegilo newOn [read $file]]
+    close $file
+
+    set rez [my kreuParalelTekstaro $f1 $f2]
+
+    set sl1 [$f1 set signoLegilo]
+    set sl2 [$f2 set signoLegilo]
+
+    set analizilo [ParalelFrazoAnalizilo newForLingvo $cilaLingvo]
+
+    foreach segmento [lindex $rez 0] {
+        foreach {fonto zilo} $segmento {}
+        $analizilo analizuFrazolistojn $fonto $zilo
+        my analizo $analizilo
+    }
+    $analizilo destroy
+
+
+    $f1 destroy
+    $f2 destroy
+
+    my komputuVortaroPropono
+}
+ParalelTekstoAnalizilo instproc prot string {
+    puts $string
+}
+ParalelTekstoAnalizilo instproc t1 {{file {}}} {
+    if {$file eq ""} {
+        set file [IDE::Dialog getOpenFile {{{Text Files} *.txt} {{All files} *}}]
+        if {$file eq ""} return
+        set p [file dirname $file]
+        set file [file root $file]
+        set file [file tail $file]
+    }
+
+    my kreuParalelTekstaroDeDosieroj [file join $p ${file}.txt] [file join $p ${file}_en.txt]
+}
+ParalelTekstoAnalizilo instproc testuKreuParalelTekstaro {} {
+    set t1 {
+Mi estas preta testi tiun grandiosan programon.
+Kompitilo povas rapide fari taskojn.
+Mi estas bona, vi estas malbona.
+    }
+    set t2 {
+I am ready test this great programm.
+Computer can do jobs quickly.
+I am good. You are bad.
+    }
+
+
+    set f1 [FrazoLegilo newOn $t1]
+    set f2 [FrazoLegilo newOn $t2]
+
+    set rez [my kreuParalelTekstaro $f1 $f2]
+
+    $f1 destroy
+    $f2 destroy
+
+    return $rez
+}
+Class RadikiloMemoroMix
+@ ::RadikiloMemoroMix idemeta component EspParalelTekstaro
+RadikiloMemoroMix instproc radikigi vorto {
+    my instvar readikoMemoro lvorto
+    if {[info exists readikoMemoro($vorto)]} {
+        return $readikoMemoro($vorto)
+    }
+    set ret [next]
+    set lvorto $vorto
+    set readikoMemoro($vorto) $ret
+    return $ret
+}
+Class TempoMezurilo
+@ ::TempoMezurilo idemeta component EspParalelTekstaro
+TempoMezurilo proc malstartuMezurilon mezurilo {
+    my instvar mezuriloArr mezuriloOftecoArr startMezuriloArr
+    set now [clock microseconds]
+    if {[catch {set startMezuriloArr($mezurilo)} starto]} {
+        return
+    }
+    set diff [expr {$now-$starto}]
+    if {[catch {incr mezuriloArr($mezurilo) $diff}]} {
+        set mezuriloArr($mezurilo) $diff
+        set mezuriloOftecoArr($mezurilo) 1
+    } else {
+        incr mezuriloOftecoArr($mezurilo)
+    }
+}
+TempoMezurilo proc protokoluMezurilojn {} {
+    my instvar mezuriloArr mezuriloOftecoArr
+    if {![array exists mezuriloArr]} {
+        return
+    }
+    foreach {k v} [array get mezuriloArr] {
+        lappend rezultoj [list $k $v]
+    }
+    set rezultoj [lsort -index 1 -integer -decreasing $rezultoj]
+    set plejLonga [lindex $rezultoj 0 1]
+    foreach l $rezultoj {
+        lassign $l nomo microseconds
+        puts "$nomo $microseconds [expr {double($microseconds)/$plejLonga}] $mezuriloOftecoArr($nomo)"
+    }
+}
+TempoMezurilo proc puriguMezurilon {} {
+    my instvar mezuriloArr startMezuriloArr mezuriloOftecoArr
+    unset -nocomplain mezuriloArr
+    unset -nocomplain startMezuriloArr
+    unset -nocomplain mezuriloOftecoArr
+}
+TempoMezurilo proc startuMezurilon mezurilo {
+    my set startMezuriloArr($mezurilo) [clock microseconds]
+}
+@ Class TradukKomparilo {
+description {Komparu la homan tradukon kun masxina traduko (pola lingvo)}
+}
+Class TradukKomparilo
+@ ::TradukKomparilo idemeta component EspParalelTekstaro
+TradukKomparilo instproc analizuHomanTradukon {} {
+    my instvar homaTraduko htradukoFrazo htradukoFrazoList
+
+    set lingvofabriko PlFabriko
+    set tekstoKursoro [TekstoKursoro new -volatile [list -teksto $homaTraduko]]
+    set frazoLegilo [$lingvofabriko kreuFrazoLegilo [self] -childof]
+    $frazoLegilo signoLegilo $tekstoKursoro
+    set htradukoFrazoList [$frazoLegilo prenuFrazon]
+    if {[llength $htradukoFrazoList]==0} { return 0 }
+
+    set sintaksoj [list]
+    set analizilo [$lingvofabriko kreuSintaksAnalizilo [self] -childof]
+    set htradukoFrazo [$lingvofabriko kreuFrazo [self] -childof]
+    $htradukoFrazo leguFrazon "" $htradukoFrazoList
+    $analizilo frazo $htradukoFrazo
+    $analizilo analizu
+
+    return 1
+}
+TradukKomparilo instproc estasRilataj {homaElemento tradukaElemento {raportu 0}} {
+    if {[string tolower [$homaElemento set vorto]] eq [string tolower [$tradukaElemento prenuTradukon]]} {
+        return 1
+    }
+    # la same baza vorto
+    if {[$homaElemento prenuBazanFormon] eq [$tradukaElemento prenuBazanTradukon]} {
+        if {$raportu} {
+            my raportuDiferencanFleksion $homaElemento $tradukaElemento
+        }
+        return 1
+    }
+    # diferenca sinonimo
+    if {[$tradukaElemento exists tradukoListoj]} {
+        foreach {t _ _} [$tradukaElemento set tradukoListoj] {
+            if {$t eq [string tolower [$homaElemento set vorto]] || $t eq [$homaElemento prenuBazanFormon]} {
+                if {$raportu} {
+                    my raportuDiferencanSinonimon $homaElemento $tradukaElemento
+                }
+                return 1
+            }
+        }
+    }
+    return 0
+}
+TradukKomparilo instproc estasRilataj2 {a b} {
+    expr {$a eq $b}
+}
+TradukKomparilo instproc filtruIndeksoj {listo indeksoj} {
+    set rez [list]
+    set i 0
+    foreach e $listo {
+        if {$i ni $indeksoj} {
+             lappend rez $e
+        }
+        incr i
+    }
+    return $rez
+}
+TradukKomparilo instproc komputuLigojn {fonto zilo} {
+    # la unua kun cxiuj ligitaj
+    set fontoKursoro 0
+    set ziloKursoro 0
+
+    set fontoLen [llength $fonto]
+    set ziloLen [llength $zilo]
+
+    set rezulto [lrepeat $fontoLen {}]
+
+    set fontoMark [lrepeat $fontoLen 0]
+    set ziloMark [lrepeat $ziloLen 0]
+
+    set f $fonto
+    set z $zilo
+    while {[llength $f]>0 && [llength $z]>0 && [llength [lindex [set common [my longestCommonSubsequence $f $z]] 0]] != 0} {
+        set nFontoMark $fontoMark
+        set nZiloMark $ziloMark
+        foreach lf [lindex $common 0] lz [lindex $common 1] {
+            set vf [my veraIndekso $fontoMark $lf]
+            set vz [my veraIndekso $ziloMark $lz]
+            lset rezulto $vf $vz
+            lset nFontoMark $vf 1
+            lset nZiloMark $vz 1
+        }
+        set f [my filtruIndeksoj $f [lindex $common 0]]
+        set z [my filtruIndeksoj $z [lindex $common 1]]
+        set fontoMark $nFontoMark
+        set ziloMark $nZiloMark
+    }
+
+    return $rezulto
+}
+TradukKomparilo instproc komputuTradukkvaliton {phomaTraduko pkomputilaTraduko pfrazTraduko poriginaFrazo plingvo} {
+    my instvar homaTraduko komputilaTraduko frazTraduko originaFrazo lingvo
+    set homaTraduko $phomaTraduko
+    set komputilaTraduko $pkomputilaTraduko
+    set frazTraduko $pfrazTraduko
+    set originaFrazo $poriginaFrazo
+    set lingvo $plingvo
+
+    my komputuTradukkvalitonEne
+}
+TradukKomparilo instproc komputuTradukkvalitonEne {} {
+    my instvar homaTraduko komputilaTraduko frazTraduko originaFrazo lingvo htradukoFrazo tradukElementoj dFleksio  dTraduko dSinonimo ligiloj dFleksio dSinonimo dSraduko kvalito
+
+    set dFleksio 0
+    set dSinonimo 0
+    set dTraduko 0
+    set kvalito 4
+
+    set ret [my komputuTradukkvalitonSimpla]
+    if  {$ret ne ""} {
+        return $ret
+    }
+    if {$lingvo ne "pl"} { return }
+
+    if {![my analizuHomanTradukon]} { return }
+
+    set homajElementoj [$htradukoFrazo elementoj]
+
+    set tradukElementoj [[$frazTraduko set tradukasto] prenuFoliojn]
+    set ntradukElementoj [list]
+    foreach e $tradukElementoj {
+        if {[$e prenuTradukon] ne ""} {
+            lappend ntradukElementoj $e
+        }
+    }
+    set tradukElementoj $ntradukElementoj
+
+    set ligiloj [my komputuLigojn $homajElementoj $tradukElementoj]
+    foreach i $ligiloj he $homajElementoj {
+        if {$i ne ""} {
+            my estasRilataj $he [lindex $tradukElementoj $i] 1
+        }
+    }
+
+    my raportuAnalizon
+}
+TradukKomparilo instproc komputuTradukkvalitonPorTeksto {originaFrazo homaTraduko} {
+    set sanlizilo [SintaksaAnalizo new -childof [self]]
+    set vortaro [Vortaro prenuVortaron]
+    set frazo [GP::Frazo new -childof [self]]
+    $frazo leguFrazonPerLegilo $vortaro $originaFrazo
+    $sanlizilo frazo $frazo
+    $sanlizilo analizu
+
+    set frazTraduko [FrazTraduko new -childof [self] -sintaksradiko [$frazo sintaksoarbo]]
+    $frazTraduko traduku
+    set komputilaTraduko [$frazTraduko prenuVortojn]
+
+    my komputuTradukkvaliton $homaTraduko $komputilaTraduko $frazTraduko $originaFrazo pl
+}
+TradukKomparilo instproc komputuTradukkvalitonSimpla {} {
+    my instvar homaTraduko komputilaTraduko
+
+    set thomaTraduko [string trim $homaTraduko]
+    set tkomputilaTraduko [string trim $komputilaTraduko]
+    if {$thomaTraduko eq $tkomputilaTraduko} {
+        return 4
+    }
+
+    set thomaTraduko [string tolower $thomaTraduko]
+    set tkomputilaTraduko [string tolower $tkomputilaTraduko]
+    if {$thomaTraduko eq $tkomputilaTraduko} {
+        return [list 3 litergrandeco]
+    }
+    set imap [list "," "" ";" "" "-" "" "." "" "?" "" "!" ""]
+    if {[string map $imap $thomaTraduko] eq [string map $imap $tkomputilaTraduko]} {
+        return [list 3 interpunkcio]
+    }
+    if {[lsort [split $thomaTraduko]] eq [lsort [split $tkomputilaTraduko]]} {
+        return [list 3 ordo]
+    }
+    return
+}
+TradukKomparilo instproc longestCommonSubsequence {seq1 seq2} {
+
+    # http://pl.wikipedia.org/wiki/Najd%C5%82u%C5%BCszy_wsp%C3%B3lny_podci%C4%85g
+    # x
+    set l1 [llength $seq1]
+    # y
+    set l2 [llength $seq2]
+
+    set m [lrepeat [expr {($l1+1)*($l2+1)}] 0]
+    # m(x,y) y*$l1+x
+
+    for {set i 1} {$i<=$l1} {incr i} {
+        for {set j 1} {$j<=$l2} {incr j} {
+            if {[my estasRilataj [lindex $seq1 [expr {$i-1}]] [lindex $seq2 [expr {$j-1}]]]} {
+                # C[i][j] := C[i-1][j-1] + 1
+                lset m [expr {$i+$j*($l1+1)}] [expr {[lindex $m [expr {($i-1)+($j-1)*($l1+1)}]] + 1}]
+            } else {
+                # C[i][j] := max(C[i-1][j], C[i][j-1]);
+                lset m [expr {$i+$j*($l1+1)}] [expr {max([lindex $m [expr {($i-1)+$j*($l1+1)}]],[lindex $m [expr {($i)+($j-1)*($l1+1)}]])}]
+            }
+        }
+    }
+    # print matrix
+    #for {set j 0} {$j<=$l2} {incr j} {
+    #    puts [lrange $m [expr {$j*($l1+1)}] [expr {$j*($l1+1)+$l1}]]
+    #}
+
+    set i $l1
+    set j $l2
+
+    set eij [lindex $m [expr {$i+$j*($l1+1)}]]
+    set ret1 [list]
+    set ret2 [list]
+    while {$i>0 && $j>0} {
+        # puts "i $i - j $j"
+        if {$i>0} {
+            set ei1j [lindex $m [expr {$i-1+$j*($l1+1)}]]
+            if {$ei1j == $eij} {
+                set eij $ei1j
+                incr i -1
+                #puts "i-1"
+                continue
+            }
+        }
+        if {$j>0} {
+            set eij1 [lindex $m [expr {$i+($j-1)*($l1+1)}]]
+            if {$eij1 == $eij} {
+                set eij $eij1
+                incr j -1
+                #puts "j-1"
+                continue
+            }
+        }
+        incr i -1
+        incr j -1
+        #puts "found i $i - j $j"
+        lappend ret1 $i
+        lappend ret2 $j
+        set eij [lindex $m [expr {$i+$j*($l1+1)}]]
+    }
+    list [lreverse $ret1] [lreverse $ret2]
+}
+TradukKomparilo instproc raportuAnalizon {} {
+    my instvar htradukoFrazo tradukElementoj dFleksio dTraduko dSinonimo ligiloj kvalito
+    set kvalito 4
+    set homajElementoj [$htradukoFrazo elementoj]
+    append ret "homa:"
+    foreach he $homajElementoj {
+        append ret " " [$he set vorto]
+    }
+    append ret \n
+    append ret "traduko:"
+    foreach he $tradukElementoj {
+        append ret " " [$he prenuTradukon]
+    }
+    append ret \n
+    append ret "ligiloj $ligiloj\n"
+    set i 0
+    set homaSenLigo [list]
+    set tradLigoj [list]
+    set aliaOrdo 0
+    set last ""
+    foreach l $ligiloj {
+        if {$l eq ""} {
+            lappend homaSenLigo $i
+        } else {
+            lappend tradLigoj $l
+        }
+        if {$last ne ""} {
+            if {$last>$l} {
+                incr aliaOrdo
+            }
+        }
+        set last $l
+        incr i
+    }
+    set tradSenLigo [list]
+    for {set i 0} {$i < [llength $tradukElementoj]} {incr i} {
+        if {$i ni $tradLigoj} {
+            lappend $tradSenLigo $i
+        }
+    }
+    append ret "homa sen ligo $homaSenLigo\n"
+    append ret "trad sen ligo $tradSenLigo\n"
+    append ret "alia ordo $aliaOrdo\n"
+    append ret "fleks=$dFleksio sinonimo=$dSinonimo" \n
+    if {[llength $homaSenLigo]>0} {
+        set kvalito [expr {$kvalito-[llength $homaSenLigo]/1.0}]
+    }
+    if {[llength $tradSenLigo]>0} {
+        set kvalito [expr {$kvalito-[llength $tradSenLigo]/1.0}]
+    }
+    set kvalito [expr {$kvalito-$aliaOrdo/1.5-$dFleksio/2.0-$dSinonimo/3.0}]
+    if {$kvalito<0} {
+        set kvalito 0
+    }
+    return $ret
+}
+TradukKomparilo instproc raportuDiferencanFleksion {homaElemento tradukaElemento} {
+    my instvar dFleksio
+    incr dFleksio
+    puts "fleksio [$homaElemento set vorto]>[$tradukaElemento prenuTradukon]"
+}
+TradukKomparilo instproc raportuDiferencanSinonimon {homaElemento tradukaElemento} {
+    my instvar dSinonimo
+    incr dSinonimo
+    puts "sinonimo [$homaElemento set vorto]>[$tradukaElemento prenuTradukon]"
+}
+TradukKomparilo instproc veraIndekso {markListo indekso} {
+    # {1 1 0 0} 0 -> 2
+    # {0 0 0 0} 1 -> 1
+    # {0 1 0 0} 1 -> 2
+    set i 0
+    foreach e $markListo {
+        if {$e!=1} {
+            if {$indekso==0} {
+                break
+            }
+            incr indekso -1
+        }
+        incr i
+    }
+    return $i
+}
+TradukKomparilo proc testu {} {
+    set tk [my new]
+    $tk komputuTradukkvalitonPorTeksto {Mi estas viva} {Ja życiowy jestem}
+    set ret [$tk raportuAnalizon]
+    $tk destroy
+    return $ret
+}
+TradukKomparilo proc testuKL {inst fonto zilo rezulto} {
+    if {[set rez [$inst komputuLigojn $fonto $zilo]] ne $rezulto} {
+        error "f=[list $fonto] z=[list $zilo] atendas=[list $rezulto] estas [list $rez]"
+    }
+}
+TradukKomparilo proc testuKomputuLigojn {} {
+    set tk [my new]
+    my testuKL $tk {a b} {a b} {0 1}
+    my testuKL $tk {a b} {b a} {1 0}
+    my testuKL $tk {a b} {a c} {0 {}}
+    my testuKL $tk {a b} {c b} {{} 1}
+    my testuKL $tk {a b} {c a} {1 {}}
+    my testuKL $tk {a b c} {b c} {{} 0 1}
+    my testuKL $tk {a b c} {a b} {0 1 {}}
+    my testuKL $tk {a b c} {a c} {0 {} 1}
+    my testuKL $tk {a b c} {b a c} {1 0 2}
+    my testuKL $tk {a b c} {c b a} {2 1 0}
+    my testuKL $tk {a b c d} {a b e d c} {0 1 4 3}
+    my testuKL $tk {a b a} {a b a} {0 1 2}
+    my testuKL $tk {a a} {a a} {0 1}
+    my testuKL $tk {a b a c} {a b c} {0 1 {} 2}
+    my testuKL $tk {a b c a} {b c a} {{} 0 1 2}
+    my testuKL $tk {a b c d e f} {d e f a b c} {3 4 5 0 1 2}
+    my testuKL $tk {a b c d b f} {d b f a b c} {3 4 5 0 1 2}
+}
+TradukKomparilo proc testuOrdo {} {
+    set tk [my new]
+    set ret [$tk komputuTradukkvalitonPorTeksto {Mi estas viva} {żywy jestem}]
+    $tk destroy
+    return $ret
+}
+Class VikipediaLegilo
+@ ::VikipediaLegilo idemeta component EspParalelTekstaro
+VikipediaLegilo instproc getEoWiki {vorto {wiki eo}} {
+    regexp {^k=(.+)$} [http::formatQuery k $vorto] _ vorto
+    set vorto [string map [list + _] $vorto]
+    if {$wiki eq "eo"} {
+        set eourl "http://eo.wikipedia.org/wiki/Speciala:Eksporti/$vorto"
+    } elseif {$wiki eq "pl"} {
+        set eourl "http://pl.wikipedia.org/wiki/Specjalna:Eksport/$vorto"
+    } else {
+        error "wiki ne konata $wiki"
+    }
+    # puts "getting $eourl"
+    set content [my getHTMLPage $eourl]
+    if {[regexp {<text xml:space="preserve">(.+)</text>} $content _ wout]} {
+        return [my puriguWiki $wout]
+    }
+    return
+}
+VikipediaLegilo instproc getHTMLPage url {
+    if {[catch {http::geturl $url} id]} {
+        EsperantoBrowser message [mc "konekto al interreto malsukcesis."]
+        return
+    }
+    set data [encoding convertfrom utf-8 [http::data $id]]
+    http::cleanup $id
+    return $data
+}
+VikipediaLegilo instproc init args {
+     if {[EsperantoConf set wikipediaOffline]} {
+         my mixin add LokalaVikipedioLegilo
+     } else {
+         package require http
+         if {[EsperantoConf set httpProxy] ne ""} {
+             http::config -proxyhost [EsperantoConf set httpProxy] -proxyport [EsperantoConf set httpProxyPort]
+         }
+     }
+     next
+}
+VikipediaLegilo instproc prenuLigojn teksto {
+    set teksto [regsub -all {\[\[\w{2,10}:.+?\]\]} $teksto ""]
+    set ligoj [list]
+    foreach {dumy ligo} [regexp -all -inline {\[\[(.+?)\]\]} $teksto] {
+        lappend ligoj $ligo
+    }
+    lsort -unique $ligoj
+}
+VikipediaLegilo instproc puriguFremdajnLigojn teksto {
+    set teksto [regsub -all {\[\[\w{2,10}:[^\]]+?\]\]} $teksto ""]
+    set teksto [string map [list "\[\[" {} "\]\]" {}] $teksto]
+    return $teksto
+}
+VikipediaLegilo instproc puriguWiki teksto {
+    set teksto [string map [list "&lt;" < "&gt;" > ''' "" '' "" "&amp;" & "&quot;" \"] $teksto]
+    set teksto [regsub -all {{{[Cc]ommons\|.+?}}} $teksto ""]
+    set teksto [regsub -all {{{wikiquote\|.+?}}} $teksto ""]
+    set teksto [regsub -all {\[\[[dD]osiero:.+?\]\]} $teksto ""]
+    set teksto [regsub -all {\[\[[kK]ategorio:.+?\]\]} $teksto ""]
+    set teksto [regsub -all {\[\[[Kk]ategoria:.+?\]\]} $teksto ""]
+    set teksto [regsub -all {\[\[[Gg]rafika:.+?\]\]} $teksto ""]
+    set teksto [regsub -all {\[\[[Ii]mage:.+?\]\]} $teksto ""]
+    set teksto [regsub -all {\[\[[ \w]+?\|([ \w]+?)\]\]} $teksto {\1}]
+    set teksto [regsub -all {\[http://[^ ]+? (.+?)\]} $teksto {\1}]
+    set teksto [string map [list "<br>" \n] $teksto]
+    set teksto [regsub -all {<!--.+?-->} $teksto ""]
+    return $teksto
+}
+VikipediaLegilo proc prenuArtikolon {artikolo lingvo} {
+    my instvar legilo
+    if {![info exists legilo] || ![Object isobject $legilo]} {
+        set legilo [VikipediaLegilo new]
+    }
+    set ret [$legilo getEoWiki $artikolo $lingvo]
+    set ret [$legilo puriguFremdajnLigojn $ret]
+    if {![$legilo hasclass LokalaVikipedioLegilo]} {
+        $legilo destroy
+        unset legilo
+    }
+    return $ret
+}
+Class VikipedioLigilojReto
+@ ::VikipedioLigilojReto idemeta component EspParalelTekstaro
+VikipedioLigilojReto instproc init {} {
+    my instvar espVortaro
+    set espVortaro [Vortaro prenuVortaron]
+    VikipediaLegilo create [self]::@viki
+}
+VikipedioLigilojReto instproc komputuValuon {vorto fonto valuo vojo} {
+    my instvar ligojArr valuoArr markitaj
+    if {[lsearch $markitaj $vorto]>=0} return
+    lappend markitaj $vorto
+    if {$valuo<1.0/8} return
+    set pvaluo $valuo
+
+    if {[info exists ligojArr($vorto)]} {
+        set add $valuo
+        for {set i [expr {[llength $vojo]-1}]} {$i>=0} {incr i -1} {
+            set vvorto [lindex $vojo $i]
+            if {[lsearch $ligojArr($vorto) $vvorto]>=0} {
+                set valuo [expr {$valuo+$add}]
+            }
+            set add [expr {$add/2.0}]
+        }
+    }
+
+    if {[info exists valuoArr($vorto)]} {
+        set valuoArr($vorto) [expr {$valuoArr($vorto)+$valuo}]
+    } else {
+        set valuoArr($vorto) $valuo
+    }
+    if {[info exists ligojArr($vorto)]} {
+        foreach l $ligojArr($vorto) {
+            my komputuValuon $l $vorto [expr {$pvaluo/2}] [concat $vojo $vorto]
+        }
+    }
+}
+VikipedioLigilojReto instproc kreuDiagramon {canvas {cvorto {}} {nombro 20}} {
+    my instvar ligojArr valuoArr markitaj elems mx my win linioj plejofta
+    set win $canvas
+
+    foreach i [$canvas find all] {
+        $canvas delete $i
+    }
+
+    unset -nocomplain valuoArr
+    if {$cvorto eq ""} {
+        set plejofta [lindex [my prenuOfteco] 0 0]
+    } else {
+        set plejofta $cvorto
+    }
+    set markitaj [list $plejofta]
+    foreach l $ligojArr($plejofta) {
+        my komputuValuon $l $plejofta 1.0 [list $plejofta]
+    }
+
+    if {![array exists valuoArr]} {
+        return 0
+    }
+
+    set elems [list]
+    set vortoj [list]
+    for {set sid [array startsearch valuoArr]} {[array anymore valuoArr $sid]} {} {
+        set vorto [array nextelement valuoArr $sid]
+        lappend vortoj [list $vorto $valuoArr($vorto)]
+    }
+    array donesearch valuoArr $sid
+    if {[llength $vortoj]==1} {
+        return 0
+    }
+
+    set vortoj [lrange [lsort -decreasing -real -index 1 $vortoj] 0 $nombro]
+
+    # Korektu valuojn (vortoj kun pluaj ligoj havas plu da valuo)
+    if 1 {
+    set nvortoj [list]
+    foreach vlisto $vortoj {
+        set vorto [lindex $vlisto 0]
+        set ligoj [my nobroDeLigoj $vorto $vortoj]
+        if {$ligoj==0} {
+            lappend nvortoj [list $vorto [expr {$valuoArr($vorto)/2}]]
+        } else {
+            lappend nvortoj [list $vorto [expr {$valuoArr($vorto)*log($ligoj)/log(1.7)}]]
+        }
+    }
+    set vortoj [lsort -decreasing -real -index 1 $nvortoj]
+    }
+
+    set w [$win cget -width]
+    set h [$win cget -height]
+
+    set angulo [expr {asin(1)*2.0/360*45}]
+    set addAngulo [expr {asin(1)*2.0/360*75}]
+
+    set komenco 90.0
+    set fino [expr {$h/2-5}]
+    set maxValuo [lindex $vortoj 0 1]
+    set minValuo [lindex $vortoj end 1]
+    if {$minValuo == $maxValuo} {
+        set maxValuo [expr {$minValuo*2}]
+        if {$maxValuo == $minValuo} {
+            set maxValuo 1.0
+            set minValuo 0.0
+        }
+    }
+
+    set mx [expr {$w/2}]
+    set my [expr {$h/2}]
+
+    set id [$win create text [expr {$w/2}] [expr {$h/2}] -text $plejofta -fill blue]
+    set elemId($plejofta) $id
+
+    set vortojListo [list]
+    foreach v $vortoj {
+        foreach {vorto valuo} $v {}
+        lappend vortojListo $vorto
+        set d [expr {(($maxValuo-$valuo)*($fino-$komenco)/($maxValuo-$minValuo))+$komenco}]
+        set y [expr {$d*sin($angulo)}]
+        set x [expr {$d*cos($angulo)}]
+        set angulo [expr {$angulo+$addAngulo}]
+
+        set xpos [expr {round($w/2+$x)}]
+        set ypos [expr {round($h/2-$y)}]
+
+        set id [$win create text $xpos $ypos -text $vorto]
+        lappend elems $vorto $id $x $y $d $angulo
+        set elemId($vorto) $id
+    }
+    lappend vortojListo $plejofta
+
+    set linioj [list]
+    foreach v1 $vortojListo {
+        foreach v2 $vortojListo {
+            if {$v1 eq $v2} continue
+            if {[info exists ligojArr($v1)] && [lsearch $ligojArr($v1) $v2]>=0} {
+                if {[info exists ligojArr($v2)] && [lsearch $ligojArr($v2) $v1]>=0} {
+                    set arrow both
+                } else {
+                    set arrow last
+                }
+                set id [$win create line [lindex [$win coords $elemId($v1)] 0] [lindex [$win coords $elemId($v1)] 1] [lindex [$win coords $elemId($v2)] 0] [lindex [$win coords $elemId($v2)] 1] -arrow $arrow -fill yellow3]
+                $win lower $id
+                lappend linioj $v1 $v2 $id
+            }
+        }
+    }
+    return 1
+}
+VikipedioLigilojReto instproc kreuOptDiagramo {{nombro 20}} {
+    toplevel .l
+    canvas .l.c -with 600 -height 500
+    my kreuDiagramon .l.c $nombro
+    my optimizeStrat [expr {$nombro*2}]
+}
+VikipedioLigilojReto instproc kreuReton {vorto {profundo 1}} {
+    my kreuRetonVortoj [list $vorto] $profundo
+}
+VikipedioLigilojReto instproc kreuRetonDenove {vorto {profundo 1} {maks -1}} {
+    my instvar ligojArr maksResto stopFlag
+    set stopFlag 0
+    set maksResto $maks
+    # unset -nocomplain ligojArr
+    my kreuReton $vorto $profundo
+}
+VikipedioLigilojReto instproc kreuRetonVortoj {vortoj {profundo 1}} {
+    my instvar ligojArr maksResto stopFlag
+    set sekvaj [list]
+    foreach vorto $vortoj {
+        if {[info exists ligojArr($vorto)]} {
+             set ligoj $ligojArr($vorto)
+       } else {
+            if {$maksResto==0 || $stopFlag} {
+                return
+            }
+            incr maksResto -1
+            #puts "reto por $vorto"
+            set ligoj [my prenuLigojPor $vorto]
+            set ligojArr($vorto) $ligoj
+        }
+        foreach l $ligoj {
+            lappend sekvaj $l
+        }
+    }
+    if {$profundo>1} {
+        my kreuRetonVortoj $sekvaj [expr {$profundo-1}]
+    }
+}
+VikipedioLigilojReto instproc nobroDeLigoj {v1 vortoj} {
+    my instvar ligojArr plejofta
+    set lig 0
+    foreach vortol [concat $vortoj [list $plejofta 1]] {
+        set v2 [lindex $vortol 0]
+        set add 0
+        if {[info exists ligojArr($v1)] && [lsearch $ligojArr($v1) $v2]>=0} {
+            set add 1
+        }
+        if {[info exists ligojArr($v2)] && [lsearch $ligojArr($v2) $v1]>=0} {
+            incr add
+        }
+        incr lig $add
+    }
+    return $lig
+}
+VikipedioLigilojReto instproc optimizeGraph {{iterations 20} {forto ambau}} {
+    my instvar elems mx my win linioj plejofta ligojArr
+
+    set pi2 [expr {asin(1)*4.0}]
+    set step [expr {asin(1)*2.0/360*5}]
+    set stepm [expr {-$step}]
+
+    set gumFaktor 0.000123456790123
+    set wortoPoz($plejofta) [list $mx $my]
+
+    for {set it 0} {$it<$iterations} {incr it} {
+        set nelems [list]
+        foreach {vorto1 item1 x1 y1 d1 angulo1} $elems {
+            set vx 0.0
+            set vy 0.0
+            foreach {vorto2 item2 x2 y2 d2 angulo2} $elems {
+                if {$item1 ne $item2} {
+                    # Entfernung
+                    if {$x1==$x2 && $y1==$y2} {
+                        continue
+                    }
+                    set r [expr {hypot($x1-$x2,$y1-$y2)}]
+                    if {$forto eq "ambau" || $forto eq "grav"} {
+                        # Abstoßung Kraft x (nimmt ab mit Entfernung)
+                        set nvx [expr {1000*($x1-$x2)/($r*$r)}]
+                        # Abstoßung Kraft y
+                        set nvy [expr {1000*($y1-$y2)/($r*$r)}]
+                        set vx [expr {$vx+$nvx}]
+                        set vy [expr {$vy+$nvy}]
+                    }
+                    if {$forto eq "ambau" || $forto eq "gumi"} {
+                        if {[info exists ligojArr($vorto1)] && [lsearch $ligojArr($vorto1) $vorto2]>=0} {
+                            if {[info exists ligojArr($vorto2)] && [lsearch $ligojArr($vorto2) $vorto1]>=0} {
+                                set fak 2.0
+                            } else {
+                                set fak 1.0
+                            }
+                            # Gumi Kraft x (wächst mit Entfernung)
+                            set nvx [expr {$fak*$gumFaktor*($x2-$x1)*($r*$r)}]
+                            # Gumi Kraft y
+                            set nvy [expr {$fak*$gumFaktor*($y2-$y1)*($r*$r)}]
+                            set vx [expr {$vx+$nvx}]
+                            set vy [expr {$vy+$nvy}]
+                        }
+                    }
+                }
+            }
+            set svx [expr {$d1/abs($x1)*$vx}]
+            set svy [expr {$d1/abs($y1)*$vy}]
+            if {abs($svx)>abs($svy)} {
+                if {$svx>0} {
+                    if {$y1>0} {
+                        set add $step
+                    } else {
+                        set add $stepm
+                    }
+                } else {
+                    if {$y1>0} {
+                        set add $stepm
+                    } else {
+                        set add $step
+                    }
+                }
+            } else {
+                if {$svy>0} {
+                    if {$x1>0} {
+                        set add $stepm
+                    } else {
+                        set add $step
+                    }
+                } else {
+                    if {$x1>0} {
+                        set add $step
+                    } else {
+                        set add $stepm
+                    }
+                }
+            }
+            set angulo1 [expr {$angulo1-$add}]
+            set y1 [expr {$d1*sin($angulo1)}]
+            set x1 [expr {$d1*cos($angulo1)}]
+            set xpos [expr {round($mx+$x1)}]
+            set ypos [expr {round($my-$y1)}]
+            set wortoPoz($vorto1) [list $xpos $ypos]
+            $win coords $item1 $xpos $ypos
+            lappend nelems $vorto1 $item1 $x1 $y1 $d1 $angulo1
+        }
+        foreach {v1 v2 item} $linioj {
+            foreach {x1 y1} $wortoPoz($v1) {}
+            foreach {x2 y2} $wortoPoz($v2) {}
+            $win coords $item $x1 $y1 $x2 $y2
+        }
+
+        set elems $nelems
+        update
+        after 100
+    }
+}
+VikipedioLigilojReto instproc optimizeStrat {{iterations 20}} {
+    my optimizeGraph 10 grav
+    my optimizeGraph 10 gumi
+    my optimizeGraph $iterations ambau
+    my optimizeGraph 10 grav
+    my optimizeGraph 5 ambau
+    my optimizeGraph 3 grav
+}
+VikipedioLigilojReto instproc prenuLigojPor vorto {
+    my instvar aktualaVorto
+    set aktualaVorto $vorto
+    set teksto [my @viki getEoWiki $vorto]
+    set ligoj [my @viki prenuLigojn $teksto]
+    my puriguLigojn $ligoj
+}
+VikipedioLigilojReto instproc prenuOfteco {} {
+    my instvar ligojArr
+    for {set sid [array startsearch ligojArr]} {[array anymore ligojArr $sid]} {} {
+        set vorto [array nextelement ligojArr $sid]
+        foreach l $ligojArr($vorto) {
+            if {[info exists vortoNombro($l)]} {
+                incr vortoNombro($l)
+            } else {
+                set vortoNombro($l) 1
+            }
+        }
+    }
+    array donesearch ligojArr $sid
+
+    set vortoj [list]
+    for {set sid [array startsearch vortoNombro]} {[array anymore vortoNombro $sid]} {} {
+        set vorto [array nextelement vortoNombro $sid]
+        lappend vortoj [list $vorto $vortoNombro($vorto)]
+    }
+    array donesearch vortoNombro $sid
+
+    lsort -decreasing -integer -index 1 $vortoj
+}
+VikipedioLigilojReto instproc puriguLigojn ligoj {
+    my instvar espVortaro
+    set ret [list]
+    foreach l $ligoj {
+        if {![regexp {^\w+$} $l]} continue
+        if {[$espVortaro estasVorto $l]!=2} continue
+        lappend ret [string tolower $l]
+    }
+    return $ret
+}
+VikipedioLigilojReto instproc raportuOfteco {} {
+    join [my prenuOfteco] \n
+}
+VikipedioLigilojReto instproc stopLegadon {} {
+    my set stopFlag 1
+}
+Class VikipedioLigilojRetoView -superclass ::IDE::Browser
+@ ::VikipedioLigilojRetoView idemeta component EspParalelTekstaro
+VikipedioLigilojRetoView instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+VikipedioLigilojRetoView instproc getTitle {} {
+    return "Reto de Ligo de Vikipedio"
+}
+VikipedioLigilojRetoView instproc remontru {} {
+    my instvar win vorto nombro
+    set laboras 1
+    if {[my @ligilojreto kreuDiagramon $win.canvas $vorto $nombro]} {
+        my @ligilojreto optimizeStrat 50
+    }
+    set laboras 0
+}
+VikipedioLigilojRetoView instproc setLaboro l {
+    my instvar win laboras
+    set laboras $l
+    if {$l} {
+        $win.ek configure -state disabled
+        $win.remontru configure -state disabled
+        $win.stop configure -state normal
+    } else {
+        $win.ek configure -state normal
+        $win.remontru configure -state normal
+        $win.stop configure -state disabled
+    }
+}
+VikipedioLigilojRetoView instproc specificInit {} {
+    my instvar win vorto profundo laboras maks nombro
+    my requireNamespace
+
+    VikipedioLigilojReto create [self]::@ligilojreto
+    [self] @ligilojreto requireNamespace
+
+    frame $win.f
+    set laboras 0
+
+    entry $win.vorto -textvariable [self]::vorto
+    esp::metuXEvento $win.vorto
+    bind $win.vorto <Return> [list [self] sxercxuVorto]
+    label $win.lprofundo -text [mc "profundo"]
+    spinbox $win.profundo -from 1 -to 5 -textvariable [self]::profundo -width 5
+    label $win.lmaks -text [mc "maks. artikoloj"]
+    spinbox $win.maks -from 5 -to 250 -textvariable [self]::maks -width 5
+    label $win.lnombro -text [mc "montru"]
+    spinbox $win.nombro -from 5 -to 40 -textvariable [self]::nombro -width 5
+    set profundo 3
+    set maks 50
+    set nombro 40
+
+    button $win.ek -text [mc "Kreu reton"] -command [list [self] sxercxuVorto]
+    button $win.stop -text [mc "Haltigu"] -command [list [self] @ligilojreto stopLegadon] -state disabled
+    button $win.remontru -text [mc "Remontru"] -command [list [self] remontru] -state disabled
+
+    label $win.state -textvariable [self]::@ligilojreto::aktualaVorto -anchor w
+
+    pack $win.vorto $win.ek $win.stop $win.remontru $win.lprofundo $win.profundo $win.lmaks $win.maks $win.lnombro $win.nombro -in $win.f -side left -padx 3 -pady 5
+
+    canvas $win.canvas -width 600 -height 550
+
+    pack $win.f -anchor w
+    pack $win.canvas -fill both -expand yes
+    pack $win.state -fill x
+
+    focus $win.vorto
+}
+VikipedioLigilojRetoView instproc sxercxuVorto {} {
+    my instvar vorto win profundo laboras maks nombro
+    if {$laboras} return
+    if {$vorto eq ""} {
+        EsperantoBrowser message [mc "tajpu unue la vorton"]
+        focus $win.vorto
+        return
+    }
+    my setLaboro 1
+    my @ligilojreto kreuRetonDenove $vorto $profundo $maks
+    if {![my @ligilojreto kreuDiagramon $win.canvas $vorto $nombro]} {
+        my setStatusBarText [mc "vorto ne trovita"]
+        my setLaboro 0
+        return
+    }
+    my @ligilojreto optimizeStrat 50
+    my setLaboro 0
+}
+VikipedioLigilojRetoView proc newBrowser {} {
+    my new [Object autoname .ligreto]
+}
+Class VortaroHelpiloVikiView -superclass ::IDE::Browser
+@ ::VortaroHelpiloVikiView idemeta component EspParalelTekstaro
+VortaroHelpiloVikiView instproc aliguVorton vorto {
+    set espvorto [my @esplisto selectedItem]
+    my @rezulto appendToEnd "$espvorto; $vorto\n"
+    my @esplisto removeItem $espvorto
+    my @fontolisto removeItem $vorto
+}
+VortaroHelpiloVikiView instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+VortaroHelpiloVikiView instproc fillMenuStruct ms {
+    # enter the body hier
+    $ms enablementHandler [self]
+
+    $ms addCommand [mc "Hazarda artikolo"] [list [self] hazardaArtikolo]
+    $ms addCommand [mc "Historio"] [list [self] navigadoKroniko]
+    $ms addCommand [mc "Lasta elemento"] [list [self] naviguLastan]
+    $ms addCommand [mc "Mallasta elemento"] [list [self] naviguMallastan]
+}
+VortaroHelpiloVikiView instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms "Aktionoj" 0
+}
+VortaroHelpiloVikiView instproc getTitle {} {
+    return "Vikipedio - vortaro-ilo"
+}
+VortaroHelpiloVikiView instproc hazardaArtikolo {} {
+    set hazarda [my @vortkreado prenuHazardanArtikolonomo eo]
+    my sxercxuPorVorto $hazarda
+}
+VortaroHelpiloVikiView instproc montruElemento elemento {
+    my sxercxuPorVorto $elemento
+}
+VortaroHelpiloVikiView instproc revoVorto vorto {
+    REVOLeksMontrilo newBrowser $vorto
+}
+VortaroHelpiloVikiView instproc selektuEsp vorto {
+    set fvorto [my @vortkreado prenuEsperantoFleksvortoPorRadiko $vorto]
+    my @espteksto removeColorize
+    my @espteksto colorizeRegExprTextAll "(?i)\[\[:<:\]\]$fvorto\[\[:>:\]\]"
+    set twin [my @espteksto getTextWindow]
+    set rlist [$twin tag ranges hlight]
+    if {[llength $rlist]>0} {
+        $twin see [lindex $rlist 0 0]
+    }
+}
+VortaroHelpiloVikiView instproc selektuFonto vorto {
+    set fvorto [my @vortkreado prenuFontoFleksvortoPorRadiko $vorto]
+    my @fontoteksto removeColorize
+    my @fontoteksto colorizeRegExprTextAll "(?i)\[\[:<:\]\]$fvorto\[\[:>:\]\]"
+    set twin [my @fontoteksto getTextWindow]
+    set rlist [$twin tag ranges hlight]
+    if {[llength $rlist]>0} {
+        $twin see [lindex $rlist 0 0]
+    }
+}
+VortaroHelpiloVikiView instproc selektuLigo ligo {
+    my sxercxuPorVorto $ligo
+}
+VortaroHelpiloVikiView instproc specificInit {} {
+    my instvar win vorto fvorto leguLigojn
+
+    my requireNamespace
+
+    set leguLigojn 1
+    checkbutton $win.leguligojn -variable [self]::leguLigojn -text "Legu Ligojn"
+    label $win.fvorto -textvariable [self]::fvorto
+    entry $win.vorto -textvariable [self]::vorto
+    esp::metuXEvento $win.vorto
+    bind $win.vorto <Return> [list [self] sxercxuVorto]
+
+    IDE::NListView create [self]::@ligoj $win.ligoj -notify [self] -notifyProc selektuLigo -width 20
+
+    IDE::NListView create [self]::@esplisto $win.esplisto -notify [self] -notifyProc selektuEsp -doubleNotifyProc revoVorto
+    IDE::NListView create [self]::@fontolisto $win.fontolisto -notify [self] -notifyProc selektuFonto -doubleNotifyProc aliguVorton
+
+    entry $win.trovuEsperantaVorto
+    bind $win.trovuEsperantaVorto <Return> [list [self] trovuEspVorto]
+    entry $win.trovuFontaVorto
+    bind $win.trovuFontaVorto <Return> [list [self] trovuFontoVorto]
+
+    IDE::Text create [self]::@espteksto $win.espteksto -height 14 -width 45
+    [my @espteksto getTextWindow] configure -wrap word
+    IDE::Text create [self]::@fontoteksto $win.fontoteksto -height 14 -width 45
+    [my @fontoteksto getTextWindow] configure -wrap word
+
+    IDE::Text create [self]::@rezulto $win.rezulto -height 14
+
+    grid $win.leguligojn -column 0 -row 0 -sticky w
+    grid $win.vorto -column 1 -row 0 -sticky w
+    grid $win.fvorto -column 2 -row 0 -sticky w
+    grid $win.ligoj -column 0 -row 1 -sticky news -rowspan 3
+    grid $win.esplisto -column 1 -row 1 -sticky news
+    grid $win.fontolisto -column 2 -row 1 -sticky news
+    grid $win.trovuEsperantaVorto  -column 1 -row 2 -sticky w
+    grid $win.trovuFontaVorto -column 2 -row 2 -sticky w
+    grid $win.espteksto -column 1 -row 3 -sticky news
+    grid $win.fontoteksto -column 2 -row 3 -sticky news
+    grid $win.rezulto -column 0 -row 4 -columnspan 3 -sticky news
+
+    grid columnconfigure $win 1 -weight 1
+    grid columnconfigure $win 2 -weight 1
+    grid rowconfigure $win 1 -weight 1
+    grid rowconfigure $win 3 -weight 1
+    grid rowconfigure $win 4 -weight 1
+
+    my initStatusBar 5 3
+
+    VortkreadoSimilajTesktoj create [self]::@vortkreado
+}
+VortaroHelpiloVikiView instproc sxercxuPorVorto vorto {
+    my instvar fvorto leguLigojn
+    my set vorto $vorto
+    if {![my @vortkreado komputuVortojnPor $vorto]} {
+        my setStatusBarText [mc "vorto %s ne trovita" $vorto]
+        return
+    }
+    set fvorto [my @vortkreado set fvorto]
+    my aliguElemento $vorto 
+
+    my @espteksto setText [my @vortkreado set esperantoTeksto]
+    my @fontoteksto setText [my @vortkreado set fontaTeksto]
+    my @esplisto setList [my @vortkreado prenuEspVortoj]
+    my @fontolisto setList [my @vortkreado prenuFontoVortoj]
+    if {$leguLigojn} {
+        my @ligoj setList [my @vortkreado set ligoj]
+    }
+}
+VortaroHelpiloVikiView instproc sxercxuVorto {} {
+    my instvar vorto
+    my sxercxuPorVorto $vorto
+}
+VortaroHelpiloVikiView instproc trovuEspVorto {} {
+    my instvar win
+    set vorto [$win.trovuEsperantaVorto get]
+    my @espteksto removeColorize
+    my @espteksto colorizeRegExprTextAll $vorto
+    set twin [my @espteksto getTextWindow]
+    set rlist [$twin tag ranges hlight]
+    if {[llength $rlist]>0} {
+        $twin see [lindex $rlist 0 0]
+    }
+
+}
+VortaroHelpiloVikiView instproc trovuFontoVorto {} {
+    my instvar win
+    set vorto [$win.trovuFontaVorto get]
+    my @fontoteksto removeColorize
+    my @fontoteksto colorizeRegExprTextAll $vorto
+    set twin [my @fontoteksto getTextWindow]
+    set rlist [$twin tag ranges hlight]
+    if {[llength $rlist]>0} {
+        $twin see [lindex $rlist 0 0]
+    }
+}
+VortaroHelpiloVikiView proc initializeAfterLoad {} {
+    NavigadaKronikoMix initHistory VortaroHelpiloVikiView
+}
+VortaroHelpiloVikiView proc newBrowser {} {
+    my new [Object autoname .vortaroviki]
+}
+Class VortkreadoSimilajTesktoj -superclass ::VikipediaLegilo -parameter fontolingvo
+@ ::VortkreadoSimilajTesktoj idemeta component EspParalelTekstaro
+VortkreadoSimilajTesktoj instproc addVortoRef {vorto array_ref} {
+    upvar $array_ref array
+    if {[info exists array($vorto)]} {
+        incr array($vorto)
+    } else {
+        set array($vorto) 1
+    }
+}
+VortkreadoSimilajTesktoj instproc init {} {
+    my instvar fontolingvo fontoRadikilo esperantoRadikilo vortaro espReVortfarado
+    next
+
+    set vortaro [DBVortaro prenuDepVortaron]
+    if {![info exists fontoLingvo]} {
+        set fontolingvo pl
+    }
+    set fontoRadikilo [Radikilaro prenuPorLingvo $fontolingvo]
+    if {$fontolingvo eq "pl" && ![$fontoRadikilo hasclass RadikiloMemoroMix]} {
+        $fontoRadikilo mixin add RadikiloMemoroMix
+    }
+    set esperantoRadikilo [Radikilaro prenuPorLingvo eo]
+    set espReVortfarado [EspVortfaradoEco create [self]::@reVortFarado]
+
+}
+VortkreadoSimilajTesktoj instproc initEkzistVortaron {} {
+    my instvar fontolingvo vortaro
+    set vortaro [self]
+    if {![my hasclass EkzistoTradukVortaro]} {
+        my mixin add EkzistoTradukVortaro
+        my initPorLingvo $fontolingvo
+    }
+}
+VortkreadoSimilajTesktoj instproc komputuVortojnPor vorto {
+    my instvar fontaTeksto esperantoVortoArr fontoVortoArr
+    my kreuKolektoPor $vorto
+    if {$fontaTeksto eq ""} {
+        return 0
+    }
+    my kreuVortoArr
+    if {![array exists esperantoVortoArr] || ![array exists fontoVortoArr]} {
+        return 0
+    }
+    my kreuSVortoArr
+    my puriguKonatajnTradukojn
+    return 1
+}
+VortkreadoSimilajTesktoj instproc konasFonton {vorto lingvo} {
+    # pruvos cxu por iu esperanta vorto ekzistas la traduko
+    my instvar vortaro
+    expr {[llength [$vortaro sxercxuRezListo $vorto $lingvo]]>0}
+}
+VortkreadoSimilajTesktoj instproc konasTradukon {vorto lingvo} {
+    my instvar vortaro
+    expr {[llength [$vortaro sxercxuRezListoPorTraduko $vorto $lingvo]]>0}
+}
+VortkreadoSimilajTesktoj instproc kreuKolektoPor vorto {
+    my instvar esperantoTeksto fontaTeksto fvorto ligoj
+    set esperantoTeksto [my getEoWiki $vorto]
+    set ligoj [list]
+    if {[regexp {\[\[pl:(.+?)\]\]} $esperantoTeksto _ fvorto]} {
+        set teksto [my getEoWiki $fvorto pl]
+        if {[regexp {#REDIRECT \[\[(.+?)\]\]} $teksto _ new]} {
+            set teksto [my getEoWiki $new pl]
+        }
+        set fontaTeksto [my puriguFremdajnLigojn $teksto]
+        set ligoj [my prenuLigojn $esperantoTeksto]
+        set esperantoTeksto [my puriguFremdajnLigojn $esperantoTeksto]
+    } else {
+        set fvorto ""
+        set fontaTeksto ""
+    }
+    set esperantoTeksto [my puriguFremdajnLigojn $esperantoTeksto]
+}
+VortkreadoSimilajTesktoj instproc kreuParalajVortojBazo {} {
+    set dosiero {C:/Dokumente und Einstellungen/atrzewik/Eigene Dateien/temp/eowiki/wikieopl.txt}
+    set artikoloj [open $dosiero r]
+    set dosieroSize [file size $dosiero]
+    set out [open {C:/Dokumente und Einstellungen/atrzewik/Eigene Dateien/temp/eowiki/par_sub_bazo.txt} w]
+    my set outfile $out
+    set progreso [ProgresoMontrilo startProgress "mi laboras"]
+    while {[gets $artikoloj line]>=0} {
+        set eo [lindex $line 0]
+        if {1 || $eo eq "18-a de januaro"} {
+            break
+        }
+    }
+    while {[gets $artikoloj line]>=0} {
+        set pos [tell $artikoloj]
+        $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+        set eo [lindex $line 0]
+        if {[string length $eo]==1 || [string is digit $eo] || [string match NGC* $eo] || ![info complete $eo]} continue
+        puts $line
+        if {![my komputuVortojnPor $eo]} continue
+        puts $out [list $line [my prenuEspVortoj] [my prenuFontoVortoj]]
+        after 100
+    }
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    close $artikoloj
+    close $out
+}
+VortkreadoSimilajTesktoj instproc kreuSVortoArr {} {
+    my instvar fontoSVortoArr esperantoSVortoArr fontoVortoArr esperantoVortoArr esperantoRadikilo fontoRadikilo malradEsperontoArr malradFontoArr
+    unset -nocomplain fontoSVortoArr esperantoSVortoArr malradEsperontoArr malradFontoArr
+
+    set espVortaro [Vortaro prenuVortaron]
+    for {set sid [array startsearch esperantoVortoArr]} {[array anymore esperantoVortoArr $sid]} {} {
+        set vorto [array nextelement esperantoVortoArr $sid]
+        if {[$espVortaro estasVorteto $vorto] || ![esp::enhavasEsparantajLiteroj $vorto] || [$espVortaro estasVorto $vorto]!=2} {
+            continue
+        }
+        if {[$espVortaro estasPartizipo]} {
+            continue
+        }
+        set svorto [$esperantoRadikilo radikigi $vorto]
+        set malradEsperontoArr($svorto) $vorto
+        my addVortoRef $svorto esperantoSVortoArr
+    }
+    array donesearch esperantoVortoArr $sid
+
+
+    for {set sid [array startsearch fontoVortoArr]} {[array anymore fontoVortoArr $sid]} {} {
+        set vorto [array nextelement fontoVortoArr $sid]
+        if {![$fontoRadikilo cxuBonajLiteroj $vorto] || [$fontoRadikilo cxuIgnori $vorto]} {
+            continue
+        }
+        foreach svorto [$fontoRadikilo radikigi $vorto] {
+            my addVortoRef $svorto fontoSVortoArr
+            set malradFontoArr($svorto) $vorto
+        }
+    }
+    array donesearch fontoVortoArr $sid
+
+}
+VortkreadoSimilajTesktoj instproc kreuVortoArr {} {
+    my instvar esperantoTeksto fontaTeksto fontoVortoArr esperantoVortoArr
+    unset -nocomplain fontoVortoArr esperantoVortoArr
+    set flegilo [FrazoLegilo newOn $esperantoTeksto]
+    for {set v [$flegilo prenuVorton]} {$v ne ""} {set v [$flegilo prenuVorton]} {
+         set v [string tolower $v]
+         if {[string is alpha $v] && [string length $v]>2} {
+             my addVortoRef $v esperantoVortoArr
+         }
+     }
+    $flegilo destroy
+    set flegilo [FrazoLegilo newOn $fontaTeksto]
+    for {set v [$flegilo prenuVorton]} {$v ne ""} {set v [$flegilo prenuVorton]} {
+         set v [string tolower $v]
+         if {[string is alpha $v] && [string length $v]>2} {
+             my addVortoRef $v fontoVortoArr
+         }
+    }
+    $flegilo destroy
+}
+VortkreadoSimilajTesktoj instproc prenuEspVortoj {} {
+    my instvar esperantoSVortoArr
+    array names esperantoSVortoArr
+}
+VortkreadoSimilajTesktoj instproc prenuEsperantoFleksvortoPorRadiko vorto {
+    my instvar malradEsperontoArr
+    if {[info exists malradEsperontoArr($vorto)]} {
+        return $malradEsperontoArr($vorto)
+    }
+    return $vorto
+}
+VortkreadoSimilajTesktoj instproc prenuFontoFleksvortoPorRadiko vorto {
+    my instvar malradFontoArr
+    if {[info exists malradFontoArr($vorto)]} {
+        return $malradFontoArr($vorto)
+    }
+    return $vorto
+}
+VortkreadoSimilajTesktoj instproc prenuFontoVortoj {} {
+    my instvar fontoSVortoArr
+    array names fontoSVortoArr
+}
+VortkreadoSimilajTesktoj instproc prenuRaporto {} {
+    my instvar fontoSVortoArr esperantoSVortoArr
+
+    return "[join [lsort [array names esperantoSVortoArr]]]\n\n[join [lsort [array names fontoSVortoArr]]]"
+}
+VortkreadoSimilajTesktoj instproc puriguKonatajnTradukojn {} {
+    my instvar fontoSVortoArr esperantoSVortoArr vortaro fontolingvo espReVortfarado
+
+    foreach vorto [array names esperantoSVortoArr] {
+        if {[my konasFonton $vorto $fontolingvo]>0} {
+            unset esperantoSVortoArr($vorto)
+        } elseif {[PolaVortFarado prenuVortfaradoj $vorto $vortaro] ne ""} {
+            unset esperantoSVortoArr($vorto)
+        } elseif {[$espReVortfarado remorfiguVorton $vorto $vortaro $fontolingvo] ne ""} {
+            unset esperantoSVortoArr($vorto)
+        }
+    }
+    foreach vorto [array names fontoSVortoArr] {
+        if {[my konasTradukon $vorto $fontolingvo]>0} {
+            unset fontoSVortoArr($vorto)
+        }
+    }
+}
+VortkreadoSimilajTesktoj instproc raportuPorVorto vorto {
+    my komputuVortojnPor $vorto
+    my prenuRaporto
+}
+Object SkriptoObjekto
+@ ::SkriptoObjekto idemeta component EspParalelTekstaro
+SkriptoObjekto proc estasCertaTraduko {vorto traduko} {
+   switch -glob -- $vorto {
+       *isto {
+           if {[string match *arz $traduko] || [string match *el $traduko] || [string match *ista $traduko]} {
+               return 1
+           }
+       }
+       *ino {
+           if {[string match *ka $traduko]} {
+               return 1
+           }
+       }
+       *eco {
+           if {[string match *ość $traduko] || [string match *oć $traduko]} {
+               return 1
+           }
+       }
+       *a {
+           if {[string match *owy $traduko]} {
+               return 1
+           }
+       }
+   }
+   return 0
+}
+SkriptoObjekto proc faruKonatajnListojn {} {
+    set vortoj [list]
+    mk::loop c revodb.tradukojpl {
+        foreach v [string tolower [mk::get $c traduko]] {
+            lappend vortoj $v
+        }
+    }
+    set f [open tradukoj.txt w]
+    foreach v [lsort -unique $vortoj] {
+        puts $f $v
+    }
+    close $f
+
+    set vortoj [list]
+    mk::loop c revodb.derivoj {
+        lappend vortoj [string tolower [mk::get $c vorto]]
+    }
+    set f [open fontoj.txt w]
+    foreach v [lsort -unique $vortoj] {
+        puts $f $v
+    }
+    close $f
+}
+SkriptoObjekto proc getListoj {{minNombro 2}} {
+    my instvar neo_vortoj npl_vortoj iArr
+    set ret ""
+    set ignore [lsearch $npl_vortoj linek]
+
+    for {set sid [array startsearch iArr]} {[array anymore iArr $sid]} {} {
+        set vorto [array nextelement iArr $sid]
+        set ids $iArr($vorto)
+        foreach {k v} $ids {
+            if {$k==$ignore} continue
+            if {$v>=$minNombro} {
+                append ret "[lindex $neo_vortoj $vorto]; [lindex $npl_vortoj $k] - $v\n"
+            }
+        }
+    }
+    array donesearch iArr $sid
+    return $ret
+}
+SkriptoObjekto proc getPlejoftaListoj {{minNombro 2}} {
+    my instvar neo_vortoj npl_vortoj iArr
+    set ret ""
+    set ignore [lsearch $npl_vortoj linek]
+
+    for {set sid [array startsearch iArr]} {[array anymore iArr $sid]} {} {
+        set vorto [array nextelement iArr $sid]
+        set ids $iArr($vorto)
+        set sids [list]
+        foreach {k v} $ids {
+            if {$k==$ignore} continue
+            lappend sids [list $k $v]
+        }
+        if {[llength $sids]==0} continue
+        set k [lindex [lsort -index 1 -integer -decreasing $sids] 0 0]
+        append ret "[lindex $neo_vortoj $vorto]; [lindex $npl_vortoj $k]\n"
+    }
+    array donesearch iArr $sid
+    return $ret
+}
+SkriptoObjekto proc kolektuPlejOftajEsperantajVortoj {} {
+    my instvar neo_vortoj npl_vortoj
+    set in [open parsub_pur.txt r]
+    while {[gets $in line]>=0} {
+        foreach {title eo pl} $line break
+        set oeo [list]
+        foreach v $eo {
+            if {[info exists arr($v)]} {
+                incr arr($v)
+            } else {
+                set arr($v) 1
+            }
+        }
+    }
+    set listo [list]
+    for {set sid [array startsearch arr]} {[array anymore arr $sid]} {} {
+        set vorto [array nextelement arr $sid]
+        set nombro $arr($vorto)
+        lappend listo [list $vorto $nombro]
+    }
+    array donesearch arr $sid
+    set listo [lsort -index 1 -decreasing -integer $listo]
+    set ret ""
+    foreach l $listo {
+        append ret "[lindex $l 0] [lindex $l 1]\n"
+    }
+    EsperantoBrowser redaktoTekston $ret
+}
+SkriptoObjekto proc kolektuPlejOftajNaciajVortoj {} {
+    my instvar neo_vortoj npl_vortoj
+    set in [open parsub_pur.txt r]
+    while {[gets $in line]>=0} {
+        foreach {title eo pl} $line break
+        set oeo [list]
+        foreach v $pl {
+            if {[info exists arr($v)]} {
+                incr arr($v)
+            } else {
+                set arr($v) 1
+            }
+        }
+    }
+    set listo [list]
+    for {set sid [array startsearch arr]} {[array anymore arr $sid]} {} {
+        set vorto [array nextelement arr $sid]
+        set nombro $arr($vorto)
+        lappend listo [list $vorto $nombro]
+    }
+    array donesearch arr $sid
+    set listo [lsort -index 1 -decreasing -integer $listo]
+    set ret ""
+    foreach l $listo {
+        append ret "[lindex $l 0] [lindex $l 1]\n"
+    }
+    EsperantoBrowser redaktoTekston $ret
+}
+SkriptoObjekto proc kolektuVortoj {} {
+    my instvar neo_vortoj npl_vortoj
+    set in [open parsub_pur.txt r]
+    while {[gets $in line]>=0} {
+        foreach {title eo pl} $line break
+        set oeo [list]
+        foreach v $eo {
+            lappend neo_vortoj $v
+        }
+        foreach v $pl {
+            lappend npl_vortoj $v
+        }
+    }
+    set neo_vortoj [lsort -unique $neo_vortoj]
+    set npl_vortoj [lsort -unique $npl_vortoj]
+    close $in
+    list [llength $neo_vortoj] [llength $npl_vortoj]
+}
+SkriptoObjekto proc kreuIndeksojn {} {
+    my instvar neo_vortoj npl_vortoj iArr
+    set in [open parsub_pur.txt r]
+    unset -nocomplain iArr
+    while {[gets $in line]>=0} {
+        foreach {title eo pl} $line break
+        foreach v $eo {
+            if {![info exists oeArr($v)]} {
+                set oeArr($v) [lsearch -sorted $neo_vortoj $v]
+            }
+        }
+        foreach v $pl {
+            if {![info exists plArr($v)]} {
+                set plArr($v) [lsearch -sorted $npl_vortoj $v]
+            }
+        }
+        foreach e $eo {
+            foreach p $pl {
+                ide::addToValueForKey iArr $oeArr($e) $plArr($p)
+            }
+        }
+    }
+    close $in
+    list [llength $neo_vortoj] [llength $npl_vortoj]
+}
+SkriptoObjekto proc leguKonatajnVortojn {} {
+    my instvar pl_vortoj eo_vortoj
+    set pl_vortoj [list]
+    set eo_vortoj [list]
+
+    set i [open pl_vortoj.txt r]
+    while {[gets $i line]>=0} {
+        lappend pl_vortoj $line
+    }
+    close $i
+    set pl_vortoj [lsort -unique $pl_vortoj]
+
+    set i [open eo_vortoj.txt r]
+    while {[gets $i line]>=0} {
+        lappend eo_vortoj $line
+    }
+    close $i
+    set eo_vortoj [lsort -unique $eo_vortoj]
+
+    list [llength $pl_vortoj] [llength $eo_vortoj]
+
+}
+SkriptoObjekto proc ordiNekonatajLauOfteco {} {
+    # Trovi laux vortfarado familian voroton al nekonata vorto
+    my instvar pl_vortoj eo_vortoj
+    set in [open nekonataj-pl-pur.txt r]
+    set frek [FrekvencoListo prenuFrekveno]
+
+    set vlisto [list]
+    while {[gets $in line]>=0} {
+        set vorto [string trim $line]
+        set f [$frek prenuFrekvencon $vorto]
+        if {$f==-1} {
+            set f 50
+        }
+        lappend vlisto [list $vorto $f]
+    }
+    close $in
+
+    set out [open nekonataj-pl-pur-ord.txt w]
+    set vlisto [lsort -index 1 -integer $vlisto]
+    foreach v $vlisto {
+        puts $out [lindex $v 0]
+    }
+    close $out
+}
+SkriptoObjekto proc prenuEsprimArto esprimo {
+    set artoj [list]
+    foreach v $esprimo {
+        lappend artoj [my prenuVortArto $v]
+    }
+    array set espSpecoj {
+        i i
+        {i e} i
+        {i on} i
+        {i ojn} i
+        {i Prepozicio o} i
+        {i Prepozicio oj} i
+        o o
+        {a o} o
+        {o a} o
+        {o Prepozicio o} o
+        a a
+        {e a} a
+        e e
+        {Prepozico o} e
+    }
+    if {[info exists espSpecoj($artoj)]} {
+        return $espSpecoj($artoj)
+    }
+    return $artoj
+}
+SkriptoObjekto proc prenuVortArto vorto {
+    set vortaro [Vortaro prenuVortaron]
+    $vortaro instvar tablovortoj pronomoj
+    if {[lsearch $tablovortoj $vorto]>=0} {
+        return $vorto
+    }
+    if {[lsearch $pronomoj $vorto]>=0} {
+        set radobj Radiko::$vorto
+        if {[Object isobject $radobj] && [$radobj exists typNombro]} {
+            set typNombro [$radobj typNombro]
+            return [Pronomo nomoPorTypoNombro $typNombro]
+        }
+    }
+    if {[regexp {^.+?([oa]j?n?)$} $vorto _ finilo]} {
+        return $finilo
+    } elseif {[regexp {^.+?(i|[aiou]s|u)$} $vorto _ finilo]} {
+        return $finilo
+    } elseif {[regexp {^.+(e)$} $vorto _ finilo]} {
+        return $finilo
+    }
+}
+SkriptoObjekto proc puriguEblajnTradukoj {vorto traduko tradukoj} {
+    set map {ł l ż g ó o ń n ś s}
+    set bvorto [string map $map $vorto]
+    set arto [string index $vorto end]
+    set ret [list]
+    foreach t $tradukoj {
+        switch $arto {
+            i {
+                if {[lindex $t end] ne "ć"} {
+                    continue
+                }
+            }
+            a {
+                if {[string first [string index $t end] iy]<0} {
+                    continue
+                }
+            }
+            e {
+                if {[string first [string index $t end] oe]<0} {
+                    continue
+                }
+            }
+            o {
+                if {[string first [string index $t end] yić]>=0 && !([string range $vorto end-2 end] eq "eco" && [string index $t end] eq "ć")} {
+                    continue
+                }
+            }
+        }
+        set bt [string map $map $t]
+        set minlen [expr {[string length $bvorto] < [string length $bt] ? [string length $bvorto] : [string length $bt]}]
+        for {set i 0} {$i<$minlen} {incr i} {
+            if {[string index $bt $i] ne [string index $traduko $i]} {
+                break
+            }
+        }
+        if {$i>$minlen*0.8} {
+            lappend ret $t
+        }
+    }
+    return $ret
+}
+SkriptoObjekto proc puriguIndeksojn {} {
+    my instvar neo_vortoj npl_vortoj iArr
+    set delete [list]
+    for {set sid [array startsearch iArr]} {[array anymore iArr $sid]} {} {
+        set vorto [array nextelement iArr $sid]
+        unset -nocomplain nArr
+        set ids $iArr($vorto)
+        if {[llength $ids]==[llength [lsort -unique $ids]]} {
+            set iArr($vorto) ""
+            lappend delete $vorto
+            continue
+        }
+        foreach i $ids {
+            if {![info exists nArr($i)]} {
+                set nArr($i) 1
+            } else {
+                incr nArr($i)
+            }
+        }
+        set nids [list]
+        foreach {k v} [array get nArr] {
+            if {$v!=1} {
+                lappend nids $k $v
+            }
+        }
+        set iArr($vorto) $nids
+    }
+    array donesearch iArr $sid
+    foreach d $delete {
+        unset iArr($d)
+    }
+}
+SkriptoObjekto proc puriguKonatajnVortojn {} {
+    my instvar pl_vortoj eo_vortoj
+    unset -nocomplain pl_vortoj eo_vortoj
+}
+SkriptoObjekto proc puriguVikiDosieron {} {
+    my instvar eo_vortoj pl_vortoj
+    set in [open parsub.txt r]
+    set out [open parsub_pur.txt w]
+    set filterout {linek września pierwszy drugi trzeci czwarty piąty szusty siódmy ósmy dziewiąty dziesięty jedynasty dwunasty mniejszy czym szybka wojski czego dość}
+    while {[gets $in line]>=0} {
+        foreach {title eo pl} $line break
+        set oeo [list]
+        foreach v $eo {
+            if {[lsearch -sorted $eo_vortoj $v]>=0} {
+                lappend oeo $v
+            }
+        }
+        if {[llength $oeo]==0} continue
+        set opl [list]
+        foreach v $pl {
+            if {[lsearch $filterout $v]>=0} continue
+            if {[lsearch -sorted $pl_vortoj $v]>=0} {
+                lappend opl $v
+            }
+        }
+        if {[llength $opl]==0} continue
+        puts $out [list $title $oeo $opl]
+    }
+    close $in
+    close $out
+}
+SkriptoObjekto proc testuSinonimoj {} {
+    set dosiero /home/artur/esperanto/fontoj/cz-sinonimoj.txt
+    set dosieroSize [file size $dosiero]
+    set progreso [ProgresoMontrilo startProgress "mi laboras"]
+    set in [open $dosiero r]
+    set out [open /home/artur/esperanto/fontoj/cz-sinonimoj-pur.txt w]
+    set ret ""
+    while {[gets $in line]>=0} {
+        set pos [tell $in]
+        $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+        if {[string match *eae $line]} {
+            append ret $line \n
+            continue
+        }
+        set sj [split $line :]
+        if {[llength $sj]<=1} {
+            append ret $line \n
+            continue
+        }
+        set ok 1
+        set kat ""
+        foreach s [split $line :] {
+            if {$kat eq ""} {
+                set kat [my prenuEsprimArto $s]
+                continue
+            }
+            set ckat [my prenuEsprimArto $s]
+            if {$ckat ne $kat} {
+                append ret "# [list $kat] [list $ckat]\n"
+                set ok 0
+                break
+            }
+        }
+        if {!$ok} {
+            append ret $line \n
+        } else {
+            puts $out $line
+        }
+    }
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    close $in
+    close $out
+    EsperantoBrowser redaktoTekston $ret
+}
+SkriptoObjekto proc trovuFamiliajnVortojnDeNekonataj {} {
+    # Trovi laux vortfarado familian voroton al nekonata vorto
+    my instvar pl_vortoj eo_vortoj
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set vortaro [Vortaro prenuVortaron]
+    set in [open nekonataj-pl-pur-ord.txt r]
+    set dosieroSize [file size nekonataj-pl-pur-ord.txt]
+    set progreso [ProgresoMontrilo startProgress "mi laboras"]
+    set res ""
+    set resCertaj ""
+    if {![Object isobject [self]::@evortaro]} {
+        EkzistoTradukVortaro create [self]::@evortaro
+        my @evortaro initPorLingvo pl
+    }
+
+    while {[gets $in line]>=0} {
+        set pos [tell $in]
+        $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+        set vorto [string trim $line]
+        if {[$vortaro estasVorto $vorto]==2} {
+            if {[$vortaro estasVorteto $vorto]} continue
+            # jam konata
+            if {[llength [set ret [$dbvortaro sxercxuRezListo $vorto pl]]]>0} continue
+            set radnomo [$vortaro set radiko]
+            set rad Radiko::$radnomo
+            set prefikso [lindex [$vortaro prenuDerivoPropono] 0]
+            set familianoj [list]
+            set certaj [list]
+            foreach derlisto [$rad prenuListDerivoj] {
+                if {[lindex $derlisto 0] eq $prefikso} {
+                    set fvorto [lindex $derlisto 0]$radnomo[lindex $derlisto 1]
+                    if {[llength [set ret [$dbvortaro sxercxuRezListo $fvorto pl]]]>0} {
+                        after 30
+                        foreach trad $ret {
+                            array set tradArr $trad
+                            set traduko [string tolower $tradArr(traduko)]
+                            # lappend familianoj "{$fvorto=$traduko}"
+                            if {[set id [lsearch -sorted $pl_vortoj $traduko]]>=0} {
+                                set tradukoj [lrange $pl_vortoj [expr {$id-6}] [expr {$id+6}]]
+                                set tradukoj [my puriguEblajnTradukoj $vorto $traduko $tradukoj]
+                                foreach f $tradukoj {
+                                    set havas 0
+                                    if {![my @evortaro konasTradukon $f pl]} {
+                                        if {!$havas} {
+                                           lappend familianoj "{$fvorto=$traduko}"
+                                        }
+                                        if {[my estasCertaTraduko $vorto $f]} {
+                                            lappend certaj $f
+                                        }
+                                        lappend familianoj "$f"
+                                        set havas 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if {[llength $certaj]>0} {
+                append resCertaj "$vorto; [join $certaj ", "]\n"
+            } elseif {[llength $familianoj]>0} {
+                puts "$vorto; [join $familianoj ", "]\n"
+                append res "$vorto; [join $familianoj ", "]\n\n"
+            }
+        }
+        after 100
+    }
+    close $in
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    EsperantoBrowser redaktoTekston $res
+    EsperantoBrowser redaktoTekston $resCertaj
+}
+SkriptoObjekto proc unifigiSinonimojn {} {
+    set dosiero /home/artur/esperanto/fontoj/revo-sinonimoj.txt
+    set dosieroSize [file size $dosiero]
+    set progreso [ProgresoMontrilo startProgress "mi laboras"]
+    set in [open $dosiero r]
+
+    set indekso 0
+        
+    while {[gets $in line]>=0} {
+        set pos [tell $in]
+        $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+        set sj [split $line :]
+        set aro [list]
+        # igu vera aro
+        foreach s $sj {
+            set s [string trim $s]
+            if {[lsearch $aro $s]<0} {
+                lappend aro $s
+            }
+        }
+        set trovita 0
+        if {[llength $aro]==1} {
+            continue
+        }
+
+        foreach v $aro {
+            if {[info exists vortoArr($v)]} {
+                puts "jam konata $v"
+                set kindekso $vortoArr($v)
+                set karo [lindex $sencoaroj $kindekso]
+                foreach ev $aro {
+                    if {[lsearch $karo $ev]<0} {
+                        lappend karo $ev
+                    }
+                }
+                lset sencoaroj $kindekso $karo
+                set trovita 1
+            }
+        }
+        if {!$trovita} {
+            lappend sencoaroj $aro
+            foreach v $aro {
+                set vortoArr($v) $indekso
+            }
+            incr indekso
+        }
+    }
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    close $in
+    
+    set out [open /home/artur/esperanto/fontoj/revo-sinonimoj-pur.txt w]
+    set out2 [open /home/artur/esperanto/fontoj/revo-sinonimoj-pur2.txt w]
+    foreach aro $sencoaroj {
+        if {[llength $aro]>4} {
+           puts $out [join $aro " : "]
+        } else {
+           puts $out2 [join $aro " : "]
+        }
+    }
+    close $out2
+    close $out
+}
+VortaroHelpiloVikiView initializeAfterLoad
+

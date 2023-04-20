@@ -1,0 +1,23 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+akcja (działanie) 	ago, faro 	akcio 	akcja (udział korporacji)
+gaz 	gaso 	gazo 	gaza
+golf (sweter) 	striktkoluma svetero, pulovero 	golfo 	zatoka; golf (sport)
+kara 	puno 	kara 	drogi, kochany
+lekcja 	leciono 	lekcio 	wykład
+lustro 	spegulo 	lustro 	żyrandol
+papryka (planto, frukto) 	kapsiko 	papriko 	papryka (seka spico)
+pensja 	salajro 	pensio 	emerytura
+plakat 	afiŝo 	plakato 	coś platerowane (plak-at-o)
+plan (mapa) 	mapo 	plano 	plan (projekt)
+rano 	mateno 	rano 	żaba
+relacja (historia) 	rakonto, historio 	rilato 	związek, stosunek
+sala 	ĉambro, ĉambrego, halo, salono, aŭditorio, aŭlo 	salo 	sól
+sałata 	laktuko 	salato 	sałatka
+satysfakcja 	kontenteco 	satisfakcio (obskura PIV2-vorto!) 	pojedynek
+termin 	dato, tempolimo 	termino 	określenie, wyrażenie
+trezor (zwłaszcza w banku) 	deponkesto 	trezoro 	skarb

@@ -1,0 +1,1195 @@
+# automatically generated from XOTclIDE
+# script require component IDEBaseGUI
+@ Component EsperantoKorpuso {
+description {Importilo de Tekstaro en formato TEI (http://bertilow.com/tekstaro)
+Serĉilo de tekstaro
+''Ne estas publika parto de esperantilo''}
+}
+package provide EsperantoKorpuso 0.993
+package require IDEBaseGUI
+Class KorpusoImporter
+@ ::KorpusoImporter idemeta component EsperantoKorpuso
+KorpusoImporter instproc destroy {} {
+    next
+}
+KorpusoImporter instproc estasCitajxo frazo {
+    set interpunkcioj {{"} “ ”}
+    foreach vorto $frazo {
+        if {[lsearch -sorted $interpunkcioj $vorto]>=0} {
+            return 1
+        }
+    }
+    return 0
+}
+KorpusoImporter instproc getVortaron {} {
+    if {![Object isobject ::espvortaro]} {
+        Vortaro create ::espvortaro
+    }
+    return ::espvortaro
+}
+KorpusoImporter instproc havasInterpunkcio frazo {
+    set interpunkcioj {, : {;} apenaŭ aŭ dum kaj ke kvankam kvazaŭ se sed ĉar ĉu ĝis}
+    foreach vorto $frazo {
+        if {[lsearch -sorted $interpunkcioj [string tolower $vorto]]>=0} {
+            return 1
+        }
+    }
+    return 0
+}
+KorpusoImporter instproc importPara paraNode {
+    my instvar documentid dbconnection
+    set parid [$paraNode getAttribute id 9999]
+    set numbro 0
+    regexp {[0-9]+} $parid numbro
+    set teksto ""
+    foreach childNode [$paraNode childNodes] {
+        if {[$childNode nodeType] eq "TEXT_NODE"} {
+            if {[string length $teksto]>0} {
+                append teksto " "
+            }
+            append teksto [string trim [$childNode nodeValue]]
+        } elseif {[$childNode nodeType] eq "ELEMENT_NODE"} {
+            if {[$childNode nodeName] eq "milestone"} continue
+            if {[$childNode nodeName] eq "anchor"} continue
+            set steksto \{
+            append steksto [$childNode nodeName]
+            set havisInfano 0
+            foreach schildNode [$childNode childNodes] {
+                set havisInfano 1
+                if {[$schildNode nodeType] eq "TEXT_NODE"} {
+                    if {[string length $steksto]>0} {
+                        append steksto " "
+                    }
+                }
+                append steksto [string trim [$schildNode nodeValue]]
+            }
+            if {!$havisInfano} continue
+            append steksto \}
+            regsub -all {\s+} $steksto " " steksto
+            if {[string length $teksto]>0} {
+                append teksto " "
+            }
+            append teksto $steksto
+        }
+    }
+    if {$teksto ne ""} {
+        my importuTekston $teksto $numbro
+    }
+}
+KorpusoImporter instproc importXMLFile dosiero {
+    package require tdom
+    my instvar document dokumentoid dbconnection linioid
+    set linioid 0
+    set fileh [open $dosiero r]
+    fconfigure $fileh -encoding utf-8
+    set document [dom parse -simple [read $fileh]]
+    # aligo linio en dokumneto tablo
+    set dokumentoid [$dbconnection insertRowAutoId dokumento name [file tail $dosiero] id]
+    my parseXML
+    close $fileh
+    $document delete
+}
+KorpusoImporter instproc importuTekston {teksto parid} {
+    my instvar dokumentoid dbconnection linioid
+    set tekstoKursoro [TekstoKursoro new -volatile [list -teksto $teksto]]
+    set frazLegilo [FrazoLegilo new -volatile -signoLegilo $tekstoKursoro]
+    set sintaksoj [list]
+    set analizilo [SintaksaAnalizo new]
+    while {[llength [set frazo [$frazLegilo prenuFrazon]]]>0} {
+        $dbconnection insertRowAutoId frazo {dokumentoid ordo parordo teksto tags interpunkcio citajxo} [list $dokumentoid $linioid $parid $frazo {} [my havasInterpunkcio $frazo] [my estasCitajxo $frazo]] id
+        incr linioid
+    }
+}
+KorpusoImporter instproc init {} {
+    my instvar dbconnection
+    set dbconnection [KorpusoImporter getKorpusoConnection]
+}
+KorpusoImporter instproc parseXML {} {
+    set rootElement [[my set document] documentElement]
+    foreach p [$rootElement selectNode //p] {
+        my importPara $p
+    }
+    foreach p [$rootElement selectNode //l] {
+        my importPara $p
+    }
+}
+KorpusoImporter proc clearDatabase {} {
+    set db [my getKorpusoConnection]
+    $db execute "delete from dokumento"
+    $db execute "delete from frazo"
+}
+KorpusoImporter proc closeConnection {} {
+    my instvar dbConnection
+    if {[my exists dbConnection]} {
+        $dbConnection destroy
+        unset dbConnection
+    }
+}
+KorpusoImporter proc getKorpusoConnection {} {
+    my instvar dbConnection
+    if {![my exists dbConnection]} {
+        set iclass [Sqlinterface loadInterface mysql]
+        set dbConnection [$iclass new]
+        $dbConnection connect {user root dbank korpuso}
+    }
+    return $dbConnection
+}
+KorpusoImporter proc import {{dosiero /home/artur/tekskorpuso/tekstaro-xml/tekstoj/fabeloj_de_andersen_1.xml}} {
+    set ki [KorpusoImporter new -volatile]
+    $ki importXMLFile $dosiero
+}
+Class KorpusoLiterumado
+@ ::KorpusoLiterumado idemeta component EsperantoKorpuso
+KorpusoLiterumado instproc aliguDerivo {derivo decidilo} {
+    my instvar importitajDerivoj nekonatajDerivoj
+    set vortaro [my getEspVortaron]
+    set rad [$vortaro estasVorto $derivo]
+    if {$rad==1} {
+        foreach {pre rad suf} [$vortaro prenuDerivoPropono] {}
+        set radobj Radiko::$rad
+        if {[Object isobject $radobj]} {
+            if {[$decidilo cxuAligiDerivo $radobj $pre $suf $vortaro]} {
+                $radobj addDerivo $pre $suf
+                unset nekonatajDerivoj($derivo)
+                lappend importitajDerivoj $derivo
+            }
+        }
+    }
+}
+KorpusoLiterumado instproc getVortaron {} {
+    if {![Object isobject ::espvortaro]} {
+        Vortaro create ::espvortaro
+    }
+    return ::espvortaro
+}
+KorpusoLiterumado instproc kalkuluNombro {arr vorto} {
+    upvar $arr nombroArr
+    if {[info exists nombroArr($vorto)]} {
+        set nombro $nombroArr($vorto)
+        set nombroArr($vorto) [expr {$nombro+1}]
+    } else {
+        set nombroArr($vorto) 1
+    }
+}
+KorpusoLiterumado instproc literumi {{where {}}} {
+    my instvar nekonatajVortoj nekonatajDerivoj konatajNombro nekonatajNombro nekonatajNomoj
+    set konatajNombro 0
+    set nekonatajNombro 0
+    set db [KorpusoImporter getKorpusoConnection]
+    set sq "select id,teksto from frazo"
+    if {$where ne ""} {
+        append sq " " $where
+    }
+    set q [$db query $sq]
+    if {$q eq ""} return
+    set vortaro [my getVortaron]
+    while {[llength [set row [$q fetch]]]>0} {
+        set frazo [lindex $row 1]
+        set pura 1
+        set unua 1
+        set fobj [GP::Frazo new]
+        foreach tvorto $frazo {
+            if {[string length $tvorto]==1} {
+                $fobj aliguVorto $tvorto 0 $vortaro
+                continue
+            }
+            # listo kun pli ol 2 elementoj havas apartan signifon
+            # tiu estas konstantoj kiel nomoj aux citajxoj
+            if {[llength $tvorto]>1} {
+                $fobj aliguKonstanto [lindex $tvorto 0] [lrange $tvorto 1 end]
+                continue
+            }
+            if {![::esp::enhavasEsparantajLiteroj $tvorto]} {
+                $fobj aliguKonstanto fremdlingvo $tvorto
+                continue
+            }
+            set vorto [string tolower $tvorto]
+            set res [$fobj aliguTestuVorto $vortaro $vorto]
+            switch $res {
+                1 {
+                    if {!$unua && $tvorto ne $vorto} {
+                        my kalkuluNombro nekonatajNomoj $tvorto
+                    } else {
+                        my kalkuluNombro nekonatajDerivoj [$vortaro prenuBazanFormon]
+                    }
+                    set pura 0
+                }
+                0 {
+                    if {!$unua && $tvorto ne $vorto} {
+                        my kalkuluNombro nekonatajNomoj $tvorto
+                    } else {
+                        my kalkuluNombro nekonatajVortoj $vorto
+                    }
+                    set pura 0
+                }
+            }
+            set unua 0
+        }
+        if {$pura} {
+            incr konatajNombro
+            $db execute "update frazo set konata=1, tags='[$fobj prenuSimboloj]' where id=[lindex $row 0]"
+        } else {
+            incr nekonatajNombro
+            $db execute "update frazo set konata=0 where id=[lindex $row 0]"
+        }
+        $fobj destroy
+    }
+}
+KorpusoLiterumado instproc metuMasagxon {} {
+    my instvar nekonatajVortoj nekonatajDerivoj konatajNombro nekonatajNomoj nekonatajNombro
+    return "konataj: $konatajNombro/$nekonatajNombro derivoj: [llength [array names nekonatajDerivoj]] vortoj: [llength [array names nekonatajVortoj]] nomoj: [llength [array names nekonatajNomoj]]"
+}
+KorpusoLiterumado instproc prenuDerivoj {} {
+    my instvar nekonatajDerivoj
+    my prenuLauxNombro nekonatajDerivoj
+}
+KorpusoLiterumado instproc prenuLauxNombro arr {
+    upvar $arr nombroArr
+    set l [list]
+    for {set sid [array startsearch nombroArr]} {[array anymore nombroArr $sid]} {} {
+        set vorto [array nextelement nombroArr $sid]
+        set nombro $nombroArr($vorto)
+        lappend l [list $nombro $vorto]
+    }
+    array donesearch nombroArr $sid
+    set ret ""
+    set count 0
+    set lastaId 0
+    foreach tupel [lsort -decreasing -index 0 -integer $l] {
+        set id [lindex $tupel 0]
+        set vorto [lindex $tupel 1]
+        if {$lastaId!=$id} {
+            append ret "\n# $id\n"
+            set lastaId $id
+        }
+        append ret $vorto
+        if {$count>10} {
+            set count 0
+            append ret \n
+        } else {
+            append ret " "
+        }
+        incr count
+    }
+    return $ret
+}
+KorpusoLiterumado instproc prenuNomoj {} {
+    my instvar nekonatajNomoj
+    my prenuLauxNombro nekonatajNomoj
+}
+KorpusoLiterumado instproc prenuVortoj {} {
+    my instvar nekonatajVortoj
+    my prenuLauxNombro nekonatajVortoj
+}
+KorpusoLiterumado instproc purigu {} {
+    my instvar nekonatajVortoj nekonatajDerivoj konatajNombro nekonatajNombro nekonatajNomoj
+    set konatajNombro 0
+    set nekonatajNombro 0
+    unset nekonatajDerivoj
+    unset nekonatajVortoj
+    unset nekonatajNomoj
+}
+Class KorpusoTrovilo -superclass {::IDE::Browser ::IDE::GUICommands}
+@ ::KorpusoTrovilo idemeta component EsperantoKorpuso
+KorpusoTrovilo instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+KorpusoTrovilo instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+
+    my set nurKonataj 1
+    my set nurPuraj 0
+    my set uziRegexp 0
+    $ms addCheckButton "Nur konatajn" [self]::nurKonataj
+    $ms addCheckButton "Ignoru Interpunkciojn kaj Citaĵojn" [self]::nurPuraj
+    $ms addCheckButton "Uzu regexp" [self]::uziRegexp
+    $ms addCheckButton "Cxiuj dokumentoj" [self]::cxiujDokumentoj
+    $ms addCommand "Refresxi" [list [self] sxercxiDokumentoj]
+    $ms addCommand "Montru Statistiko" [list [self] montroStatistiko]
+    $ms addCommand "Testu gramatikon" [list [self] testuGramatiko]
+    $ms addCommand "Testu gramatikon statistiko" [list [self] testuGramatikoStatistiko]
+    $ms addCommand "Testu Tadukadon" [list [self] testuTradukadon]
+}
+KorpusoTrovilo instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms [mc "Trovilo"] 0
+}
+KorpusoTrovilo instproc getTitle {} {
+    return "Korpusotrovilo"
+}
+KorpusoTrovilo instproc memoruEraron {eraro id} {
+    my instvar nombroArr
+    if {[info exists nombroArr($eraro)]} {
+        set nombro $nombroArr($eraro)
+        set nombroArr($eraro) [expr {$nombro+1}]
+    } else {
+        set nombroArr($eraro) 1
+    }
+}
+KorpusoTrovilo instproc montroStatistiko {} {
+    set ids [my prenuDokNombroj]
+    if {[llength $ids]==0} return
+    set db [KorpusoImporter getKorpusoConnection]
+    my @editor setText "dokumentoid konata citajxo interpunkcio nombro\n[join [$db queryList "select d.id,d.name,sum(konata),sum(konata)/count(f.id),sum(citajxo),sum(interpunkcio),count(f.id) from dokumento d,frazo f where f.dokumentoid=d.id and dokumentoid in ([join $ids ,]) group by dokumentoid order by d.name"] \n]"
+}
+KorpusoTrovilo instproc montruErarstatistiko {} {
+    my instvar nombroArr
+    set l [list]
+    set sumo 0
+    for {set sid [array startsearch nombroArr]} {[array anymore nombroArr $sid]} {} {
+        set vorto [array nextelement nombroArr $sid]
+        set nombro $nombroArr($vorto)
+        lappend l [list $nombro $vorto]
+        incr sumo $nombro
+    }
+    array donesearch nombroArr $sid
+    set ret ""
+    set count 0
+    set lastaId 0
+    set dissumo 0
+    foreach tupel [lsort -decreasing -index 0 -integer $l] {
+        set count [lindex $tupel 0]
+        set eraro [lindex $tupel 1]
+        incr dissumo $count
+        append ret "$eraro - $count - [format "% 6.2f" [expr {100.0*$count/$sumo}]] - [format "% 6.2f" [expr {100.0*$dissumo/$sumo}]]\n"
+    }
+    my @editor appendToEnd $ret
+}
+KorpusoTrovilo instproc prenuDokNombroj {} {
+    if {[my set cxiujDokumentoj]} {
+        return
+    }
+    set items [my @dokumentoj selectedItems]
+    if {[llength $items]==0} return
+    foreach i $items {
+        lappend ret [lindex $i 0]
+    }
+    return $ret
+}
+KorpusoTrovilo instproc prenuQuery {{awhere {}}} {
+    my instvar win nurKonataj nurPuraj cxiujDokumentoj uziRegexp
+    set ids [my prenuDokNombroj]
+
+    set db [KorpusoImporter getKorpusoConnection]
+
+    set maks [$win.nombro get]
+    if {$maks eq "" || [catch {expr $maks+1}]} {
+        set maks 100
+    }
+
+    set teksto [$win.teksto get]
+    set tags [$win.tags get]
+    set nteksto [$win.nteksto get]
+    set ntags [$win.ntags get]
+    set where ""
+    if {$uziRegexp} {
+        set op regexp
+    } else {
+        set op like
+    }
+    if {$teksto ne ""} {
+        set where "teksto $op '$teksto' "
+    }
+    if {$nteksto ne ""} {
+        if {$where ne ""} {
+            append where " and "
+        }
+        append where "teksto not $op '$nteksto'"
+    }
+    if {$tags ne ""} {
+        if {$where ne ""} {
+            append where " and "
+        }
+        append where "tags $op '$tags'"
+    }
+    if {$ntags ne ""} {
+        if {$where ne ""} {
+            append where " and "
+        }
+        append where "tags not $op '$ntags'"
+    }
+
+    if {$where eq "" && !$cxiujDokumentoj} {
+        EsperantoBrowser message "priskribu trovfrazo"
+        return
+    }
+    if {$nurKonataj} {
+        if {$where ne ""} {
+            append where " and "
+        }
+        append where " konata=1"
+    }
+    if {$nurPuraj} {
+        if {$where ne ""} {
+            append where " and "
+        }
+        append where " interpunkcio=0 and citajxo=0"
+    }
+    if {$ids ne ""} {
+        if {$where ne ""} {
+            append where " and "
+        }
+        append where " dokumentoid in ([join $ids ,])"
+    }
+    append where " $awhere"
+
+    set sql "select teksto,tags,id from frazo where $where order by id"
+    if {[$db istype MySql]} {
+        append sql " limit $maks"
+    }
+    set query [$db query $sql]
+    if {$query eq ""} {
+        EsperantoBrowser message [$db errorMessage]
+        return
+    }
+    return $query
+}
+KorpusoTrovilo instproc specificInit {} {
+    my instvar win
+    my requireNamespace
+
+    IDE::ListView create [self]::@dokumentoj $win.dokumentoj -multiselect 1
+    label $win.lteksto -text [mc "Teksto"]
+    label $win.ltags -text [mc "Gram. Markiloj"]
+    entry $win.teksto
+    bind $win.teksto <Return> [list [self] trovuTeksto]
+    entry $win.nteksto
+    ::esp::metuXEvento $win.teksto
+    ::esp::metuXEvento $win.nteksto
+    entry $win.tags
+    entry $win.ntags
+    button $win.ekteksto -text [mc "Ek"] -command [list [self] trovuTeksto]
+    label $win.lnombro -text [mc "Maks. Linioj"]
+    entry $win.nombro
+    my set montruTeksto 1
+    my set montruMarkiloj 0
+    my set cxiujDokumentoj 0
+    checkbutton $win.cteksto -text [mc "montru tekston"] -variable [self]::montruTeksto
+    checkbutton $win.ctags -text [mc "montru markilojn"] -variable [self]::montruMarkiloj
+    checkbutton $win.ccxio -text [mc "ĉiuj dokumentoj"] -variable [self]::cxiujDokumentoj
+    IDE::Editor create [self]::@editor $win.editor
+
+    grid $win.dokumentoj -row 0 -column 0 -rowspan 8 -sticky news
+    grid $win.lteksto -row 0 -column 1 -sticky w
+    grid $win.teksto -row 1 -column 1 -sticky we
+    grid $win.nteksto -row 1 -column 2 -sticky we
+    grid $win.ekteksto -row 0 -column 2 -sticky we
+
+    grid $win.ltags -row 2 -column 1 -sticky w
+    grid $win.tags -row 3 -column 1 -sticky we
+    grid $win.ntags -row 3 -column 2 -sticky we
+
+    grid $win.cteksto -row 4 -column 1 -sticky w
+    grid $win.ctags -row 5 -column 1 -sticky w
+
+    grid $win.lnombro -row 6 -column 1 -sticky w
+    grid $win.nombro -row 7 -column 1 -sticky w
+
+    grid $win.editor -row 8 -column 0 -columnspan 3 -sticky news
+
+    grid columnconfigure $win 0 -weight 2
+    grid columnconfigure $win 1 -weight 1
+    grid rowconfigure $win 8 -weight 1
+
+    my initStatusBar 9 3
+
+    my sxercxiDokumentoj
+    next
+}
+KorpusoTrovilo instproc sxercxiDokumentoj {} {
+    set db [KorpusoImporter getKorpusoConnection]
+    my @dokumentoj setListUnsorted [$db queryList {select id,name from dokumento order by name}]
+}
+KorpusoTrovilo instproc testuGramatiko {} {
+    my instvar win montruTeksto montruMarkiloj
+    set query [my prenuQuery]
+    if {$query eq ""} return
+    set count 0
+    if {!$montruTeksto && !$montruMarkiloj} {
+        set montruTeksto 1
+    }
+    set maks [$win.nombro get]
+    if {$maks eq "" || [catch {expr $maks+1}]} {
+        set maks 100
+    }
+    set kolektilo [ErarKolektilo new]
+    set analizilo [SintaksaAnalizo new]
+    set vortaro [Vortaro prenuVortaron]
+    set kuneraroj 0
+    set seneraroj 0
+    update idletasks
+    while {$count<$maks && [llength [set row [$query fetch]]]>0} {
+        set teksto [lindex $row 0]
+        set tags [lindex $row 1]
+        #if {[lsearch $tags CONST]>=0} continue
+        if {[llength $teksto]<=2} continue
+        if {$count==0} {
+            my @editor makeEmpty
+            my @editor set state notempty
+        }
+        incr count
+        my @editor appendToEnd "$teksto\n"
+        if {$montruMarkiloj} {
+            set tags [lindex $row 1]
+            my @editor appendToEnd "$tags\n"
+        }
+        update idletasks
+        set frazo [GP::Frazo new]
+        $frazo leguFrazon $vortaro $teksto
+        $analizilo frazo $frazo
+        $analizilo analizu
+        $kolektilo sintaksAsto [lindex [$frazo sintaksoarbo] 0]
+        $kolektilo sxercxiErarojn
+        foreach e [$kolektilo set eraroj] {
+            set eobj [lindex $e 0]
+            my @editor appendToEnd " # [$eobj prenuKomencon]-[$eobj prenuFinon] [lindex $e 1]\n"
+        }
+        if {[llength [$kolektilo set eraroj]]>0} {
+            incr kuneraroj
+        } else {
+            incr seneraroj
+        }
+        # $frazo inspect
+        $frazo destroy
+    }
+    if {$count==0} {
+        EsperantoBrowser message [mc "Nenio trovita"]
+    } else {
+        my setStatusBarText "$count frazoj: kun $kuneraroj sen: $seneraroj % [expr {100.0*$kuneraroj/$count}]"
+    }
+    $kolektilo destroy
+    $analizilo destroy
+    $query destroy
+}
+KorpusoTrovilo instproc testuGramatikoStatistiko {} {
+    my instvar win
+    set query [my prenuQuery {and id%250=1}]
+    catch {my unset nombroArr}
+    if {$query eq ""} return
+    set count 0
+    set maks [$win.nombro get]
+    if {$maks eq "" || [catch {expr $maks+1}]} {
+        set maks 100
+    }
+    set kolektilo [ErarKolektilo new]
+    set analizilo [SintaksaAnalizo new]
+    set vortaro [Vortaro prenuVortaron]
+    set kuneraroj 0
+    set seneraroj 0
+    set eraroj 0
+    update idletasks
+    my @editor makeEmpty
+    my @editor set state notempty
+    while {$count<$maks && [llength [set row [$query fetch]]]>0} {
+        set teksto [lindex $row 0]
+        set tags [lindex $row 1]
+        set id [lindex $row 2]
+        #if {[lsearch $tags CONST]>=0} continue
+        if {[llength $teksto]<=2} continue
+        if {$count==0} {
+            my @editor makeEmpty
+            my @editor set state notempty
+        }
+        update idletasks
+        set frazo [GP::Frazo new]
+        $frazo leguFrazon $vortaro $teksto
+        if {![$frazo havasNekonataj]} {
+            incr count
+            $analizilo frazo $frazo
+            $analizilo analizu
+            $kolektilo sintaksAsto [lindex [$frazo sintaksoarbo] 0]
+            $kolektilo sxercxiErarojn
+            if {[llength [$kolektilo set eraroj]]>0} {
+                my @editor appendToEnd "$teksto\n"
+                foreach e [$kolektilo set eraroj] {
+                    set eraro [lindex $e 1]
+                    incr eraroj
+                    set eobj [lindex $e 0]
+                    my @editor appendToEnd " # [$eobj prenuKomencon]-[$eobj prenuFinon] [lindex $e 1]\n"
+                    my memoruEraron $eraro $id
+                }
+                incr kuneraroj
+            } else {
+                incr seneraroj
+            }
+        }
+        # $frazo inspect
+        $frazo destroy
+    }
+    if {$count==0} {
+        EsperantoBrowser message "Nenio trovita"
+    } else {
+        my setStatusBarText "$count frazoj: kun $kuneraroj sen: $seneraroj % [expr {100.0*$kuneraroj/$count}] - $eraroj [expr {1.0*$eraroj/$kuneraroj}]"
+        my montruErarstatistiko
+    }
+    $kolektilo destroy
+    $analizilo destroy
+    $query destroy
+}
+KorpusoTrovilo instproc testuTradukadon {} {
+    my instvar win montruTeksto montruMarkiloj
+    set query [my prenuQuery {and id%23=1}]
+    if {$query eq ""} return
+    set count 0
+    if {!$montruTeksto && !$montruMarkiloj} {
+        set montruTeksto 1
+    }
+    set maks [$win.nombro get]
+    if {$maks eq "" || [catch {expr $maks+1}]} {
+        set maks 100
+    }
+    EsperantoConf set tradInteraktiva 0
+    update idletasks
+    SentradoKolektilo purigu
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por verboj}]
+    set rows [$query rows]
+    global errorInfo
+
+    while {$count<$maks && [llength [set row [$query fetch]]]>0} {
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$count/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+        set teksto [lindex $row 0]
+        set tags [lindex $row 1]
+        #if {[lsearch $tags CONST]>=0} continue
+        if {[llength $teksto]<=2} continue
+        if {$count==0} {
+            my @editor makeEmpty
+            my @editor set state notempty
+        }
+        incr count
+        update idletasks
+        if {[catch {
+            set traduko [TekstoTradukilo tradukuTekston $teksto]}]} {
+            my @editor appendToEnd "$teksto\n"
+            my @editor appendToEnd "$errorInfo\n"
+        }
+    }
+    if {$count==0} {
+        EsperantoBrowser message [mc "Nenio trovita"]
+    } else {
+        my setStatusBarText [mc "%s frazoj" $count]
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+   }
+    $query destroy
+}
+KorpusoTrovilo instproc trovuTeksto {} {
+    my instvar win montruTeksto montruMarkiloj uziRegexp
+    set query [my prenuQuery]
+    if {$query eq ""} return
+    set count 0
+    if {!$montruTeksto && !$montruMarkiloj} {
+        set montruTeksto 1
+    }
+    set maks [$win.nombro get]
+    if {$maks eq "" || [catch {expr $maks+1}]} {
+        set maks 100
+    }
+
+    while {$count<$maks && [llength [set row [$query fetch]]]>0} {
+        set teksto [lindex $row 0]
+        regsub -all {l ’} $teksto la teksto
+        if {$count==0} {
+            my @editor makeEmpty
+            my @editor set state notempty
+        }
+        if {$montruTeksto} {
+            my @editor appendToEnd "$teksto\n"
+        }
+        if {$montruMarkiloj} {
+            set tags [lindex $row 1]
+            my @editor appendToEnd "$tags\n"
+        }
+        incr count
+    }
+    if {$count==0} {
+        EsperantoBrowser message [mc "Nenio trovita"]
+    } else {
+        my setStatusBarText [mc "%s frazoj" $count]
+    }
+    if {$uziRegexp && [set teksto [$win.teksto get]] ne ""} {
+        my @editor colorizeRegExprTextAll $teksto
+    }
+    if {!$uziRegexp && [set teksto [$win.teksto get]] ne ""} {
+        set rteksto [string map [list ? . % .+] [string trim $teksto %]]
+        my @editor colorizeRegExprTextAll $rteksto
+    }
+
+
+    $query destroy
+}
+KorpusoTrovilo proc newBrowser {} {
+    return [my new [Object autoname .korpusotrovilo]]
+}
+Class KorpusoZentro -superclass {::IDE::Browser ::IDE::GUICommands}
+@ ::KorpusoZentro idemeta component EsperantoKorpuso
+KorpusoZentro instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+KorpusoZentro instproc cxuAligiDerivo {radobj pre suf vortaro} {
+    my instvar nombroArr
+    if {$pre eq "" && $suf eq "e"} { return 1}
+    if {$pre eq "" && $suf eq "a"} { return 1}
+    if {$pre eq "ek" && $suf eq "i"} {return 1}
+    if {$pre eq "" && $suf eq "adi"} {return 1}
+    if {$pre eq "" && $suf eq "ado"} {return 1}
+    if {$pre eq ""} {
+        set osuf [list]
+        if {[$radobj havasFinon o]} {
+            lappend osuf eto ego
+        }
+        if {[$radobj havasFinon i]} {
+            lappend osuf igi iĝi egi ado adi
+        }
+        if {[$radobj havasFinon a]} {
+            lappend osuf eco ega ulo igi
+        }
+        if {[llength $osuf]>0} {
+             if {[lsearch $osuf $suf]>=0} {
+                 return 1
+             }
+        }
+	if {$suf eq "iga" && [$radobj havasFinon igi]} {
+            return 1
+        }
+        if {[lsearch [$vortaro set sufiksoj] [string range $suf 0 end-1]]>=0} {
+	    return 1
+        }
+    }
+    if {$pre ne ""} {
+        set osuf [list]
+        set radiko [$radobj prenuRadiko]
+        if {[$radobj estasVorto ${pre}${radiko}o]} {
+            lappend osuf eto ego a
+        }
+        if {[$radobj estasVorto ${pre}${radiko}i]} {
+            lappend osuf igi iĝi egi ado adi
+        }
+        if {[$radobj estasVorto ${pre}${radiko}a]} {
+            lappend osuf eco ega ulo igi
+        }
+        if {[llength $osuf]>0} {
+            if {[lsearch $osuf $suf]>=0} {
+                return 1
+            }
+        }
+    }
+    if {$pre eq "mal" && [$radobj havasFinon $suf]} {
+        return 1
+    }
+    if {$pre eq "sen" && [$radobj havasFinon $suf]} {
+        return 1
+    }
+    if {$pre eq "ne" && [$radobj havasFinon $suf]} {
+        return 1
+    }
+    if {$pre eq "for" && [$radobj havasFinon $suf]} {
+	return 1
+    }
+    if {$pre eq "tra" && [$radobj havasFinon $suf]} {
+	return 1
+    }
+    if {$pre eq "re" && [$radobj havasFinon $suf]} {
+	return 1
+    }
+    if {$pre eq "mis" && [$radobj havasFinon $suf]} {
+	return 1
+    }
+    if {$pre eq "bon" && [$radobj havasFinon $suf]} {
+	return 1
+    }
+    if {$suf eq "igo" && [$radobj estasVorto ${pre}[$radobj prenuRadiko]igi]} {
+        return 1
+    }
+    if {$suf eq "o" && [$radobj estasVorto ${pre}[$radobj prenuRadiko]i]} {
+        return 1
+    }
+    if {$suf eq "iĝo" && [$radobj estasVorto ${pre}[$radobj prenuRadiko]iĝi]} {
+        return 1
+    }
+    if {($suf eq "ado" || $suf eq "adi") && [$radobj estasVorto ${pre}[$radobj prenuRadiko]i]} {
+        return 1
+    }
+    if {[Object isobject Radiko::$pre] && [$radobj havasFinon o] && $suf eq "o" && [Radiko::$pre havasFinon o]} {
+        return 1
+    }
+    if {[string index $pre end] eq "o"} {
+        set pre2 [string range $pre 0 end-1]
+        if {[Object isobject Radiko::$pre2] && [$radobj havasFinon o] && $suf eq "o" && [Radiko::$pre2 havasFinon o]} {
+            return 1
+        }
+    }
+    set radiko [$radobj prenuRadiko]
+    if {[my set importdemandi]} {
+        return [EsperantoBrowser yesNo "$pre-$radiko-$suf"]
+    }
+    return 0
+}
+KorpusoZentro instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+
+    $ms addCommand {Importu Tekston} [list [self] importuTekston]
+    $ms addCommand {Importu plenan Dosierujon} [list [self] leguDesierujo]
+    $ms addCommand {Korpusotrovilo} [list KorpusoTrovilo newBrowser]
+    $ms addCommand2 {Motru nekonatajn derivajxojn laux nombro} [list [self] montruDerivoj] havasLiterumilo
+    $ms addCommand2 {Motru nekonatajn radikojn laux nombro} [list [self] montruVortoj] havasLiterumilo
+    $ms addCommand2 {Motru eblajn nomojn} [list [self] montruNomoj] havasLiterumilo
+}
+KorpusoZentro instproc getLiterumado {} {
+    my instvar literumilo
+    if {![my exists literumilo]} {
+        set literumilo [KorpusoLiterumado new -childof [self]]
+    }
+    return $literumilo
+}
+KorpusoZentro instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms [mc "Korpuso"] 0
+}
+KorpusoZentro instproc getTitle {} {
+    return "Korpuso Zentro"
+}
+KorpusoZentro instproc getVortaron {} {
+    if {![Object isobject ::espvortaro]} {
+        Vortaro create ::espvortaro
+    }
+    return ::espvortaro
+}
+KorpusoZentro instproc havasLiterumilo {} {
+    my exists literumilo
+}
+KorpusoZentro instproc importuDerivoj {} {
+    set lit [my getLiterumado]
+    $lit set importitajDerivoj [list]
+    $lit instvar nekonatajDerivoj
+    foreach d [array names nekonatajDerivoj] {
+        if {$nekonatajDerivoj($d)>=4} {
+            $lit aliguDerivo $d [self]
+        }
+    }
+    my metuMesagxo "importitaj: [llength [$lit set importitajDerivoj]]"
+}
+KorpusoZentro instproc importuTekston {} {
+    set file [IDE::Dialog getOpenFile]
+    if {$file ne ""} {
+        KorpusoImporter import $file
+        my sxercxiDokumentoj
+    }
+}
+KorpusoZentro instproc leguDesierujo {} {
+    set dir [IDE::Dialog getDir]
+    if {$dir eq ""} return
+    set names [list]
+    foreach i [my @dokumentoj getList] {
+        lappend names [lindex $i 1]
+    }
+    foreach f [glob -directory $dir *.xml] {
+        if {[lsearch $names [file tail $f]]>=0} continue
+        KorpusoImporter import $f
+    }
+    my sxercxiDokumentoj
+}
+KorpusoZentro instproc listoDeOftajNomoj {} {
+    set lit [my getLiterumado]
+    $lit instvar nekonatajNomoj
+    set ret [list]
+    foreach d [array names nekonatajNomoj] {
+        if {$nekonatajNomoj($d)>=20} {
+            lappend ret $d
+        }
+    }
+    EsperantoBrowser redaktoTekston [join [lsort $ret] \n]
+}
+KorpusoZentro instproc literumuDok {} {
+    set items [my @dokumentoj selectedItems]
+    if {[llength $items]==0} return
+    foreach item $items {
+        set id [lindex $item 0]
+        set literumado [my getLiterumado]
+        $literumado literumi "where dokumentoid=$id && konata=0"
+        my metuMesagxo [$literumado metuMasagxon]
+    }
+}
+KorpusoZentro instproc metuMesagxo mes {
+    my instvar win
+    $win.mesagxo configure -text $mes
+}
+KorpusoZentro instproc montruDerivoj {} {
+    set l [my getLiterumado]
+    EsperantoBrowser redaktoTekston [$l prenuDerivoj]
+}
+KorpusoZentro instproc montruNomoj {} {
+    set l [my getLiterumado]
+    EsperantoBrowser redaktoTekston [$l prenuNomoj]
+}
+KorpusoZentro instproc montruVortoj {} {
+    set l [my getLiterumado]
+    EsperantoBrowser redaktoTekston [$l prenuVortoj]
+}
+KorpusoZentro instproc nuliguDok {} {
+    set items [my @dokumentoj selectedItems]
+    if {![EsperantoBrowser yesNo "Nuligu $items"]} {
+        return
+    }
+    if {[llength $items]==0} return
+    foreach item $items {
+        lappend ids [lindex $item 0]
+    }
+    set db [KorpusoImporter getKorpusoConnection]
+    $db execute "delete from dokumento where id in ([join $ids ,])"
+    $db execute "delete from frazo where dokumentoid in ([join $ids ,])"
+
+    my sxercxiDokumentoj
+}
+KorpusoZentro instproc specificInit {} {
+    my instvar win
+    my requireNamespace
+    IDE::ListView create [self]::@dokumentoj $win.dokumentoj -multiselect 1
+    frame $win.buts
+    button $win.lit -text Literumu -command [list [self] literumuDok]
+    button $win.delete -text [mc "Nuligu"] -command [list [self] nuliguDok]
+    button $win.purigu -text [mc "Purigu Lit."] -command [list [self] puriguLiterumado]
+    button $win.haltu -text [mc "Haltigu"] -command [list [self] set haltu 1]
+
+    label $win.mesagxo -anchor w
+    button $win.importuDerivoj -text [mc "Importu Derivojn"] -command [list [self] importuDerivoj]
+    my set importdemandi 0
+    checkbutton $win.chudemandi -text [mc "Demandu ĉu importo"] -variable [self]::importdemandi
+
+    pack $win.dokumentoj -fill x
+    pack $win.lit $win.purigu $win.delete $win.haltu -in $win.buts -side left
+    pack $win.buts -fill x
+    pack $win.mesagxo -fill x
+    pack $win.importuDerivoj -anchor w
+    pack $win.chudemandi -anchor w
+    my sxercxiDokumentoj
+    next
+}
+KorpusoZentro instproc sxercxiDokumentoj {} {
+    set db [KorpusoImporter getKorpusoConnection]
+    my @dokumentoj setListUnsorted [$db queryList {select id,name from dokumento order by name}]
+}
+KorpusoZentro instproc sxercxiModalajAdverboj {} {
+    my instvar haltu
+    set db [KorpusoImporter getKorpusoConnection]
+    set haltu 0
+    # kolekti pasivaj partizipoj
+    set pfino ita
+    set q [$db query "select teksto,tags from frazo where tags like '% ADV ADJ %' and konata=1"]
+    while {[llength [set row [$q fetch]]]>0} {
+        set tags [lindex $row 1]
+        set teksto [lindex $row 0]
+        if {[set i [lsearch $tags ADV]]>=0} {
+            if {[lindex $tags [expr {$i+1}]] eq "ADJ"} {
+                set v2 [lindex $teksto [expr {$i+1}]]
+                set v1 [lindex $teksto $i]
+                if {[string index $v1 end] eq "e"} {
+                    set rad [string tolower [string range $v1 0 end-1]]
+                    if {[info exists madv($rad)]} {
+                        incr madv($rad)
+                    } else {
+                        set madv($rad) 1
+                    }
+                }
+            }
+        }
+    }
+    $q destroy
+    foreach r [Radiko chiojRadikoj] {
+        if {$haltu} break
+        set i 0
+        if {![$r exists derivoj]} continue
+        foreach d [$r set derivoj] {
+            if {[lindex $d 1] eq "e"} {
+                set bazo [lindex $d 0][$r prenuRadiko]
+                #puts "testu $bazo"
+                if {[info exists madv($bazo)] && $madv($bazo)>1} {
+                    set def [lindex $d 2]
+                    if {[lsearch $def mod]<0} {
+                        puts "estu mod por $i -$d- $bazo - $r"
+                        lappend def mod
+                        $r instvar derivoj
+                        if {[llength $def]==1} {
+                            lset derivoj $i [concat $d $def]
+                        } else {
+                            lset derivoj $i 2 $def
+                        }
+                        break
+                    }
+                }
+            }
+            incr i
+            update
+        }
+    }
+}
+KorpusoZentro instproc sxercxiModalajVerboj {} {
+    my instvar haltu
+    set db [KorpusoImporter getKorpusoConnection]
+    set haltu 0
+    # kolekti pasivaj partizipoj
+    set pfino ita
+    set q [$db query "select teksto,tags from frazo where tags like '% V V %' and konata=1"]
+    while {[llength [set row [$q fetch]]]>0} {
+        set tags [lindex $row 1]
+        set teksto [lindex $row 0]
+        if {[set i [lsearch $tags V]]>=0} {
+            if {[lindex $tags [expr {$i+1}]] eq "V"} {
+                set v2 [lindex $teksto [expr {$i+1}]]
+                if {[string index $v2 end] eq "i"} {
+                    set v1 [lindex $teksto $i]
+                    if {[string index $v1 end] eq "s"} {
+                        set rad [string tolower [string range $v1 0 end-2]]
+                        if {[info exists mverbo($rad)]} {
+                            incr mverbo($rad)
+                        } else {
+                            set mverbo($rad) 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+    $q destroy
+    foreach r [Radiko chiojRadikoj] {
+        if {$haltu} break
+        set i 0
+        foreach d [$r prenuListDerivoj] {
+            if {[lindex $d 1] eq "i"} {
+                set bazo [lindex $d 0][$r prenuRadiko]
+                #puts "testu $bazo"
+                if {[info exists mverbo($bazo)] && $mverbo($bazo)>1} {
+                    set def [lindex $d 2]
+                    if {[lsearch $def mod]<0} {
+                        puts "estu mod por $bazo"
+                        lappend def mod
+                        $r instvar derivoj
+                        if {[llength $def]==1} {
+                            lset derivoj $i [concat $d $def]
+                        } else {
+                            lset derivoj $i 2 $def
+                        }
+                        break
+                    }
+                }
+            }
+            incr i
+            update
+        }
+    }
+}
+KorpusoZentro instproc sxercxiOftajDerivojn {} {
+    my instvar nombroArr
+    set ret ""
+    set count 0
+    foreach n [lsort [array names nombroArr]] {
+        if {$nombroArr($n)>1} {
+            append ret $n
+            if {$count>4} {
+                append ret \n
+                set count 0
+            } else {
+                append ret " "
+            }
+            incr count
+        }
+    }
+    return $ret
+}
+KorpusoZentro instproc sxercxiTransVerbojLauPartizipoj {} {
+    my instvar haltu
+    set db [KorpusoImporter getKorpusoConnection]
+    set haltu 0
+    # kolekti pasivaj partizipoj
+    set pfino ita
+    set q [$db query "select teksto from frazo where  teksto like '%$pfino %'"]
+    while {[llength [set row [$q fetch]]]>0} {
+        foreach r [regexp -all -inline {\y[\w]+ita\y} [lindex $row 0]] {
+            set part($r) 1
+        }
+    }
+    $q destroy
+    foreach r [Radiko chiojRadikoj] {
+        if {$haltu} break
+        set i 0
+        foreach d [$r prenuListDerivoj] {
+            if {[lindex $d 1] eq "i"} {
+                set bazo [lindex $d 0][$r prenuRadiko]$pfino
+                #puts "testu $bazo"
+                if {[info exists part($bazo)]} {
+                    set def [lindex $d 2]
+                    if {[lsearch $def trans]<0} {
+                        puts "estu transitiva por $bazo"
+                        lappend def trans
+                        $r instvar derivoj
+                        if {[llength $def]==1} {
+                            lset derivoj $i [concat $d $def]
+                        } else {
+                            lset derivoj $i 2 $def
+                        }
+                        break
+                    }
+                }
+            }
+            incr i
+            update
+        }
+    }
+}
+KorpusoZentro proc checkByAspell {{filein {}} {filein2 {}}} {
+    if {$filein eq ""} {
+        set filein [IDE::Dialog getOpenFile]
+    }
+    if {$filein2 eq ""} {
+        set filein2 [IDE::Dialog getOpenFile]
+    }
+    set f1 [open $filein r]
+    set f2 [open $filein2 r]
+    
+    while {[gets $f1 line]>=0} {
+        if {[string index $line 0] eq "#"} {
+            continue
+        }
+        eval lappend nekonataj $line
+    }
+    close $f1
+    while {[gets $f2 line]>=0} {
+        ide::lremoveAll nekonataj $line
+    }
+    close $f2
+    EsperantoBrowser redaktoTekston [join $nekonataj \n]
+}
+KorpusoZentro proc newBrowser {} {
+    my instvar browser
+    if {![info exists browser] || ![Object isobject $browser]} {
+        set browser [my new .korpusoz]
+    }
+    return
+}
+KorpusoZentro proc puriguVortListo {{filein {}} {fileout {}}} {
+    if {$filein eq ""} {
+        set filein [IDE::Dialog getOpenFile]
+    }
+    if {$fileout eq ""} {
+        set fileout [IDE::Dialog getSaveFile $filein.2]
+    }
+    if {$filein eq "" || $fileout eq ""} {
+        return
+    }
+    set finoj {u s j n}
+    set fin [open $filein r]
+    set fout [open $fileout w]
+    while {[gets $fin linio]>=0} {
+        if {[lsearch $finoj [string index $linio end]]>=0} {
+            continue
+        }
+        puts $fout $linio
+    }
+    close $fin
+    close $fout
+}
+

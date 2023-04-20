@@ -1,0 +1,1 @@
+teksto=Tio+estas+ekzempla+teksto.+Mi+havas+kato.%0d%0aCxu+tio+gravas.+%c4%88u+tio+gravas

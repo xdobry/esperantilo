@@ -1,0 +1,3383 @@
+# automatically generated from XOTclIDE
+# script require component {IDEBaseGUI EspTradukadoBazo EspTeknikajIloj}
+@ Component EspTradukGUI {
+description {GUI por Tradukado
+    * interaktiva tradukado
+    * traduka asistento
+    * XLIFF redaktiolo}
+}
+package provide EspTradukGUI 0.993
+package require EspTeknikajIloj
+package require EspTradukadoBazo
+package require IDEBaseGUI
+Class InteraktivaTradukadoGUI -superclass {::IDE::Browser ::IDE::GUICommands} -parameter {tradukilo {atHead 1} {eblasMasxinaTradukado 0}}
+@ ::InteraktivaTradukadoGUI idemeta categories {private init progreso interactiva-callbacks user-actions interaktiv-aktionoj tm kondicxoj}
+@ ::InteraktivaTradukadoGUI idemeta categoriesMethods {{prenuRezultoFenestro refreshu prenuTipoj prenuIntvortojDeFenestro puriguInteraktivajVortoj komencuDrag akceptuFrazonMenu metuAktivanVorton aliguInteraktivanVorton} {getTitle closeWindow fillMenuStruct getMenuStruct createSystemMenu specificInit initRezultoFenestro} {isStopped initProgreso setProgress} {sxangxuArto sxangxuSinonimo sxangxuNombro sxangxu} {inspektuFontFrazon aliguKielEkzemplo retraduku venuAlSekvanta venuAlSekvantaEblo kopiuLaProponon venuAlAntaua inspektuFrazon tradukuAutomate venuAlAntauaEblo remontruFrazon manaTraduko} {movuVortonDekstre movuVortonMaldekstre movuVortonPost movuVortonAntaux montruEnVortaro} {akzeptuTM antauaTM sekvaTM montruTMTradukoIndekso montruTMTraduko prenuTMServilo prenuTMFontaLingvo prenuTMCelaLingvo montruTMTradukojn} {havasMasxinanTradukadon havasFrazon havasTMTradukojn}}
+@ ::InteraktivaTradukadoGUI idemeta component EspTradukGUI
+InteraktivaTradukadoGUI instproc akceptuFrazonMenu {} {
+    my instvar win
+    $win.rezframe.r.akceptu invoke
+}
+InteraktivaTradukadoGUI instproc akzeptuTM {} {
+    my instvar tmtradukoj tmindekso
+    if {[llength $tmtradukoj]==0} {
+        my setStatusBarText [mc "Frazo ne konata por traduka memoro"]
+        return
+    }
+    my instvar frazo vortoGrupoj
+    set tmtraduko [lindex [lindex $tmtradukoj $tmindekso] 1]
+    set grupoId 0
+    set nvortoGrupoj [list]
+    set komenco 0
+    while {[set ri [string first %#% $tmtraduko $komenco]]>=0} {
+        lappend tmtradukoListo [string range $tmtraduko $komenco [expr {$ri-1}]]
+        set komenco [expr {$ri+3}]
+    }
+
+    lappend tmtradukoListo [string range $tmtraduko $komenco end]
+
+    foreach traduko $tmtradukoListo {
+        lappend nvortoGrupoj [lindex $vortoGrupoj [expr {$grupoId*5}]] [lindex $vortoGrupoj [expr {1+$grupoId*5}]] {} {} [list $traduko]
+        incr grupoId
+    }
+    $frazo set vortoGrupoj $nvortoGrupoj
+    my set atendoVariablo 1
+}
+InteraktivaTradukadoGUI instproc aliguInteraktivanVorton tradukElem {
+    my instvar win frazInteraktivajVortoj vortoNombro frazo lastaFonto manaTraduko
+    if {[$tradukElem prenuTradukon] eq ""} {
+        return 0
+    }
+    set duboj 0
+    if {[$tradukElem istype ETNekonata]} {
+        set c InteraktivaVortoNekonata
+        set duboj 1
+    }  elseif {[$tradukElem testuSentradukeco]} {
+        set duboj 1
+        set c InteraktivaVortoSentraduka
+    } else {
+        set c InteraktivaVorto
+        if {[llength [$tradukElem prenuEbloTypoj]]>0} {
+            set duboj 1
+        }
+    }
+    set ivorto [$c new -childof [self] [list -vorto $tradukElem]]
+    set butono [$ivorto montriguEn [my prenuRezultoFenestro] $vortoNombro]
+    bind $butono <B1-Leave>  [list [self] komencuDrag $ivorto]
+    bind $butono <ButtonPress-3> [list [self] montriguMenuPorIVorto $ivorto %X %Y]
+    incr vortoNombro
+    lappend frazInteraktivajVortoj $ivorto
+    return $duboj
+}
+InteraktivaTradukadoGUI instproc aliguKielEkzemplo {} {
+    my instvar manaTraduko lastaFrazo win frazo lastaFonto
+    set trajto [IDE::IDialogEntry getValue "Priskribu la problemon"]
+    if {$manaTraduko} {
+        set homaTraduko [$win.rezulto get 1.0 end]
+    } else {
+        set homaTraduko ""
+    }
+    set tradlisto [list]
+    foreach v [$frazo prenuFoliojn] {
+        lappend tradlisto [$v prenuTradukon]
+    }
+    set komputilaTraduko [esp::joinFrazo $tradlisto]
+    EsperantoConf aliguFrazEkzemplo $lastaFonto $homaTraduko $komputilaTraduko $trajto
+}
+InteraktivaTradukadoGUI instproc aliguTradukonAlTradukmemoro traduko {
+    my instvar frazo tradukilo lastaFonto
+    if {[EsperantoConf set tradUzuTradukMemoron] && $lastaFonto ne "" && $traduko ne ""} {
+        [my prenuTMServilo] aliguTU $lastaFonto $traduko
+    }
+}
+InteraktivaTradukadoGUI instproc antauaTM {} {
+    my instvar tmtradukoj tmindekso
+    if {$tmindekso!=0} {
+        incr tmindekso -1
+        my montruTMTradukoIndekso
+    }
+}
+InteraktivaTradukadoGUI instproc closeWindow {} {
+    catch {my akceptuFrazon}
+    next
+}
+InteraktivaTradukadoGUI instproc createSystemMenu {} {
+    my instvar win
+    if {[winfo toplevel $win]=="."} {
+        set twin {}
+    } else {
+        set twin $win
+    }
+
+    set rm [IDE::MenuStruct new -childof [self] [mc "Traduka Memoro"] 0]
+    $rm enablementHandler [self]
+    $rm addCommand [mc "Akceptu frazon de tradukmemoro"] [list [self] akzeptuTM] {} Control-t 0 havasTMTradukojn
+    $rm addCommand [mc "Kopiu la proponon por priredakto"] [list [self] kopiuLaProponon] {} Control-u 0 havasTMTradukojn
+    $rm addCommand [mc "Sekva propono de tradukmemoro"] [list [self] sekvaTM] {} Control-n 0 havasTMTradukojn
+    $rm addCommand [mc "Antaua propono de tradukmemoro"] [list [self] antauaTM] {} Control-p 0 havasTMTradukojn
+    $rm addCommand [mc "Prenu tradukojn de tradukmemoro"] [list [self] tradukuSamanTMX]
+    $rm addSeparator
+
+    set c [$rm addCommand [mc "Redaktilo de Traduka Memoro"] [list TMRedaktilo newBrowserPorObjekto [self]]]
+    my @toolbar addMenu $c edit2 2.0
+    $rm addCommand [mc "Aligu legan tradukan memoron el TMX"] [list TMServilo addLegaServilo]
+
+    $rm createTkMenu $twin.mb.korektado $twin
+    $twin.mb add cascade -label [$rm set name] -menu $twin.mb.korektado -underline 0
+
+    [winfo toplevel $win] configure -menu $twin.mb
+}
+InteraktivaTradukadoGUI instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+    $ms addCommand [mc "Mana traduko"] [list [self] manaTraduko] 0 Insert
+    $ms addCommand [mc "Akceptu Tradukon"] [list [self] akceptuFrazonMenu] 0 {Control-s}
+    $ms addCommand [mc "Venu al sekvanta dubinda loko"] [list [self] venuAlSekvantaEblo] 0 {Alt-Next} 0 eblasInteraktivaTradukado
+    $ms addCommand [mc "Venu al antaŭa dubinda loko"] [list [self] venuAlAntauaEblo] 0 {Alt-Prior} 0 eblasInteraktivaTradukado
+    $ms addCommand [mc "Venu al sekvanta loko"] [list [self] venuAlSekvanta] 0 Right 0 eblasInteraktivaTradukado
+    $ms addCommand [mc "Venu al antaŭa loko"] [list [self] venuAlAntaua] 0 Left 0 eblasInteraktivaTradukado
+    $ms addSeparator
+    $ms addCommand [mc "Movu vorton dekstre"] [list [self] movuVortonDekstre] 0 Alt-Right 0 eblasInteraktivaTradukado
+    $ms addCommand [mc "Movu vorton maldekstre"] [list [self] movuVortonMaldekstre] 0 Alt-Left 0 eblasInteraktivaTradukado
+    $ms addSeparator
+    #$ms addCommand {Nulitu vorton} [list [self] nuliguVorton] 0 Delete
+    $ms addCommand3 [mc "Inspektu"] [list [self] inspektuFontFrazon] havasFrazon
+    $ms addCommand3 [mc "Inspektu tradukon"] [list [self] inspektuFrazon] havasFrazon
+
+    $ms addCommand [mc "Montru vorton en vortaro"] [list [self] montruEnVortaro] 0 Control-w 0 eblasInteraktivaTradukado
+    # $ms addCommand [mc "Retraduku la tutan frazon"] [list [self] retraduku] 0 Control-r 0 havasMasxinanTradukadon
+    $ms addCommand [mc "Lasu la frazon sen traduko"] [list [self] lasuOrigina] 0 Control-o
+    $ms addSeparator
+    $ms addCommand [mc "Aligu la frazon kiel ekzemplo"] [list [self] aliguKielEkzemplo] 0 Control-f
+    $ms addCheckButton [mc "Ne montru kiam traduko ŝajnas senduba"] EsperantoConf::tradIgnoruSenEblojInteraktiva
+    $ms addSeparator
+    $ms addCommand [mc "Traduku al fino plene aŭtomate"] [list [self] tradukuAutomate] 0 F4 0 eblasMasxinaTradukado
+}
+InteraktivaTradukadoGUI instproc foriguIVorton ivorto {
+    my instvar frazInteraktivajVortoj
+    if {[set id [lsearch $frazInteraktivajVortoj $ivorto]]>=0} {
+        set frazInteraktivajVortoj [lreplace $frazInteraktivajVortoj $id $id]
+    }
+}
+InteraktivaTradukadoGUI instproc foriguIvorton {} {
+    my instvar menuoIVorto
+    $menuoIVorto foriguVorto
+}
+InteraktivaTradukadoGUI instproc getMenuStruct {} {
+    if {[my eblasMasxinaTradukado] && ![EsperantiloLancxilo estasTM]} {
+        IDE::MenuStruct create [self]::ms [mc "Interaktiva Traduko"] 0
+    } else {
+        return
+    }
+}
+InteraktivaTradukadoGUI instproc getTitle {} {
+    return "Interaktiva Tradukado"
+}
+InteraktivaTradukadoGUI instproc havasFrazon {} {
+    my instvar frazo
+    expr {[info exists frazo] && $frazo ne "" && [Object isobject $frazo]}
+}
+InteraktivaTradukadoGUI instproc havasMasxinanTradukadon {} {
+    my set masxinaTradukado
+}
+InteraktivaTradukadoGUI instproc havasTMTradukojn {} {
+    my instvar tmtradukoj
+    expr {[llength $tmtradukoj]>0}
+
+}
+InteraktivaTradukadoGUI instproc initProgreso {} {
+
+}
+InteraktivaTradukadoGUI instproc initRezultoFenestro win {
+    my instvar eblasMasxinaTradukado
+
+    text $win -takefocus 0 -borderwidth 0 -height 12  -font espfont -undo 1
+    $win tag configure spellerror -foreground red -underline 1
+    $win tag configure raderror -foreground darkgreen -underline 1
+    $win tag configure separatilo -borderwidth 3 -relief raised
+    $win tag bind raderror <ButtonPress-3> "[self] spellerrorRightbutton raderror %# %x %y %X %Y; break"
+    $win tag bind spellerror <ButtonPress-3> "[self] spellerrorRightbutton spellerror %# %x %y %X %Y; break"
+    bind $win <Menu> "[self] showPopMenuDeButonoMenu %#; break"
+
+    bind $win <Delete> {
+       if {[%W tag nextrange sel 1.0 end] ne ""} {
+           if {[%W tag nextrange separatilo sel.first sel.last] eq ""} {
+               %W delete sel.first sel.last
+           }
+       } else {
+           if {"separatilo" ni [%W tag names insert]} {
+               %W delete insert
+               %W see insert
+           }
+       }
+       break
+   }
+   bind $win <BackSpace> {
+       if {[%W tag nextrange sel 1.0 end] ne ""} {
+           if {[%W tag nextrange separatilo sel.first sel.last] eq ""} {
+               %W delete sel.first sel.last
+           }
+       } elseif {[%W compare insert != 1.0]} {
+           if {"separatilo" ni [%W tag names insert-1c]} {
+               %W delete insert-1c
+               %W see insert
+           }
+       }
+       break
+   }
+   bind $win <<Selection>> {
+       if {[%W tag nextrange sel 1.0 end] ne ""  && [%W tag nextrange separatilo sel.first sel.last] ne ""} {
+           %W tag remove sel 1.0 end
+           break
+       }
+   }
+   bind $win <KeyPress> {
+       if {"%A" ne "" && ![string is control %A]} {
+           esptm::TextInsert %W %A
+           break
+       } else {
+           continue
+       }
+   }
+}
+InteraktivaTradukadoGUI instproc inspektuFontFrazon args {
+    my instvar frazo
+    SintaksCanvasGraf drawGraph [$frazo sintaksradiko]
+}
+InteraktivaTradukadoGUI instproc inspektuFrazon {} {
+    my instvar frazo
+    if {[[$frazo set tradukasto] hasclass ::IDE::DestroyMixForward]} {
+        EsperantoBrowser message [mc "Frazo ŝajne estas jam inspektata"]
+    } else {
+        $frazo drawGraph
+    }
+}
+InteraktivaTradukadoGUI instproc isStopped {} {
+    my instvar cxuCxesigu
+    return $cxuCxesigu
+}
+InteraktivaTradukadoGUI instproc komencuDrag dragObjekto {
+    my instvar win aktualaDragObjekto
+    set aktualaDragObjekto $dragObjekto
+    $win configure -cursor hand2
+}
+InteraktivaTradukadoGUI instproc kopiuLaProponon {} {
+    my instvar tmtradukoj tmindekso
+    if {[llength $tmtradukoj]==0} {
+        return
+    }
+    set tmtraduko [lindex [lindex $tmtradukoj $tmindekso] 1]
+    my manaTradukoKunTeksto $tmtraduko
+}
+InteraktivaTradukadoGUI instproc lasuOrigina {} {
+    my instvar frazo vortoGrupoj tradukilo
+    $frazo lasuOriginan
+    set vortoGrupoj [$frazo konstruuVortoGrupoj $tradukilo]
+    my remontruFrazon
+}
+InteraktivaTradukadoGUI instproc leguMananTradukon {} {
+    my instvar frazo vortoGrupoj
+    set twin [my prenuRezultoFenestro]
+    set grupoId 0
+    set teksto ""
+    set nvortoGrupoj [list]
+    # TODO ne suitable grupoj
+    foreach {key value index} [$twin dump 1.0 end] {
+        switch $key {
+            window {
+                if {$value eq ""} continue
+                lappend nvortoGrupoj [lindex $vortoGrupoj [expr {$grupoId*5}]] [lindex $vortoGrupoj [expr {1+$grupoId*5}]] {} {} [list $teksto]
+                set teksto ""
+                incr grupoId
+            }
+            text {
+                append teksto $value
+            }
+        }
+    }
+    lappend nvortoGrupoj [lindex $vortoGrupoj [expr {$grupoId*5}]] [lindex $vortoGrupoj [expr {1+$grupoId*5}]] {} {} [list [string trimright $teksto \n]]
+    $frazo set vortoGrupoj $nvortoGrupoj
+}
+InteraktivaTradukadoGUI instproc manaTraduko {} {
+    my instvar manaTraduko frazo win
+    if {$manaTraduko} return
+    set manaTraduko 1
+    set tradukVortoj [list]
+    foreach iv [my prenuIntvortojDeFenestro] {
+        if {$iv eq ""} {
+            lappend tradukVortoj $iv
+        } else {
+            lappend tradukVortoj [$iv vorto]
+        }
+    }
+    my puriguInteraktivajVortoj
+    set rezFenestro [my prenuRezultoFenestro]
+    $rezFenestro config -state normal
+    set tradlisto [list]
+    $rezFenestro delete 1.0 end
+    set separatilojLabs [list]
+    set grupojNombro 0
+    set miasep [my prenuSeparatilon]
+    foreach iv $tradukVortoj {
+        if {$iv eq ""} {
+            $rezFenestro insert insert $miasep separatilo
+            incr grupojNombro
+        } else {
+            set vorto [$iv prenuTradukon]
+            $rezFenestro insert insert [esp::prenuSeparatilon $vorto]
+            $rezFenestro insert insert $vorto
+        }
+    }
+    $rezFenestro edit reset
+    focus $rezFenestro
+}
+InteraktivaTradukadoGUI instproc manaTradukoKunTeksto teksto {
+    my instvar manaTraduko frazo win separatilojLabs vortoGrupoj tradukilo
+
+    set manaTraduko 1
+    set miasep [my prenuSeparatilon]
+
+    if {[llength $vortoGrupoj]>0} {
+        set grupojNombro [expr {[llength $vortoGrupoj]/5-1}]
+        if {$grupojNombro==0} {
+            set teksto [string map [list $miasep {}] $teksto]
+        } else {
+            if {$grupojNombro!=[llength [regexp -inline -all $miasep $teksto]]} {
+                my setStatusBarText [mc "vi bezonas enmeti %s separatilojn %s" $grupojNombro $miasep]
+            }
+        }
+    }
+
+    my puriguInteraktivajVortoj
+    set rezFenestro [my prenuRezultoFenestro]
+    $rezFenestro config -state normal
+    set tradlisto [list]
+    $rezFenestro delete 1.0 end
+    $rezFenestro insert 1.0 $teksto
+    $rezFenestro edit reset
+    focus $rezFenestro
+}
+InteraktivaTradukadoGUI instproc metuAktivanVorton interaktivaVortoTemp {
+    my instvar interaktivaVorto tradukilo segmentoid havisTradukon
+    if {$interaktivaVorto ne ""} {
+        $interaktivaVorto metuNeAktiva
+    }
+    set interaktivaVorto $interaktivaVortoTemp
+    set lindekso [$interaktivaVorto prenuLokoIndekso]
+    set regiono [$tradukilo prenuRegiononPorIndekso $lindekso]
+    set fwin [my @fonto getTextWindow]
+    $fwin tag remove hlight 1.0 end
+    $fwin tag remove avorto 1.0 end
+
+    if {$regiono ne ""} {
+        set beg [lindex [$fwin tag ranges s$segmentoid] 0]
+        if {$havisTradukon} {
+            $fwin tag add avorto "$beg - 1 line + [lindex $regiono 0] char" "$beg - 1 line + [expr {[lindex $regiono 0]+[lindex $regiono 1]}] char"
+        } else {
+            $fwin tag add avorto "$beg + [lindex $regiono 0] char" "$beg + [expr {[lindex $regiono 0]+[lindex $regiono 1]}] char"
+        }
+    }
+
+    $interaktivaVorto metuAktiva
+    my setStatusBarText [$interaktivaVorto prenuMesagxon]
+}
+InteraktivaTradukadoGUI instproc montriguMenuPorIVorto {ivorto X Y} {
+    my instvar menuWin menuoIVorto win
+    set menuoIVorto $ivorto
+    if {[info exists menuWin]} {
+        ::destroy $menuWin
+    }
+    if {[winfo exists $win.rezulto.popdown]} {
+       ::destroy $win.rezulto.popdown
+    }
+    set menuWin $win.rezulto.popdown
+    menu $menuWin -tearoff 0
+    set i 0
+    if {[$ivorto exists ebloj]} {
+        foreach e [$ivorto set ebloj] {
+            if {$i>0} {
+                $menuWin insert $i separator
+                incr i
+            }
+            foreach {nomo mebloj aktualaEblo aktiono} [$ivorto prenuEblon $e] {}
+            foreach o $mebloj {
+                $menuWin add command -label $o -command [list $ivorto invokeEbloAktiono  $aktiono $o]
+            }
+            incr i
+        }
+    }
+    $menuWin add separator
+    $menuWin add command -label [mc "Redaktu"] -command [list [self] redaktuIvorton]
+    $menuWin add command -label [mc "Vortaro"] -command [list [self] vortaroIvorton]
+    $menuWin add command -label [mc "Forigu"] -command [list [self] foriguIvorton]
+    tk_popup $menuWin $X $Y
+}
+InteraktivaTradukadoGUI instproc montruEnVortaro {} {
+    my instvar interaktivaVorto frazo
+    if {$interaktivaVorto eq ""} {
+        my setStatusBarText [mc "selektu unue la vorton"]
+        return
+    }
+    set vorto [$interaktivaVorto vorto]
+    if {[$vorto exists elemento]} {
+        TradukaVortaroMontrilo trovuTradukoPorLingvoj [[$vorto elemento] prenuBazanFormon] [my prenuTMFontaLingvo] [my prenuTMCelaLingvo]
+    }
+}
+InteraktivaTradukadoGUI instproc montruMetaFrame montru {
+    my instvar win
+    if {$montru} {
+        if {"$win.rezframe.m" ni [pack slaves $win.rezframe]} {
+            pack $win.rezframe.m -in $win.rezframe -side right -fill y -anchor n -after $win.rezframe.r
+        }
+    } else {
+        if {"$win.rezframe.m" in [pack slaves $win.rezframe]} {
+            pack forget $win.rezframe.m
+        }
+    }
+
+
+}
+InteraktivaTradukadoGUI instproc montruTMTraduko {} {
+    my instvar tmtradukoj win
+    set twin $win.rezframe.tmtradukado
+    $twin.tmnombro configure -text [llength $tmtradukoj]
+    if {[llength $tmtradukoj]==0} {
+        if {[winfo viewable $twin]} {
+            pack forget $twin
+        }
+        $twin.kvalito configure -text ""
+        $twin.tmindekso configure -text ""
+        $twin.pref configure -state disabled
+        $twin.next configure -state disabled
+    } else {
+        if {![winfo viewable $twin]} {
+            pack $twin -fill both -expand 1 -before $win.rezframe.r
+        }
+        my montruTMTradukoIndekso
+    }
+}
+InteraktivaTradukadoGUI instproc montruTMTradukoIndekso {} {
+    my instvar win tmtradukoj tmindekso
+
+    set tmtraduko [lindex $tmtradukoj $tmindekso]
+
+    set fwin [my @tmtraduko getTextWindow]
+
+    $fwin configure -state normal
+    $fwin delete 1.0 end
+    if {[llength $tmtraduko]>2} {
+        $fwin insert 1.0 "[lindex $tmtraduko 2]\n" hlight
+    }
+    $fwin insert insert [lindex $tmtraduko 1]
+    $fwin configure -state disabled
+
+    set twin $win.rezframe.tmtradukado
+    $twin.kvalito configure -text [format "% 2.2f" [lindex $tmtraduko 0]]
+    $twin.tmindekso configure -text $tmindekso
+    if {$tmindekso==0} {
+        $twin.pref configure -state disabled
+    } else {
+        $twin.pref configure -state normal
+    }
+    if {[llength $tmtradukoj]-1>$tmindekso} {
+        $twin.next configure -state normal
+    } else {
+        $twin.next configure -state disabled
+    }
+}
+InteraktivaTradukadoGUI instproc montruTMTradukojn fontoTeksto {
+    my instvar tradukilo tmtradukoj tmindekso
+
+    set tmtradukoj [list]
+    set tmindekso 0
+    if {[EsperantoConf set tradUzuTradukMemoron] && $fontoTeksto ne ""} {
+        set tmtradukoj [[my prenuTMServilo] trovuMultaj $fontoTeksto]
+    }
+    my montruTMTraduko
+}
+InteraktivaTradukadoGUI instproc movuVortonAntaux {cvorto ivorto} {
+    $cvorto movuAntau $ivorto
+    my set havisMuvigon 1
+}
+InteraktivaTradukadoGUI instproc movuVortonDekstre {} {
+    my instvar interaktivaVorto
+    if {$interaktivaVorto ne ""} {
+        $interaktivaVorto movuAntaue
+        my set havisMuvigon 1
+    }
+}
+InteraktivaTradukadoGUI instproc movuVortonMaldekstre {} {
+    my instvar interaktivaVorto
+    if {$interaktivaVorto ne ""} {
+        $interaktivaVorto movuMalantaue
+        my set havisMuvigon 1
+    }
+}
+InteraktivaTradukadoGUI instproc movuVortonPost {cvorto ivorto} {
+    $cvorto movuPost $ivorto
+    my set havisMuvigon 1
+}
+InteraktivaTradukadoGUI instproc prenuIntvortojDeFenestro {} {
+    my instvar frazInteraktivajVortoj separatilojLabs
+    set twin [my prenuRezultoFenestro]
+    foreach iv $frazInteraktivajVortoj {
+        set ivWinArr([$iv butono]) $iv
+    }
+    set ivortoj [list]
+    foreach {key value index} [$twin dump 1.0 end] {
+        if {$key eq "window"} {
+            if {$value eq ""} continue
+            if {[info exists ivWinArr($value)]} {
+                lappend ivortoj $ivWinArr($value)
+            } else {
+                lappend ivortoj {}
+            }
+        }
+    }
+    return $ivortoj
+}
+InteraktivaTradukadoGUI instproc prenuRezultoFenestro {} {
+    my instvar win
+    return $win.rezulto
+}
+InteraktivaTradukadoGUI instproc prenuSeparatilon {} {
+    return |
+}
+InteraktivaTradukadoGUI instproc prenuTMCelaLingvo {} {
+    my instvar tradukilo
+    $tradukilo set celaLingvo
+}
+InteraktivaTradukadoGUI instproc prenuTMFontaLingvo {} {
+    my instvar tradukilo
+    $tradukilo set fontaLingvo
+}
+InteraktivaTradukadoGUI instproc prenuTMServilo {} {
+    my instvar tradukilo
+    if {![$tradukilo exists fontaLingvo]} {
+        set fontaLingvo eo
+    } else {
+        set fontaLingvo [$tradukilo set fontaLingvo]
+    }
+    if {![$tradukilo exists celaLingvo]} {
+        set celaLingvo [EsperantoConf set lingvo]
+    } else {
+        set celaLingvo [$tradukilo set celaLingvo]
+    }
+    TMServilo prenuPorLingvoj $fontaLingvo $celaLingvo
+}
+InteraktivaTradukadoGUI instproc prenuTipoj {} {
+    return {sinonimo arto nombro nekonata traduko senduba}
+}
+InteraktivaTradukadoGUI instproc puriguInteraktivajVortoj {} {
+    my instvar frazInteraktivajVortoj interaktivaVorto separatilojLabs
+    set twin [my prenuRezultoFenestro]
+    $twin configure -state normal
+    $twin delete 1.0 end
+    $twin configure -state disabled
+    foreach v $frazInteraktivajVortoj {
+        $v destroy
+    }
+    foreach w $separatilojLabs {
+        destroy $w
+    }
+    set frazInteraktivajVortoj [list]
+    set interaktivaVorto ""
+}
+InteraktivaTradukadoGUI instproc redaktuIvorton {} {
+    my instvar menuoIVorto
+    $menuoIVorto redaktuTradukon
+}
+InteraktivaTradukadoGUI instproc refreshu {} {
+    my instvar frazInteraktivajVortoj
+    foreach iv $frazInteraktivajVortoj {
+        $iv refreshu
+    }
+}
+InteraktivaTradukadoGUI instproc remontruFrazon {} {
+    my instvar win frazInteraktivajVortoj vortoNombro frazo manaTraduko vortoGrupoj tradukilo separatilojLabs havisMuvigon havasSxangxojn
+
+    set manaTraduko 0
+    set havasSxangxojn 0
+    set havisMuvigon 0
+    my puriguInteraktivajVortoj
+    set rezFenestro [my prenuRezultoFenestro]
+    $rezFenestro config -state normal
+    set duboj 0
+    set grupojNombro 0
+    set separatilojLabs [list]
+
+    foreach {komenco fino orignajElementoj tradukElementoj tradukVortoj} $vortoGrupoj {
+       if {$grupojNombro>0} {
+           set sepwin [label [winfo parent [my prenuRezultoFenestro]].sep$grupojNombro -text <s>]
+           [my prenuRezultoFenestro] window create insert -window $sepwin
+           lappend separatilojLabs $sepwin
+       }
+       foreach tradukElemento $tradukElementoj {
+           if {$tradukElemento ne ""} {
+               incr duboj [my aliguInteraktivanVorton $tradukElemento]
+           }
+       }
+       incr grupojNombro
+    }
+
+    $rezFenestro config -state disabled
+    if {[EsperantoConf set tradIgnoruSenEblojInteraktiva] && !$duboj} {
+        return 0
+    }
+    my venuAlSekvantaEblo
+    my setStatusBarText "$duboj duboj"
+    return 1
+}
+InteraktivaTradukadoGUI instproc retraduku {} {
+    my instvar frazo vortoGrupoj tradukilo
+    $frazo retraduku
+    set vortoGrupoj [$frazo konstruuVortoGrupoj $tradukilo]
+    my remontruFrazon
+}
+InteraktivaTradukadoGUI instproc sekvaTM {} {
+    my instvar tmtradukoj tmindekso
+    if {[llength $tmtradukoj]-1>$tmindekso} {
+        incr tmindekso
+        my montruTMTradukoIndekso
+    }
+}
+InteraktivaTradukadoGUI instproc setProgress procent {
+    my instvar win
+    set pl [$win.butframe.segf.sc cget -length]
+    $win.butframe.segf.sc configure -sliderlength [expr {$pl*$procent/100}] -label $procent
+}
+InteraktivaTradukadoGUI instproc showPopMenuDeButonoMenu event {
+   my instvar win
+   set twin $win.rezulto
+   set names [$twin tag names insert]
+   foreach {x y} [$twin bbox insert] break
+   incr x 2
+   incr y 2
+   set X [expr {[winfo rootx $twin]+$x}]
+   set Y [expr {[winfo rooty $twin]+$y}]
+   if {[lsearch $names raderror]>=0} {
+       my spellerrorRightbutton raderror $event $x $y $X $Y
+   } elseif {[lsearch $names spellerror]>=0} {
+       my spellerrorRightbutton spellerror $event $x $y $X $Y
+   }
+}
+InteraktivaTradukadoGUI instproc specificInit {} {
+    my instvar win vortoNombro frazInteraktivajVortoj atendoVariablo lastaFonto interaktivaVorto cxuCxesigu separatilojLabs masxinaTradukado manaTraduko akceptita tradukisto lastaModifo tmtradukoj eblasMasxinaTradukado
+
+    set atendoVariablo 0
+    set lastaFonto ""
+    set cxuCxesigu 0
+    set masxinaTradukado 1
+    set manaTraduko 0
+    set akceptita 0
+    set tradukisto ""
+    set lastaModifo ""
+
+    set vortoNombro 0
+    set frazInteraktivajVortoj [list]
+    set separatilojLabs [list]
+    set tmtradukoj [list]
+    set interaktivaVorto ""
+
+    panedwindow $win.pwin -orient vertical
+    IDE::Text [self]::@fonto $win.fonto -height 10
+    set twin [my @fonto getTextWindow]
+    $twin configure -wrap word -font espfont
+    $twin tag configure avorto -background pink -underline 1
+    # $twin tag configure separatilo -font espfontbold
+
+    frame $win.rezframe
+
+    # tm tradukado
+    set tmframe [labelframe $win.rezframe.tmtradukado -text [mc "Proponoj de tradukmemoro"]]
+    IDE::Text [self]::@tmtraduko $tmframe.text -height 5 -width 10
+    [my @tmtraduko getTextWindow] configure -wrap word -font espfont
+
+    frame $tmframe.rbutons
+    frame $tmframe.nbutons
+    button $tmframe.priredaktu -image [IDE::Toolbar createImage edit] -relief flat -overrelief raised -takefocus 0 -command [list [self] kopiuLaProponon]
+    ::iloj::addToolTip $tmframe.priredaktu [mc "Kopiu la proponon por priredakto"]
+    button $tmframe.akceptu -image [IDE::Toolbar createImage button_ok] -relief flat -overrelief raised -takefocus 0 -command [list [self] akzeptuTM]
+    ::iloj::addToolTip $tmframe.akceptu [mc "Akceptu frazon de tradukmemoro"]
+    button $tmframe.pref -image [IDE::Toolbar createImage back] -relief flat -overrelief raised -takefocus 0  -command [list [self] antauaTM]
+    button $tmframe.next -image [IDE::Toolbar createImage forward2] -relief flat -overrelief raised -takefocus 0 -command [list [self] sekvaTM]
+    label  $tmframe.kvalito -text ""
+    label  $tmframe.tmindekso -text ""
+    label  $tmframe.tmnombro -text ""
+    pack $tmframe.priredaktu $tmframe.akceptu -in $tmframe.rbutons -fill x
+    pack $tmframe.rbutons -side left -anchor n
+    pack $tmframe.pref $tmframe.next $tmframe.kvalito $tmframe.tmindekso $tmframe.tmnombro $tmframe.tmnombro -anchor e -in $tmframe.nbutons
+    pack $tmframe.nbutons -fill x -side right
+    pack $tmframe.text -expand yes -fill both
+
+
+    # Nomalaj butonoj
+    frame $win.butframe
+
+    my initRezultoFenestro $win.rezulto
+
+    pack $win.butframe -in $win.rezframe -fill x -side bottom
+
+    # butonoj por rapida prilaboro
+    frame $win.rezframe.r
+    if {![EsperantiloLancxilo estasTM]} {
+        button $win.rezframe.r.manatraduko -image [IDE::Toolbar createImage edit] -relief flat -overrelief raised -takefocus 0 -command [list [self] manaTraduko]
+        ::iloj::addToolTip $win.rezframe.r.manatraduko [mc "Mana traduko"]
+        if {$eblasMasxinaTradukado} {
+            button $win.rezframe.r.refresh -image [IDE::Toolbar createImage reload2] -relief flat -overrelief raised -takefocus 0 -command [list [self] retraduku]
+            ::iloj::addToolTip $win.rezframe.r.refresh [mc "Retraduku maŝine segmenton"]
+        }
+    }
+    button $win.rezframe.r.delete -image [IDE::Toolbar createImage button_cancel] -relief flat -overrelief raised -takefocus 0 -command [list [self] foriguTradukadonDeSegmento]
+    ::iloj::addToolTip $win.rezframe.r.delete [mc "Forigu tradukon de segmento"]
+    button $win.rezframe.r.akceptu -image [IDE::Toolbar createImage button_ok] -relief flat -overrelief raised -takefocus 0 -command [list [self] akceptuFrazon]
+    ::iloj::addToolTip $win.rezframe.r.akceptu [mc "Akceptu Tradukon"]
+    button $win.rezframe.r.literumu -image [IDE::Toolbar createImage autospellcheck] -relief flat -overrelief raised -takefocus 0 -command [list [self] literumu]
+    ::iloj::addToolTip $win.rezframe.r.literumu [mc "Literumu"]
+
+    # frame por meta informoj
+    frame $win.rezframe.m
+    checkbutton $win.rezframe.m.akceptita -text [mc "akceptita"] -variable [self]::akceptita -command [list [self] sxangxuAkceptita]
+    label $win.rezframe.m.lastamodifo -textvariable [self]::lastaModifo
+    label $win.rezframe.m.tradukisto -textvariable [self]::tradukisto
+    label $win.rezframe.m.lkomento -text [mc "komento"]
+    text $win.rezframe.m.komento -width 25 -height 10 -background yellow -undo 1
+
+    pack $win.rezframe.m.akceptita $win.rezframe.m.lastamodifo $win.rezframe.m.tradukisto $win.rezframe.m.lkomento -anchor w
+    pack $win.rezframe.m.komento -fill both -expand yes
+
+
+    if {![EsperantiloLancxilo estasTM]} {
+        if {$eblasMasxinaTradukado} {
+            pack $win.rezframe.r.manatraduko $win.rezframe.r.refresh $win.rezframe.r.delete $win.rezframe.r.akceptu $win.rezframe.r.literumu
+        } else {
+            pack $win.rezframe.r.manatraduko $win.rezframe.r.delete $win.rezframe.r.akceptu $win.rezframe.r.literumu
+        }
+    } else {
+        pack $win.rezframe.r.delete $win.rezframe.r.akceptu $win.rezframe.r.literumu
+    }
+
+    pack $win.rezframe.r -in $win.rezframe -side left -fill y -anchor n
+    pack $win.rezframe.m -in $win.rezframe -side right -fill y -anchor n
+    pack $win.rezulto -in $win.rezframe -expand yes -fill both
+
+    $win.pwin add $win.fonto -sticky news
+    $win.pwin add $win.rezframe -sticky news
+
+    IDE::Toolbar create [self]::@toolbar $win.toolbar
+
+    pack $win.toolbar -fill x
+    pack $win.pwin -expand yes -fill both
+
+    my initStatusBarWin $win.statusbar
+    pack $win.statusbar -expand no -fill x -side bottom -before $win.pwin
+    bind $win <ButtonRelease-1> [list [self] testuEndDrag %W %X %Y]
+}
+InteraktivaTradukadoGUI instproc spellerrorRightbutton {tag num x y X Y} {
+    my instvar eventNum literumaVortaro win
+    set eventNum $num
+    set twin $win.rezulto
+    set cur [$twin index @$x,$y]
+    set names [$twin tag names $cur]
+    set range [$twin tag prevrange $tag $cur]
+    if {[llength $range]>0} {
+        set start [lindex $range 0]
+        set stop [lindex $range 1]
+        set text [$twin get $start $stop]
+        if {[$literumaVortaro istype HunspellTestilo]} {
+            set speller $literumaVortaro
+        } else {
+            set speller [HunspellTestilo prenuInstancoPorLingvo eo]
+        }
+        if {$speller eq ""} {
+            [my info parent] setStatusBarText [mc "vortlisto estas ne trovita"]
+        }
+        set proponoj [$speller prenuProponoj $text]
+        set pwin $twin.popdown
+        if {[winfo exists $pwin]} {
+            ::destroy $pwin
+        }
+        menu $pwin -tearoff 0
+        foreach p $proponoj {
+            $pwin add command -label $p -command [list [self] tausxuKunSugesto $start $stop $p]
+        }
+        $pwin add separator
+        if {[$literumaVortaro istype Vortaro]} {
+            if {$tag eq "spellerror"} {
+                $pwin add command -label [mc "aligu radikon"] -command [list NovaRadikoDlg aliguRadikon $text]
+            } else {
+                $pwin add command -label [mc "aligu derivon"] -command [list [my info parent] aliguDerivonPorVorto $text]
+            }
+        }
+        $pwin add command -label [mc "ignoru nun"] -command [list [self] ignoruVortoRange  $text $start $stop]
+        $pwin add command -label [mc "ignoru ĉiam"] -command [list [self] ignoruCxiamVortoRange $text $start $stop]
+        tk_popup $pwin $X $Y
+    }
+}
+InteraktivaTradukadoGUI instproc sxangxu {eblo item} {
+    my instvar interaktivaVorto havasSxangxojn
+    set havasSxangxojn 1
+    foreach {nomo ebloj aktualaEblo aktiono} [$interaktivaVorto prenuEblon $eblo] {}
+    $interaktivaVorto invokeEbloAktiono $aktiono $item
+}
+InteraktivaTradukadoGUI instproc sxangxuArto item {
+    set videblajEbloListoj [my prenuVideblajnEblojnListo]
+    if {[lsearch $videblajEbloListoj arto]>=0} {
+        my sxangxu arto $item
+    }
+}
+InteraktivaTradukadoGUI instproc sxangxuNombro item {
+    set videblajEbloListoj [my prenuVideblajnEblojnListo]
+    if {[lsearch $videblajEbloListoj nombro]>=0} {
+        my sxangxu nombro $item
+    }
+}
+InteraktivaTradukadoGUI instproc sxangxuSinonimo item {
+    set videblajEbloListoj [my prenuVideblajnEblojnListo]
+    if {[lsearch $videblajEbloListoj sinonimo]>=0} {
+        my sxangxu sinonimo $item
+    }
+}
+InteraktivaTradukadoGUI instproc tausxuKunSugesto {start stop vorto} {
+    my instvar win
+    set twin $win.rezulto
+    #puts "$start $stop $vorto"
+    $twin delete $start $stop
+    $twin insert $start $vorto
+}
+InteraktivaTradukadoGUI instproc testuEndDrag {dwin posx posy} {
+    my instvar win aktualaDragObjekto frazInteraktivajVortoj
+    if {[info exists aktualaDragObjekto] && $aktualaDragObjekto ne ""} {
+        $win configure -cursor {}
+        if {[InteraktivaTradukadoGUI pointInWindow $dwin $posx $posy]} {
+            my setStatusBarText [mc "neniu movigo"]
+        } else {
+            foreach i $frazInteraktivajVortoj {
+                switch -exact -- [InteraktivaTradukadoGUI pointInWindow [$i set butono] $posx $posy] {
+                    1 {
+                        my movuVortonAntaux $aktualaDragObjekto $i
+                        return
+                    }
+                    2 {
+                        my movuVortonPost $aktualaDragObjekto $i
+                        return
+                    }
+                }
+            }
+            my setStatusBarText "celo de movigo ne konata"
+        }
+    }
+    set aktualaDragObjekto ""
+
+}
+InteraktivaTradukadoGUI instproc tradukuAutomate {} {
+    if {[EsperantoBrowser yesNo [mc "Ĉu traduki al la fino aŭtomate?"]]} {
+        EsperantoConf set tradInteraktiva 0
+        my closeWindow
+    }
+}
+InteraktivaTradukadoGUI instproc venuAlAntaua {} {
+    my instvar frazInteraktivajVortoj interaktivaVorto manaTraduko
+    if {$manaTraduko} return
+    set ivortoj [list]
+    foreach iv [my prenuIntvortojDeFenestro] {
+        if {$iv ne ""} {
+            lappend ivortoj $iv
+        }
+    }
+    set avorto [lsearch $ivortoj $interaktivaVorto]
+    if {$avorto<=0} {
+        my setStatusBarText [mc "neniu traduko kun duboj plu antaŭe"]
+    }
+    for {set t [llength $ivortoj]} {$t>=0} {incr t -1} {
+        set iv [lindex $ivortoj $t]
+        if {$t<$avorto} {
+            $iv uzantoAktiono
+            return
+        }
+    }
+    my setStatusBarText "neniu traduko kun duboj plu"
+}
+InteraktivaTradukadoGUI instproc venuAlAntauaEblo {} {
+    my instvar frazInteraktivajVortoj interaktivaVorto
+    set avorto [lsearch $frazInteraktivajVortoj $interaktivaVorto]
+    if {$avorto<=0} {
+        my setStatusBarText [mc "neniu traduko kun duboj plu antaŭe"]
+    }
+    for {set t [llength $frazInteraktivajVortoj]} {$t>=0} {incr t -1} {
+        set iv [lindex $frazInteraktivajVortoj $t]
+        if {$t<$avorto} {
+            if {[$iv havasAktionon]} {
+                $iv uzantoAktiono
+                return
+            }
+        }
+    }
+    my setStatusBarText [mc "neniu vorto plu"]
+}
+InteraktivaTradukadoGUI instproc venuAlSekvanta {} {
+    my instvar frazInteraktivajVortoj interaktivaVorto manaTraduko
+    if {$manaTraduko} return
+    set ivortoj [list]
+    foreach iv [my prenuIntvortojDeFenestro] {
+        if {$iv ne ""} {
+            lappend ivortoj $iv
+        }
+    }
+    set avorto [lsearch $ivortoj $interaktivaVorto]
+    set i 0
+    foreach iv $ivortoj {
+        if {$i>$avorto} {
+            $iv uzantoAktiono
+            return
+        }
+        incr i
+    }
+    my setStatusBarText [mc "neniu vorto plu"]
+}
+InteraktivaTradukadoGUI instproc venuAlSekvantaEblo {} {
+    my instvar frazInteraktivajVortoj interaktivaVorto
+    set avorto [lsearch $frazInteraktivajVortoj $interaktivaVorto]
+    set i 0
+    foreach iv $frazInteraktivajVortoj {
+        if {$i>$avorto} {
+            if {[$iv havasAktionon]} {
+                $iv uzantoAktiono
+                return
+            }
+        }
+        incr i
+    }
+    my setStatusBarText [mc "neniu traduko kun duboj plu"]
+}
+InteraktivaTradukadoGUI instproc vortaroIvorton {} {
+    my instvar menuoIVorto frazo
+    set vorto [$menuoIVorto vorto]
+    if {[$vorto exists elemento]} {
+        TradukaVortaroMontrilo trovuTradukoPorLingvoj [[$vorto elemento] prenuBazanFormon] [my prenuTMFontaLingvo] [my prenuTMCelaLingvo]
+    }
+}
+InteraktivaTradukadoGUI proc elektuTradukKampo {} {
+    set fakojn [list]
+    EsperantoConf statAktiono EK
+    set aktFakojn [EsperantoConf set tradukFakoj]
+    foreach mf [EspSentoElektilo prenuFakojnListo] {
+        foreach {k f} $mf {}
+        lappend fakojn $f
+        set fakSymArr($f) $k
+        set fakArr($k) $f
+    }
+    set inFakoj [list]
+    foreach fs $aktFakojn {
+        lappend inFakoj $fakArr($fs)
+    }
+
+    set listchooser [IDE::IDialogListOrderChooser new -volatile -message "Elektu temkampo de tradukota teksto" -listout $inFakoj -listin $fakojn]
+
+    set ret [$listchooser prompt]
+    if {$ret ne "cancel"} {
+        set novFak [list]
+        foreach f [$listchooser set listout] {
+            lappend novFak $fakSymArr($f)
+        }
+        EsperantoConf set tradukFakoj $novFak
+    }
+}
+InteraktivaTradukadoGUI proc newBroswer {} {
+    error "ne plu supogata"
+}
+InteraktivaTradukadoGUI proc pointInWindow {win x y} {
+    set rootx [winfo rootx $win]
+    set rooty [winfo rooty $win]
+    #puts "x=$x y=$y $rootx $rooty [winfo width $win] [winfo height $win]"
+    if {$rootx<$x && $rootx+[winfo width $win]>$x &&
+        $rooty<$y && $rooty+[winfo height $win]>$y} {
+        if {$x-$rootx<[winfo width $win]/2} {
+            # maldektstra flanko
+            return 1
+        } else {
+            # dekstra flanko
+            return 2
+        }
+    } else {
+        return 0
+    }
+}
+Class InteraktivaTradukadoGUINavigado -superclass ::InteraktivaTradukadoGUI -parameter {{atHead 0} {nurTradukadoModo 0}}
+@ ::InteraktivaTradukadoGUINavigado idemeta categories {init-release user-actions private tradukado kondicxoj korektado}
+@ ::InteraktivaTradukadoGUINavigado idemeta categoriesMethods {{getTitle fillMenuStruct destroy closeWindow createMenuDosiero createMenuXLIFF specificInit createSystemMenu} {montruAntauanSegmenton montruSekvanSegmenton manaTraduko montruLastanSegmenton montruAntauanSegmentonSenTraduko eksportuTradukon tradukuSamanTMX retraduku montruSekvanSegmentonSenTraduko redaktuTradukon akzeptuTM montruFonton foriguTradukadonDeSegmento montruFrazon konservu akceptuFrazon} {finiTradukadon refresxuTradukanProgreson estasKompleta} {refreshuTradukon komencuTradukadon} {testuCxuKompleta eblasInteraktivaTradukado} {porCxiuVortoProgreso trovuLiterumajnErarojn ignoruVortoRange literumu prenuLiterumanVortaron}}
+@ ::InteraktivaTradukadoGUINavigado idemeta component EspTradukGUI
+InteraktivaTradukadoGUINavigado instproc akceptuFrazon {} {
+    my instvar direktaRedakto tradukilo havisTradukon tradukitajNombro frazo uzuLiterumadon lastaRezulto manaTraduko
+    if {$direktaRedakto || $manaTraduko} {
+        set rezulto [string trimright [[my prenuRezultoFenestro] get 1.0 end] \n]
+        if {$rezulto eq ""} {
+            return
+        }
+        if {$uzuLiterumadon && $lastaRezulto ne $rezulto && [my literumu]} {
+            set lastaRezulto $rezulto
+            return
+        }
+        set rezulto [string map [list [my prenuSeparatilon] [$tradukilo prenuSeparatilon]] $rezulto]
+        $tradukilo akzeptuTraduko [my prenuAktSegmento] $rezulto
+        my aliguTradukonAlTradukmemoro $rezulto
+        if {!$havisTradukon} {
+            incr tradukitajNombro
+            my refresxuTradukanProgreson
+        }
+    } else {
+        next
+        incr tradukitajNombro
+        my refresxuTradukanProgreson
+        $tradukilo transferToOutput $frazo
+    }
+    my refreshuTradukon
+    my montruSekvanSegmentonSenTraduko
+}
+InteraktivaTradukadoGUINavigado instproc akzeptuTM {} {
+    my instvar tradukilo frazo tradukitajNombro tmtradukoj tmindekso direktaRedakto havisTradukon
+    if {$direktaRedakto} {
+        if {[llength $tmtradukoj]==0} {
+            my setStatusBarText [mc "Frazo ne konata por traduka memoro"]
+            return
+        }
+        set tmtraduko [lindex [lindex $tmtradukoj $tmindekso] 1]
+        $tradukilo akzeptuTraduko [my prenuAktSegmento] $tmtraduko
+    } else {
+        next
+        $tradukilo transferToOutput $frazo
+    }
+    if {!$havisTradukon} {
+        incr tradukitajNombro
+        my refresxuTradukanProgreson
+    }
+    my refreshuTradukon
+    my montruSekvanSegmentonSenTraduko
+}
+InteraktivaTradukadoGUINavigado instproc closeWindow {} {
+    my instvar tradukilo
+    if {[info exists tradukilo] && [$tradukilo bezonasKonservadon]} {
+        set ret [EsperantoBrowser yesNoCancel [mc "Ĉu konservi ŝanĝojn?"] [mc "Forlaso de Tradukado"]]
+        switch $ret {
+            yes {
+                if {[my konservu]} {
+                    next
+                }
+            }
+            no {
+                next
+            }
+        }
+        return 0
+    }
+    next
+}
+InteraktivaTradukadoGUINavigado instproc createMenuDosiero {} {
+    my instvar eblasMasxinaTradukado uzuLiterumadon
+
+    set rm [IDE::MenuStruct new -childof [self] [mc "Dosiero"] 0]
+    $rm enablementHandler [self]
+    set c [$rm addCommand [mc "Nova traduka projekto"] [list TradukadoAsistento newBrowser]]
+    my @toolbar addMenu $c filenew 1.0
+    set c [$rm addCommand [mc "Malfermu tradukan projekton"] [list [self] malfermuProjekton]]
+    my @toolbar addMenu $c fileopen 1.1
+
+    set e ${rm}::lastajDosieroj
+    LastajTradukajProjektojMenuo create $e [mc "Malfermu fruan projekton"] {} -command [list [self] visituDosierojn]
+    $e set menuItems {}
+    $rm addCascadeMenu $e
+
+    if {![EsperantiloLancxilo estasTM]} {
+        $rm addSeparator
+        $rm addCommand [mc "Redaktu Tradukon en Redaktilo"] [list [self] redaktuTradukon]
+    }
+    $rm addCommand [mc "Eksportu al TMX"] [list [self] eksportuTMX]
+    $rm addSeparator
+    $rm addCommand2 [mc "Tradukistoj"] [list [self] montruTradukistojn] havasMetaAtributojn
+    $rm addCommand2 [mc "Atributoj de projekto"] [list [self] montruAtributojn] havasMetaAtributojn
+    set c [$rm addCommand [mc "Eksportu Tradukon al dosiero"] [list [self] eksportuTradukon]]
+    my @toolbar addMenu $c mailget 1.5
+
+    $rm addSeparator
+    set c [$rm addCommand [mc "Konservu"] [list [self] konservu] 0 {Control-k}]
+    my @toolbar addMenu $c filesave 1.2
+    $rm addCommand [mc "Forlasu"] [list [self] closeWindow] {} _Alt-F4
+    return $rm
+}
+InteraktivaTradukadoGUINavigado instproc createMenuXLIFF {} {
+    my instvar eblasMasxinaTradukado uzuLiterumadon
+
+    set rm [IDE::MenuStruct new -childof [self] [mc "Tradukado"] 0]
+    $rm enablementHandler [self]
+    $rm addCommand [mc "Sekva segmento"] [list [self] montruSekvanSegmenton] 0 {Next}
+    $rm addCommand [mc "Antaŭa segmento"] [list [self] montruAntauanSegmenton] 0 {Prior}
+    $rm addCommand [mc "Sekva netradukita segmento"] [list [self] montruSekvanSegmentonSenTraduko] 0 {Control-Next}
+    $rm addCommand [mc "Antaŭa netradukita segmento"] [list [self] montruAntauanSegmentonSenTraduko] 0 {Control-Prior}
+    if {!$eblasMasxinaTradukado} {
+        $rm addCommand [mc "Akceptu Tradukon"] [list [self] akceptuFrazonMenu] 0 {Control-s}
+    }
+    $rm addSeparator
+    $rm addCheckButton [mc "Testu per Literumilo"] [self]::uzuLiterumadon
+    $rm addCommand [mc "Literumu"] [list [self] literumu] 0 F2
+    $rm addCommand [mc "Trovu literumajn erarojn en segmentoj"] [list [self] trovuLiterumajnErarojn]
+    $rm addSeparator
+    $rm addCommand [mc "Forigu tradukon de segmento"] [list [self] foriguTradukadonDeSegmento] 0 {Control-g}
+    if {$eblasMasxinaTradukado && ![EsperantiloLancxilo estasTM]} {
+        $rm addCommand [mc "Retraduku maŝine segmenton"] [list [self] montruSegmentonMT] 0 {Control-m} 0 eblasMasxinaTradukado
+    }
+    return $rm
+}
+InteraktivaTradukadoGUINavigado instproc createSystemMenu {} {
+    next
+    my instvar win nurTradukadoModo
+    set mbwin [$win cget -menu]
+
+    set rm [my createMenuXLIFF]
+
+    $rm createTkMenu $mbwin.xliff [winfo toplevel $win]
+    $mbwin insert 0 cascade -label [$rm set name] -menu $mbwin.xliff -underline 0
+
+    set rm [my createMenuDosiero]
+
+    $rm createTkMenu $mbwin.dosiero [winfo toplevel $win]
+    $mbwin insert 0 cascade -label [$rm set name] -menu $mbwin.dosiero -underline 0
+
+    if {$nurTradukadoModo || [EsperantiloLancxilo estasTM]} {
+        set ms [IDE::MenuStruct new -childof [self] [mc "Helpo"] 0]
+        $ms addCommand [mc "Pri la programo"] [list EsperantoConf showAbout]
+        $ms addCommand [mc "Ŝanĝu lingvon de programo"] [list EsperantoConf sxangxuLingvonDeProgramo]
+        set c [$ms addCommand [mc "Preferaĵoj"] [list PreferajxojDialogo newBrowser]]
+        my @toolbar addMenu $c configure 22.4
+        $ms addCommand [mc "Agordo de literumado"] [list HunspellAdministrado administru]
+        $ms addCommand [mc "Raportu pri programo"] [list EspErrorReporter reportuTekston ""]
+        $ms addCommand [mc "Montru proprajn raportojn"] [list [self] openHTMLBrowser "http://www.esperantilo.org/raportoj/listo.php?uzantoid=[EsperantoConf prenuUzantoId]"]
+        $ms addCommand [mc "Trovu novan eldonon aŭ flikon"] [list EsperantoConf testuNovanEldononGUI]
+        $ms addCommand [mc "Montru permesilon"] [list EsperantoConf montruPermesilon]
+        $ms addSeparator
+        $ms addCommand [mc "Retpaĝo de programo"] [list [self] openHTMLBrowser {http://www.esperantilo.org/tm}]
+
+        $ms createTkMenu $mbwin.helpo [winfo toplevel $win]
+        $mbwin add cascade -label [$ms set name] -menu $mbwin.helpo -underline 0
+    }
+}
+InteraktivaTradukadoGUINavigado instproc destroy {} {
+    my instvar tradukilo frazo nurTradukadoModo
+    catch {$tradukilo destroy}
+    if {$frazo ne ""} {
+        catch {$frazo destroy}
+    }
+    if {$nurTradukadoModo || [EsperantiloLancxilo estasTM]} {
+        EsperantoConf konservuLastajTradukojosierojn
+        EsperantoConf konservuVizitajnDosierojn
+        if {[llength [InteraktivaTradukadoGUINavigado info instances]]<=1 && ![EsperantoConf isInDelopingMode]} {
+           exit
+        }
+    }
+    next
+}
+InteraktivaTradukadoGUINavigado instproc eblasInteraktivaTradukado {} {
+    my instvar masxinaTradukado direktaRedakto
+    expr {$masxinaTradukado && !$direktaRedakto}
+}
+InteraktivaTradukadoGUINavigado instproc eksportuTMX {} {
+    my instvar tradukilo
+    if {[$tradukilo exists dosiero]} {
+         set file [file rootname [$tradukilo set dosiero]].tmx
+    }
+    set file [IDE::Dialog getSaveFile $file {{"TMX Dosiero" *.tmx}} .tmx]
+    if {$file ne ""} {
+        $tradukilo eksportuTMX $file 1
+    }
+}
+InteraktivaTradukadoGUINavigado instproc eksportuTradukon {} {
+    my instvar tradukilo
+    $tradukilo eksportuTradukon
+}
+InteraktivaTradukadoGUINavigado instproc estasKompleta {} {
+    my instvar segmentoj tradukitajNombro
+    expr {[llength $segmentoj]==$tradukitajNombro}
+}
+InteraktivaTradukadoGUINavigado instproc fillMenuStruct ms {
+    next
+    $ms addSeparator
+    $ms addMenuItem [IDE::MenuCheckbox new -childof $ms -name [mc "Uzu maŝinan tradukadon"] -variable [self]::masxinaTradukado -enableList {eblasMasxinaTradukado}]
+}
+InteraktivaTradukadoGUINavigado instproc finiTradukadon {} {
+    my instvar segmentoTradukilo
+    my setStatusBarText [mc "Vi atingis la lastan segmenton"]
+}
+InteraktivaTradukadoGUINavigado instproc foriguTradukadonDeSegmento {} {
+    my instvar tradukilo win tradukitajNombro
+    if {[$tradukilo havasTradukon [my prenuAktSegmento]]} {
+        incr tradukitajNombro -1
+        my refresxuTradukanProgreson
+        $tradukilo foriguTradukon [my prenuAktSegmento]
+        my refreshuTradukon
+        my montruSegmenton
+    }
+}
+InteraktivaTradukadoGUINavigado instproc getTitle {} {
+    return "Segmento Tradukilo"
+}
+InteraktivaTradukadoGUINavigado instproc havasMetaAtributojn {} {
+    my instvar tradukilo
+    $tradukilo havasMetaAtributojn
+}
+InteraktivaTradukadoGUINavigado instproc ignoruCxiamVortoRange {text start end} {
+    my instvar win
+    set twin $win.rezulto
+    $twin tag remove spellerror $start $end
+    $twin tag remove raderror $start $end
+    set literumaVortaro [my prenuLiterumanVortaron]
+    if {$literumaVortaro eq ""} {
+        return
+    }
+    $literumaVortaro alliguIgnorvorto $text
+}
+InteraktivaTradukadoGUINavigado instproc ignoruVortoRange {text start end} {
+    my instvar vortaro win
+    set twin $win.rezulto
+    $twin tag remove spellerror $start $end
+    $twin tag remove raderror $start $end
+    set literumaVortaro [my prenuLiterumanVortaron]
+    if {$literumaVortaro eq ""} {
+        return
+    }
+    $literumaVortaro alliguIgnorvorto $text 1
+}
+InteraktivaTradukadoGUINavigado instproc komencuTradukadon {} {
+    my instvar tradukilo segmentoj id segmentoid tradukitajNombro win masxinaTradukado eblasMasxinaTradukado
+    if {!$eblasMasxinaTradukado} {
+        set masxinaTradukado 0
+    } else {
+        set masxinaTradukado 1
+    }
+    set havasMetaAtributojn [$tradukilo havasMetaAtributojn]
+    my montruMetaFrame $havasMetaAtributojn
+    set tradukitajNombro 0
+    set segmentoj [$tradukilo prenuSegmentoIndikatorojn]
+    foreach s $segmentoj  {
+        if {[$tradukilo havasTradukon $s]} {
+            incr tradukitajNombro
+        }
+    }
+    my refresxuTradukanProgreson
+    $win.butframe.segf.sfl.segmentoNombro configure -text [llength $segmentoj]
+    my montruSegmentojn
+
+    set segmentoid 0
+    my montruSegmenton
+    if {$havasMetaAtributojn} {
+        if {[$tradukilo prenuAktualanTradukiston] eq ""} {
+            set uzantoNomo [EsperantoConf set uzantoNomo]
+            if  {$uzantoNomo eq ""} {
+                update
+                my montruTradukistojn
+            } else {
+                $tradukilo prenuAktualanTradukiston
+            }
+        }
+    }
+    my setTitleAddition "[$tradukilo set fontaLingvo]-[$tradukilo set celaLingvo] [file tail [$tradukilo dosiero]]"
+}
+InteraktivaTradukadoGUINavigado instproc konservu {} {
+    my instvar tradukilo
+    set tclass [$tradukilo info class]
+    if {[$tradukilo exists dosiero]} {
+        set ret [$tradukilo konservu [$tradukilo set dosiero]]
+    } else {
+        set ret [$tradukilo konservu]
+    }
+    if {$ret} {
+        my setStatusBarText [mc "traduko estas konservita"]
+        my setTitleAddition [file tail [$tradukilo dosiero]]
+    }
+    if {[$tradukilo info class] ne $tclass} {
+        my komencuTradukadon
+    }
+    my montruMetaFrame [$tradukilo havasMetaAtributojn]
+    return $ret
+}
+InteraktivaTradukadoGUINavigado instproc konservuMetaAtributojn {} {
+    my instvar segmentoj segmentoid lastaSegmentoId win tradukilo
+    if {[info exists lastaSegmentoId] && $lastaSegmentoId ne ""} {
+        set twin $win.rezframe.m.komento
+        if {[$twin edit modified]} {
+            $tradukilo metuMetaAtributojn [lindex $segmentoj $lastaSegmentoId] [dict create komento [string trimright  [$twin get 1.0 end] \n]]
+        }
+    }
+}
+InteraktivaTradukadoGUINavigado instproc literumu {} {
+    my instvar tradukilo uzuLiterumadon
+    set literumaVortaro [my prenuLiterumanVortaron]
+    if {$literumaVortaro eq ""} {
+        set uzuLiterumadon 0
+        return 0
+    }
+
+    set twin [my prenuRezultoFenestro]
+
+    $twin tag remove spellerror 1.0 end
+    $twin tag remove raderror 1.0 end
+    set vortoj 0
+    set errors 0
+    set raderrors 0
+    my porCxiuVortoProgreso vorto cur count {
+        incr vortoj
+        if {[EsperantoConf set ignoruMallongigoj] && [string toupper $vorto] eq $vorto} continue
+        if {[string length $vorto]==1} continue
+        set erg [$literumaVortaro estasVorto $vorto]
+        if {$erg==0} {
+            $twin tag add spellerror $cur "$cur + $count char"
+            incr errors
+        } elseif {$erg==1 && ![EsperantoConf set ignoruDerivoj]} {
+            $twin tag add raderror $cur "$cur + $count char"
+            incr raderrors
+        }
+    }
+    if {$uzuLiterumadon} {
+        my setStatusBarText [mc "%s eraroj. Akceptu denove por ignori tion." [expr {$errors+$raderrors}]]
+    } else {
+        my setStatusBarText [mc "%s eraroj" [expr {$errors+$raderrors}]]
+    }
+    expr {$raderrors+$errors>0}
+}
+InteraktivaTradukadoGUINavigado instproc malfermuProjekton {} {
+    my instvar nurTradukadoModo
+    set filetypes {{{traduka projekto} *.espts} {{malnova traduka projekto} *.espt} {XLIFF {*.xliff *.xlf *.xlz}}}
+    set dosiero [IDE::Dialog getOpenFile $filetypes]
+    if {$dosiero ne ""} {
+        switch [file extension $dosiero] {
+            .xlf -
+            .xliff {
+                set t [XLIFFTradukiloSeg tradukuDosieron $dosiero XLIFF]
+                [$t set interaktivaDialogo] set nurTradukadoModo $nurTradukadoModo
+            }
+            .xlz {
+                set t [XLIFFTradukiloSeg tradukuDosieron $dosiero XLZ]
+                [$t set interaktivaDialogo] set nurTradukadoModo $nurTradukadoModo
+            }
+            default {
+                TekstoTradukiloSeg malfermuProjekto $dosiero $nurTradukadoModo
+            }
+        }
+    }
+}
+InteraktivaTradukadoGUINavigado instproc manaTraduko {} {
+    my instvar direktaRedakto
+    if {!$direktaRedakto} {
+        next
+    }
+}
+InteraktivaTradukadoGUINavigado instproc metuTradukon teksto {
+    my instvar tradukilo lastaFonto
+    set twin [my prenuRezultoFenestro]
+    $twin config -state normal
+    $twin delete 1.0 end
+    set sep [$tradukilo prenuSeparatilon]
+    set miasep [my prenuSeparatilon]
+    set komenco 0
+    if {$teksto eq "" && [EsperantoConf set segPrenuFonton]} {
+        set teksto $lastaFonto
+    }
+    if {$teksto ne ""} {
+        while {[set ri [string first $sep $teksto $komenco]]>=0} {
+            $twin insert insert [string range $teksto $komenco [expr {$ri-1}]]
+            $twin insert insert $miasep separatilo
+            set komenco [expr {$ri+3}]
+        }
+        $twin insert insert [string range $teksto $komenco end]
+    } else {
+        while {[set ri [string first $sep $lastaFonto $komenco]]>=0} {
+            $twin insert insert $miasep separatilo
+            $twin insert insert " "
+            set komenco [expr {$ri+3}]
+        }
+    }
+    $twin edit reset
+}
+InteraktivaTradukadoGUINavigado instproc montruAntauanSegmenton {} {
+    my instvar segmentoj segmentoid tradukilo
+    incr segmentoid -1
+    my montruSegmenton
+}
+InteraktivaTradukadoGUINavigado instproc montruAntauanSegmentonSenTraduko {} {
+    my instvar segmentoj segmentoid tradukilo
+    set asegid $segmentoid
+    incr segmentoid -1
+    while {[$tradukilo havasTradukon [my prenuAktSegmento]]} {
+        incr segmentoid -1
+        if {$segmentoid<0} {
+            my setStatusBarText [mc "neniu netradukita segmento antaŭe"]
+            set segmentoid $asegid
+            return
+        }
+    }
+    my montruSegmenton
+}
+InteraktivaTradukadoGUINavigado instproc montruAtributojn {} {
+    my instvar tradukilo segmentoj
+    set rez ""
+    append rez [mc "fonta lingvo"] ": " [$tradukilo set fontaLingvo] \n
+    append rez [mc "cela lingvo"] ": " [$tradukilo set celaLingvo] \n
+    append rez [mc "segmentoj"] ": " [llength $segmentoj] \n
+    if {[$tradukilo exists dosiero]} {
+        append rez [mc "projekta dosiero"] ": " [$tradukilo set dosiero] \n
+    }
+    if {[$tradukilo exists originaDosiero]} {
+        append rez [mc "fonta dosiero"] ": " [$tradukilo set originaDosiero] \n
+    }
+    if {[$tradukilo havasMetaAtributojn]} {
+
+    }
+    RezultoFenestro newBrowserReuse $rez
+}
+InteraktivaTradukadoGUINavigado instproc montruFonton {} {
+    my instvar segmentoid lastaSegmentoId komencoLastaFonto finoLastaFonto tradukilo lastaFonto
+
+    set fwin [my @fonto getTextWindow]
+    $fwin config -state normal
+    if {$komencoLastaFonto ne ""} {
+        $fwin delete $komencoLastaFonto $finoLastaFonto
+    }
+    set komencoLastaFonto ""
+    set finoLastaFonto ""
+    if {[info exists lastaSegmentoId]} {
+        $fwin tag configure s$lastaSegmentoId -background ""
+    }
+
+    $fwin tag configure s$segmentoid -background yellow
+    set lastaSegmentoId $segmentoid
+    set lastaFonto [$tradukilo prenuFonton [my prenuAktSegmento]]
+
+    if {[$tradukilo havasTradukon [my prenuAktSegmento]]} {
+        set index [$fwin index "[lindex [$fwin tag ranges s$segmentoid] 0]"]
+        $fwin insert $index "$lastaFonto\n" fonto
+        set komencoLastaFonto $index
+        set finoLastaFonto [$fwin index "[lindex [$fwin tag ranges s$segmentoid] 0]"]
+        $fwin see $index
+        $fwin see [lindex [$fwin tag ranges s$segmentoid] end]
+    } else {
+        $fwin see [lindex [$fwin tag ranges s$segmentoid] 0]
+        $fwin see [lindex [$fwin tag ranges s$segmentoid] end]
+    }
+    $fwin config -state disabled
+}
+InteraktivaTradukadoGUINavigado instproc montruFrazon nfrazo {
+    my instvar win frazo elemArr vortoGrupoj tradukilo lastaFonto
+    set frazo $nfrazo
+    set vortoGrupoj [$frazo konstruuVortoGrupoj $tradukilo]
+
+    set grupojNombro 0
+    my montruTMTradukojn $lastaFonto
+
+    return [my remontruFrazon]
+}
+InteraktivaTradukadoGUINavigado instproc montruLastanSegmenton {} {
+    my instvar segmentoid segmentoj
+    set segmentoid [expr {[llength $segmentoj]-1}]
+    my montruSegmenton
+}
+InteraktivaTradukadoGUINavigado instproc montruSegmentojn {} {
+    my instvar tradukilo segmentoid segmentoj
+    set twin [my @fonto getTextWindow]
+    $twin config -state normal
+    $twin delete 1.0 end
+    set i 0
+    $twin tag configure fonto -lmargin1 5 -lmargin2 5
+    $twin tag configure odditem -background LemonChiffon2
+    foreach s $segmentoj {
+        if {$i%2} {
+            set additem odditem
+        } else {
+            set additem ""
+        }
+        if {[$tradukilo havasTradukon $s]} {
+            set txt [$tradukilo prenuTradukon $s]
+            $twin tag configure s$i -foreground blue -borderwidth 3
+        } else {
+            set txt [$tradukilo prenuFonton $s]
+            $twin tag configure s$i -borderwidth 3
+        }
+        $twin insert insert "$txt\n" [concat s$i $additem]
+        incr i
+    }
+    $twin tag raise avorto
+    $twin config -state disabled
+}
+InteraktivaTradukadoGUINavigado instproc montruSegmenton {} {
+    my instvar segmentoj segmentoid tradukilo win direktaRedakto tmtradukoj lastaSegmentoId masxinaTradukado vortoGrupoj havisTradukon frazo tmtradukoj uzuLiterumadon lastaFonto akceptita tradukisto lastaModifo win ltsegmento
+    my konservuMetaAtributojn
+    if {[llength $segmentoj]<=$segmentoid} {
+        my finiTradukadon
+        set segmentoid [expr {[llength $segmentoj]-1}]
+    } elseif {$segmentoid>=0} {
+        set ltsegmento [lindex $segmentoj $segmentoid]
+        set txt [$tradukilo prenuTradukon [lindex $segmentoj $segmentoid]]
+        set havisTradukon [expr {$txt ne ""}]
+        my montruFonton
+        if {$txt ne "" || !$masxinaTradukado} {
+            if {$frazo ne ""} {
+                $frazo destroy
+                set frazo ""
+            }
+            my puriguInteraktivajVortoj
+            set vortoGrupoj {}
+            my metuTradukon $txt
+            set direktaRedakto 1
+            if {$txt eq ""} {
+                $win.rezframe.r.delete configure -state disabled
+                my montruTMTradukojn $lastaFonto
+            } else {
+                $win.rezframe.r.delete configure -state normal
+                set tmtradukoj {}
+                my montruTMTraduko
+            }
+            if {$uzuLiterumadon} {
+                my literumu
+            }
+            focus [my prenuRezultoFenestro]
+            if {![EsperantiloLancxilo estasTM]} {
+                $win.rezframe.r.manatraduko configure -state disabled
+            }
+        } else {
+            $win.rezframe.r.delete configure -state disabled
+            $win.rezframe.r.manatraduko configure -state normal
+            my montruSegmentonBase
+        }
+    } else {
+        set segmentoid 0
+        my setStatusBarText [mc "Vi atingis la unuan segmenton"]
+    }
+    if {[$tradukilo havasMetaAtributojn]} {
+        set metaDic [$tradukilo prenuMetaAtributojn [lindex $segmentoj $segmentoid]]
+        if {[dict exists $metaDic akceptita]} {
+            set akceptita [dict get $metaDic akceptita]
+        }
+        if {[dict exists $metaDic lastamodifo]} {
+            set lastaModifo [clock format [dict get $metaDic lastamodifo] -format "%x %X"]
+        }
+        if {[dict exists $metaDic tradukisto]} {
+            set tradukisto [dict get $metaDic tradukisto]
+        } else {
+            set tradukisto ""
+        }
+        if {[dict exists $metaDic komento]} {
+            set twin $win.rezframe.m.komento
+            $twin delete 1.0 end
+            $twin insert 1.0 [dict get $metaDic komento]
+            $twin edit reset
+            $twin edit modified 0
+        }
+    }
+}
+InteraktivaTradukadoGUINavigado instproc montruSegmentonBase {} {
+    my instvar segmentoj segmentoid tradukilo direktaRedakto frazo win
+    if {$frazo ne ""} {
+        $frazo destroy
+        set frazo ""
+    }
+    set tfrazo [$tradukilo prenuFrazTradukoPorSegmento [lindex $segmentoj $segmentoid]]
+    if {$tfrazo eq ""} {
+        my puriguInteraktivajVortoj
+        set twin [my prenuRezultoFenestro]
+        $twin config -state normal
+        $twin delete 1.0 end
+        set direktaRedakto 1
+        set tmtradukoj [list]
+        focus [my prenuRezultoFenestro]
+    } else {
+        my montruFrazon $tfrazo
+    }
+    set direktaRedakto 0
+}
+InteraktivaTradukadoGUINavigado instproc montruSegmentonMT {} {
+    my montruSegmentonBase
+}
+InteraktivaTradukadoGUINavigado instproc montruSekvanSegmenton {} {
+    my instvar segmentoj segmentoid tradukilo
+    incr segmentoid
+    my montruSegmenton
+}
+InteraktivaTradukadoGUINavigado instproc montruSekvanSegmentonSenTraduko {} {
+    my instvar segmentoj segmentoid tradukilo
+    set asegid $segmentoid
+    incr segmentoid
+    if {[llength $segmentoj]<=$segmentoid} {
+        my setStatusBarText [mc "neniu netradukita segmento sekve"]
+        set segmentoid $asegid
+        my testuCxuKompleta
+        return 0
+    }
+    while {[$tradukilo havasTradukon [my prenuAktSegmento]]} {
+        incr segmentoid
+        if {[llength $segmentoj]<=$segmentoid} {
+            my setStatusBarText [mc "neniu netradukita segmento sekve"]
+            set segmentoid $asegid
+            my testuCxuKompleta
+            return 0
+        }
+    }
+    my montruSegmenton
+    return 1
+}
+InteraktivaTradukadoGUINavigado instproc montruTradukistojn {} {
+    my instvar tradukilo
+    if {[$tradukilo havasMetaAtributojn]} {
+        set tradukistoj [$tradukilo prenuTradukistoj]
+        set tradukisto [$tradukilo prenuAktualanTradukiston]
+        if {$tradukisto eq ""} {
+            set tradukisto [EsperantoConf set uzantoNomo]
+        }
+        set ntrad [TradukistojDialogo elektuTradukiston $tradukistoj $tradukisto]
+        if {$ntrad ne ""} {
+            $tradukilo metuAktualanTradukiston $ntrad
+            EsperantoConf set uzantoNomo $ntrad
+        }
+    }
+
+}
+InteraktivaTradukadoGUINavigado instproc montruUnuanSegmenton {} {
+    my instvar segmentoid
+    set segmentoid 0
+    my montruSegmenton
+}
+InteraktivaTradukadoGUINavigado instproc openHTMLBrowser url {
+    iloj::openHTMLBrowser $url
+    my setStatusBarText [mc "TTT-montrilo estas lanĉita"]
+}
+@ InteraktivaTradukadoGUINavigado instproc porCxiuVortoProgreso {} {
+description {trairu la vortojn en rezulta fenestro
+vidu '''EsperantoEditor'''}
+}
+InteraktivaTradukadoGUINavigado instproc porCxiuVortoProgreso {vorto_ref cur_ref count_ref script} {
+   upvar $vorto_ref vorto $cur_ref cur $count_ref count
+   if {![Object isobject [self]::@kursoro]} {
+        EditKursoro create [self]::@kursoro -win [my prenuRezultoFenestro]
+        FrazoLegilo create [self]::@legilo -signoLegilo [self]::@kursoro
+        my @legilo komencuFrazon
+    }
+
+    set twin [my prenuRezultoFenestro]
+    set range [$twin tag ranges sel]
+    if {[llength $range]==0} {
+       set cur 1.0
+       set stopIndex end
+    } else {
+       set cur [lindex $range 0]
+       set stopIndex [lindex $range 1]
+    }
+    my @kursoro kursoro $cur
+    my @kursoro metuFinon $stopIndex
+    my @kursoro konservuKursoron
+
+    while {[set vorto [my @legilo prenuVorton]] ne ""} {
+       if {$vorto eq "_FINO_"} continue
+       if {[string is punct $vorto]} continue
+       if {[string is integer $vorto]} continue
+       set cur [my @kursoro vortkomenco]
+       set kursoro [my @kursoro kursoro]
+       set count [string length [$twin get $cur $kursoro]]
+       uplevel $script
+   }
+}
+InteraktivaTradukadoGUINavigado instproc prenuAktSegmento {} {
+    my instvar segmentoj segmentoid
+    lindex $segmentoj $segmentoid
+}
+InteraktivaTradukadoGUINavigado instproc prenuLiterumanVortaron {} {
+    my instvar literumaVortaro tradukilo uzuLiterumadon
+    if {![info exists literumaVortaro] || ![Object isobject $literumaVortaro]} {
+        if {[$tradukilo set celaLingvo] eq "eo"} {
+            set literumaVortaro [Vortaro prenuVortaron]
+        } else {
+            set literumaVortaro [HunspellTestilo prenuInstancoPorLingvo [$tradukilo set celaLingvo]]
+            if {$literumaVortaro eq ""} {
+                my setStatusBarText [mc "Literuma vortaro por la lingvo %s ne estis trovita" [$tradukilo set celaLingvo]]
+                set uzuLiterumadon 0
+                return
+            }
+        }
+    }
+    return $literumaVortaro
+}
+InteraktivaTradukadoGUINavigado instproc redaktuTradukon {} {
+    my instvar tradukilo
+    EsperantoBrowser redaktoTekston [$tradukilo prenuTradukoTekston]
+}
+InteraktivaTradukadoGUINavigado instproc refreshuTradukon {} {
+    my instvar direktaRedakto tradukilo segmentoid
+    set fwin [my @fonto getTextWindow]
+    set segmento [my prenuAktSegmento]
+    if {[$tradukilo havasTradukon $segmento]} {
+        set txt [$tradukilo prenuTradukon $segmento]
+        set fg blue
+    } else {
+        set txt [$tradukilo prenuFonton $segmento]
+        set fg black
+    }
+    foreach {k f} [$fwin tag ranges s$segmentoid] {}
+    $fwin configure -state normal
+    $fwin delete $k $f
+    $fwin insert $k "$txt\n" s$segmentoid
+    $fwin tag configure s$segmentoid -foreground $fg
+    $fwin configure -state disabled
+}
+InteraktivaTradukadoGUINavigado instproc refresxuTradukanProgreson {} {
+    my instvar segmentoj tradukitajNombro
+    if {[llength $segmentoj]==0} {
+        my setProgress 0
+        return
+    }
+    my setProgress [expr {round(100.0*double($tradukitajNombro)/[llength $segmentoj])}]
+}
+InteraktivaTradukadoGUINavigado instproc retraduku {} {
+    my instvar frazo
+    if {$frazo eq ""} {
+        my montruSegmentonBase
+    } else {
+        next
+    }
+}
+InteraktivaTradukadoGUINavigado instproc selectSegementon {x y} {
+    my instvar segmentoid
+    set twin [my @fonto getTextWindow]
+    set index  [$twin index @$x,$y]
+    if {$index ne ""} {
+        foreach t [$twin tag names $index] {
+            if {[regexp {^s([0-9]+)$} $t _ segid]} {
+                set segmentoid $segid
+                my montruSegmenton
+                return
+            }
+        }
+    }
+}
+InteraktivaTradukadoGUINavigado instproc sercxuSegmenton {} {
+    my instvar tvorto tradukilo trovuTradukon ltrovuTradukon ltsegmento ltvorto segmentoid segmentoj
+    if {[info exists ltvorto] && $tvorto eq $ltvorto && $ltrovuTradukon eq $trovuTradukon} {
+        # nenio
+    } else {
+        set ltsegmento ""
+    }
+    set seg [$tradukilo trovuSegmenton $tvorto $trovuTradukon $ltsegmento]
+    set segid [lsearch $segmentoj $seg]
+    set ltsegmento $seg
+    set ltvorto $tvorto
+    set ltrovuTradukon $trovuTradukon
+    if {$segid<0} {
+        my setStatusBarText [mc "neniu segmento estas trovita"]
+    } else {
+        set segmentoid $segid
+        my montruSegmenton
+    }
+}
+InteraktivaTradukadoGUINavigado instproc specificInit {} {
+    next
+
+    my instvar win frazo komencoLastaFonto finoLastaFonto direktaRedakto uzuLiterumadon lastaRezulto
+
+    my requireNamespace
+    set bf $win.butframe
+    set frazo ""
+    set komencoLastaFonto ""
+    set finoLastaFonto ""
+    set direktaRedakto 0
+    set uzuLiterumadon 1
+    set lastaRezulto ""
+
+    set sf [frame $bf.segf]
+    set sfl [frame $sf.sfl]
+
+    scale $sf.sc -orient horizontal -sliderrelief flat -sliderlength 0 -troughcolor #AAAAAA -showvalue 0 -label 0 -digits 1
+
+    label $sfl.lsegmentoid -text [mc "Segmento:"]
+    label $sfl.lsegmentoNombro -text [mc "de:"]
+    label $sfl.segmentoid -textvariable [self]::segmentoid -width 3
+    label $sfl.segmentoNombro -width 3
+
+    pack $sfl.lsegmentoid $sfl.segmentoid $sfl.lsegmentoNombro $sfl.segmentoNombro -side left
+
+    button $sf.fseg -image [IDE::Toolbar createImage start] -relief flat -overrelief raised -takefocus 0 -command [list [self] montruUnuanSegmenton]
+    button $sf.prevmtseg  -image [IDE::Toolbar createImage player_rew] -relief flat -overrelief raised -takefocus 0 -command [list [self] montruAntauanSegmentonSenTraduko]
+    button $sf.prevseg  -image [IDE::Toolbar createImage back] -relief flat -overrelief raised -takefocus 0  -command [list [self] montruAntauanSegmenton]
+    button $sf.nextseg  -image [IDE::Toolbar createImage forward2] -relief flat -overrelief raised -takefocus 0  -command [list [self] montruSekvanSegmenton]
+    button $sf.nextmtseg  -image [IDE::Toolbar createImage player-fwd] -relief flat -overrelief raised -takefocus 0  -command [list [self] montruSekvanSegmentonSenTraduko]
+    button $sf.lseg -image [IDE::Toolbar createImage finish] -relief flat -overrelief raised -takefocus 0  -command [list [self] montruLastanSegmenton]
+
+    grid $sf.sc -column 0 -row 0
+    grid $sfl -column 7 -row 0 -columnspan 6
+    grid $sf.fseg -column 1 -row 0
+    grid $sf.prevmtseg -column 2 -row 0
+    grid $sf.prevseg -column 3 -row 0
+    grid $sf.nextseg -column 4 -row 0
+    grid $sf.nextmtseg -column 5 -row 0
+    grid $sf.lseg -column 6 -row 0
+
+    set tf [frame $win.tf]
+    label $tf.ltrovu -text [mc "Trovu:"]
+    entry $tf.tvorto -textvariable [self]::tvorto -font espfont
+    bind $tf.tvorto <Return> [list [self] sercxuSegmenton]
+    button $tf.ekvorto -text [mc "Ek"] -command [list [self] sercxuSegmenton] -takefocus 0
+    # -compound left -image [IDE::Toolbar createImage filefind]
+    my set trovuTradukon 1
+    checkbutton $tf.tcxutraduko -text [mc "Trovu tradukon"] -variable [self]::trovuTradukon
+    pack $tf.ltrovu $tf.tvorto $tf.ekvorto $tf.tcxutraduko -side left
+    pack $tf -after $win.toolbar -fill x
+
+    pack $sf -side left -anchor w
+
+    set twin [my @fonto getTextWindow]
+    bind $twin <Button-1> [list [self] selectSegementon %x %y]
+}
+InteraktivaTradukadoGUINavigado instproc sxangxuAkceptita {} {
+    my instvar segmentoid segmentoj akceptita tradukilo
+    $tradukilo metuMetaAtributojn [lindex $segmentoj $segmentoid] [dict create akceptita $akceptita]
+}
+InteraktivaTradukadoGUINavigado instproc testuCxuKompleta {} {
+    my instvar tradukilo
+    if {[my estasKompleta]} {
+        if {[$tradukilo exists deRedaktilo]} {
+            EsperantoBrowser redaktoTekston [$tradukilo prenuTradukoTekston]
+        }
+    }
+}
+InteraktivaTradukadoGUINavigado instproc tradukuAutomate {} {
+    my instvar segmentoj segmentoid tradukitajNombro
+    set lsegid $segmentoid
+    set progreso [ProgresoMontrilo startProgress [mc "Esperantilo tradukas"]]
+    while {$segmentoid<[llength $segmentoj]} {
+        my akceptuFrazon
+        $progreso setProgress [expr {round(100.0*double($tradukitajNombro)/[llength $segmentoj])}]
+        if {$lsegid eq $segmentoid || [$progreso isStopped]} break
+        set lsegid $segmentoid
+    }
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+}
+InteraktivaTradukadoGUINavigado instproc tradukuSamanTMX {} {
+    my instvar segmentoid segmentoj tradukilo
+    set cxangxoj 0
+    set psegmentoid $segmentoid
+    while  {[llength $segmentoj]>$psegmentoid} {
+        set segmento [lindex $segmentoj $psegmentoid]
+        if {![$tradukilo havasTradukon $segmento]} {
+            set txt [[my prenuTMServilo] trovu [$tradukilo prenuFonton $segmento]]
+            if {$txt ne ""} {
+                $tradukilo akzeptuTraduko $segmento $txt
+                incr cxangxoj
+            }
+        }
+        incr psegmentoid
+    }
+    if {$cxangxoj} {
+        my @fonto setText ""
+        my komencuTradukadon
+        my setStatusBarText [mc "trovis %s frazojn en tradukmemoro" $cxangxoj]
+    } else {
+        my setStatusBarText [mc "neniu frazo en tradukmemoro estas trovita" $cxangxoj]
+    }
+}
+InteraktivaTradukadoGUINavigado instproc trovuLiterumajnErarojn {} {
+    my instvar tradukilo segmentoj segmentoid uzuLiterumadon
+    set startoSegmento $segmentoid
+    set literumaVortaro [my prenuLiterumanVortaron]
+    if {$literumaVortaro eq ""} {
+        return
+    }
+    set kursoro [TekstoKursoro new -childof [self]]
+    set legilo [FrazoLegilo new -childof [self] -signoLegilo $kursoro]
+    set eraro 0
+    while {[llength $segmentoj]>$startoSegmento} {
+        set traduko [$tradukilo prenuTradukon [lindex $segmentoj $startoSegmento]]
+        if {$traduko ne ""} {
+            $kursoro teksto $traduko
+            $kursoro kursoro 0
+            while {[set vorto [$legilo prenuVorton]] ne ""} {
+                set erg [$literumaVortaro estasVorto $vorto]
+                if {[string length $vorto]==1} continue
+                if {![string is alpha $vorto]} continue
+                if {$erg==0} {
+                    set eraro 1
+                    break
+                } elseif {$erg==1 && ![EsperantoConf set ignoruDerivoj]} {
+                    set eraro 1
+                    break
+                }
+            }
+            if {$eraro} {
+                set segmentoid $startoSegmento
+                my montruSegmenton
+                if {!$uzuLiterumadon} {
+                    my literumu
+                }
+                break
+            }
+        }
+        incr startoSegmento
+    }
+    if {!$eraro} {
+        my setStatusBarText [mc "neniu literuma eraro estis trovita"]
+    }
+    $kursoro destroy
+    $legilo destroy
+}
+InteraktivaTradukadoGUINavigado instproc visituDosierojn dosiero {
+    if {![file isfile $dosiero]} {
+        EsperantoBrowser message [mc "Dosiero %s ne estas atingebla" $dosiero]
+        return
+    }
+    TekstoTradukiloSeg malfermuProjekto $dosiero
+}
+InteraktivaTradukadoGUINavigado proc newBrowser {{eblasMasxinaTradukado 0} {nurTradukadoModo 0}} {
+    my new [Object autoname .itradukonav] [list -eblasMasxinaTradukado $eblasMasxinaTradukado] [list -nurTradukadoModo $nurTradukadoModo]
+}
+Class InteraktivaVorto -parameter {butono vorto}
+@ ::InteraktivaVorto idemeta categories {focus init-release ebloj-api api}
+@ ::InteraktivaVorto idemeta categoriesMethods {{focus focusPrev focusNext} {destroy initButonon montriguEn} {prenuEblon prenuEbloTypoj invokeEbloAktiono uzantoAktiono} {havasAktionon movuMalantaue movuAntaue metuAktiva metuNeAktiva}}
+@ ::InteraktivaVorto idemeta component EspTradukGUI
+InteraktivaVorto instproc destroy {} {
+    my instvar butono
+    if {[info exists butono]} {
+        ::destroy $butono
+    }
+    next
+}
+InteraktivaVorto instproc focus {} {
+    focus [my butono]
+}
+InteraktivaVorto instproc focusNext {} {
+    my instvar butono
+    set twin [my prenuRezultoFenestro]
+    set pos [$twin index "$butono + 1 c"]
+    focus [$twin window cget $pos -window]
+}
+InteraktivaVorto instproc focusPrev {} {
+    my instvar butono
+    set twin [my prenuRezultoFenestro]
+    set pos [$twin index "$butono - 1 c"]
+    focus [$twin window cget $pos -window]
+}
+InteraktivaVorto instproc foriguVorto {} {
+    set twin [my prenuRezultoFenestro]
+    my instvar butono vorto
+    [my info parent] foriguIVorton [self]
+    $vorto foriguDeParenco
+    $twin config -state normal
+    set pos [$twin index $butono]
+    $twin window configure $butono -window {}
+    set npos [$twin index "$pos + 1 c"]
+    $twin delete $pos $npos
+    ::destroy $butono
+}
+InteraktivaVorto instproc havasAktionon {} {
+    expr {[llength [my prenuEbloTypoj]]>0}
+}
+InteraktivaVorto instproc initButonon {} {
+    my instvar butono vorto ebloj
+    set ebloj [$vorto prenuEbloTypoj]
+    $butono configure -relief flat -borderwidth 0 -padx 2 -pady 1 -activebackground [$butono cget -background] -activeforeground [$butono cget -foreground]
+    if {[llength $ebloj]==0} {
+        if {[$vorto exists mesagxoTipo]} {
+            foreach {nomo conf diskribo} [TkWinTradukilo prenuTradukPriskriboj] {
+                if {[$vorto set mesagxoTipo] eq $nomo} {
+                    eval $butono configure $conf
+                    break
+                }
+            }
+        }
+        return
+    }
+    foreach {nomo desc diskribo} [TkWinTradukilo prenuTradukPriskriboj] {
+        if {[lsearch $ebloj $nomo]>=0} {
+            eval $butono configure $desc
+            foreach {tag farbo} $desc {
+                if {$tag eq "-foreground"} {
+                    $butono configure -activeforeground $farbo
+                } elseif {$tag eq "-background"} {
+                    $butono configure -activebackground $farbo
+                }
+            }
+            break
+        }
+        switch -exact -- $nomo {
+            sinonimoj {
+                if {[lsearch $ebloj sinonimo]>=0} {
+                    foreach {tag farbo} $desc {
+                        if {$tag eq "-foreground"} break
+                    }
+                    $butono configure -foreground $farbo -activeforeground $farbo
+                    break
+                }
+            }
+        }
+    }
+}
+InteraktivaVorto instproc invokeEbloAktiono {aktiono nova} {
+    my instvar vorto
+    $vorto $aktiono $nova
+    [my info parent] refreshu
+}
+InteraktivaVorto instproc metuAktiva {} {
+    my instvar butono
+    $butono configure -font [InteraktivaVorto prenuSelFonto $butono]
+    focus $butono
+}
+InteraktivaVorto instproc metuNeAktiva {} {
+    my instvar butono
+    if {[winfo exists $butono]} {
+        $butono configure -font [InteraktivaVorto prenuKutimaFonto $butono]
+    }
+}
+InteraktivaVorto instproc montriguEn {win vortoNombro} {
+    my instvar butono vorto
+    set butono [button [winfo parent $win].$vortoNombro -text [$vorto prenuTradukon] -command [list [self] uzantoAktiono] -font espfont]
+    #bind $butono <KeyPress-Left> [list [self] focusPrev]
+    #bind $butono <KeyPress-Right> [list [self] focusNext]
+    bind $butono <KeyPress-Return> [list [self] redaktuTradukon]
+    bind $butono <KeyPress-Up> [list [self] sinonimoUp]
+    bind $butono <KeyPress-Down> [list [self] sinonimoDown]
+    bind $butono <KeyPress-Delete> [list [self] foriguVorto]
+    bind $butono <Double-Button-1> [list [self] redaktuTradukon]
+
+    my initButonon
+    $win window create insert -window $butono
+    return $butono
+}
+InteraktivaVorto instproc movuAntau ivorto {
+    set twin [my prenuRezultoFenestro]
+    my instvar butono
+    $twin config -state normal
+    set pos [$twin index $butono]
+    $twin window configure $butono -window {}
+    set npos [$twin index "$pos + 1 c"]
+    $twin delete $pos $npos
+
+    set tpos [$twin index [$ivorto set butono]]
+    $twin window create $tpos -window $butono
+    $twin config -state disabled
+}
+InteraktivaVorto instproc movuAntaue {} {
+    set twin [my prenuRezultoFenestro]
+    my instvar butono
+    $twin config -state normal
+    set pos [$twin index $butono]
+    $twin window configure $butono -window {}
+    set npos [$twin index "$pos + 1 c"]
+    $twin delete $pos $npos
+    $twin window create $npos -window $butono
+    $twin config -state disabled
+}
+InteraktivaVorto instproc movuMalantaue {} {
+    set twin [my prenuRezultoFenestro]
+    my instvar butono
+    $twin config -state normal
+    set pos [$twin index $butono]
+    $twin window configure $butono -window {}
+    $twin delete $pos [$twin index "$pos + 1 c"]
+    set npos [$twin index "$pos - 1 c"]
+    $twin window create $npos -window $butono
+    $twin config -state disabled
+}
+InteraktivaVorto instproc movuPost ivorto {
+    set twin [my prenuRezultoFenestro]
+    my instvar butono
+    $twin config -state normal
+    set pos [$twin index $butono]
+    $twin window configure $butono -window {}
+    set npos [$twin index "$pos + 1 c"]
+    $twin delete $pos $npos
+
+    set tpos [$twin index [$ivorto set butono]]
+    set tpos [$twin index "$tpos + 1 c"]
+    $twin window create $tpos -window $butono
+    $twin config -state disabled
+}
+InteraktivaVorto instproc prenuEbloTypoj {} {
+    [my vorto] prenuEbloTypoj
+}
+InteraktivaVorto instproc prenuEblon eblo {
+    [my vorto] prenuEblon $eblo
+}
+InteraktivaVorto instproc prenuLokoIndekso {} {
+    my instvar vorto
+    $vorto selektu {elemento fino}
+}
+InteraktivaVorto instproc prenuMesagxon {} {
+    my instvar vorto ebloj
+    if {[info exists ebloj] && [llength $ebloj]>0} {
+        set ret ""
+        foreach e $ebloj {
+            foreach {nomo lebloj aktualaEblo aktiono} [my prenuEblon $e] {}
+            append ret "${nomo}: [join $lebloj ", "] "
+        }
+        return $ret
+
+    } elseif {[$vorto exists mesagxo]} {
+        return [$vorto set mesagxo]
+    } else {
+        return [$vorto printString]
+    }
+}
+InteraktivaVorto instproc prenuRezultoFenestro {} {
+    [my info parent] prenuRezultoFenestro
+}
+InteraktivaVorto instproc redaktuTradukon {} {
+    my instvar vorto
+    set t [IDE::IDialogEntry getValueWithCancel traduko [$vorto prenuTradukon]]
+    if {$t ne "_cancel"} {
+        $vorto metuTradukon $t
+        [my info parent] refreshu
+    }
+
+}
+InteraktivaVorto instproc refreshu {} {
+    my instvar butono vorto
+    $butono configure -text [$vorto prenuTradukon]
+}
+InteraktivaVorto instproc sinonimoDown {} {
+    my instvar ebloj
+    if {[llength $ebloj]==0} return
+    foreach {nomo mebloj aktualaEblo aktiono} [my prenuEblon [lindex $ebloj 0]] {}
+    set i [lsearch $mebloj $aktualaEblo]
+    if {$i<0 || [llength $mebloj]-1==$i} {
+        return
+    }  else {
+        incr i
+    }
+    my invokeEbloAktiono $aktiono [lindex $mebloj $i]
+}
+InteraktivaVorto instproc sinonimoUp {} {
+    my instvar ebloj
+    if {[llength $ebloj]==0} return
+    foreach {nomo mebloj aktualaEblo aktiono} [my prenuEblon [lindex $ebloj 0]] {}
+    set i [lsearch $mebloj $aktualaEblo]
+    if {$i<=0} {
+        return
+    }  else {
+        incr i -1
+    }
+    my invokeEbloAktiono $aktiono [lindex $mebloj $i]
+}
+InteraktivaVorto instproc updateSinonimo eblo {
+    my instvar butono
+    $butono configure -text $eblo
+}
+InteraktivaVorto instproc uzantoAktiono {} {
+    my instvar vorto
+    [my info parent] metuAktivanVorton [self]
+}
+InteraktivaVorto proc prenuKutimaFonto butono {
+    my instvar kutimaFonto
+    if {![info exists kutimaFonto]} {
+        set kutimaFonto [$butono cget -font]
+    }
+    return $kutimaFonto
+}
+InteraktivaVorto proc prenuSelFonto butono {
+    my instvar selFonto kutimaFonto
+    if {![info exists selFonto]} {
+        set kutimaFonto [$butono cget -font]
+        font create butSelekto
+        eval font configure butSelekto [font actual $kutimaFonto]
+        font configure butSelekto -underline 1
+        set selFonto butSelekto
+    }
+    return $selFonto
+}
+Class InteraktivaVortoNekonata -superclass ::InteraktivaVorto
+@ ::InteraktivaVortoNekonata idemeta component EspTradukGUI
+InteraktivaVortoNekonata instproc havasAktionon {} {
+    return 1
+}
+InteraktivaVortoNekonata instproc initButonon {} {
+    my instvar butono ebloj
+    set ebloj [list]
+    $butono configure -background red -activebackground red
+}
+InteraktivaVortoNekonata instproc invokeEbloAktiono {aktiono nova} {
+    my instvar vorto
+    $vorto set traduko $nova
+    [my info parent] refreshu
+}
+Class InteraktivaVortoSentraduka -superclass ::InteraktivaVorto
+@ ::InteraktivaVortoSentraduka idemeta component EspTradukGUI
+InteraktivaVortoSentraduka instproc havasAktionon {} {
+    return 1
+}
+InteraktivaVortoSentraduka instproc initButonon {} {
+    my instvar butono ebloj
+    set ebloj [list]
+    $butono configure -background tomato1 -activebackground tomato1
+}
+InteraktivaVortoSentraduka instproc invokeEbloAktiono {aktiono nova} {
+    my instvar vorto
+    $vorto set traduko $nova
+    [my info parent] refreshu
+}
+InteraktivaVortoSentraduka instproc retraduku {} {
+    my instvar vorto
+    $vorto retraduku
+    [my info parent] refreshu
+}
+Class LastajTradukajProjektojMenuo -superclass ::IDE::LastVisitedMenuStruct
+@ ::LastajTradukajProjektojMenuo idemeta component EspTradukGUI
+LastajTradukajProjektojMenuo instproc menuIsMapped win {
+    my instvar aktList command
+    set n [EsperantoConf prenuTradukoProjektojn]
+    if {$n ne $aktList} {
+         $win delete 0 end
+         foreach f $n {
+             $win add command -label $f -command "$command [list $f]"
+         }
+         set aktList $n
+    }
+}
+Class TkWinTradukilo -superclass ::EspTradikiloBazo -parameter {inputTextWindow outputTextWindow inputEditor outputEditor progresoObj}
+@ ::TkWinTradukilo idemeta component EspTradukGUI
+TkWinTradukilo instproc estasKutimaSeparatilo {komenco fino} {
+    set sep [my @kursoro prenuRegionon $komenco $fino]
+    if {$sep eq "" || [string is space $sep]} {
+        return 1
+    }
+    return 0
+}
+TkWinTradukilo instproc finiOutput {} {
+    my instvar lastaElementoKursoro outputTextWindow inputTextWindow outputEditor inputEditor
+    if {$lastaElementoKursoro ne ""} {
+        $outputTextWindow insert insert [$inputTextWindow get $lastaElementoKursoro [my @kursoro set stopIndex]]
+    }
+    [$outputEditor @editor getTextWindow] edit modified 0
+    $outputEditor set cxuTradukoEnProgreso 0
+    [$inputEditor info parent] mixin delete TradEditorFontoMix
+}
+TkWinTradukilo instproc init args {
+   next
+   my instvar outputTextWindow outputEditor inputTextWindow inputEditor
+   $outputEditor mixin add TradEditorMix
+   $outputEditor initInputWindow $inputTextWindow
+   [$inputEditor info parent] mixin add TradEditorFontoMix
+
+   foreach {nomo conf priskribo} [TkWinTradukilo prenuTradukPriskriboj] {
+       eval $outputTextWindow tag configure $nomo $conf
+       $outputTextWindow tag bind $nomo <Any-Enter> [list $outputEditor setStatusBarText $priskribo]
+       $outputTextWindow tag bind $nomo <Any-Leave> [list $outputEditor setStatusBarText ""]
+   }
+   $outputTextWindow tag bind traduko <Double-Button-1> [list [$outputEditor @editor] montruTradukoTagEnVortaro %x %y]
+}
+TkWinTradukilo instproc initInteraktivanDialogon {} {
+    my instvar outputTextWindow outputEditor
+    lower [winfo toplevel $outputTextWindow]
+    $outputEditor set cxuTradukoEnProgreso 1
+    next
+}
+TkWinTradukilo instproc prenuVorton {} {
+    my instvar inputEditor
+    while 1 {
+        set vorto [my @legilo prenuSVorton]
+        if {$vorto eq ""} {
+            return
+        }
+        if {[$inputEditor estasEnIgnorSelekto [my @kursoro vortkomenco]]} {
+            continue
+        }
+        break
+    }
+    return $vorto
+}
+TkWinTradukilo instproc preparuTradukadon {} {
+    my instvar inputTextWindow lastaElementoKursoro vortaro inputEditor lingvofabriko
+    set vortaro [Vortaro prenuVortaron]
+    if {![Object isobject [self]::@kursoro]} {
+        EditKursoro create [self]::@kursoro -win $inputTextWindow
+        $lingvofabriko kreuFrazoLegilo [self]::@legilo
+        my @legilo signoLegilo [self]::@kursoro
+        my @legilo komencuFrazon
+    }
+    if {[Object isobject [self]::@frazo]} {
+        my @frazo destroy
+        my @legilo komencuFrazon
+    }
+
+    set estasHTML [$inputEditor estasEnhavoHTML]
+    if {[my @legilo istype HTMLFrazoLegilo]!=$estasHTML} {
+        if {$estasHTML} {
+            my @legilo class HTMLFrazoLegilo
+        } else {
+            my @legilo class FrazoLegilo
+        }
+    }
+    if {!$estasHTML} {
+        set estasXML [$inputEditor estasEnhavoXML]
+        if {$estasXML && ![my @legilo istype XMLFrazoLegilo]} {
+            my @legilo class XMLFrazoLegilo
+            my @legilo init
+        }
+    }
+
+    my set frazFino 0
+    set range [$inputTextWindow tag ranges sel]
+    if {[llength $range]==0} {
+       set cur 1.0
+       set stopIndex end
+    } else {
+       set cur [lindex $range 0]
+       set stopIndex [lindex $range 1]
+    }
+    set lastaElementoKursoro $cur
+    my @kursoro kursoro $cur
+    my @kursoro metuFinon $stopIndex
+}
+TkWinTradukilo instproc traduku {} {
+    my preparuTradukadon
+
+    my instvar vortaro erg progresoObj stopIndex inputTextWindow lingvofabriko
+
+    if {![info exists progresoObj]} {
+        set localProgresoObj ""
+    } else {
+        set startLine [lindex [split [$inputTextWindow index [my @kursoro set kursoro]] .] 0]
+        set endLine [lindex [split [$inputTextWindow index [my @kursoro set stopIndex]] .] 0]
+        if {$endLine - $startLine == 0} {
+            set localProgresoObj ""
+        } else {
+            set localProgresoObj $progresoObj
+        }
+    }
+    set tradRezulto 0
+
+    for {set vorto [my prenuVorton]} {$vorto ne ""} {set vorto [my prenuVorton]} {
+        if {$vorto eq "_FINO_"} {
+            if {[Object isobject [self]::@frazo]} {
+                my tradukuFrazonKiamFino . 1
+            }
+            continue
+        }
+        set komenco [my @kursoro vortkomenco]
+        set fino [my @kursoro kursoro]
+        if {![Object isobject [self]::@frazo]} {
+            $lingvofabriko kreuFrazo [self]::@frazo
+        }
+        set lvorto [string tolower $vorto]
+        set erg [my @frazo aliguTestuVorto $vortaro $vorto $komenco $fino]
+        #switch $erg {
+            #0 {
+                #puts "frazo estas rezulto 0"
+            #}
+            #1 {
+                #puts "frazo estas rezulto 1"
+            #}
+        #}
+        set tradRezulto [my tradukuFrazonKiamFino $vorto]
+        if {$localProgresoObj ne ""} {
+            set nunLine [lindex [split [$inputTextWindow index $fino] .] 0]
+            if {[my pritraktuProgreson [expr {round(100.0*($nunLine-$startLine)/($endLine-$startLine))}]]} {
+                break
+            }
+        }
+    }
+    if {$tradRezulto==0} {
+        my tradukuFrazonKiamFino . 1
+    }
+    my finiOutput
+    next
+}
+TkWinTradukilo instproc tradukuFrazon frazo {
+    next
+    my instvar outputTextWindow lingvofabriko celaLingvo
+    if {![Object isobject [self]::@sinanalizo]} {
+        $lingvofabriko kreuSintaksAnalizilo [self]::@sinanalizo
+    }
+    my @sinanalizo frazo $frazo
+    if {[EsperantoConf isInDelopingMode]} {
+        my @sinanalizo analizu
+    } elseif {[catch {my @sinanalizo analizu}]} {
+        EspErrorReporter reportuTekston "teknika problemo kun analizo de frazo:\n\"[$frazo prenuTeksto]\"" $::errorInfo analizo
+        return
+    }
+
+    set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+    $frazTraduko metuLingvon $celaLingvo
+    $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+
+    $frazTraduko konstruuVortoGrupojOrgina [self]
+    if {[EsperantoConf isInDelopingMode]} {
+        $frazTraduko traduku
+    } elseif {[catch {$frazTraduko traduku}]} {
+        global errorInfo
+        $outputTextWindow insert insert "ERARO - $errorInfo -[$frazo prenuTeksto]"
+        EspErrorReporter reportuTekston "teknika problemo kun traduko de frazo:\n\"[$frazo prenuTeksto]\"" $errorInfo tradukado
+        $frazTraduko destroy
+        return
+    }
+    if {[EsperantoConf isInDelopingMode]} {
+        my transferToOutput $frazTraduko
+    } elseif {[catch {my transferToOutput $frazTraduko}]} {
+        global errorInfo
+        set errorInfo
+        $outputTextWindow insert insert "ERARO - $errorInfo -[$frazo prenuTeksto]"
+    }
+    my pritraktuTradukFrazon $frazTraduko
+    #my halt
+    $frazTraduko destroy
+}
+TkWinTradukilo instproc tradukuFrazonKiamFino {vorto {estasDifinitaFino 0}} {
+    # rezultoj
+    # 0 - nenio aktiono (ne fino)
+    # 1 - senerara
+    # 2 - eraro
+    # 3 - literuma eraro
+    if {([my @legilo estasSFrazFino $vorto] || $estasDifinitaFino) && [Object isobject [self]::@frazo]} {
+        my tradukuFrazon [my @frazo]
+        my @frazo destroy
+        my @legilo komencuFrazon
+        return 1
+    }
+    return 0
+}
+TkWinTradukilo instproc transferToOutput frazTraduko {
+    my instvar lastaElementoKursoro outputTextWindow inputTextWindow outputEditor
+    next
+    set kursoroKomenco $lastaElementoKursoro
+    if {$kursoroKomenco eq ""} {
+        set kursoroKomenco 1.0
+    }
+    set lastaTraduko "dummy"
+    if {[EsperantoConf set tradMontroDeFontoteksto]} {
+        set tag [Object autoname ftag]
+        set begin [$outputTextWindow index "end - 1 chars"]
+    }
+
+    foreach {komenco fino elementoj tradukoElementoj tradukoj} [$frazTraduko konstruuVortoGrupoj [self]] {
+        if {$lastaElementoKursoro ne ""} {
+            set sep [my @kursoro prenuRegionon $lastaElementoKursoro $komenco]
+            #puts "sep $sep lek=$lastaElementoKursoro k=$komenco f=$fino"
+            $outputTextWindow insert end $sep
+        }
+        set lastaElementoKursoro $fino
+        set lastaTraduko ""
+        foreach e $elementoj eTraduko $tradukoElementoj traduko $tradukoj {
+            if {$lastaTraduko ne ""} {
+                # todo separatilo
+                $outputTextWindow insert end [esp::prenuSeparatilon $traduko]
+            } else {
+                # nur komenci frazon
+                esp::prenuSeparatilon $traduko
+            }
+            if {$eTraduko ne "" && [$eTraduko exists mesagxoTipo] && [EsperantoConf set tradMontruKoloreTradukkvaliton]} {
+                $outputTextWindow insert end [string trim $traduko "{}"] [$eTraduko set mesagxoTipo]
+            } else {
+                $outputTextWindow insert end $traduko
+            }
+            set lastaTraduko $traduko
+        }
+    }
+    set lastaElementoKursoro $fino
+    if {[EsperantoConf set tradMontroDeFontoteksto]} {
+        $outputTextWindow tag add $tag $begin [$outputTextWindow index "end - 1 chars"]
+        $outputTextWindow tag bind $tag <ButtonPress-1> [list EsperantoEditor disLokigu $outputEditor $kursoroKomenco $lastaElementoKursoro]
+    }
+}
+TkWinTradukilo proc kreuHTMLPriskribo {} {
+   set rez "<table border=\"1\">\n"
+   foreach {nomo tipo farbo priskribo} [TkWinTradukilo prenuTradukPriskriboj] {
+       foreach {r g b} [winfo rgb . $farbo] {}
+       set htmlFarbo [format {#%02X%02X%02X} [expr {$r>>8}] [expr {$g>>8}] [expr {$b>>8}]]
+       if {$tipo eq "-background"} {
+           append ret "<tr>
+<td bgcolor=\"$htmlFarbo\">malantaŭo</td>
+<td bgcolor=\"$htmlFarbo\">esperanto</td>
+<td>$priskribo</td>
+</tr>
+"
+       } else {
+           append ret "<tr>
+<td bgcolor=\"$htmlFarbo\">literoj</td>
+<td><font color=\"$htmlFarbo\">esperanto</font></td>
+<td>$priskribo</td>
+</tr>"
+       }
+   }
+   return $ret
+}
+TkWinTradukilo proc prenuTradukPriskriboj {} {
+   return {
+       traduko {-foreground red3 -underline 1} {traduko ne konata}
+       subteno {-background DarkOrange1} {programo ne povis fide traduki tiun elementon}
+       leksikono {-background magenta2} {konvena traduko por gramatika neceso ne estis trovita}
+       fleksio  {-foreground magenta2} {fleksio ne estis difinita en vortaro}
+       arto {-foreground green2} {arto ne povis esti rekonata}
+       kazo {-foreground SpringGreen2} {kazo ne povis esti rekonata}
+       sinonimoj {-foreground blue1} {multaj sinonimoj ekzistas}
+       sinonimojsenordo {-foreground RoyalBlue1} {multaj senordaj sinonimoj ekzistas}
+       vortfarado {-foreground green3} {eble malproksima maŝina vortfarado}
+   }
+}
+Class TradEditorFontoMix
+@ ::TradEditorFontoMix idemeta component EspTradukGUI
+TradEditorFontoMix instproc canClose {} {
+    return 0
+}
+Class TradEditorMix
+@ ::TradEditorMix idemeta component EspTradukGUI
+TradEditorMix instproc canClose {} {
+    my instvar cxuTradukoEnProgreso
+    if {$cxuTradukoEnProgreso} {
+        EsperantoBrowser message [mc "Rezultofenestro por aktiva traduka procezo ne povas esti fermita"]
+        return 0
+    } else {
+        next
+    }
+}
+TradEditorMix instproc closeWindow {} {
+    my instvar cxuTradukoEnProgreso
+    if {$cxuTradukoEnProgreso} {
+        EsperantoBrowser message [mc "Rezultofenestro por aktiva traduka procezo ne povas esti fermita"]
+    } else {
+        next
+    }
+}
+TradEditorMix instproc destroy {} {
+    catch {my foriguMarkilo}
+    next
+}
+TradEditorMix instproc foriguMarkilo {} {
+    my instvar inputTextWindow
+    $inputTextWindow tag remove lokaFrazo 1.0 end
+}
+TradEditorMix instproc initInputWindow inputWindow {
+    my instvar inputTextWindow cxuTradukoEnProgreso
+    set inputTextWindow $inputWindow
+    set cxuTradukoEnProgreso 1
+    $inputTextWindow tag configure lokaFrazo -background LightGoldenrod3
+}
+TradEditorMix instproc lokigu {komenco fino} {
+    my instvar inputTextWindow
+    if {![winfo exists $inputTextWindow]} return
+    my foriguMarkilo
+    if {$komenco eq "1.0"} {
+        $inputTextWindow tag add lokaFrazo $komenco $fino
+    } else {
+        $inputTextWindow tag add lokaFrazo "$komenco + 1 char" $fino
+    }
+    $inputTextWindow see $komenco
+}
+Class TradukEbloDialogo -superclass {::IDE::DialogHelper ::IDE::Browser} -parameter interaktivaVorto
+@ ::TradukEbloDialogo idemeta component EspTradukGUI
+TradukEbloDialogo instproc createSystemMenu {} {
+    # no system menu
+}
+TradukEbloDialogo instproc cxangxu {eblo item} {
+    my instvar interaktivaVorto
+    puts $item
+    foreach {nomo ebloj aktualaEblo aktiono} [$interaktivaVorto prenuEblon $eblo] {}
+    $interaktivaVorto invokeEbloAktiono $aktiono $item
+}
+TradukEbloDialogo instproc fermu {} {
+    my signalFree
+}
+TradukEbloDialogo instproc getTitle {} {
+    return "specifu la tradukon"
+}
+TradukEbloDialogo instproc specificInit {} {
+    my instvar win interaktivaVorto ebloj
+    set ebloj [$interaktivaVorto prenuEbloTypoj]
+    foreach eblo $ebloj {
+        foreach {nomo ebloj aktualaEblo aktiono} [$interaktivaVorto prenuEblon $eblo] {}
+        labelframe $win.f$eblo -text $nomo
+        IDE::NListView create [self]::@$eblo $win.f$eblo.listo -notify [self] -notifyProc cxangxu$eblo -height 5
+        [self] proc cxangxu$eblo item "my cxangxu $eblo \$item"
+        my @$eblo setList $ebloj
+        my @$eblo setSelectedItem $aktualaEblo 0
+        pack $win.f$eblo.listo -fill both -expand yes
+        pack $win.f$eblo -fill both -expand yes
+    }
+    button $win.close -text [mc "Forlasu"] -command [list [self] fermu]
+    pack $win.close
+    next
+}
+TradukEbloDialogo proc kreuEblojDialog interaktivaVorto {
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+
+    set instance [my new [Object autoname .tradukdlg] [list -volatile] [list -interaktivaVorto $interaktivaVorto] [list -parent $parent]]
+    $instance suspendUntilSignal
+    $instance destroy
+}
+Class TradukadoAsistentoBazo -superclass ::IDE::Browser
+@ ::TradukadoAsistentoBazo idemeta component EspTradukGUI
+TradukadoAsistentoBazo instproc closeWindow {} {
+    # nenio
+}
+TradukadoAsistentoBazo instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+TradukadoAsistentoBazo instproc cxangxuLingvon lnomo {
+    my instvar win
+    set nunlng [my set $lnomo]
+    set lingvoj [list]
+    set lmarkitaj [list]
+    if {[EsperantiloLancxilo estasTM]} {
+        foreach {abr nomo} [TradukaVortaroMontrilo lingvoListo] {
+            lappend lingvoj [list $abr [mc $nomo]]
+        }
+    } else {
+        lappend lingvoj [list eo esperanta]
+        if {$lnomo eq "fontolingvo"} {
+            set markitaj [EsperantoConf prenuSubtenatajFontajLingvoj]
+        } else {
+            set markitaj [EsperantoConf prenuSubtenatajCelajLingvoj]
+            foreach {lng nomo} [[DBVortaro prenuDepVortaron] subtenatajLingvoj] {
+                if {[lsearch $markitaj $lng]<0} {
+                    lappend markitaj $lng
+                }
+            }
+        }
+        array set lArr [TradukaVortaroMontrilo lingvoListo]
+        # [DBVortaro prenuDepVortaron] subtenatajLingvoj
+        foreach {abr nomo} [TradukaVortaroMontrilo lingvoListo] {
+            lappend lingvoj [list $abr [mc $nomo]]
+        }
+        set pos 0
+        foreach abr $markitaj {
+            set nomo $lArr($abr)
+            set e [list $abr [mc $nomo]]
+            lappend lmarkitaj $e
+            if {[set id [lsearch $lingvoj $e]]>=0} {
+                if {$id!=$pos} {
+                    set lingvoj [linsert [lreplace $lingvoj $id $id] $pos $e]
+                }
+                incr pos
+            }
+        }
+    }
+    set lng [ListDialogoMarkita getListItem [mc "Elektu la lingvon"] $lingvoj $lmarkitaj $nunlng]
+    if {$lng ne ""} {
+        my set $lnomo [lindex $lng 0]
+        set n [$win.f.np.l$lnomo cget -text]
+        $win.f.np.l$lnomo configure -text [string range $n 0 end-2][lindex $lng 0]
+    }
+}
+TradukadoAsistentoBazo instproc cxesigu {} {
+    if {[my exists nurTradukadoModo]} {
+        exit
+    }
+    my destroy
+}
+TradukadoAsistentoBazo instproc malfermuFontanDosieron {} {
+    my instvar fontadosiero win projektadosiero
+    set filetypes [FrazoLegiloFabriko prenuSubtenatajnTipojn]
+    set de [EsperantoConf set tradAsistantoDosieroTipo]
+    set i 0
+    foreach f $filetypes {
+        if {[lsearch [lindex $f 1] $de]>=0} {
+            if {$i>0} {
+                set first [lindex $filetypes $i]
+                set fileTypes [lreplace $filetypes $i $i]
+                set fileTypes [linsert $filetypes 0 $first]
+            }
+            break
+        }
+        incr i
+    }
+    set olddir [pwd]
+    set parent [winfo toplevel $win]
+    set dosiero [tk_getOpenFile -initialdir [EsperantoConf set tradAsistantoLastaDosierujo] -parent $parent -filetypes $filetypes]
+    cd $olddir
+    if {$dosiero ne ""} {
+        if {[FrazoLegiloFabriko prenuTypoPorDosiero $dosiero] eq ""} {
+            EsperantoBrowser message [mc "formato %s ne estas subtenata" [file extension $dosiero]]
+            return
+        }
+        set fontadosiero $dosiero
+        EsperantoConf set tradAsistantoLastaDosierujo [file dirname $dosiero]
+        set de [file extension $dosiero]
+        foreach i $filetypes {
+            if {[lsearch [lindex $i 1] $de]>=0} {
+                EsperantoConf set tradAsistantoDosieroTipo $de
+                break
+            }
+        }
+        if {[lsearch {.xliff .xlf .xlz} [file extension $fontadosiero]]<0} {
+            set projektadosiero [file rootname $dosiero].espts
+        } else {
+            set projektadosiero ""
+        }
+    }
+}
+Class TradukadoAsistento -superclass ::TradukadoAsistentoBazo
+@ ::TradukadoAsistento idemeta component EspTradukGUI
+TradukadoAsistento instproc antauen {} {
+    my instvar projektoj atipo fontadosiero fontolingvo tradukolingvo
+    EsperantoConf statAktiono TA
+    if {$atipo eq "ekzis"} {
+        set index [my @projektoj selectedIndex]
+        if {$index ne ""} {
+            my malfermuProjektonDeListo dummy
+        } else {
+            my malfermuProjekto
+        }
+    } else {
+        if {[file isfile $fontadosiero]} {
+             switch [file extension $fontadosiero] {
+                 .html -
+                 .htm {
+                     my tradukuPerTekstoTradukilo $fontadosiero HTML
+                     return
+                 }
+                 .xlf -
+                 .xliff {
+                     set t [XLIFFTradukiloSeg tradukuDosieron $fontadosiero XLIFF $fontolingvo $tradukolingvo]
+                     if {$t eq ""} {
+                         return
+                     }
+                     if {[my exists nurTradukadoModo]} {
+                         [$t set interaktivaDialogo] set nurTradukadoModo 1
+                     }
+                     my destroy
+                     return $t
+                 }
+                 .xlz {
+                     set t [XLIFFTradukiloSeg tradukuDosieron $fontadosiero XLZ $fontolingvo $tradukolingvo]
+                     if {$t eq ""} {
+                         return
+                     }
+                     if {[my exists nurTradukadoModo]} {
+                         [$t set interaktivaDialogo] set nurTradukadoModo 1
+                     }
+                     my destroy
+                     return $t
+                 }
+                 .xml {
+                     return [my tradukuPerTekstoTradukilo $fontadosiero XML]
+                 }
+                 .odt -
+                 .sxw -
+                 .ods -
+                 .sxc -
+                 .odp -
+                 .sxi {
+                     return [my tradukuPerTekstoTradukilo $fontadosiero OpenOffice]
+                 }
+                 .doc {
+                     return [my tradukuPerTekstoTradukilo $fontadosiero Word]
+                 }
+                 .txt {
+                     return [my tradukuPerTekstoTradukilo $fontadosiero TEKSTO]
+                 }
+                 default {
+                     EsperantoBrowser message [mc "formato nesubtenata"]
+                     return
+                 }
+             }
+        } else {
+            if {$fontadosiero eq ""} {
+                EsperantoBrowser message [mc "specifu fontan dosieron"]
+                my malfermuFontanDosieron
+            } else {
+                EsperantoBrowser message [mc "dosiero '%s' ne atingebla" $fontadosiero]
+            }
+        }
+    }
+}
+TradukadoAsistento instproc getTitle {} {
+    return [mc "Tradukada asistanto"]
+}
+TradukadoAsistento instproc malfermuProjektanDosieron {} {
+    my instvar projektadosiero
+    if {[info exists projektadosiero]} {
+        set d $projektadosiero
+    } else {
+        set d traduka_projekto.espts
+    }
+    set dnomo [IDE::Dialog getSaveFile $d {{{Traduka Projekto} {.espts}}} .espts]
+    if {$dnomo eq ""} {
+        return 0
+    }
+    set projektadosiero $dnomo
+}
+TradukadoAsistento instproc malfermuProjekto {} {
+    my instvar win
+    set filetypes {{{traduka projekto} *.espts} {{malnova traduka projekto} *.espt} {XLIFF {*.xliff *.xlf *.xlz}}}
+    set dosiero [IDE::Dialog getOpenFile $filetypes]
+    if {$dosiero ne ""} {
+        switch [file extension $dosiero] {
+            .xlf -
+            .xliff {
+                set t [XLIFFTradukiloSeg tradukuDosieron $dosiero XLIFF]
+                if {[my exists nurTradukadoModo]} {
+                    [$t set interaktivaDialogo] set nurTradukadoModo 1
+                }
+                my destroy
+                return
+            }
+            .xlz {
+                set t [XLIFFTradukiloSeg tradukuDosieron $dosiero XLZ]
+                if {[my exists nurTradukadoModo]} {
+                    [$t set interaktivaDialogo] set nurTradukadoModo 1
+                }
+                my destroy
+                return
+            }
+            default {
+                EsperantoConf set tradInteraktiva 1
+                if {[my exists nurTradukadoModo]} {
+                    set nurTradukadoModo 1
+                } else {
+                    set nurTradukadoModo 0
+                }
+                TekstoTradukiloSeg malfermuProjekto $dosiero $nurTradukadoModo
+                my destroy
+            }
+        }
+    }
+}
+TradukadoAsistento instproc malfermuProjektonDeListo nomo {
+    my instvar projektoj
+    set index [my @projektoj selectedIndex]
+    if {$index ne ""} {
+        EsperantoConf set tradInteraktiva 1
+        if {[my exists nurTradukadoModo]} {
+            set nurTradukadoModo 1
+        } else {
+            set nurTradukadoModo 0
+        }
+        set t [TekstoTradukiloSeg malfermuProjekto [lindex $projektoj $index] $nurTradukadoModo]
+        my destroy
+    }
+}
+TradukadoAsistento instproc selectItem item {
+    # enter the body hier
+    my instvar projektoj tutaNomo
+    set id [lindex [my @projektoj selectedIndex] 0]
+    if {$id ne ""} {
+        set tutaNomo [lindex $projektoj $id]
+    }
+
+}
+TradukadoAsistento instproc specificInit {} {
+    my instvar win atipo projektoj tradukolingvo fontolingvo fontadosiero projektadosiero
+    my requireNamespace
+    EsperantoConf set tradInteraktiva 1
+
+    set atipo nova
+
+    set fwin [frame $win.f  -width 320 -height 350]
+    pack propagate $fwin 0
+
+    set atipo ekzis
+    labelframe $fwin.lframe -text [mc "tipo de projekto"]
+    radiobutton $fwin.nproj -text [mc "komencu novan tradukan projekton"] -variable [self]::atipo -value nova -command [list [self] sxangxuTipon]
+    radiobutton $fwin.eproj -text [mc "malfermu ekzistantan projekton"] -variable [self]::atipo -value ekzis -command [list [self] sxangxuTipon]
+    pack $fwin.nproj $fwin.eproj -in $fwin.lframe -anchor w
+    frame $fwin.ef -borderwidth 5
+    button $fwin.ef.malfermu -compound left -image [IDE::Toolbar createImage fileopen] -text [mc "Malfermu"] -command [list [self] malfermuProjekto]
+    IDE::NListView create [self]::@projektoj $fwin.ef.projektoj -notify [self] -doubleNotifyProc malfermuProjektonDeListo
+    my set tutaNomo ""
+    label $fwin.ef.tutaNomo -textvariable [self]::tutaNomo -anchor w
+    grid $fwin.ef.malfermu -column 0 -row 0 -sticky w
+    grid $fwin.ef.projektoj -column 0 -row 1 -columnspan 2 -sticky nsew
+    grid $fwin.ef.tutaNomo -column 0 -row 2 -columnspan 2 -sticky ew
+    grid columnconfigure $fwin.ef 0 -weight 1
+
+    set projektoj [list]
+    set pnomoj [list]
+    foreach t [EsperantoConf prenuTradukoProjektojn] {
+        if {[file isfile $t]} {
+            lappend pnomoj [file tail [file rootname $t]]
+            lappend projektoj $t
+        }
+    }
+    my @projektoj setListUnsorted $pnomoj
+
+    set fontolingvo eo
+    set tradukolingvo [EsperantoConf set lingvo]
+
+    frame $fwin.np -borderwidth 5
+    label $fwin.np.lfdosiero -text [mc "Fonta dosiero:"]
+    entry $fwin.np.ndosiero -textvariable [self]::fontadosiero
+    button $fwin.np.fdosiero -compound left -image [IDE::Toolbar createImage fileopen] -text [mc "Malfermu"] -command [list [self] malfermuFontanDosieron]
+
+    label $fwin.np.tlfdosiero -text [mc "Projekta dosiero:"]
+    entry $fwin.np.tndosiero -textvariable [self]::projektadosiero
+    button $fwin.np.tfdosiero -compound left -image [IDE::Toolbar createImage fileopen] -text [mc "Malfermu"] -command [list [self] malfermuProjektanDosieron]
+
+    label $fwin.np.lfontolingvo -text "[mc "Fonta Lingvo:"] $fontolingvo"
+    button $fwin.np.fontolingvo -text [mc "Ŝanĝu"] -command [list [self] cxangxuLingvon fontolingvo]
+    label $fwin.np.ltradukolingvo -text "[mc "Traduka lingvo:"] $tradukolingvo"
+    button $fwin.np.tradukolingvo -text [mc "Ŝanĝu"] -command [list [self] cxangxuLingvon tradukolingvo]
+    grid $fwin.np.lfdosiero -column 0 -row 0 -sticky w
+    grid $fwin.np.fdosiero -column 1 -row 0 -sticky ws -rowspan 2
+    grid $fwin.np.ndosiero -column 0 -row 1 -sticky ew
+    grid $fwin.np.tlfdosiero -column 0 -row 2 -sticky w
+    grid $fwin.np.tfdosiero -column 1 -row 2 -sticky ws -rowspan 2
+    grid $fwin.np.tndosiero -column 0 -row 3 -sticky ew
+    grid $fwin.np.lfontolingvo -column 0 -row 4 -sticky w -pady {20 0}
+    grid $fwin.np.fontolingvo -column 1 -row 4 -sticky w -pady {20 0}
+    grid $fwin.np.ltradukolingvo -column 0 -row 5 -sticky w
+    grid $fwin.np.tradukolingvo -column 1 -row 5 -sticky w
+    grid columnconfigure $fwin.np 0 -weight 1
+
+    pack $fwin.lframe -anchor w -pady {0 10} -fill x
+    pack $fwin.ef -anchor nw -padx 10 -fill x -expand yes
+    # pack $fwin.np -anchor w -padx 10
+    #pack propagate $fwin 0
+
+    pack $fwin -fill both -expand yes -padx 5 -pady 5
+
+    frame $win.but -relief raised -borderwidth 3
+    button $win.but.cesigu -text [mc "Ĉesigu"] -command [list [self] cxesigu]
+    button $win.but.antauen -text [mc "Pretigu"]  -command [list [self] antauen]
+    pack $win.but.cesigu $win.but.antauen -side right -padx 5 -pady 5
+    pack $win.but -side bottom -fill x
+
+    next
+    if {[llength $projektoj]==0 || 1} {
+        $fwin.nproj invoke
+    }
+}
+TradukadoAsistento instproc sxangxuTipon {} {
+    my instvar win atipo
+    #pack propagate $win.f 0
+    if {$atipo eq "nova"} {
+        pack forget $win.f.ef
+        pack $win.f.np -anchor nw -after $win.f.lframe -padx 10 -fill x -expand yes
+    } else {
+        pack forget $win.f.np
+        pack $win.f.ef -anchor nw -after $win.f.lframe -padx 10 -fill both -expand yes
+    }
+}
+TradukadoAsistento instproc tradukuPerTekstoTradukilo {fontadosiero tipo} {
+    my instvar tradukolingvo fontolingvo projektadosiero
+    set lingvofabriko {}
+    if {[lsearch [EsperantoConf prenuSubtenatajFontajLingvoj] $fontolingvo]>=0 &&
+        [[DBVortaro prenuDepVortaron] cxuSubtenatasLingvon $tradukolingvo]} {
+        set lingvofabriko [EsperantoConf prenuLingvoFabrikoTradukado $fontolingvo $tradukolingvo]
+    }
+    set t [TekstoTradukiloSeg tradukuDosieron $fontadosiero $tipo $lingvofabriko]
+    if {[my exists nurTradukadoModo]} {
+        set nurTradukadoModo 1
+    } else {
+        set nurTradukadoModo 0
+    }
+    $t metuOriginanDosieron $fontadosiero
+    $t fontaLingvo $fontolingvo
+    $t celaLingvo $tradukolingvo
+    $t dosiero $projektadosiero
+    $t traduku
+    $t lancxuInteraktivanDialogon $nurTradukadoModo
+    my destroy
+    return $t
+}
+TradukadoAsistento proc newBrowser {} {
+    my new [Object autoname .tradasistento]
+}
+TradukadoAsistento proc newBrowserTradukaModo {} {
+    set inst [my new [Object autoname .tradasistento]]
+    $inst set nurTradukadoModo 1
+
+}
+Class TradukadoDosieroAsistento -superclass ::TradukadoAsistentoBazo
+@ ::TradukadoDosieroAsistento idemeta component EspTradukGUI
+TradukadoDosieroAsistento instproc cxangxuFontLingvon lnomo {
+    my instvar win tradukolingvo
+    set nunlng [my set $lnomo]
+    foreach abr [EsperantoConf prenuSubtenatajFontajLingvoj] {
+        set nomo [TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $abr]
+        lappend lingvoj [list $abr [mc $nomo]]
+    }
+    set lng [IDE::IDialogList getListItem [mc "Elektu la fontan lingvon"] $lingvoj $nunlng]
+    if {$lng ne ""} {
+        my set $lnomo [lindex $lng 0]
+        set n [$win.f.np.l$lnomo cget -text]
+        $win.f.np.l$lnomo configure -text [string range $n 0 end-2][lindex $lng 0]
+    }
+
+}
+TradukadoDosieroAsistento instproc getTitle {} {
+    return "Tradukado de dosieroj"
+}
+TradukadoDosieroAsistento instproc specificInit {} {
+    my instvar win atipo projektoj tradukolingvo fontolingvo fontadosiero
+    my requireNamespace
+    EsperantoConf set tradInteraktiva 0
+
+    set atipo nova
+
+    set fwin [frame $win.f]
+
+    set fontolingvo eo
+    set tradukolingvo [EsperantoConf set lingvo]
+
+    frame $fwin.np -borderwidth 5
+    label $fwin.np.lfdosiero -text [mc "Fonta dosiero:"]
+    entry $fwin.np.ndosiero -textvariable [self]::fontadosiero -width 50
+    button $fwin.np.fdosiero -compound left -image [IDE::Toolbar createImage fileopen] -text [mc "Malfermu"] -command [list [self] malfermuFontanDosieron]
+
+    label $fwin.np.lfontolingvo -text "[mc "Fonta Lingvo:"] $fontolingvo"
+    button $fwin.np.fontolingvo -text [mc "Ŝanĝu"] -command [list [self] cxangxuFontLingvon fontolingvo]
+    label $fwin.np.ltradukolingvo -text "[mc "Traduka lingvo:"] $tradukolingvo"
+    button $fwin.np.tradukolingvo -text [mc "Ŝanĝu"] -command [list [self] cxangxuLingvon tradukolingvo]
+    grid $fwin.np.lfdosiero -column 0 -row 0 -sticky w
+    grid $fwin.np.fdosiero -column 1 -row 0 -sticky ws -rowspan 2
+    grid $fwin.np.ndosiero -column 0 -row 1 -sticky ew
+    grid $fwin.np.lfontolingvo -column 0 -row 2 -sticky w -pady {20 0}
+    grid $fwin.np.fontolingvo -column 1 -row 2 -sticky w -pady {20 0}
+    grid $fwin.np.ltradukolingvo -column 0 -row 3 -sticky w
+    grid $fwin.np.tradukolingvo -column 1 -row 3 -sticky w
+    grid columnconfigure $fwin.np 0 -weight 1
+
+    pack $win.f.np -anchor nw -padx 10 -fill x -expand yes
+
+    pack $fwin -fill both -expand yes -padx 5 -pady 5
+
+    frame $win.but -relief raised -borderwidth 3
+    button $win.but.cesigu -text [mc "Ĉesigu"] -command [list [self] cxesigu]
+    button $win.but.antauen -text [mc "Traduku"]  -command [list [self] traduku]
+    pack $win.but.cesigu $win.but.antauen  -side right -padx 5 -pady 5
+    pack $win.but -side bottom -fill x
+
+    next
+}
+TradukadoDosieroAsistento instproc traduku {} {
+    my instvar fontadosiero tradukolingvo fontolingvo
+
+    if {$fontadosiero eq ""} return
+    if {[set tipo [FrazoLegiloFabriko prenuTypoPorDosiero $fontadosiero]] eq ""} {
+        return
+    }
+    set fout [file rootname $fontadosiero]_$tradukolingvo[file extension $fontadosiero]
+
+    EsperantoConf set tradInteraktiva 0
+
+    EsperantoConf pretiguLingvoTradukado $tradukolingvo
+    EsperantoConf set lingvo $tradukolingvo
+    set lingvoFabriko [EsperantoConf prenuLingvoFabrikoTradukado $fontolingvo $tradukolingvo]
+    TekstoTradukilo tradukuDosieron $fontadosiero $fout $tipo 1 $lingvoFabriko
+    EsperantoBrowser message [mc "Tradukado estas farita en dosiero: %s" $fout]
+
+}
+TradukadoDosieroAsistento proc newBrowser {} {
+    my new [Object autoname .traddosas]
+}
+Class Tradukileto -superclass ::IDE::Browser
+@ ::Tradukileto idemeta component EspTradukGUI
+Tradukileto instproc aliguLingvon {} {
+    my instvar lingvoj win lingvoNumero fontaLingvo
+    set elingvoj [list]
+    set dlng [EsperantoConf set lingvo]
+    foreach {abr nomo} [[DBVortaro prenuDepVortaron] subtenatajLingvoj] {
+        if {$abr eq $dlng} continue
+        lappend elingvoj [list $abr [mc $nomo]]
+    }
+    set lng [IDE::IDialogList getListItem [mc "Elektu la tradukan lingvon"] $elingvoj {}]
+    if {$lng ne ""} {
+        set nlingvo [lindex $lng 0]
+        set lingvonomo [lindex $lng 1]
+    } else {
+        return
+    }
+
+    labelframe $win.tradukof$lingvoNumero -text "[mc "Traduko"] - [mc $lingvonomo]"
+    IDE::Text create [self]::@traduko$lingvoNumero $win.tradukof$lingvoNumero.traduko -width 10 -height 2
+    button $win.tradukof$lingvoNumero.but -text "X" -command [list [self] foriguLingvon $lingvoNumero]
+
+    pack $win.tradukof$lingvoNumero.traduko -expand yes -fill both -side left
+    pack $win.tradukof$lingvoNumero.but -anchor n
+
+    $win.pwin add $win.tradukof$lingvoNumero -sticky news -height 120
+    update idletasks
+
+    lappend lingvoj [list $lingvoNumero [self]::@traduko$lingvoNumero $nlingvo [EsperantoConf prenuLingvoFabrikoTradukado $fontaLingvo $nlingvo]]
+
+    my @traduko$lingvoNumero setText ""
+
+    incr lingvoNumero
+}
+Tradukileto instproc createSystemMenu {} {
+    #my createNonSystemMenu
+}
+Tradukileto instproc foriguLingvon num {
+    my instvar win lingvoj
+    set i 0
+    foreach l $lingvoj {
+        if {[lindex $l 0]==$num} {
+            destroy $win.tradukof$num
+            [lindex $l 1] destroy
+            set lingvoj [lreplace $lingvoj $i $i]
+        }
+        incr i
+    }
+}
+Tradukileto instproc getTitle {} {
+    return [mc "Tradukileto"]
+}
+Tradukileto instproc klarigu {} {
+    my instvar lingvoj
+    my @fonto setText ""
+    my @traduko setText ""
+    foreach l $lingvoj {
+        foreach {numero tekstoObj lingvo lFabriko} $l {}
+        $tekstoObj setText ""
+    }
+}
+Tradukileto instproc novalingvo {caller lng} {
+    my instvar fontaLingvo celaLingvo
+    if {$caller eq [my @flingvobut]} {
+        if {$fontaLingvo eq $celaLingvo} {
+            if {$fontaLingvo eq "eo"} {
+                set celaLingvo [EsperantoConf set lingvo]
+            } else {
+                set celaLingvo eo
+            }
+            my remontruFlagojn
+        }
+    } else {
+        if {$fontaLingvo eq $celaLingvo} {
+            if {$fontaLingvo eq "eo"} {
+                set fontaLingvo [EsperantoConf set lingvo]
+                set subtenataj [EsperantoConf prenuSubtenatajFontajLingvoj]
+                if {[lsearch $subtenataj $fontaLingvo]<0} {
+                    if {[lsearch $subtenataj $celaLingvo]==0} {
+                        set fontaLingvo [lindex $subtenataj 1]
+                    } else {
+                        set fontaLingvo [lindex $subtenataj 0]
+                    }
+                }
+            } else {
+                set fontaLingvo eo
+            }
+            my remontruFlagojn
+        }
+    }
+    return 1
+}
+Tradukileto instproc prenuLingvoFabriko {} {
+    my instvar fontaLingvo celaLingvo
+    EsperantoConf prenuLingvoFabrikoTradukado $fontaLingvo $celaLingvo
+}
+Tradukileto instproc remontruFlagojn {} {
+    my @flingvobut sxangxuFlagon
+    my @lingvobut sxangxuFlagon
+}
+Tradukileto instproc specificInit {} {
+    my instvar win lingvoNumero fontaLingvo celaLingvo lingvoj
+
+    set lingvoNumero 1
+    set lingvoj [list]
+
+    set fontaLingvo eo
+    set celaLingvo [EsperantoConf set lingvo]
+
+    panedwindow $win.pwin -orient vertical
+    labelframe $win.fontof -text [mc "Fonta teksto en Esperanto"]
+    labelframe $win.tradukof -text [mc "Traduko"]
+
+    EspText create [self]::@fonto $win.fontof.fonto -height 8 -width 80
+    esp::metuXEventoText [my @fonto getTextWindow]
+    button $win.fontof.traduku -command [list [self] traduku] -text [mc "Traduku la tutan enhavon (F2)"]
+    button $win.fontof.klarigu -command [list [self] klarigu] -text [mc "Klarigu (F3)"]
+    button $win.fontof.aliguLingvon -command [list [self] aliguLingvon] -text [mc "Aligu Lingvon"]
+    LingvoSelektoButono create [self]::@flingvobut $win.fontof.flingvobut -variable [self]::fontaLingvo -callback [self]
+    my @flingvobut set lingvoj [EsperantoConf prenuSubtenatajFontajLingvoj]
+
+    LingvoSelektoButono create [self]::@lingvobut $win.fontof.lingvobut -variable [self]::celaLingvo -callback [self]
+    my @lingvobut set markitaj [EsperantoConf prenuSubtenatajCelajLingvoj]
+
+    bind $win <F2> [list [self] traduku]
+    bind $win <F3> [list [self] klarigu]
+    bind $win <Return> [list [self] tradukuLinion]
+
+    EspText create [self]::@traduko $win.tradukof.traduko -height 8 -width 80
+
+    pack $win.fontof.fonto -expand yes -fill both
+    pack $win.fontof.traduku $win.fontof.klarigu $win.fontof.aliguLingvon $win.fontof.flingvobut $win.fontof.lingvobut -side left -anchor e
+    pack $win.tradukof.traduko -expand yes -fill both
+
+    $win.pwin add $win.fontof -sticky news
+    $win.pwin add $win.tradukof -sticky news
+
+    pack $win.pwin -expand yes -fill both
+    my @fonto setText ""
+    my @traduko setText ""
+    my @fonto focus
+}
+Tradukileto instproc traduku {} {
+    my instvar lingvoj
+
+    set teksto [my @fonto getText]
+    if {[string length $teksto]>500} {
+        set ret [EsperantoBrowser yesNo [mc "Konsilo: Por longaj tekstoj vi uzu la tradukaj funkcioj en Esperantilo. Ĉu tamen daŭrigi"]]
+        if {$ret ne "yes"} {
+            return
+        }
+    } elseif {$teksto eq ""} {
+        EsperantoBrowser message "Esperanta teksto ne ekzistas"
+        my @fonto focus
+        return
+    }
+    set preInteraktiva [EsperantoConf set tradInteraktiva]
+    EsperantoConf reportiLingvoSxangxojn 0
+    EsperantoConf set tradInteraktiva 0
+    my @traduko setText [TekstoTradukilo tradukuTekston $teksto [my prenuLingvoFabriko]]
+    foreach l $lingvoj {
+        foreach {numero tekstoObj lingvo lFabriko} $l {}
+        $tekstoObj setText [TekstoTradukilo tradukuTekston $teksto $lFabriko]
+    }
+    EsperantoConf set tradInteraktiva $preInteraktiva
+    EsperantoConf reportiLingvoSxangxojn 1
+}
+Tradukileto instproc tradukuLinion {} {
+    my instvar lingvoj
+
+    set twin [my @fonto getTextWindow]
+    set teksto [$twin get {insert - 1 lines linestart} {insert}]
+    if {$teksto eq "" || $teksto eq "\n"} {
+        return
+    }
+
+    set preInteraktiva [EsperantoConf set tradInteraktiva]
+    EsperantoConf set tradInteraktiva 0
+    EsperantoConf reportiLingvoSxangxojn 0
+    my @traduko appendToEnd [TekstoTradukilo tradukuTekston $teksto [my prenuLingvoFabriko]]
+    set twin [my @traduko getTextWindow]
+    $twin see end
+    foreach l $lingvoj {
+        foreach {numero tekstoObj lingvo lFabriko} $l {}
+        $tekstoObj appendToEnd [TekstoTradukilo tradukuTekston $teksto $lFabriko]
+        set twin [$tekstoObj getTextWindow]
+        $twin see end
+    }
+    EsperantoConf set tradInteraktiva $preInteraktiva
+    EsperantoConf reportiLingvoSxangxojn 1
+}
+Tradukileto proc newBrowser {} {
+    EsperantoConf statAktiono TO
+    if {![Object isobject ::tradukileto]} {
+        my create ::tradukileto .tradukileto
+    }
+    return ::tradukileto
+}
+Class TradukistojDialogo -superclass ::IDE::Dialog -parameter {{type okcancel} tradukistoj tradukisto {title Tradukistoj}}
+@ ::TradukistojDialogo idemeta component EspTradukGUI
+TradukistojDialogo instproc init {} {
+    my instvar win tradukistoj tradukisto
+    next
+
+    my requireNamespace
+
+    frame $win.listo
+
+    ::scrollbar $win.listo.scroll -command "$win.listo.listbox yview"
+    ::listbox $win.listo.listbox -yscroll "$win.listo.scroll set" -exportselection no
+    grid $win.listo.listbox -row 0 -column 0 -sticky news
+    grid $win.listo.scroll -row 0 -column 1 -sticky ns
+    grid rowconfigure $win.listo 0 -weight 1
+    grid columnconfigure $win.listo 0 -weight 1
+
+    bind $win.listo.listbox <<ListboxSelect>> [list [self] selektuTradukiston]
+    bind $win.listo.listbox <Double-Button-1> [list [self] selektuTradukistonOK]
+
+    pack $win.listo -fill both -expand yes -before $win.buttons -padx 5 -pady 5
+
+    label $win.ltradukisto -text [mc "Nova tradukisto"]
+    entry $win.tradukisto -width 30 -textvariable [self]::tradukisto
+
+    pack $win.ltradukisto -anchor w -before $win.buttons
+    pack $win.tradukisto -fill x -before $win.buttons
+
+    set sel -1
+    set i 0
+    set trovita 0
+    foreach trad $tradukistoj {
+        $win.listo.listbox insert end $trad
+        if {$tradukisto eq $trad} {
+            $win.listo.listbox selection set $i $i
+            set trovita 1
+        }
+        incr i
+    }
+
+    if {$trovita || [llength $tradukistoj]==0} {
+        focus $win.tradukisto
+    }
+
+    wm deiconify $win
+}
+TradukistojDialogo instproc selektuTradukiston {} {
+    my instvar win tradukisto
+    set selekto [$win.listo.listbox curselection]
+    if {[llength $selekto]>0} {
+        set tradukisto [$win.listo.listbox get [lindex $selekto 0]]
+    }
+}
+TradukistojDialogo instproc selektuTradukistonOK {} {
+    my instvar win tradukisto
+    set selekto [$win.listo.listbox curselection]
+    if {[llength $selekto]>0} {
+        set tradukisto [$win.listo.listbox get [lindex $selekto 0]]
+        my actionOk
+    }
+}
+TradukistojDialogo proc elektuTradukiston {tradukistoj aktuala} {
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+    set i [TradukistojDialogo new -volatile [list -message "Elektu tradukiston de listo aŭ enskribu novan nomon"] [list -tradukistoj $tradukistoj]  [list -tradukisto $aktuala]]
+    set ret ""
+    if {[$i prompt] eq "ok"} {
+        set ret [$i tradukisto]
+    }
+    return $ret
+}
+Object SentradoKolektilo
+@ ::SentradoKolektilo idemeta component EspTradukGUI
+SentradoKolektilo proc aliguVorton vorto {
+    my instvar vortoArr
+    if {[info exists vortoArr($vorto)]} {
+        incr vortoArr($vorto)
+    } else {
+        set vortoArr($vorto) 1
+    }
+}
+SentradoKolektilo proc montruStat {} {
+    my instvar vortoArr
+    IDE::ResultBrowser newBrowser [my prenuLauxNombro vortoArr]
+}
+SentradoKolektilo proc prenuLauxNombro arr {
+    upvar $arr nombroArr
+    set l [list]
+    for {set sid [array startsearch nombroArr]} {[array anymore nombroArr $sid]} {} {
+        set vorto [array nextelement nombroArr $sid]
+        set nombro $nombroArr($vorto)
+        lappend l [list $nombro $vorto]
+    }
+    array donesearch nombroArr $sid
+    set ret ""
+    set count 0
+    set lastaId 0
+    foreach tupel [lsort -decreasing -index 0 -integer $l] {
+        set id [lindex $tupel 0]
+        set vorto [lindex $tupel 1]
+        if {$lastaId!=$id} {
+            append ret "\n# $id\n"
+            set lastaId $id
+        }
+        append ret $vorto
+        if {$count>10} {
+            set count 0
+            append ret \n
+        } else {
+            append ret " "
+        }
+        incr count
+    }
+    return $ret
+}
+SentradoKolektilo proc purigu {} {
+    my instvar vortoArr
+    unset -nocomplain vortoArr
+}
+

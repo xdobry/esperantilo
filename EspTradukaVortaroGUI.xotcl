@@ -1,0 +1,5518 @@
+# automatically generated from XOTclIDE
+# script require component {IDEBaseGUI EspBazaLingvo EspTeknikajIloj}
+@ Component EspTradukaVortaroGUI {
+description {Tiu modulo enhavas programaro, kiu temas pri traduka vortaro por GUI
+}
+}
+package provide EspTradukaVortaroGUI 0.993
+package require EspBazaLingvo
+package require EspTeknikajIloj
+package require IDEBaseGUI
+Class DBVortaligo -superclass ::IDE::Browser -parameter dbvortaro
+@ ::DBVortaligo idemeta component EspTradukaVortaroGUI
+DBVortaligo instproc aliguNekonatanDerivon derivo {
+    my instvar nekonataj
+    lappend nekonataj $derivo
+}
+DBVortaligo instproc closeWindow {} {
+    if {[my set enProceso]} return
+    next
+}
+DBVortaligo instproc createSystemMenu {} {
+    
+}
+DBVortaligo instproc getTitle {} {
+    return "Vortlisto-Importilo"
+}
+DBVortaligo instproc haltigu {} {
+    my set stop 1
+}
+DBVortaligo instproc importuTraduko {lingvo esperanto traduko sento gramatiko fgrupo} {
+    my instvar neTrovitajVortoj nKonatajVortoj nImportitajVortoj dbvortaro
+    switch [$dbvortaro importuTraduko $lingvo $esperanto $traduko $sento $gramatiko $fgrupo] {
+        0 {
+            #puts "ne trovita $esperanto $traduko"
+            set vortaro [Vortaro prenuVortaron]
+            if {[$vortaro estasVorto $esperanto]==2 && ![$vortaro set estasNumeralo] && [$vortaro prenuBazanFormon] eq $esperanto} {
+                $dbvortaro importuVorton $esperanto
+                if {[$dbvortaro importuTraduko $lingvo $esperanto $traduko $sento]==1} {
+                    puts "importu vorto $esperanto"
+                    puts "importita $esperanto $traduko"
+                    incr nImportitajVortoj
+                }
+            } else {
+                my aliguNekonatanDerivon $esperanto
+                incr neTrovitajVortoj
+            }
+        }
+        1 {
+            puts "importita $esperanto $traduko"
+            incr nImportitajVortoj
+        }
+        2 {
+            incr nKonatajVortoj
+        }
+    }
+}
+DBVortaligo instproc importuVortliston {} {
+    my prilaboruVortlisto importuTraduko
+}
+DBVortaligo instproc montruNekonataj {} {
+    set x 0
+    my instvar nekonataj
+    set rez ""
+    foreach v [lsort -unique $nekonataj] {
+        append rez $v
+        if {$x==10} {
+            append rez \n
+            set x 0
+        } else {
+            append rez " "
+        }
+        incr x
+    }
+    EsperantoBrowser redaktoTekston $rez
+}
+DBVortaligo instproc prilaboruVortlisto metodo {
+    my instvar lingvo stop win nekonataj dbvortaro esperantoEstasCelLingvo
+    set nekonataj [list]
+    set stop 0
+    set filetypes {{{Text Files} *.txt} {{All files} *}}
+    set file [::IDE::Dialog getOpenFile $filetypes]
+    if {$file eq ""} return
+    set byteto [file size $file]
+    $win.scale configure -to $byteto
+    $win.halt configure -state normal
+    $win.importu configure -state disabled
+    set f [open $file r]
+    fconfigure $f -encoding utf-8
+    my set nImportitajVortoj 0
+    my set neTrovitajVortoj 0
+    my set nKonatajVortoj 0
+    set sep [$win.sep get]
+    set ssep [$win.ssep get]
+    set lng [lindex [my set lingvo] 0]
+    my set enProceso 1
+    while {[gets $f linio]!=-1} {
+        update
+        if {$stop} break
+        $win.scale set [tell $f]
+        if {[string index $linio 0] eq "#"} continue
+        set id [string first $sep $linio]
+        if {$id==-1} continue
+        if {$esperantoEstasCelLingvo} {
+            set diskribo [string trim [string range $linio 0 [expr {$id-1}]]]
+            set esperanto [string range $linio [expr {$id+1}] end]
+        } else {
+            set esperanto [string tolower [string map {" " ""} [string trim [string range $linio 0 [expr {$id-1}]]]]]
+            set diskribo [string range $linio [expr {$id+1}] end]
+        }
+        foreach e [$dbvortaro parseVortojnSenPriskribo $esperanto $ssep] {
+            foreach disk [$dbvortaro parseLeksikoElemento $diskribo $ssep] {
+                set t [lindex $disk 0]
+                set sento [lindex $disk 1]
+                set gramatiko [lindex $disk 2]
+                set fgrupo [lindex $disk 3]
+                my $metodo $lng $e [string trim $t] $sento $gramatiko $fgrupo
+            }
+        }
+    }
+    close $f
+    $dbvortaro commit
+    $win.halt configure -state disabled
+    $win.importu configure -state normal
+    my set enProceso 0
+}
+DBVortaligo instproc raportuNovajnVortojn {} {
+    my instvar novajVortoj
+    set novajVortoj ""
+    my prilaboruVortlisto testuTraduko
+    if {$novajVortoj ne ""} {
+        EsperantoBrowser redaktoTekston $novajVortoj
+    }
+    set novajVortoj ""
+}
+DBVortaligo instproc specificInit {} {
+    my instvar win neTrovitajVortoj nKonatajVortoj nImportitajVortoj lingvo dbvortaro lingvo esperantoEstasCelLingvo
+    my requireNamespace
+    set nImportitajVortoj 0
+    set neTrovitajVortoj 0
+    set nKonatajVortoj 0
+    set esperantoEstasCelLingvo 0
+    my set enProceso 0
+    my requireNamespace
+    my set lingvo {de germana}
+    set nunaLingvo [EsperantoConf set lingvo]
+    set olist [list]
+    foreach {lng nomo} [$dbvortaro subtenatajLingvoj] {
+        lappend olist [list $lng $nomo]
+        if {$lng eq $nunaLingvo} {
+            my set lingvo [list $lng $nomo]
+        }
+    }
+    label $win.llingvo -text [mc "Lingvo"]
+    tk_optionMenu $win.lingvo [self]::lingvo {*}$olist
+    label $win.lntv -text [mc "Nombro de ne trovitaj vortoj"]
+    label $win.ntv -textvariable [self]::neTrovitajVortoj
+    label $win.lnkt -text [mc "Nombro de konataj tradukoj"]
+    label $win.nkt -textvariable [self]::nKonatajVortoj
+    label $win.lnit -text [mc "Nombro de importitaj tradukoj"]
+    label $win.nit -textvariable [self]::nImportitajVortoj
+    label $win.lsep -text [mc "Separatilo"]
+    checkbutton $win.espCelo -text [mc "Esperanto estas celo de vortaro (ekz: nacia; esp1,esp2)"] -variable [self]::esperantoEstasCelLingvo
+    entry $win.sep
+    $win.sep insert 0 \;
+    label $win.lssep -text [mc "Separatilo de Sinonimoj"]
+    entry $win.ssep
+    $win.ssep insert 0 ,
+
+    frame $win.bf
+    button $win.importu -text [mc "Importu"] -command [list [self] importuVortliston]
+    button $win.raportu -text [mc "Raportu nekonatajn vortojn"] -command [list [self] raportuNovajnVortojn]
+    pack $win.importu $win.raportu -side left -in $win.bf
+
+    button $win.halt -text [mc "Haltigu"] -command [list [self] haltigu] -state disabled
+    scale $win.scale -orient horizontal
+    grid $win.llingvo -column 0 -row 0 -sticky w
+    grid $win.lingvo -column 1 -row 0 -sticky w
+    grid $win.espCelo -column 0 -row 1 -columnspan 2 -sticky w
+    grid $win.lntv -column 0 -row 2 -sticky w
+    grid $win.ntv -column 1 -row 2 -sticky w
+    grid $win.lnkt -column 0 -row 3 -sticky w
+    grid $win.nkt -column 1 -row 3 -sticky w
+    grid $win.lnit -column 0 -row 4 -sticky w
+    grid $win.nit -column 1 -row 4 -sticky w
+    grid $win.lsep -column 0 -row 5 -sticky w
+    grid $win.sep -column 1 -row 5 -sticky w
+    grid $win.lssep -column 0 -row 6 -sticky w
+    grid $win.ssep -column 1 -row 6 -sticky w
+    grid $win.scale -column 0 -row 7 -columnspan 2 -sticky ew
+    grid $win.bf -column 0 -row 8 -sticky w
+    grid $win.halt -column 1 -row 8 -sticky e
+}
+DBVortaligo instproc testuTraduko {lingvo esperanto traduko sento gramatiko fgrupo} {
+    my instvar dbvortaro novajVortoj
+    if {$sento ne ""} {
+        set tdesc "$traduko ($sento)"
+    } else {
+        set tdesc $traduko
+    }
+    if {$gramatiko ne ""} {
+        append tdesc " <g>$gramatiko</g>"
+    }
+    if {$fgrupo ne ""} {
+        append tdesc " <g>$fgrupo</g>"
+    }
+    if {[llength [set trad [$dbvortaro sxercxuRezListo $esperanto $lingvo]]]>0} {
+        set tradukoj [list]
+        foreach t $trad {
+            lappend tradukoj [dict get $t traduko]
+        }
+        if {[lsearch -exact $tradukoj $traduko]<0} {
+            append novajVortoj "# nova sinonimo: [join $tradukoj ,]\n"
+            append novajVortoj "$esperanto; $tdesc\n"
+        }
+    } else {
+        set vortaro [Vortaro prenuVortaron]
+        if {[$vortaro estasVorto $esperanto]!=2} {
+            append novajVortoj "# esperanta vorto ne estas konata '$esperanto'\n"
+        } else {
+            set dtradukoj [list]
+            foreach t [$dbvortaro sxercxuRezListo $esperanto de] {
+                lappend dtradukoj [dict get $t traduko]
+            }
+            if {[llength $dtradukoj]>0} {
+                append novajVortoj "# germana [join $dtradukoj]\n"
+            }
+            set rdat [REVOdatabazoSQL prenuBazon]
+            set senco [$rdat trovuSencojn $esperanto]
+            if {[llength $senco]>0} {
+                foreach s [lindex $senco 0] {
+                    append novajVortoj "# revo - [lindex $s 0 0]\n"
+                }
+            }
+            foreach s [$dbvortaro sxercxuRezListoPorTraduko $traduko $lingvo] {
+                append novajVortoj "# $lingvo-eo : [dict get $s vorto]\n"
+            }
+            append novajVortoj "$esperanto; $tdesc\n"
+        }
+    }
+}
+DBVortaligo proc newBrowser dbvortaro {
+    if {![Object isobject ::dbvortaligo]} {
+        my create ::dbvortaligo .revoAligo -dbvortaro $dbvortaro
+    }
+    return ::dbvortaligo
+}
+Class GramFiniloMontrilo -superclass {::IDE::Browser ::IDE::GUICommands}
+@ ::GramFiniloMontrilo idemeta categories init
+@ ::GramFiniloMontrilo idemeta categoriesMethods {{createSystemMenu init getTitle specificInit fillMenuStruct}}
+@ ::GramFiniloMontrilo idemeta component EspTradukaVortaroGUI
+GramFiniloMontrilo instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+GramFiniloMontrilo instproc eblasKomputuFGrupon {} {
+    my instvar lingvo vortarto
+    if {$lingvo ne "pl"} {
+        EsperantoBrowser message "Funkcio nur por pola lingvo"
+        return 0
+    }
+    if {$vortarto ni {Verbo Substantivo}} {
+        EsperantoBrowser message "Funkcio nur por verboj kaj substantivoj"
+        return 0
+    }
+    return 1
+}
+GramFiniloMontrilo instproc ekstraktuVorton {vorto fgrupo} {
+    if {"adjsub" in $fgrupo && [llength $vorto]>1} {
+        lindex $vorto 1
+    } else {
+        lindex $vorto 0
+    }
+}
+GramFiniloMontrilo instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+    my requireNamespace
+    my instvar cxuLiterumu
+    set cxuLiterumu 1
+
+    $ms addCheckButton [mc "Testu per Literumilo"] [self]::cxuLiterumu
+    if {[EsperantoConf isInDelopingMode]} {
+        $ms addCommand [mc "Komputu"] [list [self] komputuFGrupon] {} Control-T 0 eblasKomputuFGrupon
+    }
+}
+GramFiniloMontrilo instproc foriguEsceptojn {} {
+   my instvar fgrupoEsceptoj
+   set fgrupoEsceptoj ""
+   my montruEsceptoj
+}
+GramFiniloMontrilo instproc getMenuStruct {} {
+    return [IDE::MenuStruct [self]::ms [mc "Helpiloj"] 0]
+}
+GramFiniloMontrilo instproc getTitle {} {
+    my instvar lingvo
+    return "[mc "montrilo de fleksio"] - [mc [TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $lingvo]]"
+}
+GramFiniloMontrilo instproc init args {
+    my instvar lingvo
+    set lingvo [string tolower [string range [string trimleft [my info class] :] 0 1]]
+    next
+}
+GramFiniloMontrilo instproc initListoEnhavo {} {
+    my instvar vortarto substantivoArto
+    switch $vortarto {
+        Numeralo -
+        Adjektivo {
+            my @persono setListUnsorted {ms mz mn ze ni}
+
+        }
+        Substantivo {
+            set indeksoj [PolaFleksio prenuDeklIndeksoj]
+            my @persono setListUnsorted [my set subgrup_$substantivoArto]
+        }
+        Verbo {
+            set indeksoj [PolaFleksio prenuKonjIndeksoj]
+            my @persono setListUnsorted $indeksoj
+        }
+    }
+}
+GramFiniloMontrilo instproc initSubstativGrupoj {} {
+    error "metodo devas esti surskribita"
+}
+GramFiniloMontrilo instproc komputuFGrupon {} {
+    my instvar win vortarto fgrupoEsceptoj
+    set bazo [$win.bazaformo get]
+    set fleksGrupo ""
+    if {$vortarto eq "Verbo"} {
+        set fleksGrupo [ImportoIlo sercxuFGrupoPorVerboKompleksa $bazo]
+        if {$fleksGrupo ne ""} {
+            if {$vortarto eq "Substantivo"} {
+                my @arto setSelectedItem [PolaFleksio prenuArtoDeTipo $fleksGrupo]
+            }
+            my @persono setSelectedItem [lindex $fleksGrupo 0] 0
+            set fgrupoEsceptoj [lrange $fleksGrupo 1 end]
+            my montruFleksRezulton $bazo $vortarto
+        }
+    } elseif {$vortarto eq "Substantivo"} {
+        set fleksGrupo [ImportoIlo sercxuFGrupoPorSubstantivo $bazo]
+        if {[llength $fleksGrupo]>0} {
+            my @persono setListUnsorted [ImportoIlo elektuFGrupo $bazo $fleksGrupo 0 0]
+            my @persono setSelectedIndex 0
+            focus [my @persono getFocusWin]
+        }
+    }
+}
+GramFiniloMontrilo instproc konvervuEscpetoj {} {
+    my instvar vortarto vesceptoj sesceptoj aesceptoj eesceptoj fgrupoEsceptoj
+     switch $vortarto {
+         Substantivo {
+             set fwin $sesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuSubstantivoEsceptoj]
+         }
+         Verbo {
+             set fwin $vesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuVerboEsceptoj]
+         }
+         Adjektivo {
+             set fwin $aesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuAdjektivoEsceptoj]
+         }
+         Adverbo {
+             set fwin $eesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuAdverboEsceptoj]
+         }
+         default {
+             return
+         }
+     }
+     set nomoj [list]
+     foreach {e p} $esceptoNomoj {
+         lappend nomoj $e
+     }
+     foreach e $fgrupoEsceptoj {
+         foreach {k v} $e {}
+         set esceptoArr($k) $v
+     }
+     set fgrupoEsceptoj [list]
+     foreach ml $nomoj {
+         set ewin [string tolower $ml]
+         set escepto [$fwin.e$ewin get]
+         if {$escepto ne ""} {
+             lappend fgrupoEsceptoj [list $ml $escepto]
+         }
+     }
+     my selectItem dummy
+}
+GramFiniloMontrilo instproc kreuEsceptoDialogo {nomo listo} {
+    my instvar win
+    frame $win.$nomo
+    set i 0
+    foreach {ml disk} $listo {
+        set ewin [string tolower $ml]
+        label $win.$nomo.l$ewin -text $ml -anchor w
+        label $win.$nomo.d$ewin -text $disk -anchor w
+        entry $win.$nomo.e$ewin
+        grid $win.$nomo.l$ewin -column 0 -row $i -sticky w
+        grid $win.$nomo.d$ewin -column 1 -row $i -sticky w
+        grid $win.$nomo.e$ewin -column 2 -row $i -sticky we
+        incr i
+    }
+    #button $win.$nomo.bkonservo -text [mc "Konservu"] -command [list [self] konvervuEscpetoj]
+    button $win.$nomo.bpurigu -text [mc "Forigu esceptojn"] -command [list [self] foriguEsceptojn]
+    #grid $win.$nomo.bkonservo -column 3 -row 0 -sticky w
+    grid $win.$nomo.bpurigu -column 3 -row 0 -sticky w
+    return $win.$nomo
+}
+GramFiniloMontrilo instproc metuEsceptojDeVortaro fleksGrupo {
+    if {[llength $fleksGrupo]>1} {
+        my set fgrupoEsceptoj [lrange $fleksGrupo 1 end]
+        set fleksGrupo [lindex $fleksGrupo 0]
+    }
+    my montruFleksGrupo $fleksGrupo
+    return $fleksGrupo
+}
+GramFiniloMontrilo instproc montruDeFinilo {} {
+    return
+}
+GramFiniloMontrilo instproc montruDeLeksikono {} {
+    my instvar win vortarto fgrupoEsceptoj lingvo vortaroFGrupo
+    set bazo [$win.bazaformo get]
+    if {$bazo eq ""} {
+        EsperantoBrowser message [mc "tajpu la vorton"]
+        focus $win.bazaformo
+        return
+    }
+    set fgrupoEsceptoj ""
+    if {$vortarto eq "Numeralo"} {
+        if {[string is integer $bazo]} {
+            my montruFleksGrupo ms
+            my montruFleksRezulton $bazo $vortarto
+        } else {
+            EsperantoBrowser message [mc "Atendas la numeron"]
+            focus $win.bazaformo
+        }
+        return
+    }
+    set rezulto ""
+    set dbvortoro [DBVortaro prenuDepVortaron]
+    set listo [$dbvortoro sxercxuRezListoPorTraduko $bazo $lingvo]
+    if {[llength $listo]==0} {
+        append rezulto [mc "vorto %s ne trovita en leksikono" $bazo]
+        my @text setText $rezulto
+        return
+    }
+    array set attrArr [lindex $listo 0]
+    set tArto [my prenuArtoDeEspVorto $attrArr(vorto)]
+    if {$tArto eq ""} {
+        EsperantoBrowser message [mc "Neniu fleksio por la vorto"]
+        return
+    }
+    if {$tArto ne $vortarto} {
+        set vortarto $tArto
+        my initListoEnhavo
+    }
+    if {(![info exists attrArr(fgrupo)] || $attrArr(fgrupo) eq "") && $vortarto ne "Adjektivo"&& $vortarto ne "Numeralo"} {
+        append rezulto [mc "fgrupo por vorto %s ne estas konata" $bazo]
+        my @text setText $rezulto
+        return
+    }
+    set fleksGrupo $attrArr(fgrupo)
+    my metuEsceptojDeVortaro $fleksGrupo
+    my montruFleksRezulton $bazo $vortarto
+    my montruEsceptoj
+}
+GramFiniloMontrilo instproc montruEsceptoj {} {
+     my instvar vortarto vesceptoj sesceptoj aesceptoj eesceptoj fgrupoEsceptoj
+     switch $vortarto {
+         Substantivo {
+             set fwin $sesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuSubstantivoEsceptoj]
+         }
+         Verbo {
+             set fwin $vesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuVerboEsceptoj]
+         }
+         Adjektivo {
+             set fwin $aesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuAdjektivoEsceptoj]
+         }
+         Adverbo {
+             set fwin $eesceptoj
+             set esceptoNomoj [[my prenuFleksilon] prenuAdverboEsceptoj]
+         }
+         default {
+             return
+         }
+     }
+     set nomoj [list]
+     foreach {e p} $esceptoNomoj {
+         lappend nomoj $e
+     }
+     foreach e $fgrupoEsceptoj {
+         foreach {k v} $e {}
+         set esceptoArr($k) $v
+     }
+     foreach ml $nomoj {
+         set ewin [string tolower $ml]
+         $fwin.e$ewin delete 0 end
+         if {[info exists esceptoArr($ml)]} {
+             $fwin.e$ewin insert 0 $esceptoArr($ml)
+         }
+     }
+}
+GramFiniloMontrilo instproc montruFleksGrupo fleksGrupo {
+    my @persono setSelectedItem [lindex $fleksGrupo 0] 0
+}
+GramFiniloMontrilo instproc montruFleksRezulton {bazo vortarto} {
+
+
+}
+GramFiniloMontrilo instproc montruFleksRezultonAdjektivo {bazo fleksGrupo} {
+   set rezListo [list]
+   set fleksilo [my prenuFleksilon]
+   lappend rezListo "    " $bazo
+   lappend rezListo "\n\nkomperativo (pli): " [$fleksilo prenuKompAdjektivo $bazo $fleksGrupo]
+   lappend rezListo "\nsuperlativo (la plej): " [$fleksilo prenuKompAdjektivo $bazo $fleksGrupo 1]
+   return $rezListo
+}
+GramFiniloMontrilo instproc montruFleksRezultonAdverbo {bazo fleksGrupo} {
+   set rezListo [list]
+   set fleksilo [my prenuFleksilon]
+   lappend rezListo "    " $bazo
+   lappend rezListo "\n\n La programo funkcias " $bazo
+   lappend rezListo "\n\nkomperativo (pli): " [$fleksilo prenuKompAdjektivo $bazo $fleksGrupo]
+   lappend rezListo "\nsuperlativo (plej): " [$fleksilo prenuKompAdjektivo $bazo $fleksGrupo 1]
+   return $rezListo
+}
+GramFiniloMontrilo instproc montruFleksRezultonSubstantivo {bazo fleksGrupo} {
+   set rezListo [list]
+   foreach kazo {M D C B N Ms W} {
+       foreach nombro {singularo pluralo} {
+           if {$kazo ne "M" || $nombro ne "singularo"} {
+               if {$nombro eq "pluralo"} {
+                   set preTeksto "\t"
+               } else {
+                   set preTeksto "\n"
+               }
+           }
+           append preTeksto [format "%-2s " $kazo]
+           lappend rezListo $preTeksto [PolaFleksio prenuSubstantivonLauxTipo $bazo $fleksGrupo $kazo $nombro]
+       }
+   }
+   return $rezListo
+}
+GramFiniloMontrilo instproc montruFleksRezultonVerbo {bazo fleksGrupo} {
+    set rezulto ""
+    if {[llength $fleksGrupo]>1} {
+        append rezulto $fleksGrupo\n\n
+    }
+    set def {
+        {$fleksGrupo\n\na - singularo:\n1 ja } 1 ms singularo as
+        {\n2 ty } 2 ms singularo as
+        {\n3 on } 3 ms singularo as
+        {\na - pluralo:\n1 my } 1 ms pluralo as
+        {\n2 wy } 2 ms pluralo as
+        {\n3 oni } 3 ms pluralo as
+        {\n\ni - singularo:\n1 ja (ms) } 1 ms singularo is
+        { (ze) } 1 ze singularo is
+        {\n2 ty (ms) } 2 ms singularo is
+        { (ze) } 2 ze singularo is
+        {\n3 on } 3 ms singularo is
+        { ona } 3 ze singularo is
+        { ono } 3 ni singularo is
+        {\ni - pluralo:\n1 my (ms) } 1 ms pluralo is
+        { (ze) } 1 ze pluralo is
+        {\n2 wy (ms) } 2 ms pluralo is
+        { (ze) } 2 ze pluralo is
+        {\n3 oni } 3 ms pluralo is
+        { one } 3 ze pluralo is
+        {\n\no - singularo:\n1 ja } 1 ms singularo os
+        {\n2 ty } 2 ms singularo os
+        {\n3 on } 3 ms singularo os
+        {\na - pluralo:\n1 my } 1 ms pluralo os
+        {\n2 wy } 2 ms pluralo os
+        {\n3 oni } 3 ms pluralo os
+        {\n\nty! } 2 ms singularo u
+        {\nwy! } 2 ms pluaro u
+        {\nmy! } 1 ms pluaro u
+        {\nata - } 1 ms singularo at
+        {\nataj - } 1 ms pluralo at
+        {\nate - } 1 ms singularo ate
+        {\nite - } 1 ms singularo ite
+        {\nite oni - } 1 ms singular ois
+        {\nsub-o - } 1 ms singularo o
+    }
+    set rezListo [list]
+    foreach {preteksto persono arto nombro tempo} $def {
+        lappend rezListo [subst $preteksto] [PolaFleksio prenuVerbon $bazo $fleksGrupo $persono $arto $nombro $tempo]
+    }
+    return $rezListo
+}
+GramFiniloMontrilo instproc montruFleksion {vorto arto {fgrupo {}} {tgramatiko {}}} {
+    my instvar gramatiko
+    set gramatiko $tgramatiko
+
+    set artoj {Adjektivo Substantivo Verbo Adverbo}
+    set vorto [my ekstraktuVorton $vorto $fgrupo]
+    if {[lsearch $artoj $arto]<0} {
+        error "arto nekonata $arto"
+    }
+    my instvar vortarto win fgrupoEsceptoj
+    if {$arto ne $vortarto} {
+        set vortarto $arto
+        my sxangxuVortarton
+    }
+    $win.bazaformo delete 0 end
+    $win.bazaformo insert 0 $vorto
+    if {$fgrupo eq "" && $vortarto in {Substantivo Verbo}} {
+        my montruDeFinilo
+    } else {
+        my metuEsceptojDeVortaro $fgrupo
+        my montruFleksRezulton $vorto $arto
+        my montruEsceptoj
+    }
+    focus -force $win
+    raise [winfo toplevel $win]
+}
+GramFiniloMontrilo instproc montruRezListo rezListo {
+    my instvar cxuLiterumu lingvo
+    set eraroj [list]
+    if {$cxuLiterumu} {
+        set literumilo [HunspellTestilo prenuInstancoPorLingvo $lingvo]
+        if {$literumilo ne ""} {
+            foreach {pre vortoj} $rezListo {
+                 foreach vorto $vortoj {
+                     if {[lsearch $eraroj $vorto]<0} {
+                         if {[$literumilo estasVorto $vorto]!=2} {
+                             lappend eraroj $vorto
+                         }
+                     }
+                 }
+             }
+        } else {
+            set cxuLiterumu 0
+        }
+    }
+    set twin [my @text getTextWindow]
+    my @text setText ""
+    if {![info exists eraroj] || $eraroj eq ""} {
+        set rez ""
+        foreach {pre vorto} $rezListo {
+            append rez $pre $vorto
+        }
+        my @text setText $rez
+    } else {
+        foreach {pre vortoj} $rezListo {
+            $twin insert insert $pre
+            set first 1
+            foreach vorto $vortoj {
+                if {!$first} {
+                    $twin insert insert " "
+                }
+                set first 0
+                if {[lsearch $eraroj $vorto]>=0} {
+                    $twin insert insert $vorto eraro
+                } else {
+                    $twin insert insert $vorto
+                }
+            }
+        }
+    }
+    return $rezListo
+}
+GramFiniloMontrilo instproc prenuArtoDeEspVorto vorto {
+    switch -glob $vorto {
+        *i {
+            return Verbo
+        }
+        *a {
+            return Adjektivo
+        }
+        *o {
+            return Substantivo
+        }
+        default {
+            return
+        }
+    }
+}
+GramFiniloMontrilo instproc prenuFGrupon {} {
+    my set fgrupoEsceptoj
+}
+GramFiniloMontrilo instproc prenuFleksilon {} {
+    error "bonvolu surskribi la metodon"
+}
+GramFiniloMontrilo instproc selectItem dummy {
+    my instvar win vortarto fgrupoDeLeksikono
+    set bazo [$win.bazaformo get]
+    if {$bazo eq ""} return
+    my montruFleksRezulton $bazo $vortarto
+}
+GramFiniloMontrilo instproc specificInit {} {
+    my instvar win vortarto fgrupoDeLeksikono vesceptoj sesceptoj aesceptoj eesceptoj fgrupoEsceptoj
+    my requireNamespace
+    set fgrupoEsceptoj ""
+    set fgrupoDeLeksikono 1
+    entry $win.bazaformo
+    button $win.montruDeLeksikono -text [mc "Montru de vortaro"] -command [list [self] montruDeLeksikono]
+    button $win.montruDeFino -text [mc "Montru de finilo"] -command [list [self] montruDeFinilo]
+
+    set vortarto Adjektivo
+    radiobutton $win.rbadjektivo -text [mc "Adjektivo"] -variable [self]::vortarto -command [list [self] sxangxuVortarton] -value Adjektivo
+    radiobutton $win.rbsubstantivo -text [mc "Substantivo"] -variable [self]::vortarto -command [list [self] sxangxuVortarton] -value Substantivo
+    radiobutton $win.rbverbo -text [mc "Verbo"] -variable [self]::vortarto -command [list [self] sxangxuVortarton] -value Verbo
+    radiobutton $win.rbnumeralo -text [mc "Numeralo"] -variable [self]::vortarto -command [list [self] sxangxuVortarton] -value Numeralo
+
+    bind $win.bazaformo <Return> [list [self] montruDeLeksikono]
+    IDE::NListView [self]::@persono $win.persono -height 5 -label [mc "persono/fleksia grupo:"]  -notify [self]
+    IDE::NListView [self]::@arto $win.arto -height 5 -width 5 -label [mc "genro"]  -notify [self] -notifyProc sxangxuArton
+
+    IDE::Text create [self]::@text $win.rezulto -height 15 -width 70
+    [my @text getTextWindow] configure -tabs {5c}
+
+    set vesceptoj [my kreuEsceptoDialogo verbo [[my prenuFleksilon] prenuVerboEsceptoj]]
+    set sesceptoj [my kreuEsceptoDialogo substantivo [[my prenuFleksilon] prenuSubstantivoEsceptoj]]
+    set aesceptoj [my kreuEsceptoDialogo adjektivo [[my prenuFleksilon] prenuAdjektivoEsceptoj]]
+    set eesceptoj [my kreuEsceptoDialogo adverbo [[my prenuFleksilon] prenuAdverboEsceptoj]]
+    IDE::TabButtons create [self]::@escbutono $win.escbutono -states [list [mc "Rezulto"] [mc "Esceptoj"]] -command [list [self] sxangxuRezultoEsceptoj]
+
+    grid $win.rbadjektivo -column 0 -row 0 -sticky w
+    grid $win.rbsubstantivo -column 0 -row 1 -sticky w
+    grid $win.rbverbo -column 0 -row 2 -sticky w
+    grid $win.rbnumeralo -column 0 -row 3 -sticky w
+    grid $win.bazaformo -column 0 -row 4 -sticky ew
+    grid $win.montruDeLeksikono -column 1 -row 4 -sticky e
+    grid $win.montruDeFino -column 2 -row 4 -sticky e
+    grid $win.persono -column 2 -row 0 -rowspan 4 -sticky news
+    grid $win.arto -column 1 -row 0 -rowspan 4 -sticky news
+    grid $win.escbutono -column 0 -row 5  -columnspan 4 -sticky w
+    grid $win.rezulto -column 0 -row 6 -columnspan 4 -sticky news
+
+    grid columnconfigure $win 0 -weight 1
+    grid rowconfigure $win 6 -weight 1
+    my initSubstativGrupoj
+    my initListoEnhavo
+
+    set twin [my @text getTextWindow]
+    $twin tag configure eraro -background red
+
+    my sxangxuVortarton
+    next
+}
+GramFiniloMontrilo instproc sxangxuArton arto {
+    my instvar vortarto substantivoArto
+    if {$vortarto ne "Substantivo"} {
+        EsperantoBrowser message [mc "La listo havas funkcion nur por substantivo"]
+    }
+    set substantivoArto $arto
+    my initListoEnhavo
+}
+GramFiniloMontrilo instproc sxangxuRezultoEsceptoj aktuala {
+    my instvar vesceptoj sesceptoj aesceptoj eesceptoj vortarto escfenestro win
+    if {$aktuala eq [mc "Rezulto"]} {
+        my konvervuEscpetoj
+        grid forget $escfenestro
+        grid $win.rezulto -column 0 -row 6 -columnspan 4 -sticky news
+    } elseif {$aktuala eq [mc "Esceptoj"]} {
+        grid forget $win.rezulto
+        if {$vortarto eq "Substantivo"} {
+            set escfenestro $sesceptoj
+        } elseif {$vortarto eq "Verbo"} {
+            set escfenestro $vesceptoj
+        } elseif {$vortarto eq "Adjektivo"} {
+            set escfenestro $aesceptoj
+        } elseif {$vortarto eq "Adverbo"} {
+            set escfenestro $eesceptoj
+        } elseif {$vortarto eq "Numeralo"} {
+            return
+        } else {
+            error "nekonata escpeta tipo $vortarto"
+        }
+        grid $escfenestro -column 0 -row 6 -columnspan 4 -sticky nw
+    }
+}
+GramFiniloMontrilo instproc sxangxuVortarton {} {
+    my instvar vortarto
+    my initListoEnhavo
+    my @escbutono changeStateTo Rezulto
+    set lwin [my @arto set win]
+    if {$vortarto eq "Substantivo"} {
+        $lwin.listbox configure -state normal
+    } else {
+        $lwin.listbox configure -state disabled
+    }
+    if {[lsearch {Substantivo Verbo Adjektivo Adverbo} $vortarto]<0} {
+        my @escbutono setStates [list [mc "Rezulto"]]
+    } else {
+        my @escbutono setStates [list [mc "Rezulto"] [mc "Esceptoj"]]
+    }
+}
+GramFiniloMontrilo instproc testuPerAspell {} {
+    my instvar eraroj vortarto win lingvo
+    if {$::tcl_platform(platform) ne "unix"} {
+        EsperantoBrowser message [mc "Vi povas uzi tiun funkcion nur sur Unikso/Linukso"]
+        return
+    }
+
+    if {[lsearch {Verbo Substantivo} $vortarto]<0} {
+        return
+    }
+    set bazo [$win.bazaformo get]
+    set rezListo [my montruFleksRezulton $bazo $vortarto]
+    set vortoj [list]
+    foreach {pre vorto} $rezListo {
+        lappend vortoj $vorto
+    }
+    set spell [HunspellTestilo prenuInstancoPorLingvo $lingvo]
+    set eraroj [$spell testuVortoj $vortoj]
+    # $spell destroy
+    my montruRezListo $rezListo
+}
+GramFiniloMontrilo proc montruFleksion {vorto arto {fgrupo {}} {gramatiko {}}} {
+    [my newBrowser] montruFleksion $vorto $arto $fgrupo $gramatiko
+}
+GramFiniloMontrilo proc newBrowser {{lingvo {}}} {
+   EsperantoConf statAktiono FL
+   if {$lingvo eq ""} {
+       set lingvo [EsperantoConf set lingvo]
+   }
+   EsperantoConf pretiguLingvoTradukado $lingvo
+
+   set mclass [esp::grandskribi ${lingvo}]GramFiniloMontrilo
+   if {[Object isclass $mclass]} {
+       if {![Object isobject ::fleksmontrilo]} {
+           $mclass create ::fleksmontrilo .fleksmontrilo
+       }
+       return ::fleksmontrilo
+   } else {
+       IDE::Dialog error [mc "Montrilo de fleksio por lingvo %s ne ekzistas" $lingvo]
+   }
+}
+Class DeGramFiniloMontrilo -superclass ::GramFiniloMontrilo
+@ ::DeGramFiniloMontrilo idemeta component EspTradukaVortaroGUI
+DeGramFiniloMontrilo instproc ekstraktuVorton {vorto fgrupo} {
+    lindex $vorto end
+}
+DeGramFiniloMontrilo instproc initListoEnhavo {} {
+    my instvar vortarto substantivoArto
+    switch $vortarto {
+        Numeralo -
+        Adjektivo {
+            my @persono setListUnsorted {m n f}
+
+        }
+        Substantivo {
+            my @persono setListUnsorted [my set subgrup_$substantivoArto]
+        }
+        Verbo {
+            my @persono setListUnsorted [list]
+        }
+    }
+}
+DeGramFiniloMontrilo instproc initSubstativGrupoj {} {
+    foreach fg [DeFleksio prenuDeklIndeksoj] {
+        my lappend subgrup_[DeFleksio prenuArtoDeIndekso $fg] $fg
+    }
+    my @arto setListUnsorted {m n f}
+    my @arto setSelectedItem m 0
+    my set substantivoArto m
+}
+DeGramFiniloMontrilo instproc metuEsceptojDeVortaro fleksGrupo {
+    my instvar vortarto
+    if {$vortarto eq "Verbo"} {
+        my set fgrupoEsceptoj $fleksGrupo
+        return
+    } elseif {$vortarto eq "Substantivo"} {
+        if {[llength $fleksGrupo]>2} {
+            my set fgrupoEsceptoj [lrange $fleksGrupo 2 end]
+            set fleksGrupo [lrange $fleksGrupo 0 1]
+        }
+        my montruFleksGrupo $fleksGrupo
+        return $fleksGrupo
+    } elseif {$vortarto eq "Adjektivo"} {
+        my set fgrupoEsceptoj $fleksGrupo
+        return
+    } else {
+        next
+    }
+}
+DeGramFiniloMontrilo instproc montruDeFinilo {} {
+    my instvar win vortarto
+    set bazo [$win.bazaformo get]
+    if {$bazo eq ""} {
+        EsperantoBrowser message [mc "tajpu la vorton"]
+        focus $win.bazaformo
+        return
+    }
+    if {$vortarto eq "Substantivo"} {
+        set fleksGrupo [DeFleksio divenuTiponDeSubstantivo $bazo]
+        if {[llength $fleksGrupo]!=2} {
+            set fleksGrupo [DeFleksio divenuFGruopoDeSubstantivoPosSekso $fleksGrupo $fleksGrupo]
+        } else {
+            set fleksGrupo [lindex $fleksGrupo 1]
+        }
+        my @arto setSelectedItem [DeFleksio prenuArtoDeIndekso $fleksGrupo]
+        my @persono setSelectedItem $fleksGrupo 0
+    }
+    my montruFleksRezulton $bazo $vortarto
+}
+DeGramFiniloMontrilo instproc montruFleksGrupo fleksGrupo {
+    my instvar win vortarto
+    if {$vortarto eq "Substantivo"} {
+        my @arto setSelectedItem [lindex $fleksGrupo 0]
+        my @persono setSelectedItem [lindex $fleksGrupo 1] 0
+        return
+    } elseif {$vortarto eq "Adjektivo"} {
+        set fleksGrupo m
+    }
+    next
+}
+DeGramFiniloMontrilo instproc montruFleksRezulton {bazo vortarto} {
+    set rezulto ""
+    set fleksGrupo [my prenuFGrupon]
+    set listo ""
+    switch $vortarto {
+        Adjektivo {
+            set listo [my montruFleksRezultonAdjektivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Numeralo {
+            set bordo [[my prenuFleksilon] prenuNumero $bazo ordo]
+            append rezulto "kardinal [DeFleksio prenuNumero $bazo cxef]\n"
+            append rezulto "ordinal [DeFleksio prenuNumero $bazo ordo]\n"
+            my @text setText $rezulto
+        }
+        Substantivo {
+            set listo [my montruFleksRezultonSubstantivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Verbo {
+            set listo [my montruFleksRezultonVerbo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+    }
+    return $listo
+}
+DeGramFiniloMontrilo instproc montruFleksRezultonAdjektivo {bazo fleksGrupo} {
+   set rezListo [list]
+   set sekso [my @persono selectedItemFirst]
+   switch $sekso {
+       n {
+           set svorto Kind
+           set sfgrupo "n s/er"
+       }
+       m {
+           set svorto Mann
+           set sfgrupo "m es/er"
+       }
+       default {
+           set svorto Frau
+           set sfgrupo "f -/en"
+       }
+   }
+   set komp [DeFleksio prenuKompAdjektivo $bazo $fleksGrupo 0]
+   set sup [DeFleksio prenuKompAdjektivo $bazo $fleksGrupo 1]
+   lappend rezListo "(komperativo) [DeFleksio prenuDefinitilon $sekso N singularo] " [DeFleksio prenuAdjektivon $komp $sekso N singularo 1]
+   lappend rezListo " $svorto\n(superlativo) [DeFleksio prenuDefinitilon $sekso N singularo] " [DeFleksio prenuAdjektivon $sup $sekso N singularo 1]
+   set last " $svorto"
+
+   foreach arto {0 1 2} priskribo {starke schwache gemischte} metodo {{} prenuDefinitilon prenuNedifitanDefinilon} {
+       if {$last ne ""} {
+           append last "\n"
+       }
+       foreach nombro {singularo pluralo} {
+           if {$last ne ""} {
+               if {$nombro eq "singularo"} {
+                    append last "\n $priskribo Deklination"
+               } else {
+                   append last \n
+               }
+           }
+           foreach kazo {N A D G} {
+               set preTeksto ""
+               if {$last ne ""} {
+                   append preTeksto "$last\n"
+               }
+               append preTeksto [format "%-2s " $kazo]
+               if {$metodo ne ""} {
+                   if {$arto eq 2 && $nombro eq "pluralo"} {
+                       append preTeksto  "[DeFleksio prenuPosesivPronomon neniu $sekso $kazo $nombro] "
+                   } else {
+                       append preTeksto  "[DeFleksio $metodo $sekso $kazo $nombro] "
+                   }
+               }
+               lappend rezListo $preTeksto [DeFleksio prenuAdjektivon $bazo $sekso $kazo $nombro $arto]
+               set last " [DeFleksio prenuSubstantivonLauxTipo $svorto $sfgrupo $kazo $nombro]"
+
+           }
+       }
+   }
+   lappend rezListo $last {}
+   return $rezListo
+}
+DeGramFiniloMontrilo instproc montruFleksRezultonSubstantivo {bazo fleksGrupo} {
+   set rezListo [list]
+   set sekso [lindex $fleksGrupo 0]
+   foreach kazo {N A D G} {
+       foreach nombro {singularo pluralo} {
+           if {$kazo ne "N" || $nombro ne "singularo"} {
+               if {$nombro eq "pluralo"} {
+                   set preTeksto "\t"
+               } else {
+                   set preTeksto "\n"
+               }
+           }
+           append preTeksto [format "%-2s %s " $kazo [DeFleksio prenuDefinitilon $sekso $kazo $nombro]]
+           lappend rezListo $preTeksto [DeFleksio prenuSubstantivonLauxTipo $bazo $fleksGrupo $kazo $nombro]
+       }
+   }
+   return $rezListo
+}
+DeGramFiniloMontrilo instproc montruFleksRezultonVerbo {bazo fleksGrupo} {
+    set rezulto ""
+    if {[llength $fleksGrupo]>1} {
+        append rezulto $fleksGrupo\n\n
+    }
+    set def {
+        {$fleksGrupo\n\na - singularo:\n1 ich } 1 singularo as
+        {\n2 du } 2 singularo as
+        {\n3 er,sie,es } 3 singularo as
+        {\na - pluralo:\n1 wir } 1 pluralo as
+        {\n2 ihr } 2 pluralo as
+        {\n3 sie } 3 pluralo as
+        {\n\ni - singularo:\n1 ich } 1 singularo is
+        {\n2 du } 2 singularo is
+        {\n3 er,sie,es } 3 singularo is
+        {\ni - pluralo:\n1 wir } 1 pluralo is
+        {\n2 ihr } 2 pluralo is
+        {\n3 sie } 3 pluralo is
+        {\n\no - singularo:\n1 ich } 1 singularo os
+        {\n2 du } 2 singularo os
+        {\n3 er,sie,es } 3 singularo os
+        {\na - pluralo:\n1 wir } 1 pluralo os
+        {\n2 ihr } 2 pluralo os
+        {\n3 sie } 3 pluralo os
+        {\n\ndu! } 2 singularo u
+        {\nihr! } 2 pluaro u
+        {\nata - } 1 singularo at
+        {\nataj - } 1 pluralo at
+        {\nate - } 1 singularo ate
+        {\nite - } 1 singularo ite
+        {\nsub-o - } 1 singularo o
+    }
+    set rezListo [list]
+    foreach {preteksto persono nombro tempo} $def {
+        lappend rezListo [subst $preteksto] [DeFleksio prenuVerbon $bazo $fleksGrupo $persono $nombro $tempo]
+    }
+    return $rezListo
+}
+DeGramFiniloMontrilo instproc prenuFGrupon {} {
+    my instvar vortarto
+    if {$vortarto eq "Substantivo"} {
+        concat [my @arto selectedItemFirst] [my @persono selectedItemFirst] [my set fgrupoEsceptoj]
+    } elseif {$vortarto eq "Adjektivo"} {
+       my set fgrupoEsceptoj
+    } else {
+        next
+    }
+}
+DeGramFiniloMontrilo instproc prenuFleksilon {} {
+    return DeFleksio
+}
+DeGramFiniloMontrilo proc newBrowser {} {
+   GramFiniloMontrilo newBrowser de
+}
+Class EnGramFiniloMontrilo -superclass ::GramFiniloMontrilo
+@ ::EnGramFiniloMontrilo idemeta component EspTradukaVortaroGUI
+EnGramFiniloMontrilo instproc ekstraktuVorton {vorto fgrupo} {
+    lindex $vorto end
+}
+EnGramFiniloMontrilo instproc initListoEnhavo {} {
+    my @persono setListUnsorted [list]
+}
+EnGramFiniloMontrilo instproc initSubstativGrupoj {} {
+    my @arto setList {}
+    my @persono setList {}
+}
+EnGramFiniloMontrilo instproc metuEsceptojDeVortaro fleksGrupo {
+    my instvar vortarto
+    if {$vortarto eq "Verbo"} {
+        my set fgrupoEsceptoj $fleksGrupo
+        return
+    } elseif {$vortarto eq "Substantivo"} {
+        my set fgrupoEsceptoj $fleksGrupo
+        return $fleksGrupo
+    } elseif {$vortarto eq "Adjektivo"} {
+        my set fgrupoEsceptoj $fleksGrupo
+        return
+    } else {
+        next
+    }
+}
+EnGramFiniloMontrilo instproc montruDeFinilo {} {
+    my instvar win vortarto
+    set bazo [$win.bazaformo get]
+    if {$bazo eq ""} {
+        EsperantoBrowser message [mc "tajpu la vorton"]
+        focus $win.bazaformo
+        return
+    }
+    if {$vortarto eq "Substantivo"} {
+        set fleksGrupo [DeFleksio divenuTiponDeSubstantivo $bazo]
+        if {[llength $fleksGrupo]!=2} {
+            set fleksGrupo [DeFleksio divenuFGruopoDeSubstantivoPosSekso $fleksGrupo $fleksGrupo]
+        } else {
+            set fleksGrupo [lindex $fleksGrupo 1]
+        }
+        my @arto setSelectedItem [DeFleksio prenuArtoDeIndekso $fleksGrupo]
+        my @persono setSelectedItem $fleksGrupo 0
+    }
+    my montruFleksRezulton $bazo $vortarto
+}
+EnGramFiniloMontrilo instproc montruFleksGrupo fleksGrupo {
+    my instvar win vortarto
+    if {$vortarto eq "Substantivo"} {
+        my @arto setSelectedItem [lindex $fleksGrupo 0]
+        my @persono setSelectedItem [lindex $fleksGrupo 1] 0
+        return
+    } elseif {$vortarto eq "Adjektivo"} {
+        set fleksGrupo m
+    }
+    next
+}
+EnGramFiniloMontrilo instproc montruFleksRezulton {bazo vortarto} {
+    set rezulto ""
+    set fleksGrupo [my prenuFGrupon]
+    set listo ""
+    switch $vortarto {
+        Adjektivo {
+            set listo [my montruFleksRezultonAdjektivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Numeralo {
+            set bordo [[my prenuFleksilon] prenuNumero $bazo ordo]
+            append rezulto "kardinal [DeFleksio prenuNumero $bazo cxef]\n"
+            append rezulto "ordinal [DeFleksio prenuNumero $bazo ordo]\n"
+            my @text setText $rezulto
+        }
+        Substantivo {
+            set listo [my montruFleksRezultonSubstantivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Verbo {
+            set listo [my montruFleksRezultonVerbo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+    }
+    return $listo
+}
+EnGramFiniloMontrilo instproc montruFleksRezultonAdjektivo {bazo fleksGrupo} {
+   set rezListo [list]
+   lappend rezListo "    " $bazo
+   lappend rezListo "komerativo: " [EnFleksilo prenuKompAdjektivo $bazo $fleksGrupo]
+   lappend rezListo "superlativo: " [EnFleksilo prenuKompAdjektivo $bazo $fleksGrupo 1]
+   return $rezListo
+}
+EnGramFiniloMontrilo instproc montruFleksRezultonSubstantivo {bazo fleksGrupo} {
+   set rezListo [list]
+   set sekso [lindex $fleksGrupo 0]
+   set fleksilo [my prenuFleksilon]
+   foreach kazo {N} {
+       foreach nombro {singularo pluralo} {
+           if {$kazo ne "N" || $nombro ne "singularo"} {
+               set preTeksto "\n"
+           }
+           append preTeksto [format "%-10s " $nombro]
+           lappend rezListo $preTeksto [$fleksilo prenuSubstantivonLauxTipo $bazo $fleksGrupo $nombro]
+       }
+   }
+   return $rezListo
+}
+EnGramFiniloMontrilo instproc montruFleksRezultonVerbo {bazo fleksGrupo} {
+    set rezulto ""
+    if {[llength $fleksGrupo]>1} {
+        append rezulto $fleksGrupo\n\n
+    }
+    set def {
+        {$fleksGrupo\npresens : } 1 singularo as
+        {\npast    : } 1 singularo is
+        {\nperfect : } 1 singularo pis
+    }
+    set rezListo [list]
+    foreach {preteksto persono nombro tempo} $def {
+        lappend rezListo [subst $preteksto] [[my prenuFleksilon] prenuVerbon $bazo $fleksGrupo $persono $nombro $tempo]
+    }
+    return $rezListo
+}
+EnGramFiniloMontrilo instproc prenuFGrupon {} {
+    my instvar vortarto
+    if {$vortarto eq "Substantivo"} {
+        my set fgrupoEsceptoj
+    } elseif {$vortarto eq "Adjektivo"} {
+        my set fgrupoEsceptoj
+    } else {
+        next
+    }
+}
+EnGramFiniloMontrilo instproc prenuFleksilon {} {
+    EnFleksilo
+}
+EnGramFiniloMontrilo instproc specificInit {} {
+    my instvar win
+    next
+    grid forget $win.arto
+    grid forget $win.persono
+}
+EnGramFiniloMontrilo proc newBrowser {} {
+   GramFiniloMontrilo newBrowser en
+}
+Class EspSentoElektilo -superclass ::IDE::Dialog -parameter {sento {type okcancel}}
+@ ::EspSentoElektilo idemeta component EspTradukaVortaroGUI
+EspSentoElektilo instproc init {} {
+    my instvar win sento fakNum stilNum
+    next
+    frame $win.lframe
+    label $win.lframe.lpriskribo -text [mc "plua priskribo:"]
+    entry $win.lframe.priskribo -width 50
+    pack $win.lframe.lpriskribo -side left
+    pack $win.lframe.priskribo -side left -fill x -expand yes
+
+    labelframe $win.fakoj -text [mc "Fakoj"]
+    set num 0
+    set alto 19
+    my requireNamespace
+    set restsento $sento
+    foreach fak [EspSentoElektilo prenuFakojnListo] {
+        foreach {simbolo nomo} $fak {}
+        if {[lsearch $sento $simbolo]>=0} {
+            my set v$num $simbolo
+            ide::lremove restsento $simbolo
+        } else {
+            my set v$num "_"
+        }
+        checkbutton $win.fakoj.c$num -text $nomo -onvalue $simbolo -offvalue _ -variable [self]::v$num
+        grid $win.fakoj.c$num -row [expr {$num%$alto}] -column [expr {round($num/$alto)}] -sticky w
+        incr num
+    }
+    set fakNum $num
+
+    labelframe $win.stiloj -text [mc "Stiloj"]
+    set num 0
+    set alto 3
+    my requireNamespace
+    foreach fak [EspSentoElektilo prenuStiloListo] {
+        foreach {simbolo nomo} $fak {}
+        if {[lsearch $sento $simbolo]>=0} {
+            my set vs$num $simbolo
+            ide::lremove restsento $simbolo
+        } else {
+            my set vs$num "_"
+        }
+        checkbutton $win.stiloj.cs$num -text $nomo -onvalue $simbolo -offvalue _ -variable [self]::vs$num
+        grid $win.stiloj.cs$num -row [expr {$num%$alto}] -column [expr {round($num/$alto)}] -sticky w
+        incr num
+    }
+    set stilNum $num
+
+    pack $win.lframe -anchor w -fill x -expand yes
+    pack $win.stiloj -fill both -expand yes -before $win.buttons -padx 10 -pady 5
+    pack $win.fakoj -fill both -expand yes -before $win.buttons -padx 10 -pady 5
+    $win.lframe.priskribo insert 0 $restsento
+    wm protocol $win WM_DELETE_WINDOW [list [self] actionCancel]
+    wm deiconify $win
+}
+EspSentoElektilo instproc postOk {} {
+    my instvar fakNum stilNum sento win
+    set tSentoj [list]
+    for {set x 0} {$x<$fakNum} {incr x} {
+        if {[my set v$x] ne "_"} {
+            lappend tSentoj [my set v$x]
+        }
+    }
+    for {set x 0} {$x<$stilNum} {incr x} {
+        if {[my set vs$x] ne "_"} {
+            lappend tSentoj [my set vs$x]
+        }
+    }
+    set sento [$win.lframe.priskribo get]
+    if {$sento ne ""} {
+        append sento " "
+    }
+    append sento $tSentoj
+}
+EspSentoElektilo proc elektuFakojn fakoj {
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+
+    set i [EspSentoElektilo new -volatile [list -message "Elektu fakojn kaj stilo por la vorto"] [list -sento $fakoj] [list -parent $parent]]
+    set ret [list _cancel]
+    if {[$i prompt] eq "ok"} {
+        set ret [$i sento]
+    }
+    return $ret
+}
+EspSentoElektilo proc prenuFakojnListo {} {
+    # la faklisto devenas de REVO-Projekto
+    return {{AGR agrokulturo}
+    {ANA {homa anatomio, histologio}}
+    {ARKE arkeologio}
+    {ARKI arkitekturo}
+    {AST astronomio}
+    {AUT aŭtomobiloj}
+    {AVI aviado}
+    {BAK {bakteriologio, virusologio}}
+    {BELA belartoj}
+    {BELE beletro}
+    {BIB biblio}
+    {BIO {biologio, biontologio}}
+    {BOT botaniko}
+    {BUD budhismo}
+    {EKOL ekologio}
+    {EKON {ekonomiko, financo, komerco}}
+    {ELE elektro}
+    {ELET elektrotekniko}
+    {ESP esperantismo}
+    {FER fervojoj}
+    {FIL filozofio}
+    {FIZ fiziko}
+    {FIZL fiziologio}
+    {FON fonetiko}
+    {FOT {fotografio, optiko}}
+    {GEN genealogio}
+    {GEOD {geodezio, topografio}}
+    {GEOG geografio}
+    {GEOL geologio}
+    {GRA gramatiko}
+    {HER heraldiko}
+    {HIS historio}
+    {HOR {hortikulturo, arbokulturo, silvikulturo}}
+    {ISL islamo}
+    {JUR juro}
+    {KAL {kalendaro, tempomezurado}}
+    {KAT katolikismo}
+    {KEM {kemio, biokemio}}
+    {KIN kinoarto}
+    {KOMP komputiko}
+    {KON konstrutekniko}
+    {KRI kristanismo}
+    {KUI kuirarto}
+    {LIN {lingvistiko, filologio}}
+    {MAH {materialismo historia}}
+    {MAR maraferoj}
+    {MAT matematiko}
+    {MED {medicino, farmacio}}
+    {MET meteologio}
+    {MIL militaferoj}
+    {MIN mineralogio}
+    {MIT mitologio}
+    {MUZ muziko}
+    {NOM nomoj}
+    {PAL paleontologio}
+    {PED pedagogio}
+    {PERS personoj}
+    {POE {poetiko, poezio}}
+    {POL {politiko, sociologio, administrado}}
+    {POSX poŝto}
+    {PRA prahistorio}
+    {PSI {psikologio, psikiatrio}}
+    {RAD radiofonio}
+    {REL religioj}
+    {SCI sciencoj}
+    {SHI {ŝipkonstruado, navigado}}
+    {SPO {sporto, ludoj}}
+    {TEA teatro}
+    {TEK teknikoj}
+    {TEKS {teksindustrio, vestoj}}
+    {TEL telekomunikoj}
+    {TIP {presarto, libroj}}
+    {TRA trafiko}
+    {ZOO zoologio}}
+}
+EspSentoElektilo proc prenuStiloListo {} {
+    # la faklisto devenas de REVO-Projekto
+    return {
+    {FRAZ	frazaĵo}
+    {FIG	figure}
+    {VULG vulgare}
+    {RAR	malofte}
+    {POE	poezie}
+    {ARK	arkaismo}
+    {EVI	evitinde}
+    {KOMUNE	komune}
+    {NEO	neologismo}
+    }
+}
+EspSentoElektilo proc testuPriskribon priskribo {
+    foreach f [my prenuFakojnListo] {
+        if {[lindex $f 0] eq $priskribo} {return 1}
+    }
+    foreach f [my prenuStiloListo] {
+        if {[lindex $f 0] eq $priskribo} {return 1}
+    }
+    return 0
+}
+Class EspSubstivoGramElektilo -superclass ::IDE::Dialog -parameter {gramatiko {type okcancel} priskribo}
+@ ::EspSubstivoGramElektilo idemeta component EspTradukaVortaroGUI
+EspSubstivoGramElektilo instproc init {} {
+    my instvar win gramatiko fakNum priskribo
+    next
+
+    my requireNamespace
+    frame $win.fakoj
+    set i 0
+    foreach g $priskribo {
+        foreach {simbolo sento} $g {break}
+        set v var[string toupper $simbolo]
+        if {[lsearch $gramatiko $simbolo]>=0} {
+            my set $v 1
+        }
+        set cwin [checkbutton $win.fakoj.$simbolo -text $sento -variable [self]::$v -command [list [self] malSxaltu $simbolo]]
+        grid $cwin -row $i -column 0 -sticky w
+        incr i
+    }
+    pack $win.fakoj -fill both -expand yes -before $win.buttons -padx 10 -pady 5
+    wm protocol $win WM_DELETE_WINDOW [list [self] actionCancel]
+    wm deiconify $win
+}
+EspSubstivoGramElektilo instproc malSxaltu simbolo {
+    my instvar priskribo
+    set v var[string toupper $simbolo]
+    if {[my set $v]} {
+        foreach g $priskribo {
+            if {[lindex $g 0] eq $simbolo} {
+                foreach s [lindex $g 2] {
+                    set v var[string toupper $s]
+                    my set $v 0
+                }
+            }
+        }
+    }
+}
+EspSubstivoGramElektilo instproc postOk {} {
+    my instvar gramatiko priskribo
+    set tGramatiko [list]
+    foreach g $priskribo {
+        foreach {simbolo sento} $g {break}
+        set v var[string toupper $simbolo]
+        if {[my set $v]} {
+            lappend tGramatiko $simbolo
+        }
+    }
+    set gramatiko $tGramatiko
+}
+EspSubstivoGramElektilo proc elektuGramatikon {fleksilo gramatiko} {
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+
+    set i [EspSubstivoGramElektilo new -volatile [list -message "Elektu priskribojn por la vorto"] [list -gramatiko $gramatiko] [list -priskribo [$fleksilo metaPriskribojPor Substantivo]] [list -parent $parent]]
+    set ret [list _cancel]
+    if {[$i prompt] eq "ok"} {
+        set ret [$i gramatiko]
+    }
+    return $ret
+}
+EspSubstivoGramElektilo proc elektuGramatikonDePriskribo {priskribo gramatiko} {
+    if {[llength $priskribo]==0} {
+        EsperantoBrowser message [mc "neniuj gramatikaj priskriboj por tiu elemento"]
+        return
+    }
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+
+    set i [EspSubstivoGramElektilo new -volatile [list -message "Elektu priskribojn por la vorto"] [list -gramatiko $gramatiko] [list -priskribo $priskribo] [list -parent $parent]]
+    set ret [list _cancel]
+    if {[$i prompt] eq "ok"} {
+        set ret [$i gramatiko]
+    }
+    return $ret
+}
+Class EspVerboGramElektilo -superclass ::IDE::Dialog -parameter {gramatiko {type okcancel} priskribo}
+@ ::EspVerboGramElektilo idemeta component EspTradukaVortaroGUI
+EspVerboGramElektilo instproc aliguNovan {} {
+    my instvar espPP polPP polKazo win
+    set item [list $espPP [concat $polPP $polKazo]]
+    foreach i [$win.listo.listbox get 0 end] {
+        if {[lindex $i 0] eq [lindex $item 0]} {
+            EsperantoBrowser message [mc "Regulo por %s jam ekzistas" [lindex $i 0]]
+            return
+        }
+    }
+    $win.listo.listbox insert end $item
+}
+EspVerboGramElektilo instproc foriguSelektitan {} {
+    my instvar win
+    set c [$win.listo.listbox curselection]
+    if {$c ne ""} {
+        $win.listo.listbox delete $c
+    }
+
+}
+EspVerboGramElektilo instproc init {} {
+    my instvar win gramatiko fakNum priskribo
+    next
+
+    my requireNamespace
+    frame $win.fakoj
+
+    set rgramatiko $gramatiko
+
+    set i 0
+    foreach g $priskribo {
+        foreach {simbolo sento} $g {break}
+        set v var[string toupper $simbolo]
+        if {[set pos [lsearch $rgramatiko $simbolo]]>=0} {
+            my set $v 1
+            set rgramatiko [lreplace $rgramatiko $pos $pos]
+        }
+        set cwin [checkbutton $win.fakoj.$simbolo -text $sento -variable [self]::$v -command [list [self] malSxaltu $simbolo]]
+        grid $cwin -row $i -column 0 -sticky w
+        incr i
+    }
+
+    pack $win.fakoj -fill x -before $win.buttons -padx 10 -pady 5
+
+    frame $win.listo
+    ::scrollbar $win.listo.scroll -command "$win.listo.listbox yview"
+    ::listbox $win.listo.listbox -yscroll "$win.listo.scroll set"   -exportselection no
+    button $win.listo.aligu -text [mc "nova"] -command [list [self] aliguNovan]
+    button $win.listo.forigu -text [mc "forigu selektiton"] -command [list [self] foriguSelektitan]
+    grid $win.listo.listbox -row 0 -column 0 -rowspan 2 -sticky news
+    grid $win.listo.scroll -row 0 -column 1  -rowspan 2 -sticky ns
+    grid $win.listo.forigu -row 1 -column 2 -sticky nwe
+    grid rowconfigure $win.listo 1 -weight 1
+    grid columnconfigure $win.listo 0 -weight 1
+
+    pack $win.listo -fill both -expand yes -before $win.buttons
+
+    frame $win.pp
+    label $win.pp.espppl -text [mc "Akuzativo aŭ Prepozicio"]
+    tk_optionMenu $win.pp.esppp [self]::espPP A al anstataŭ antaŭ apud ĉe ĉirkaŭ da de dum ekster el en ĝis inter je kontraŭ krom kun laŭ malgraŭ per por po post preter pri pro sen sub super sur tra trans
+
+    label $win.pp.polppl -text [mc "Pola prep aŭ nenio"]
+    tk_optionMenu $win.pp.polpp [self]::polPP {} {aż do} bez dla do dookoła mimo między na nad obok {odnośnie do} około oprócz po {po drugiej stronie} pod podczas {pomimo za pomocą} pomiędzy poprzez poza przed przez przy w {w ciągu} {w czasie} wbrew według wokóż wzdłuż z {z powodu} {z racji} za zamiast {ze względu na} {zgodnie z mimo} żeby
+    label $win.pp.polkazol -text [mc "Pola kazo"]
+    tk_optionMenu $win.pp.polkazo [self]::polKazo M D C B N Ms W
+    button $win.pp.aligu -text [mc "Aligu Trans."] -command [list [self] aliguNovan]
+    grid $win.pp.espppl -row 0 -column 0 -sticky w
+    grid $win.pp.polppl -row 0 -column 1 -sticky w
+    grid $win.pp.polkazol -row 0 -column 2 -sticky w
+    grid $win.pp.esppp -row 1 -column 0 -sticky w
+    grid $win.pp.polpp -row 1 -column 1 -sticky w
+    grid $win.pp.polkazo -row 1 -column 2 -sticky w
+    grid $win.pp.aligu -row 1 -column 3 -sticky w
+
+    pack $win.pp -fill x -before $win.buttons
+    foreach i $rgramatiko {
+        $win.listo.listbox insert end $i
+    }
+    wm protocol $win WM_DELETE_WINDOW [list [self] actionCancel]
+    wm deiconify $win
+}
+EspVerboGramElektilo instproc malSxaltu simbolo {
+    my instvar priskribo
+    set v var[string toupper $simbolo]
+    if {[my set $v]} {
+        foreach g $priskribo {
+            if {[lindex $g 0] eq $simbolo} {
+                foreach s [lindex $g 2] {
+                    set v var[string toupper $s]
+                    my set $v 0
+                }
+            }
+        }
+    }
+}
+EspVerboGramElektilo instproc postOk {} {
+    my instvar gramatiko win priskribo
+    set tGramatiko [list]
+    foreach g $priskribo {
+        foreach {simbolo sento} $g {break}
+        set v var[string toupper $simbolo]
+        if {[my set $v]} {
+            lappend tGramatiko $simbolo
+        }
+    }
+    foreach i [$win.listo.listbox get 0 end] {
+        lappend tGramatiko $i
+    }
+    set gramatiko $tGramatiko
+}
+EspVerboGramElektilo proc elektuGramatikon {fleksilo gramatiko} {
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+    set i [EspVerboGramElektilo new -volatile [list -message "Specifu aspekton kaj esceptajn prepoziciajn transformigojn"] [list -gramatiko $gramatiko]  [list -priskribo [$fleksilo metaPriskribojPor Verbo]] [list -parent $parent]]
+    set ret [list _cancel]
+    if {[$i prompt] eq "ok"} {
+        set ret [$i gramatiko]
+    }
+    return $ret
+}
+Class GramFiniloMontriloDialogoMix -superclass ::IDE::DialogHelper -parameter {{rezulto {}}}
+@ ::GramFiniloMontriloDialogoMix idemeta component EspTradukaVortaroGUI
+GramFiniloMontriloDialogoMix instproc closeWindow {} {
+    my actionCancel
+}
+GramFiniloMontriloDialogoMix instproc getTitle {} {
+    return "Specifu fleksian grupon"
+}
+GramFiniloMontriloDialogoMix instproc makeModelessDialog {} {
+    if {![EsperantoConf isInDelopingMode]} {
+        next
+    }
+}
+GramFiniloMontriloDialogoMix instproc montruDeLeksikono {} {
+    my selectItem dummy
+}
+GramFiniloMontriloDialogoMix instproc montruFleksion {vorto arto fgrupo gramatiko} {
+    next
+    my instvar win vortarto
+    $win.bazaformo configure -state readonly
+    my setTitleAddition " de $vortarto"
+    if {$vortarto ne "Substativo"} {
+        pack forget $win.arto
+    }
+}
+GramFiniloMontriloDialogoMix instproc montruFleksionKunEraroj {vorto arto fgrupo pEraroj} {
+    my instvar eraroj
+    set eraroj $pEraroj
+    my montruFleksion $vorto $arto $fgrupo
+}
+GramFiniloMontriloDialogoMix instproc postCancel {} {
+    my rezulto ""
+}
+GramFiniloMontriloDialogoMix instproc postOk {} {
+    my instvar escfenestro
+    if {[info exists escfenestro] && [winfo viewable $escfenestro]} {
+        my konvervuEscpetoj
+    }
+    my rezulto [my prenuFGrupon]
+}
+GramFiniloMontriloDialogoMix instproc specificInit {} {
+    my instvar win
+    next
+    frame $win.fbutonoj
+    button $win.fbutonoj.ok -text [mc "Akceptu"] -command [list [self] actionOk]
+    button $win.fbutonoj.cancel -text [mc "Ĉesigu"] -command [list [self] actionCancel]
+    pack $win.fbutonoj.ok $win.fbutonoj.cancel -side left
+    grid $win.fbutonoj -column 0 -row 7 -columnspan 4 -sticky ew
+    grid forget $win.rbadjektivo $win.rbsubstantivo $win.rbverbo $win.rbnumeralo $win.montruDeLeksikono
+    bind $win <Control-a> [list [self] actionOk]
+}
+GramFiniloMontriloDialogoMix instproc unGrab {} {
+    if {![EsperantoConf isInDelopingMode]} {
+        next
+    }
+}
+GramFiniloMontriloDialogoMix proc prenuFGrupon {lingvo vorto arto {fgrupo {}} {gramatiko {}}} {
+    set ln [string toupper [string index $lingvo 0]][string range $lingvo 1 end]
+    EsperantoConf pretiguLingvoTradukado $lingvo
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+
+    set instance [${ln}GramFiniloMontrilo new [Object autoname .fgrupmontr] -mixin GramFiniloMontriloDialogoMix -parent $parent]
+    $instance montruFleksion $vorto $arto $fgrupo $gramatiko
+    $instance set rezulto ""
+    $instance suspendUntilSignal
+    set ret [$instance rezulto]
+    $instance destroy
+    return $ret
+}
+GramFiniloMontriloDialogoMix proc prenuFGruponDev {lingvo vorto arto {fgrupo {}}} {
+    set ln [string toupper [string index $lingvo 0]][string range $lingvo 1 end]
+    EsperantoConf pretiguLingvoTradukado $lingvo
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+
+    set instance [${ln}GramFiniloMontrilo new [Object autoname .fgrupmontr] -mixin GramFiniloMontriloDialogoMix -parent $parent]
+    $instance montruFleksion $vorto $arto $fgrupo
+    $instance komputuFGrupon
+    $instance set rezulto ""
+    $instance suspendUntilSignal
+    set ret [$instance rezulto]
+    $instance destroy
+    return $ret
+}
+GramFiniloMontriloDialogoMix proc prenuFGruponKunEraroj {lingvo vorto arto fgrupo eraroj} {
+    set ln [string toupper [string index $lingvo 0]][string range $lingvo 1 end]
+    EsperantoConf pretiguLingvoTradukado $lingvo
+
+    set instance [${ln}GramFiniloMontriloDialogo new [Object autoname .fgrupmontr] -mixin GramFiniloMontriloDialogoMix]
+    $instance montruFleksionKunEraroj $vorto $arto $fgrupo $eraroj
+    $instance suspendUntilSignal
+    set ret [$instance rezulto]
+    $instance destroy
+    return $ret
+}
+Class LudoVortajAmikoj -superclass ::IDE::Browser
+@ ::LudoVortajAmikoj idemeta component EspTradukaVortaroGUI
+LudoVortajAmikoj instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+LudoVortajAmikoj instproc finRaporto {} {
+    my instvar sukcesaj starto nombro
+    set suk [expr {double($sukcesaj)/$nombro*100}]
+    if {$suk==100 || $nombro==$sukcesaj} {
+        set m "Perfekte. Vera Esperantemulo!"
+    } elseif {$suk>=90} {
+        set m "Bonege! Tre bona kono!"
+    } elseif {$suk>=80} {
+        set m "Bone! Sperta esperantisto"
+    } elseif {$suk>=70} {
+        set m "Vi esperas bone!"
+    } elseif {$suk>=50} {
+        set m "Jam ne komencanto!"
+    } elseif {$suk<20} {
+        set m "Vi certe povas tion pli bone!"
+    } elseif {$suk<30} {
+        set m "Eterna komencanto?"
+    } else {
+        set m ""
+    }
+    
+    set fino [clock seconds]
+    set tempSek [expr {$fino-$starto}]
+    set tempo [clock format $tempSek -format "%H:%M:%S" -gmt 1]
+    
+    if {$tempSek<40 && $suk<20} {
+        set m "Vi eble bezonas pli da tempo por la ludo."
+    }
+    
+        
+    set mesagxo "$m\nVi ricevis $sukcesaj puentoj de $nombro eblaj en tempo $tempo."
+    if {[EsperantoConf exists ludoPlejBona]} {
+        lassign [EsperantoConf set ludoPlejBona] pbSukcesaj pbTempoSek
+        if {$sukcesaj>$pbSukcesaj || ($sukcesaj==$pbSukcesaj && $tempSek<$pbTempoSek)} {
+            append mesagxo "\nLa plej bona rezulto ĝis nun!"
+            EsperantoConf set ludoPlejBona [list $sukcesaj $tempSek]
+        }
+    } else {
+        if {$nombro>0} {
+            EsperantoConf set ludoPlejBona [list $sukcesaj $tempSek]
+        }
+    }
+    
+    append mesagxo "\nĈu nova ludo?"
+    
+    IDE::Dialog message $mesagxo
+    set nombro 0
+    set sukcesaj 0
+}
+LudoVortajAmikoj instproc getTitle {} {
+    return "Ludo: Vortaj Amikoj"
+}
+LudoVortajAmikoj instproc initVortoj {} {
+    my instvar vortoj ludatajVortoj
+    set ludatajVortoj [list]
+    set frek [FrekvencoListo prenuFrekveno]
+    $frek instvar kompArr
+    for {set sid [array startsearch kompArr]} {[array anymore kompArr $sid]} {} {
+        set vorto [array nextelement kompArr $sid]
+        set nombro [lindex $kompArr($vorto) 1]
+        if {$nombro<=10 && [string index $vorto end] in {a i o}} {
+            lappend vortoj $vorto
+        }
+    }
+    array donesearch kompArr $sid
+}
+LudoVortajAmikoj instproc konservuLudojKielJs {} {
+    for {set i 1} {$i<=9} {incr i} {
+        puts "processing $i"
+        set c [my prenuLudojKielJs 100]
+        set f [open "datoj$i.js" w]
+        puts $f $c
+        close $f
+    }
+}
+LudoVortajAmikoj instproc prenuLudojKielJs {{nombro 5}} {
+    set ret "ludoj = \["
+    for {set i 0} {$i<$nombro} {incr i} {
+        append ret [my prenuLudonKielJs]
+        if {$i!=$nombro-1} {
+            append ret ",\n"
+        }
+    }
+    append ret "\];\n"
+    return $ret
+}
+LudoVortajAmikoj instproc prenuLudonKielJs {} {
+    my instvar fvortaro
+    
+    set ret  "{"
+
+    while 1 {
+        set vorto [my prenuVorton]
+        switch [string index $vorto end] {
+            o {
+                set klaso substantivo
+                set tipoj {{np {np adj} {tio povas esti}} {subj {vp subj} {tio agas}} {obj {vp obj} {tion oni povas}}}
+            }
+            a {
+                set klaso adjektivo
+                set tipoj {{adj {np adj} {tia estas}}}
+            }
+            i {
+                set klaso verbo
+                set tipoj {{vp {vp subj} {tio agas}} {vp {vp adv} {tiel}} {vp {vp obj} {tion agas}} {vp {vp pp sub} {kunteksto}}}
+            }
+            default {
+                continue
+            }
+        }
+        set m "typo:\"$klaso\",helpoj:\["
+        set helpoj 0
+        set unua 1
+        foreach e $tipoj {
+            lassign $e key rilato priskribo
+            set i 0
+            set l [list]
+            foreach v [$fvortaro trovuVortoj $vorto $key $rilato] {
+                lappend l [join [lrange $v 0 end-1]]
+                if {$i>10} break
+                incr i
+                incr helpoj
+            }
+            if {[llength $l]>0} {
+                if {!$unua} {
+                    append m ,
+                }
+                append m "{priskribo:\"$priskribo\",vortoj:\[\""
+                append m [join $l "\",\""]
+                append m "\"\]}"
+            }
+            set unua 0
+        }
+        append m "\],"
+        if {$helpoj>4} break
+    }
+    append ret "vorto:\"$vorto\","
+    append ret $m
+    
+    append ret "elektoj:\["
+    set p [expr {round(rand()*3)}]
+    set uzatajVortoj [list $vorto]
+    for {set i 0} {$i<4} {incr i} {
+        if {$i>0} {
+            append ret ,
+        }
+        if {$i==$p} {
+            append ret "\"$vorto\""
+        } else {
+            set avorto [my prenuVortonLauxArto [string index $vorto end] $uzatajVortoj]
+            append ret "\"$avorto\""
+            lappend uzatajVortoj $avorto
+        }
+    }
+    append ret "\]}\n"
+    return $ret
+}
+LudoVortajAmikoj instproc prenuVorton {} {
+    my instvar vortoj ludatajVortoj
+    while 1 {
+        set i [expr {round(rand()*[llength $vortoj])}]
+        set vorto [lindex $vortoj $i]
+        if {$vorto ni $ludatajVortoj} break
+    }
+    lappend ludatajVortoj $vorto
+    return $vorto
+}
+LudoVortajAmikoj instproc prenuVortonLauxArto {arto listo} {
+    my instvar vortoj ludatajVortoj
+    set i [expr {round(rand()*[llength $vortoj])}]
+    while 1 {
+        set vorto [lindex $vortoj $i]
+        if {$vorto eq ""} {
+            set i 0
+            continue
+        }
+        if {[string index $vorto end] eq $arto && $vorto ni $listo} break
+        incr i
+    }
+    return $vorto
+}
+LudoVortajAmikoj instproc sekvaVorto {} {
+    my instvar win fvortaro messageWin korektaIndekso elekto rezultoWin nombro sukcesaj starto
+    if {$nombro==0} {
+        set starto [clock seconds]
+    }
+    if {$korektaIndekso ne ""} {
+        if {$korektaIndekso eq $elekto} {
+            $rezultoWin configure -text "Bonege. Vi pravas!"
+            incr sukcesaj
+        } else {
+            $rezultoWin configure -text "Bedaŭrinde ne. La vorto estas: [$win.rf.r${korektaIndekso} cget -text]"
+        }
+        incr nombro
+        if {$nombro>=10} {
+            my finRaporto
+        }
+        $win.l configure -text "sukcesaj $sukcesaj de $nombro"
+    }
+
+    while 1 {
+        set vorto [my prenuVorton]
+        switch [string index $vorto end] {
+            o {
+                set klaso substantivo
+                set tipoj {{np {np adj} {tio povas esti}} {subj {vp subj} {tio agas}} {obj {vp obj} {tion oni povas}}}
+            }
+            a {
+                set klaso adjektivo
+                set tipoj {{adj {np adj} {tia estas}}}
+            }
+            i {
+                set klaso verbo
+                set tipoj {{vp {vp subj} {tio agas}} {vp {vp adv} {tiel}} {vp {vp obj} {tion agas}} {vp {vp pp sub} {kunteksto}}}
+            }
+        }
+        set m "Elektu kunvenan ${klaso}n."
+        set helpoj 0
+        foreach e $tipoj {
+            lassign $e key rilato priskribo
+            set i 0
+            set l [list]
+            foreach v [$fvortaro trovuVortoj $vorto $key $rilato] {
+                lappend l [join [lrange $v 0 end-1]]
+                if {$i>10} break
+                incr i
+                incr helpoj
+            }
+            if {[llength $l]>0} {
+                append m "\n\n ${priskribo}:\n"
+                append m [join $l ", "]
+            }
+        }
+        if {$helpoj>4} break
+    }
+    
+    set p [expr {round(rand()*3)}]
+    set uzatajVortoj [list $vorto]
+    for {set i 0} {$i<4} {incr i} {
+        if {$i==$p} {
+            $win.rf.r${i} configure -text $vorto
+        } else {
+            set avorto [my prenuVortonLauxArto [string index $vorto end] $uzatajVortoj]
+            $win.rf.r${i} configure -text $avorto
+            lappend uzatajVortoj $avorto
+        }
+    }
+    set korektaIndekso $p
+    set elekto ""
+    $messageWin configure -state normal
+    $messageWin delete 1.0 end
+    $messageWin insert 1.0 $m
+    $messageWin configure -state disabled
+}
+LudoVortajAmikoj instproc specificInit {} {
+    my instvar win fvortaro elekto pravaVorto messageWin korektaIndekso rezultoWin nombro sukcesaj
+    my requireNamespace
+    my initVortoj
+    set korektaIndekso ""
+    set elekto 1
+    set fvortaro [MKFrazpartoFrekBazo prenuBazon]
+    set elekto ""
+    set nombro 0
+    set sukcesaj 0
+
+    label $win.l -anchor e -border 1
+    set messageWin [text $win.message -width 120 -height 20 -state disabled]
+    set rf [labelframe $win.rf -text "Elektu la plej taŭgan vorton!"]
+    for {set x 0} {$x<4} {incr x} {
+        radiobutton $rf.r${x} -variable [self]::elekto -value $x
+        pack $rf.r${x} -anchor w
+    }
+    button $win.but -text "Sekva vorto" -command [list [self] sekvaVorto]
+    set rezultoWin [message $win.rezulto -width 550]
+    pack $win.l -anchor e
+    pack $messageWin -anchor w -padx 30
+    pack $win.but -side bottom
+    pack $rezultoWin -side bottom
+    pack $rf -fill x -side bottom -padx 30
+    #pack propagate $win 0
+    my sekvaVorto
+    next
+}
+LudoVortajAmikoj proc newBrowser {} {
+    LudoVortajAmikoj new [Object autoname .vortajamikoj]
+}
+Class PlGramFiniloMontrilo -superclass ::GramFiniloMontrilo
+@ ::PlGramFiniloMontrilo idemeta component EspTradukaVortaroGUI
+PlGramFiniloMontrilo instproc initListoEnhavo {} {
+    my instvar vortarto substantivoArto
+    switch $vortarto {
+        Numeralo -
+        Adjektivo {
+            my @persono setListUnsorted {ms mz mn ze ni}
+
+        }
+        Substantivo {
+            my @persono setListUnsorted [my set subgrup_$substantivoArto]
+        }
+        Verbo {
+            set indeksoj [PolaFleksio prenuKonjIndeksoj]
+            my @persono setListUnsorted $indeksoj
+        }
+    }
+}
+PlGramFiniloMontrilo instproc initSubstativGrupoj {} {
+    foreach fg [PolaFleksio prenuDeklIndeksoj] {
+        my lappend subgrup_[PolaFleksio prenuArtoDeTipo $fg] $fg
+    }
+    my @arto setListUnsorted {ms mz mn ze ni}
+    my @arto setSelectedItem ms 0
+    my set substantivoArto ms
+}
+PlGramFiniloMontrilo instproc montruDeFinilo {} {
+    my instvar win vortarto
+    set bazo [$win.bazaformo get]
+    if {$bazo eq ""} {
+        EsperantoBrowser message [mc "tajpu la vorton"]
+        focus $win.bazaformo
+        return
+    }
+    if {$vortarto ni {Substantivo Verbo}} {
+        EsperantoBrowser message [mc "Funkcio nur por substantivoj kaj verboj"]
+        return
+    }
+    switch $vortarto {
+        Substantivo {
+            set fleksGrupo [PolaFleksio divenuTiponDeSubstantivo $bazo]
+        }
+        Verbo {
+            set fleksGrupo [PolaFleksio sxercxuFGrupoPorVerbo $bazo]
+        }
+    }
+    set rezulto ""
+
+    if {$vortarto eq "Substantivo"} {
+        my @arto setSelectedItem [PolaFleksio prenuArtoDeTipo $fleksGrupo]
+    } elseif {$vortarto eq "Adjektivo"} {
+        set fleksGrupo ms
+    }
+    my @persono setSelectedItem $fleksGrupo 0
+    my montruFleksRezulton $bazo $vortarto
+}
+PlGramFiniloMontrilo instproc montruFleksGrupo fleksGrupo {
+    my instvar win vortarto
+    if {$vortarto eq "Substantivo"} {
+        my @arto setSelectedItem [PolaFleksio prenuArtoDeTipo $fleksGrupo]
+    } elseif {$vortarto eq "Adjektivo"} {
+        set fleksGrupo ms
+    }
+    next
+}
+PlGramFiniloMontrilo instproc montruFleksRezulton {bazo vortarto} {
+    set rezulto ""
+    set fleksGrupo [my prenuFGrupon]
+    set listo ""
+    switch $vortarto {
+        Adjektivo {
+            set listo [my montruFleksRezultonAdjektivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Numeralo {
+            set bordo [[my prenuFleksilon] prenuNumero $bazo ordo]
+            foreach kazo {M D C B N Ms W} {
+                append rezulto "$kazo [PolaFleksio prenuNumeroLauKazoArtoGis1000 $bazo $kazo $fleksGrupo]\t"
+                append rezulto "$kazo [PolaFleksio prenuAdjektivon $bordo $fleksGrupo $kazo singularo]\n"
+            }
+            my @text setText $rezulto
+        }
+        Substantivo {
+            set listo [my montruFleksRezultonSubstantivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Verbo {
+            set listo [my montruFleksRezultonVerbo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+    }
+    return $listo
+
+}
+PlGramFiniloMontrilo instproc montruFleksRezultonAdjektivo {bazo fleksGrupo} {
+   set rezListo [list]
+   if {$fleksGrupo eq ""} {
+       set fleksGrupo ms
+   }
+   foreach kazo {M D C B N Ms W} {
+       foreach nombro {singularo pluralo} {
+           if {$kazo ne "M" || $nombro ne "singularo"} {
+               if {$nombro eq "pluralo"} {
+                   set preTeksto "\t"
+               } else {
+                   set preTeksto "\n"
+               }
+           }
+           append preTeksto [format "%-2s " $kazo]
+           lappend rezListo $preTeksto [PolaFleksio prenuAdjektivon $bazo $fleksGrupo $kazo $nombro]
+       }
+   }
+   return $rezListo
+}
+PlGramFiniloMontrilo instproc montruFleksRezultonSubstantivo {bazo fleksGrupo} {
+   set rezListo [list]
+   foreach kazo {M D C B N Ms W} {
+       foreach nombro {singularo pluralo} {
+           if {$kazo ne "M" || $nombro ne "singularo"} {
+               if {$nombro eq "pluralo"} {
+                   set preTeksto "\t"
+               } else {
+                   set preTeksto "\n"
+               }
+           }
+           append preTeksto [format "%-2s " $kazo]
+           lappend rezListo $preTeksto [PolaFleksio prenuSubstantivonLauxTipo $bazo $fleksGrupo $kazo $nombro]
+       }
+   }
+   return $rezListo
+}
+PlGramFiniloMontrilo instproc montruFleksRezultonVerbo {bazo fleksGrupo} {
+    set rezulto ""
+    if {[llength $fleksGrupo]>1} {
+        append rezulto $fleksGrupo\n\n
+    }
+    set def {
+        {$fleksGrupo\n\na - singularo:\n1 ja } 1 ms singularo as
+        {\n2 ty } 2 ms singularo as
+        {\n3 on } 3 ms singularo as
+        {\na - pluralo:\n1 my } 1 ms pluralo as
+        {\n2 wy } 2 ms pluralo as
+        {\n3 oni } 3 ms pluralo as
+        {\n\ni - singularo:\n1 ja (ms) } 1 ms singularo is
+        { (ze) } 1 ze singularo is
+        {\n2 ty (ms) } 2 ms singularo is
+        { (ze) } 2 ze singularo is
+        {\n3 on } 3 ms singularo is
+        { ona } 3 ze singularo is
+        { ono } 3 ni singularo is
+        {\ni - pluralo:\n1 my (ms) } 1 ms pluralo is
+        { (ze) } 1 ze pluralo is
+        {\n2 wy (ms) } 2 ms pluralo is
+        { (ze) } 2 ze pluralo is
+        {\n3 oni } 3 ms pluralo is
+        { one } 3 ze pluralo is
+        {\n\no - singularo:\n1 ja } 1 ms singularo os
+        {\n2 ty } 2 ms singularo os
+        {\n3 on } 3 ms singularo os
+        {\na - pluralo:\n1 my } 1 ms pluralo os
+        {\n2 wy } 2 ms pluralo os
+        {\n3 oni } 3 ms pluralo os
+        {\n\nty! } 2 ms singularo u
+        {\nwy! } 2 ms pluaro u
+        {\nmy! } 1 ms pluaro u
+        {\nata - } 1 ms singularo ata
+        {\nataj - } 1 ms pluralo ata
+        {\nate - } 1 ms singularo ate
+        {\nite - } 1 ms singularo ite
+        {\nite oni - } 1 ms singular ois
+        {\nsub-o - } 1 ms singularo o
+    }
+    set rezListo [list]
+    foreach {preteksto persono arto nombro tempo} $def {
+        lappend rezListo [subst $preteksto] [PolaFleksio prenuVerbon $bazo $fleksGrupo $persono $arto $nombro $tempo]
+    }
+    return $rezListo
+}
+PlGramFiniloMontrilo instproc prenuFGrupon {} {
+    concat [my @persono selectedItemFirst] [my set fgrupoEsceptoj]
+}
+PlGramFiniloMontrilo instproc prenuFleksilon {} {
+    return PolaFleksio
+}
+PlGramFiniloMontrilo instproc trovuPerAspell {} {
+    my instvar eraroj vortarto fgrupoEsceptoj win
+    if {[lsearch {Verbo Substantivo} $vortarto]<0} {
+        return
+    }
+    set bazo [$win.bazaformo get]
+    if {$vortarto eq "Verbo"} {
+        set grupoj [ImportoIlo sercxuFGrupoPorVerbo $bazo]
+        if {[llength $grupoj]==0} {
+            EsperantoBrowser message [mc "Grupo ne trovita"]
+        } elseif {[llength $grupoj]==1} {
+            my @persono selectItem [lindex $grupoj 0]
+        } else {
+            EsperantoBrowser message [mc "eblaj grupoj %s" $grupoj]
+        }
+    } elseif {$vortarto eq "Substantivo"} {
+        set grupoj [ImportoIlo sercxuFGrupoPorSubstantivo $bazo]
+        if {[llength $grupoj]==0} {
+            IDE::Dialog message [mc "Grupo ne trovita"]
+        } elseif {[llength $grupoj]==1} {
+            #my @persono selectItem [lindex $grupoj 0]
+            IDE::Dialog message "ebla grupo [lindex $grupoj 0]"
+        } else {
+            IDE::Dialog message [mc "eblaj grupoj %s" $grupoj]
+        }
+    }
+}
+PlGramFiniloMontrilo proc montruFleksion {vorto arto {fgrupo {}}} {
+    [my newBrowser] montruFleksion $vorto $arto $fgrupo
+}
+PlGramFiniloMontrilo proc newBrowser {} {
+   GramFiniloMontrilo newBrowser pl
+}
+Class RuGramFiniloMontrilo -superclass ::GramFiniloMontrilo
+@ ::RuGramFiniloMontrilo idemeta component EspTradukaVortaroGUI
+RuGramFiniloMontrilo instproc initListoEnhavo {} {
+    my instvar vortarto substantivoArto
+    # TODO_RU
+    switch $vortarto {
+        Numeralo -
+        Adjektivo {
+            my @persono setListUnsorted {m_y m_n f n}
+
+        }
+        Substantivo {
+            set indeksoj [PolaFleksio prenuDeklIndeksoj]
+            my @persono setListUnsorted {}
+        }
+        Verbo {
+            set indeksoj [PolaFleksio prenuKonjIndeksoj]
+            my @persono setListUnsorted $indeksoj
+        }
+    }
+}
+RuGramFiniloMontrilo instproc initSubstativGrupoj {} {
+}
+RuGramFiniloMontrilo instproc loopPerm {variabloj listo skripto} {
+    # loopPerm {a b} {{1 2} {a b}} { list $a $b }
+    # {1 a} {1 b} {2 a} {2 b}
+    if {[llength $variabloj] ne [llength $listo]} {
+        error "ne same longo $variabloj $listo"
+    }
+    set len [llength $variabloj]
+    set indeksoj [list]
+    set i 0
+    foreach v $variabloj {
+        upvar $v v$i
+        lappend indeksoj 0
+        incr i
+    }
+
+    while 1 {
+        set in 0
+        foreach v $variabloj i $indeksoj elem $listo {
+            set v$in [lindex $elem $i]
+            incr in
+        }
+        uplevel $skripto
+
+        set vi [expr {$len-1}]
+        while {$vi>=0} {
+             set i [lindex $indeksoj $vi]
+             incr i
+             if {$i>=[llength [lindex $listo $vi]]} {
+                 lset indeksoj $vi 0
+                 incr vi -1
+                 if {$vi<0} {
+                     break
+                 } else {
+                     continue
+                 }
+             } else {
+                 lset indeksoj $vi $i
+             }
+             break
+        }
+        if {$vi<0} {
+            break
+        }
+    }
+}
+RuGramFiniloMontrilo instproc montruFleksRezulton {bazo vortarto} {
+    set rezulto ""
+    set fleksGrupo [my prenuFGrupon]
+    set listo ""
+    switch $vortarto {
+        Adjektivo {
+            set listo [my montruFleksRezultonAdjektivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Numeralo {
+            set listo [my montruFleksRezultonNombro $bazo $fleksGrupo]
+            my @text setText $listo
+        }
+        Substantivo {
+            set listo [my montruFleksRezultonSubstantivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Verbo {
+            set listo [my montruFleksRezultonVerbo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+    }
+    return $listo
+
+}
+RuGramFiniloMontrilo instproc montruFleksRezultonAdjektivo {bazo fleksGrupo} {
+   my montruFleksRezultonPor $bazo $fleksGrupo adjektivo
+}
+RuGramFiniloMontrilo instproc montruFleksRezultonNombro {bazo fleksGrupo} {
+    set fleksilo [my prenuFleksilon]
+    set bordo [$fleksilo prenuNumero $bazo ordo]
+    set rezListo [list]
+    foreach kazo {n d g a i l} {
+          lappend rezListo "$kazo " [$fleksilo prenuNumeroLauKazoArtoGis1000 $bazo $kazo $fleksGrupo]
+          lappend rezListo "$kazo " [$fleksilo prenuAdjektivon $bordo $fleksGrupo $kazo singularo]
+    }
+    return $rezListo
+}
+RuGramFiniloMontrilo instproc montruFleksRezultonPor {bazo fleksGrupo gramatikarto} {
+   my instvar gramatiko
+   set rezListo [list]
+   set fleksilo [my prenuFleksilon]
+
+   set diskr [$fleksilo prenuFleksadonPor $gramatikarto]
+
+   set loops [dict get $diskr loops]
+   set argumentoj [dict get $diskr args]
+   if {[dict exists $diskr filtroj]} {
+       set filtroj [dict get $diskr filtroj]
+   } else {
+       set filtroj [list]
+   }
+   set title "_"
+   foreach plano [dict get $diskr plan] {
+        my loopPerm $loops $plano {
+            set arglisto [list]
+            foreach a $argumentoj {
+                if {$a eq "fgrupo"} {
+                    lappend arglisto $fleksGrupo
+                } elseif {$a eq "bazo"} {
+                    lappend arglisto $bazo
+                } else {
+                    lappend arglisto [string trimleft [set $a] _]
+                    lappend desc [set $a]
+                }
+            }
+            set lvaluo ""
+            set shift 1
+            foreach l [lreverse [lrange $loops 0 end]] {
+                set _lvaluo [set $l]
+                if {[string index $_lvaluo 0] ne "_"} {
+                    append lvaluo "$_lvaluo "
+                    break
+                }
+                incr shift
+            }
+            set desc "\n$lvaluo"
+
+            if {[llength $loops]>1} {
+                set _title ""
+                foreach v [lrange $loops 0 end-$shift] {
+                    if {[set $v] ne "_"} {
+                        append _title "$v=[set $v] "
+                    }
+                }
+                if {$_title ne $title} {
+                    if {$title eq "_"} {
+                        set desc " $_title"
+                    } else {
+                        set desc "\n $_title"
+                    }
+                    set title $_title
+                    append desc "\n$lvaluo"
+                }
+            }
+            set filtro 0
+            foreach f $filtroj {
+                if $f {
+                    set filtro 1
+                    break
+                }
+            }
+            if {!$filtro} {
+                lappend rezListo $desc [$fleksilo [dict get $diskr proc] {*}$arglisto]
+            }
+        }
+   }
+
+   return $rezListo
+}
+RuGramFiniloMontrilo instproc montruFleksRezultonSubstantivo {bazo fleksGrupo} {
+   my montruFleksRezultonPor $bazo $fleksGrupo substantivo
+}
+RuGramFiniloMontrilo instproc montruFleksRezultonVerbo {bazo fleksGrupo} {
+    my montruFleksRezultonPor $bazo $fleksGrupo verbo
+}
+RuGramFiniloMontrilo instproc montruFleksion {vorto arto {fgrupo {}} {tgramatiko {}}} {
+    my instvar gramatiko
+    set gramatiko $tgramatiko
+
+    set artoj {Adjektivo Substantivo Verbo Adverbo}
+    set vorto [my ekstraktuVorton $vorto $fgrupo]
+    if {[lsearch $artoj $arto]<0} {
+        error "arto nekonata $arto"
+    }
+    my instvar vortarto win fgrupoEsceptoj
+    if {$arto ne $vortarto} {
+        set vortarto $arto
+        my sxangxuVortarton
+    }
+    $win.bazaformo delete 0 end
+    $win.bazaformo insert 0 $vorto
+
+    my metuEsceptojDeVortaro $fgrupo
+    my montruFleksRezulton $vorto $arto
+    my montruEsceptoj
+
+    focus -force $win
+    raise [winfo toplevel $win]
+}
+RuGramFiniloMontrilo instproc prenuFleksilon {} {
+    RusaFleksilo prenuFleksilon
+}
+Class SvGramFiniloMontrilo -superclass ::GramFiniloMontrilo
+@ ::SvGramFiniloMontrilo idemeta component EspTradukaVortaroGUI
+SvGramFiniloMontrilo instproc ekstraktuVorton {vorto fgrupo} {
+    lindex $vorto end
+}
+SvGramFiniloMontrilo instproc initListoEnhavo {} {
+    my @persono setListUnsorted [list]
+    my instvar vortarto substantivoArto
+    switch $vortarto {
+        Numeralo -
+        Adjektivo {
+            my @persono setListUnsorted {u n }
+
+        }
+        Substantivo {
+            my @persono setListUnsorted [SvFleksilo prenuFleksgrupojPorSubstantivo]
+        }
+        Verbo {
+            my @persono setListUnsorted [SvFleksilo prenuFleksgrupojPorVerbo]
+        }
+    }
+}
+SvGramFiniloMontrilo instproc initSubstativGrupoj {} {
+    #my @arto setList {}
+    my @persono setList {1 2 3 4 5 6}
+}
+SvGramFiniloMontrilo instproc metuEsceptojDeVortaro fleksGrupo {
+    my instvar vortarto fgrupoEsceptoj
+    if {$vortarto eq "Verbo"} {
+        set fgrupoEsceptoj [lrange $fleksGrupo 1 end]
+        my montruFleksGrupo $fleksGrupo
+        return
+    } elseif {$vortarto eq "Substantivo"} {
+        set fgrupoEsceptoj [lrange $fleksGrupo 1 end]
+        my montruFleksGrupo $fleksGrupo
+        return $fleksGrupo
+    } elseif {$vortarto eq "Adjektivo"} {
+        set fgrupoEsceptoj $fleksGrupo
+        return
+    } elseif {$vortarto eq "Adverbo"} {
+        set fgrupoEsceptoj $fleksGrupo
+        return
+    } else {
+        next
+    }
+}
+SvGramFiniloMontrilo instproc montruDeFinilo {} {
+    my instvar win vortarto
+    set bazo [$win.bazaformo get]
+    if {$bazo eq ""} {
+        EsperantoBrowser message [mc "tajpu la vorton"]
+        focus $win.bazaformo
+        return
+    }
+    if {$vortarto eq "Substantivo"} {
+        set fleksGrupo [[my prenuFleksilon] divenuTiponDeSubstantivo $bazo]
+        my @persono setSelectedItem $fleksGrupo 0
+    }
+    my montruFleksRezulton $bazo $vortarto
+}
+SvGramFiniloMontrilo instproc montruFleksGrupo fleksGrupo {
+    my instvar win vortarto
+    if {$vortarto eq "Substantivo" || $vortarto eq "Verbo"} {
+        my @persono setSelectedItem [lindex $fleksGrupo 0] 0
+        return
+    } elseif {$vortarto eq "Adjektivo"} {
+        set fleksGrupo m
+    }
+    next
+}
+SvGramFiniloMontrilo instproc montruFleksRezulton {bazo vortarto} {
+    set rezulto ""
+    set fleksGrupo [my prenuFGrupon]
+    set listo ""
+    switch $vortarto {
+        Adverbo {
+            set listo [my montruFleksRezultonAdverbo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Adjektivo {
+            set listo [my montruFleksRezultonAdjektivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Numeralo {
+            set bordo [[my prenuFleksilon] prenuNumero $bazo ordo]
+            append rezulto "kardinal [[my prenuFleksilon] prenuNumero $bazo cxef]\n"
+            append rezulto "ordinal [[my prenuFleksilon] prenuNumero $bazo ordo]\n"
+            my @text setText $rezulto
+        }
+        Substantivo {
+            set listo [my montruFleksRezultonSubstantivo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+        Verbo {
+            set listo [my montruFleksRezultonVerbo $bazo $fleksGrupo]
+            my montruRezListo $listo
+        }
+    }
+    return $listo
+}
+SvGramFiniloMontrilo instproc montruFleksRezultonAdjektivo {bazo fleksGrupo} {
+   set rezListo [list]
+   set fleksilo [my prenuFleksilon]
+   lappend rezListo "    " $bazo
+   lappend rezListo "\n\nen  " [$fleksilo prenuAdjektivon $bazo $fleksGrupo u singularo 0]
+   lappend rezListo " kvinna\nden " [$fleksilo prenuAdjektivon $bazo $fleksGrupo u singularo 1]
+   lappend rezListo " kvinnan\n    " [$fleksilo prenuAdjektivon $bazo $fleksGrupo u pluralo 0]
+   lappend rezListo " kvinnor\nde  " [$fleksilo prenuAdjektivon $bazo $fleksGrupo u pluralo 1]
+   lappend rezListo " kvinnorna\n\nett " [$fleksilo prenuAdjektivon $bazo $fleksGrupo n singularo 0]
+   lappend rezListo " barn\ndet " [$fleksilo prenuAdjektivon $bazo $fleksGrupo n singularo 1]
+   lappend rezListo " barnet\n    " [$fleksilo prenuAdjektivon $bazo $fleksGrupo n pluralo 0]
+   lappend rezListo " barn\nde  " [$fleksilo prenuAdjektivon $bazo $fleksGrupo n pluralo 1]
+   lappend rezListo " barnen\n\nkomperativo: " [$fleksilo prenuKompAdjektivo $bazo $fleksGrupo]
+   lappend rezListo "\nsuperlativo: " [$fleksilo prenuKompAdjektivo $bazo $fleksGrupo 1]
+   return $rezListo
+}
+SvGramFiniloMontrilo instproc montruFleksRezultonSubstantivo {bazo fleksGrupo} {
+   set rezListo [list]
+   set fleksilo [my prenuFleksilon]
+   if {$fleksGrupo eq ""} {
+       set fleksGrupo [$fleksilo divenuTiponDeSubstantivo $bazo]
+   }
+   set genro [$fleksilo prenuArtoDeTipo $fleksGrupo]
+   if {$genro eq "u"} {
+       set def en
+   } else {
+       set def ett
+   }
+   lappend rezListo "singularo\n $def " [$fleksilo prenuSubstantivonLauxTipo $bazo $fleksGrupo singularo 0]
+   lappend rezListo "\n " [$fleksilo prenuSubstantivonLauxTipo $bazo $fleksGrupo singularo 1]
+   lappend rezListo "\npluralo\n " [$fleksilo prenuSubstantivonLauxTipo $bazo $fleksGrupo pluralo 0]
+   lappend rezListo "\n " [$fleksilo prenuSubstantivonLauxTipo $bazo $fleksGrupo pluralo 1]
+   return $rezListo
+}
+SvGramFiniloMontrilo instproc montruFleksRezultonVerbo {bazo fleksGrupo} {
+    set rezulto ""
+    set fleksilo [my prenuFleksilon]
+    if {$fleksGrupo eq ""} {
+       set fleksGrupo [$fleksilo divenuTiponDeVerbo $bazo]
+    }
+    if {[lsearch [$fleksilo prenuFleksgrupojPorVerbo] [lindex $fleksGrupo 0]]<0} {
+        set fleksGrupo "[$fleksilo divenuTiponDeVerbo $bazo] $fleksGrupo"
+    }
+    if {[llength $fleksGrupo]>1} {
+        append rezulto $fleksGrupo\n\n
+    }
+    set def {
+        {$fleksGrupo\npresens  : } 1 singularo as
+        {\npast     : } 1 singularo is
+        {\nsupine   : } 1 singularo sup
+        {\nperfect? : } 1 singularo pis
+    }
+    set rezListo [list]
+    if {[string index [lindex $fleksGrupo 0] end] eq "d"} {
+        set deponens 1
+    } else {
+        set deponens 0
+    }
+    foreach {preteksto persono nombro tempo} $def {
+        if {$tempo eq "pis" && $deponens} continue
+        lappend rezListo [subst $preteksto] [$fleksilo prenuVerbon $bazo $fleksGrupo $persono $nombro $tempo]
+    }
+    return $rezListo
+}
+SvGramFiniloMontrilo instproc prenuFGrupon {} {
+    my instvar vortarto
+    if {$vortarto eq "Substantivo" || $vortarto eq "Verbo"} {
+        concat [my @persono selectedItemFirst] [my set fgrupoEsceptoj]
+    } elseif {$vortarto eq "Adjektivo"} {
+       my set fgrupoEsceptoj
+    } else {
+        next
+    }
+}
+SvGramFiniloMontrilo instproc prenuFleksilon {} {
+    SvFleksilo
+}
+SvGramFiniloMontrilo instproc specificInit {} {
+    my instvar win
+    next
+    grid forget $win.arto
+}
+SvGramFiniloMontrilo proc newBrowser {} {
+   GramFiniloMontrilo newBrowser en
+}
+Class TradElementoDialogo -superclass {::IDE::DialogHelper ::IDE::Browser} -parameter {rezulto lingvo testilo}
+@ ::TradElementoDialogo idemeta component EspTradukaVortaroGUI
+TradElementoDialogo instproc checkOk {} {
+    my instvar win vorto traduko fgrupo gramatiko sento ordo rordo rezArr testilo lingvo
+
+    if {![info exists rezArr(forigu)] || !$rezArr(forigu)} {
+        set ret [$testilo validuDatojn $vorto $traduko $sento $fgrupo $gramatiko $ordo $rordo $lingvo]
+        if {$ret ne ""} {
+            my raportu $ret
+            return 0
+        }
+    }
+    return 1
+}
+TradElementoDialogo instproc closeWindow {} {
+    my actionCancel
+}
+TradElementoDialogo instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+TradElementoDialogo instproc foriguTradukon {} {
+    my instvar rezArr
+    set rezArr(forigu) 1
+    my actionOk
+}
+TradElementoDialogo instproc getTitle {} {
+    return [mc "Traduka Elemento"]
+}
+TradElementoDialogo instproc makeModelessDialog {} {
+    if {![EsperantoConf isInDelopingMode]} {
+        next
+    }
+}
+TradElementoDialogo instproc montrutTradElementon elemento {
+    my instvar win rezArr nova
+    set ordo ""
+    set rordo ""
+    array set rezArr $elemento
+    foreach {n v} $elemento {
+        my set $n $v
+    }
+    if {[info exists nova] && $nova} {
+        $win.r.espvorto configure -state normal
+        $win.b.forigu configure -state disabled
+    }
+}
+TradElementoDialogo instproc postCancel {} {
+    my rezulto ""
+}
+TradElementoDialogo instproc postOk {} {
+    my instvar win vorto traduko fgrupo gramatiko sento ordo rordo rezulto rezArr
+    array set rezArr [list vorto $vorto traduko $traduko fgrupo $fgrupo gramatiko $gramatiko sento $sento ordo $ordo rordo $rordo]
+    set rezulto [array get rezArr]
+}
+TradElementoDialogo instproc prenuFleksilon {} {
+    my instvar lingvo
+    set lng [esp::grandskribi $lingvo]
+    if {$lng eq "Pl"} {
+        return PolaFleksio
+    } elseif {$lng eq "Ru"} {
+        return [RusaFleksilo prenuFleksilon]
+    } else {
+        set cl ${lng}Fleksio
+        if {[Object isobject $cl]} {
+            return $cl
+        }
+        set cl ${lng}Fleksilo
+        if {[Object isobject $cl]} {
+            return $cl
+        }
+        return
+    }
+}
+TradElementoDialogo instproc raportu raporto {
+    my instvar mesagxo
+    set mesagxo $raporto
+}
+TradElementoDialogo instproc redaktuFGrupon {} {
+    my instvar fgrupo lingvo vorto traduko gramatiko
+    EsperantoConf pretiguLingvoTradukado $lingvo
+    set fleksilo [my prenuFleksilon]
+    if {$fleksilo eq ""} {
+        EsperantoBrowser message [mc "fleksiaj grupoj ne estas difinitaj por tiu lingvo"]
+        return
+    }
+    switch -glob $vorto {
+        *i {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Verbo $fgrupo $gramatiko]
+            if {$rez ne ""} {
+                set fgrupo $rez
+            }
+        }
+        *o {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Substantivo $fgrupo]
+            if {$rez ne ""} {
+                set fgrupo $rez
+            }
+        }
+        *a {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Adjektivo $fgrupo]
+            if {$rez ne ""} {
+                set fgrupo $rez
+            }
+        }
+        default {
+            EsperantoBrowser message [mc "Fleksia grupo nur por verboj kaj substantivoj"]
+            return
+        }
+    }
+}
+TradElementoDialogo instproc redaktuGramatikon {} {
+    my instvar vorto gramatiko lingvo
+    EsperantoConf pretiguLingvoTradukado $lingvo
+    set fleksilo [my prenuFleksilon]
+    if {$fleksilo eq ""} {
+        EsperantoBrowser message [mc "gramatikaj priskriboj ne estas difinitaj por tiu lingvo"]
+        return
+    }
+    switch -glob $vorto {
+        *i {
+            set g [EspVerboGramElektilo elektuGramatikon $fleksilo $gramatiko]
+        }
+        *o {
+            set g [EspSubstivoGramElektilo elektuGramatikon $fleksilo $gramatiko]
+        }
+        *a {
+            set g  [EspSubstivoGramElektilo elektuGramatikonDePriskribo [$fleksilo metaPriskribojPor Adjektivo] $gramatiko]
+        }
+        *e {
+            set g  [EspSubstivoGramElektilo elektuGramatikonDePriskribo [$fleksilo metaPriskribojPor Adverbo] $gramatiko]
+        }
+        default {
+            EsperantoBrowser message [mc "Asistanto nur por verboj kaj substantivoj"]
+            return
+        }
+    }
+    if {$g ne "_cancel"} {
+        set gramatiko $g
+    }
+
+}
+TradElementoDialogo instproc redaktuSenton {} {
+    my instvar sento
+    set s [EspSentoElektilo elektuFakojn $sento]
+    if {$s ne "_cancel"} {
+        set sento $s
+    }
+}
+TradElementoDialogo instproc specificInit {} {
+    my instvar win vorto traduko fgrupo gramatiko sento mesagxo
+
+    my requireNamespace
+    set mesagxo ""
+
+    frame $win.b
+    frame $win.r
+
+    label $win.r.lespvorto -text [mc "esperanta vorto"]
+    label $win.r.ltraduko -text [mc "traduko"]
+    label $win.r.lsento -text [mc "senco"]
+    label $win.r.lfgrupo -text [mc "fleksio"]
+    label $win.r.lgramatiko -text [mc "gramatiko"]
+    label $win.r.lordo -text [mc "ordo"]
+    label $win.r.lrordo -text [mc "reversa ordo"]
+    label $win.r.lkreita -text [mc "kreita dato"]
+    label $win.r.lkreinto -text [mc "kreinto"]
+    label $win.r.lmodifita -text [mc "modifita dato"]
+    label $win.r.lmodifinto -text [mc "modifinto"]
+    label $win.r.mesagxo -textvariable [self]::mesagxo -fg red
+
+    entry $win.r.espvorto -textvariable [self]::vorto -state disabled
+    # -anchor w -border 1 -relief sunken
+    entry $win.r.traduko -textvariable [self]::traduko
+    entry $win.r.sento -textvariable [self]::sento
+    entry $win.r.fgrupo -textvariable [self]::fgrupo
+    entry $win.r.gramatiko -textvariable [self]::gramatiko
+    spinbox $win.r.ordo -textvariable [self]::ordo -from 0 -to 20
+    spinbox $win.r.rordo -textvariable [self]::rordo -from 0 -to 20
+    entry $win.r.kreita -textvariable [self]::create_date -state readonly
+    entry $win.r.kreinto -textvariable [self]::kreinto -state readonly
+    entry $win.r.modifita -textvariable [self]::update_date -state readonly
+    entry $win.r.modifinto -textvariable [self]::uzanto -state readonly
+
+    button $win.r.bsento -text ... -command [list [self] redaktuSenton]
+    button $win.r.bfgrupo -text ... -command [list [self] redaktuFGrupon]
+    button $win.r.bgramatiko -text ... -command [list [self] redaktuGramatikon]
+
+    grid $win.r.lespvorto -column 0 -row 0 -sticky e
+    grid $win.r.ltraduko -column 0 -row 1 -sticky e
+    grid $win.r.lsento -column 0 -row 2 -sticky e
+    grid $win.r.lfgrupo -column 0 -row 3 -sticky e
+    grid $win.r.lgramatiko -column 0 -row 4 -sticky e
+    grid $win.r.lordo -column 0 -row 5 -sticky e
+    grid $win.r.lrordo -column 0 -row 6 -sticky e
+    grid $win.r.lkreita -column 0 -row 7 -sticky e
+    grid $win.r.lkreinto -column 0 -row 8 -sticky e
+    grid $win.r.lmodifita -column 0 -row 9 -sticky e
+    grid $win.r.lmodifinto -column 0 -row 10 -sticky e
+    grid $win.r.espvorto -column 1 -row 0 -sticky ew
+    grid $win.r.traduko -column 1 -row 1 -sticky ew
+    grid $win.r.sento -column 1 -row 2 -sticky ew
+    grid $win.r.fgrupo -column 1 -row 3 -sticky ew
+    grid $win.r.gramatiko -column 1 -row 4 -sticky ew
+    grid $win.r.ordo -column 1 -row 5 -sticky ew
+    grid $win.r.rordo -column 1 -row 6 -sticky ew
+    grid $win.r.kreita -column 1 -row 7 -sticky ew
+    grid $win.r.kreinto -column 1 -row 8 -sticky ew
+    grid $win.r.modifita -column 1 -row 9 -sticky ew
+    grid $win.r.modifinto -column 1 -row 10 -sticky ew
+    grid $win.r.bsento -column 2 -row 2
+    grid $win.r.bfgrupo -column 2 -row 3
+    grid $win.r.bgramatiko -column 2 -row 4
+    grid $win.r.mesagxo -column 0 -row 11 -columnspan 4
+    grid columnconfigure $win.r 1 -weight 1
+
+    button $win.b.konservu -text [mc "Konservu"] -command [list [self] actionOk]
+    button $win.b.forigu -text [mc "Forigu Tradukon"] -command [list [self] foriguTradukon]
+    button $win.b.forlasu -text [mc "Forlasu Dialogon"] -command [list [self] actionCancel]
+
+    pack $win.b.konservu $win.b.forigu $win.b.forlasu -side left
+
+    pack $win.b -expand yes -fill x -side bottom
+    pack $win.r -expand yes -fill both -side top
+
+    bind $win <Escape> [list [self] actionCancel]
+    bind $win <Alt-c> [list [self] actionCancel]
+    bind $win <Return> [list [self] actionOk]
+    bind $win <Alt-o> [list [self] actionOk]
+
+    focus $win.r.traduko
+    next
+}
+TradElementoDialogo instproc unGrab {} {
+    if {![EsperantoConf isInDelopingMode]} {
+        next
+    }
+}
+TradElementoDialogo proc redaktuTradElementon {elemento lingvo parent testilo} {
+    set instance [TradElementoDialogo new [Object autoname .telemmontr] -lingvo $lingvo -parent $parent -testilo $testilo]
+    $instance montrutTradElementon $elemento
+    $instance set rezulto ""
+    update idletasks
+    $instance suspendUntilSignal
+    set ret [$instance rezulto]
+    $instance destroy
+    return $ret
+}
+Class TradukImportilo -parameter {lng sep ssep}
+@ ::TradukImportilo idemeta component EspTradukaVortaroGUI
+TradukImportilo instproc importuTraduko {lingvo esperanto traduko sento gramatiko fgrupo} {
+
+}
+TradukImportilo instproc init {} {
+    my set esperantoEstasCelLingvo 0
+}
+TradukImportilo instproc parseLeksikoElemento {deskribo {sep ,}} {
+    # ekzemploj
+    # Attake (Krieg), Akku(mulator), (Kraft)Wagen,
+    # Kosten(Voranschlag), (Sonnen~, Mond-)Finsternis
+
+    # cxangxi komoj en parentezo al ##
+    set delementoj [list]
+    set deskribo [string map {[ ( ] )} $deskribo]
+    # sxangxi separatiloj al ,
+    set deskribo [string map [list $sep ,] $deskribo]
+    while {[regsub -all {\(([^\)]+?),([^\)]+?)\)} $deskribo {(\1##\2)} deskribo]} {}
+    foreach elemento [split $deskribo $sep] {
+        set elemento [string trim $elemento]
+        set elemento [string map {## ,} $elemento]
+        set gramatiko ""
+        if {[regexp {<g>(.+?)</g>} $elemento _ gramatiko]} {
+            regsub <g>(.+)</g> $elemento "" elemento
+        }
+        set fgrupo ""
+        if {[regexp {<f>(.+?)</f>} $elemento _ fgrupo]} {
+            regsub <f>(.+)</f> $elemento "" elemento
+        }
+        set seml [list]
+        # (priskribo) traduko
+        if {[regexp {^\((.+?)\) (.+)$} $elemento tuta sem ntraduko]} {
+            set elemento $ntraduko
+            lappend seml $sem
+        }
+        # traduko (priskribo)
+        if {[regexp {(.+) \((.+?)\)} $elemento tuta ntraduko sem]} {
+            set elemento $ntraduko
+            lappend seml $sem
+        }
+        foreach opvorto [my parseOpciajnVortojn $elemento] {
+            # por priskriboj
+            # Reizung, (Med.)
+            if {[regexp {^\((.+?)\)$} $opvorto tuta sem] && [llength $delementoj]>0} {
+                set s [lindex [lindex $delementoj end] end]
+                if {$s eq ""} {
+                    set s $sem
+                } else {
+                    append s ", $sem"
+                }
+                if {[catch {lset delementoj end end $s}]} {
+                    #my halt
+                }
+            }
+            if {[regexp {^[\w ]+$} $opvorto]} {
+                lappend delementoj [list $opvorto [join $seml ", "] $gramatiko $fgrupo]
+            }
+        }
+    }
+    return $delementoj
+}
+TradukImportilo instproc parseOpciajnVortojn elemento {
+    # ekzemploj
+    # Attake (Krieg), Akku(mulator), (Kraft)Wagen,
+    # Kosten(Voranschlag), (Sonnen~, Mond-)Finsternis
+    #
+
+    set vortoj [list]
+    set elemento [string trim $elemento \"']
+    if {[regexp {\(([\w\-~, ]+)\)(\w+)} $elemento tuta opcio baza]} {
+        set opcioj [list]
+        foreach o [split $opcio ,] {
+            set o [string trim $o]
+            set l [string index $o end]
+            if {$l eq "-" || $l eq "~"} {
+                set o [string range $o 0 end-1]
+            }
+            lappend opcioj ${o}[string tolower $baza]
+        }
+        if {[llength $opcioj]==1} {
+            lappend opcioj $baza
+        }
+        foreach o $opcioj {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } elseif {[regexp {(\w+)\((\w+?)\)(\w+)} $elemento tuta prebaza opcio postbaza]} {
+        foreach o [list ${prebaza}${postbaza} ${prebaza}${opcio}${postbaza}] {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } elseif {[regexp {(\w+)\(([~\-\w, ]+?)\)} $elemento tuta baza opcio]} {
+        set opcioj [list]
+        foreach o [split $opcio ,] {
+            set o [string trim $o]
+            set l [string index $o 0]
+            if {$l eq "-" || $l eq "~"} {
+                set o [string range $o 1 end]
+            }
+            lappend opcioj $baza[string tolower ${o}]
+        }
+        if {[llength $opcioj]==1} {
+            lappend opcioj $baza
+        }
+        foreach o $opcioj {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } elseif {[regexp {(\w+)/(\w+)} $elemento tuta opcio1 opcio2]} {
+        foreach o [list $opcio1 $opcio2] {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } else {
+        lappend vortoj $elemento
+    }
+    return $vortoj
+}
+TradukImportilo instproc parseVortojnSenPriskribo {elemento {sep ,}} {
+    # ekzemploj
+    # Attake (Krieg), Akku(mulator), (Kraft)Wagen,
+    # Kosten(Voranschlag), (Sonnen~, Mond-)Finsternis
+    #
+    set elementoj [list]
+    foreach e [split $elemento $sep] {
+        set e [string trim $e]
+        foreach e2 [my parseOpciajnVortojn $e] {
+            lappend elementoj $e2
+        }
+    }
+    return $elementoj
+}
+TradukImportilo instproc prilaboruVortliston {{file {}}} {
+    my instvar lingvo esperantoEstasCelLingvo lng sep ssep
+    set nekonataj [list]
+    set stop 0
+    if {$file eq ""} {
+        set filetypes {{{Text Files} *.txt} {{All files} *}}
+        set file [::IDE::Dialog getOpenFile $filetypes]
+    }
+    if {$file eq ""} return
+    set byteto [file size $file]
+    set f [open $file r]
+    fconfigure $f -encoding utf-8
+    while {[gets $f linio]!=-1} {
+        if {[string index $linio 0] eq "#"} continue
+        set id [string first $sep $linio]
+        if {$id==-1} continue
+        if {$esperantoEstasCelLingvo} {
+            set diskribo [string trim [string range $linio 0 [expr {$id-1}]]]
+            set esperanto [string range $linio [expr {$id+1}] end]
+        } else {
+            set esperanto [string tolower [string map {" " ""} [string trim [string range $linio 0 [expr {$id-1}]]]]]
+            set diskribo [string range $linio [expr {$id+1}] end]
+        }
+        foreach e [my parseVortojnSenPriskribo $esperanto $ssep] {
+            foreach disk [my parseLeksikoElemento $diskribo $ssep] {
+                set t [lindex $disk 0]
+                set sento [lindex $disk 1]
+                set gramatiko [lindex $disk 2]
+                set fgrupo [lindex $disk 3]
+                my importuTraduko $lng $e [string trim $t] $sento $gramatiko $fgrupo
+            }
+        }
+    }
+    close $f
+}
+Class TradukaBazaMontrilo -superclass {::IDE::Browser ::IDE::GUICommands ::EsperantoStringConverter ::NavigadaKronikoMix}
+@ ::TradukaBazaMontrilo idemeta categories {init-release validado}
+@ ::TradukaBazaMontrilo idemeta categoriesMethods {{createSystemMenu getMenuStruct createMenuNavigado init createMenuFleksio fillMenuStruct} {testuKuntekston testuGramatikon testuFleksion validuDatojn}}
+@ ::TradukaBazaMontrilo idemeta component EspTradukaVortaroGUI
+TradukaBazaMontrilo instproc aliguLingvon {} {
+    my instvar dbvortaro
+    if {[$dbvortaro istype SQLAldonaVortaro]} {
+        EsperantoBrowser message [mc "privataj vortaroj havas nur unu lingvon"]
+        return
+    }
+
+    set lingvoj [TradukaVortaroMontrilo lingvoListo]
+    set restoj [list]
+    set nunLingvoj [my subtenatajLingvoj]
+    foreach {lgv lingvo} $lingvoj {
+        if {[lsearch $nunLingvoj $lgv]<0} {
+            lappend restoj [list $lgv $lingvo]
+        }
+    }
+    set s [::IDE::IDialogList getListItem [mc "Elektu la novan lingvon"] $restoj]
+    if {$s ne ""} {
+        $dbvortaro aliguLingvon [lindex $s 0] [lindex $s 1]
+    }
+}
+TradukaBazaMontrilo instproc alliguBazaLeks {elemento lingvo {validu 1}} {
+    my instvar dbvortaro
+    set vorto ""
+    set traduko ""
+    set sento ""
+    set gramatiko ""
+    set fgrupo ""
+    set ordo ""
+    set rordo ""
+    foreach {k v} $elemento {
+        set $k $v
+    }
+    if {$validu && [set ret [my validuDatojn $vorto $traduko $sento $fgrupo $gramatiko $ordo $rordo $lingvo]] ne ""} {
+        if {$ret ne "error"} {
+            EsperantoBrowser message $ret
+        }
+        return 0
+    }
+
+    switch [$dbvortaro importuTraduko $lingvo $vorto $traduko $sento $gramatiko $fgrupo $ordo] {
+        0 {
+            set vortaro [Vortaro prenuVortaron]
+            set rez [$vortaro estasVorto $vorto]
+            if {$rez!=2} {
+                set r [EsperantoBrowser yesNo [mc "'%s' ŝajne estas ne esperanta vorto! Aligu vorto?" $vorto]]
+                if {$r ne "yes"} {
+                    return 0
+                }
+                if {$rez==1} {
+                    set r [NovaDerivoDlg aliguDerivonDeVortaro $vortaro]
+                    if {$r eq ""} {
+                        return 0
+                    }
+                } else {
+                    set r [NovaRadikoDlg aliguRadikon $vorto]
+                    if {$r ne ""} {
+                        return 0
+                    }
+                }
+            }
+            set ret [EsperantoBrowser yesNo [mc "la vorto '%s' ne estas en vortaro\nĈu vi volas aligi unue la vorton" $vorto]]
+            if {$ret} {
+                if {[set rez [$dbvortaro importuVorton $vorto]]==0} {
+                    return [my alliguBazaLeks $elemento $lingvo]
+                } else {
+                    EsperantoBrowser message [mc "Aligo de vorto '%s' malsukcesis %s" $vorto $rez]
+                }
+            }
+        }
+        1 {
+            my setStatusBarText [mc "vorto %s=%s estas aligita" $vorto $traduko]
+            $dbvortaro commit
+            return 1
+        }
+        2 {
+            my setStatusBarText [mc "traduko '%s' por '%s' jam konata" $traduko $vorto]
+        }
+    }
+    return 0
+}
+TradukaBazaMontrilo instproc createMenuFleksio {} {
+    set fm [IDE::MenuStruct new -childof [self] [mc "Montrilo de Fleksio"] 0]
+    $fm addCommand [mc "Montrilo de fleksio"] [list [self] mountruGramFiniloMontrilon]
+    return $fm
+}
+TradukaBazaMontrilo instproc createMenuNavigado {} {
+    error "overwrite me"
+}
+TradukaBazaMontrilo instproc createSystemMenu {} {
+    my createNonSystemMenu
+    my instvar win
+    set fm [my createMenuFleksio]
+    set nm [my createMenuNavigado]
+
+    if {[winfo toplevel $win]=="."} {
+        set twin {}
+    } else {
+        set twin $win
+    }
+    $nm createTkMenu $twin.mb.navigado $twin
+    $twin.mb add cascade -label [$nm set name] -menu $twin.mb.navigado -underline 0
+    $fm createTkMenu $twin.mb.fleksio $twin
+    $twin.mb add cascade -label [$fm set name] -menu $twin.mb.fleksio -underline 0
+}
+TradukaBazaMontrilo instproc eksportuVortliston {} {
+    my instvar dbvortaro
+    set lingvo [my prenuLingvon]
+    if {![EsperantoBrowser yesNo [mc "Ĉu vi vere volas eksporti vortliston. La eksportado povas daŭri kelkajn minutojn"]]} {
+        return
+    }
+    set file [::IDE::Dialog getSaveFile vortoj-eo-$lingvo.txt]
+    if {$file eq ""} return
+    set f [open $file w]
+    fconfigure $f -encoding utf-8
+    foreach l [split [EsperantoConf prenuPermesiloTekston] \n] {
+        puts $f "# $l"
+    }
+
+    set progreso [ProgresoMontrilo startProgress {Eksporado de $lingvo vortlisto}]
+    $dbvortaro eksportuVortliston $f $lingvo $progreso
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    close $f
+}
+TradukaBazaMontrilo instproc elektuUzanton {} {
+    my instvar dbvortaro
+    set novaUzanto [UzantojDialogo elektuUzanton [$dbvortaro prenuUzantojNomoj] [$dbvortaro prenuUzantoNomo]]
+    if {$novaUzanto ne ""} {
+        $dbvortaro metuUzantoNomo $novaUzanto
+    }
+}
+TradukaBazaMontrilo instproc elektuVortaron {} {
+    set svortaro [mc "sistema vortaro"]
+    lappend vortaroj $svortaro
+    set pvortaroj [SQLAldonaVortaro prenuPrivatajnVortarojn]
+    set i 1
+    foreach d $pvortaroj {
+        lappend vortaroj [list $i [file tail $d]]
+        incr i
+    }
+    set s [::IDE::IDialogList getListItem "Elektu voraron" $vortaroj]
+    if {$s eq ""} return
+    if {$s eq $svortaro} {
+        my redaktuVortaron [DBVortaro prenuDepVortaron]
+    } else {
+        my redaktuVortaron [VortarojAro prenuVortaron [lindex $pvortaroj [expr {[lindex $s 0]-1}]]]
+    }
+}
+TradukaBazaMontrilo instproc fillMenuStruct ms {
+    my instvar novaTradukoButono
+
+    $ms enablementHandler [self]
+    my requireNamespace
+    set mitem [$ms addMenuItem [::IDE::MenuCommand new -childof $ms -name [mc "Nova traduko"] -command [list [self] kreuNovanTradukon] -popdownMenu 0 -accelerator Control-n -enableList eblasNovaTraduko]]
+    set novaTradukoButono [my @toolbar addMenu $mitem filenew 0.09]
+
+    $ms addCommand [mc "Elektu vortaron"] [list [self] elektuVortaron]
+    $ms addCommand [mc "Kreu privatan vortaron"] [list SQLAldonaVortaro aliguPrivatanVortaron]
+    $ms addCommand [mc "Elektu uzanton de vortaro"] [list [self] elektuUzanton]
+    $ms addSeparator
+    $ms addCommand [mc "Montru protokolon de ŝanĝojn"] [list [self] montruProtokolon]
+    $ms addCommand [mc "Elektu vortaron"] [list [self] elektuVortaron]
+    $ms addCommand [mc "Eksportu vortliston"] [list [self] eksportuVortliston]
+    $ms addCommand [mc "Importu vortliston"] [list [self] importuVortliston]
+    $ms addCommand [mc "Aligu lingvon"] [list [self] aliguLingvon]
+    $ms addCommand [mc "Montru statistikon"] [list [self] montruStatistikon]
+    $ms addCommand [mc "Importu dosieron kun ŝanĝoj"] [list [self] importuSxangxoj]
+    $ms addCommand [mc "Kreu liston kun nekonataj tradukoj"] [list [self] kreuNekonatajListo]
+    $ms addCommand [mc "Kreu liston kun nekonataj tradukoj laŭ ofteco"] [list [self] kreuNekonatajListoLauOfteco]
+    $ms addSeparator
+    $ms addCommand [mc "Forlasu vortaron"] [list [self] destroy]
+}
+TradukaBazaMontrilo instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms [mc "Vortaro"] 0
+}
+TradukaBazaMontrilo instproc importuSxangxoj {} {
+    set file [IDE::Dialog getOpenFile {{Esp *.txt}}]
+    if {$file eq ""} return
+    DBVortaroLogMix malsxaltuLog
+    DBVortaroLogMix importuSxangxojDeLog $file
+    DBVortaroLogMix sxaltuLog
+}
+TradukaBazaMontrilo instproc importuVortliston {} {
+    DBVortaligo newBrowser [my set dbvortaro]
+}
+TradukaBazaMontrilo instproc init args {
+    my instvar novaTradukoVorto
+    my set dbvortaro [DBVortaro prenuDepVortaron]
+    my set testuDatojn 1
+    set novaTradukoVorto "<[mc "nova traduko"]>"
+    next
+}
+TradukaBazaMontrilo instproc kreuNekonatajListo {} {
+    my instvar dbvortaro
+    set rez [IDE::IDialogEntry getValueWithCancel [mc "Specifu ekzemplon por esperantaj vortoj (* = ĉiu vorto).\nLa serĉado povas longe daŭri"] *]
+    if {$rez eq "_cancel" || $rez eq ""} return
+    set lingvo [my prenuLingvon]
+    set listo [$dbvortaro sercxuSenTraduko $rez $lingvo]
+    if {[llength $listo]>0} {
+        EsperantoBrowser redaktoTekston [join $listo ";\n"]\;\n
+        EsperantoBrowser message [mc "Ekzistas ankoraŭ %s nekonataj tradukoj" [llength $listo]]
+    } else {
+        EsperantoBrowser message [mc "neniu vorto por ekzemplo '%s' estis trovita" $rez]
+    }
+}
+TradukaBazaMontrilo instproc kreuNekonatajListoLauOfteco {} {
+    my instvar dbvortaro
+    set rez [IDE::IDialogEntry getValueWithCancel [mc "Specifu ekzemplon por esperantaj vortoj (* = ĉiu vorto).\nLa serĉado povas longe daŭri"] *]
+    if {$rez eq "_cancel" || $rez eq ""} return
+    set lingvo [my prenuLingvon]
+    set freq [FrekvencoListo prenuFrekveno]
+    set radikilo [Radikilaro prenuPorLingvo eo]
+    set limo [IDE::IDialogEntry getValueWithCancel [mc "Difinu la grupon de frekventeco"] 9]
+    if {$limo eq "_cancel" || ![string is integer $limo]} {
+        return
+    }
+    set listo [list]
+    foreach vorto [$dbvortaro sercxuSenTraduko $rez $lingvo] {
+        set f [$freq prenuFrekvencon $vorto]
+        if {$f<$limo && $f!=-1} {
+            lappend listo [list $vorto $f]
+        }
+    }
+    set l [lsort -integer -index 1 $listo]
+    set listo [list]
+    foreach vorto $l {
+        lappend listo [lindex $vorto 0]
+    }
+    if {[llength $listo]>0} {
+        EsperantoBrowser redaktoTekston [join $listo ";\n"]\;\n
+        EsperantoBrowser message [mc "Ekzistas ankoraŭ %s nekonataj tradukoj" [llength $listo]]
+    } else {
+        EsperantoBrowser message [mc "neniu vorto por ekzemplo '%s' estis trovita" $rez]
+    }
+}
+@ TradukaBazaMontrilo instproc modifuBazaLeks {} {
+description { 1 - modifo
+ 3 - refreshxigo jam farita}
+}
+TradukaBazaMontrilo instproc modifuBazaLeks {novaList oldaList lingvo {validu 1}} {
+    my instvar dbvortaro
+    set vorto ""
+    set traduko ""
+    set sento ""
+    set gramatiko ""
+    set fgrupo ""
+    set ordo ""
+    set rordo ""
+    foreach {k v} $novaList {
+        set $k $v
+    }
+    if {$validu && [set ret [my validuDatojn $vorto $traduko $sento $fgrupo $gramatiko $ordo $rordo $lingvo]] ne ""} {
+        if {$ret ne "error"} {
+            EsperantoBrowser message $ret
+        }
+        return 0
+    }
+
+    array set novaArr $novaList
+    array set oldaArr $oldaList
+    set sxangxoListo [list]
+    set ordoSxangxo 0
+    foreach a {vorto traduko sento ordo fgrupo gramatiko rordo} {
+        set nvalue $novaArr($a)
+        set ovalue $oldaArr($a)
+        if {$nvalue ne $ovalue} {
+            lappend sxangxoListo $a $nvalue
+            if {$a eq "ordo"} {
+                set ordoSxangxo 1
+            }
+        }
+    }
+    if {[llength $sxangxoListo]==0} {
+        my setStatusBarText [mc "neniu ŝanĝo videbla"]
+        return 0
+    }
+    $dbvortaro modifuTradukon $oldaArr(id) $oldaArr(vorto) $oldaArr(traduko) $sxangxoListo $lingvo $oldaArr(ordo)
+    $dbvortaro commit
+    if {$ordoSxangxo} {
+        my refresxiguRezulton
+        return 3
+    }
+    return 1
+}
+TradukaBazaMontrilo instproc montruProtokolon {} {
+    set dosiero [DBVortaroLogMix prenuPrivateFVortaroDosieron]
+    if {![file isfile $dosiero]} {
+        EsperantoBrowser message [mc "Vi ĝis nun ne faris iun ŝanĝon en vortaro"]
+        return
+    }
+    EsperantoBrowser redaktuDosieron $dosiero
+}
+TradukaBazaMontrilo instproc montruStatistikon {} {
+   my instvar dbvortaro
+   $dbvortaro montruStatistikon
+}
+TradukaBazaMontrilo instproc mountruGramFiniloMontrilon {} {
+    GramFiniloMontrilo newBrowser [my prenuLingvon]
+}
+TradukaBazaMontrilo instproc prenuFleksilon {} {
+    set lingvo [my prenuLingvon]
+    EsperantoConf pretiguLingvoTradukado $lingvo
+    set lng [esp::grandskribi $lingvo]
+    if {$lng eq "Pl"} {
+        return PolaFleksio
+    } else {
+        set cl ${lng}Fleksio
+        if {[Object isobject $cl]} {
+            return $cl
+        }
+        set cl ${lng}Fleksilo
+        if {[Object isobject $cl]} {
+            return $cl
+        }
+        return
+    }
+}
+TradukaBazaMontrilo instproc prenuLingvon {} {
+    error "my be overwritten"
+}
+TradukaBazaMontrilo instproc redaktuVortaron vortaro {
+    my instvar dbvortaro
+    if {$dbvortaro eq $vortaro} {
+        my setStatusBarText [mc "la sama vortaro"]
+        return
+    }
+    if {[$dbvortaro istype SQLAldonaVortaro]} {
+        VortarojAro liberiguVortaron $dbvortaro
+    }
+    my set dbvortaro $vortaro
+}
+TradukaBazaMontrilo instproc subtenatajLingvoj {} {
+    my instvar dbvortaro
+    $dbvortaro subtenatajLingvoj
+}
+TradukaBazaMontrilo instproc testuFleksion {vorto fgrupo lingvo} {
+    set fleksilo [my prenuFleksilon]
+    if {$fleksilo eq ""} return
+
+    set vortaro [Vortaro prenuVortaron]
+    set tipo [$vortaro prenuTipoPorVorto $vorto]
+
+    if {[lsearch {o i a e} $tipo]<0} {
+        return [mc "fleksiaj priskriboj ne subtenataj por tiu vorto"]
+    }
+
+    if {$tipo eq "o"} {
+        set fgrupoj [$fleksilo prenuFleksgrupojPorSubstantivo]
+        set nomo Substantivo
+    } elseif {$tipo eq "i"} {
+        set fgrupoj [$fleksilo prenuFleksgrupojPorVerbo]
+        set nomo Verbo
+    } elseif {$tipo eq "a"} {
+        set fgrupoj {}
+        set nomo Adjektivo
+    } elseif {$tipo eq "e"} {
+        set fgrupoj {}
+        set nomo Adverbo
+    }
+    if {$lingvo eq "de" && $tipo eq "o"} {
+        if {[lindex $fgrupo 0] ni {m n f}} {
+            return [mc "atendas genron (f, m, n) estas '%s'" [lindex $fgrupo 0]]
+        }
+        set fgrupo [lrange $fgrupo 1 end]
+    }
+    if {[llength $fgrupoj]>0} {
+        set test [lrange $fgrupo 1 end]
+        set grupo [lindex $fgrupo 0]
+        set eblaj [join $fgrupoj ", "]
+        if {[string length $eblaj]>38} {
+            set eblaj [string range $eblaj 0 38]...
+        }
+        if {[lsearch $fgrupoj $grupo]<0} {
+            return [mc "fleksia grupo '%s' ne estas konata:\nEblaj: %s" $grupo $eblaj]
+        }
+    } else {
+        set test $fgrupo
+    }
+    set esceptoj [$fleksilo prenu${nomo}Esceptoj]
+    foreach e $test {
+        set trovita 0
+        set eblaj [list]
+        foreach {epri nomo} $esceptoj {
+            lappend eblaj $epri
+            if {$epri eq [lindex $e 0]} {
+                set trovita 1
+                break
+            }
+        }
+        if {!$trovita} {
+            return [mc "escepto '%s' ne estas konata:\nEblaj: %s" [lindex $e 0] $eblaj]
+        }
+    }
+    return
+}
+TradukaBazaMontrilo instproc testuGramatikon {vorto gramatiko lingvo} {
+    set fleksilo [my prenuFleksilon]
+    if {$fleksilo eq ""} return
+
+    set vortaro [Vortaro prenuVortaron]
+    set tipo [$vortaro prenuTipoPorVorto $vorto]
+
+    if {[lsearch {o i p a e} $tipo]<0} {
+        return [mc "gramatikaj priskriboj ne subtenataj por tiu vorto"]
+    }
+
+    if {$tipo eq "p"} {
+        set priskriboj [$fleksilo metaPriskribojPor Prepozicio]
+    } elseif {$tipo eq "o"} {
+        set priskriboj [$fleksilo metaPriskribojPor Substantivo]
+    } elseif {$tipo eq "e"} {
+        set priskriboj [$fleksilo metaPriskribojPor Adverbo]
+    } elseif {$tipo eq "i"} {
+        set priskriboj [$fleksilo metaPriskribojPor Verbo]
+    } elseif {$tipo eq "a"} {
+        set priskriboj [$fleksilo metaPriskribojPor Adjektivo]
+    }
+    foreach g $gramatiko {
+        if {[llength $g]==1} {
+            set trovita 0
+            set eblaj [list]
+            foreach p $priskriboj {
+                lappend eblaj [lindex $p 0]
+                if {[lindex $p 0] eq $g} {
+                    set trovita 1
+                    break
+                }
+            }
+            if {!$trovita} {
+                return [mc "priskribo '%s' ne estas konata.\n Nur: %s" $g [join $eblaj ", "]]
+            }
+        } else {
+            if {$tipo eq "i" || $tipo eq "o" || $tipo eq "e"} {
+                if {[llength $g]!=2} {
+                    return [mc "gramatika priskribo '%s' devas havi 2 elementojn" $g]
+                }
+                set def [lindex $g 0]
+                if {[lsearch {N A} $def]<0} {
+                    set deftipo [$vortaro prenuTipoPorVorto $def]
+                    if {$deftipo ne "p"} {
+                        return [mc "gramatika priskribo '%s' devas esti prepozicio aux kazo: N, A" $def]
+                    }
+                }
+                set cilo [lindex $g 1]
+                if {[llength $cilo]!=2 && [llength $cilo]!=1} {
+                    return [mc "gramatika priskribo '%s' devas havi 2 elementojn" $cilo]
+                }
+                set trovita 0
+                set eblaj [list]
+                set kazo [lindex $cilo end]
+                foreach {k nomo} [$fleksilo prenuKazojn] {
+                    lappend eblaj $k
+                    if {$k eq $kazo} {
+                        set trovita 1
+                        break
+                    }
+                }
+                if {!$trovita} {
+                    return [mc "priskribo '%s' devas esti kazo.\nNur: %s" $kazo [join $eblaj ", "]]
+                }
+            } elseif {$tipo eq "p"} {
+                if {[llength $g]!=2} {
+                    return [mc "gramatika priskribo '%g' devas havi 2 elementojn" $g]
+                }
+                set def [lindex $g 0]
+                if {[lsearch {N A} $def]<0} {
+                    return [mc "gramatika priskribo '%s' devas esti kazo: N, A" $def]
+                }
+                set cilo [lindex $g 1]
+                set trovita 0
+                set eblaj [list]
+                foreach {k nomo} [$fleksilo prenuKazojn] {
+                    lappend eblaj $k
+                    if {$k eq $cilo} {
+                        set trovita 1
+                        break
+                    }
+                }
+                if {!$trovita} {
+                    return [mc "priskribo '%s' devas esti kazo.\nNur: %s" $cilo [join $eblaj ", "]]
+                }
+            } else {
+                return [mc "kompleksaj gramatikaj priskriboj ne estas subtenataj por vorto '%s'" $vorto]
+            }
+        }
+    }
+    return
+}
+TradukaBazaMontrilo instproc testuKuntekston {vorto kunteksto} {
+    set vortaro [Vortaro prenuVortaron]
+    array set typoArr [TradukaBazaMontrilo prenuKuntektojPriskribo]
+    set klaso [$vortaro prenuTipoPorVorto $vorto]
+    if {[catch {set typoArr($klaso)} defino]} {
+        return [mc "kuntekstoj ne subtenataj por vorto '%s'" $vorto]
+    }
+    set tipo [lindex $kunteksto 0]
+    set kuntekstoj [list]
+    set trovita 0
+    foreach {knomo gtipo} $defino {
+        lappend kuntekstoj $knomo
+        if {$knomo eq $tipo} {
+            set trovita 1
+            foreach v [lrange $kunteksto 1 end] {
+                if {[string index $v 0] eq "%"} continue
+                if {[$vortaro estasVorto $v]!=2} {
+                    return [mc "vorto '%s' ne estas konata" $v]
+                }
+                if {[EORadikilo radikigi $v] ne $v} {
+                    return [mc "vorto '%s' ne estas en baza formo '%s'" $v [$vortaro prenuBazanFormon]]
+                }
+                set vtipo [$vortaro prenuTipoPorVorto $v]
+                if {$vtipo eq "pp"} {
+                    set vtipo o
+                } elseif {$vtipo eq "pos"} {
+                    set vtipo a
+                }
+                if {$vtipo ne $gtipo} {
+                    return [mc "kunteksto postulas vorton de tipo: %s" [$vortaro prenuTipoNomo $gtipo]]
+                }
+            }
+        }
+    }
+    if {!$trovita} {
+        return [mc "kunteksto '%s' ne subtenata.\nNur: %s" $tipo [join $kuntekstoj ", "]]
+    }
+}
+TradukaBazaMontrilo instproc validuDatojn {vorto traduko sento fgrupo gramatiko ordo rordo lingvo} {
+    my instvar testuDatojn novaTradukoVorto
+
+    set vorto [string trim $vorto]
+    if {$vorto eq "" || $traduko eq "" || $traduko eq $novaTradukoVorto} {
+        return [mc "tajpu minimume vorton kaj tradukon"]
+    }
+    if {!$testuDatojn} return
+
+    if {[string tolower $vorto] ne $vorto} {
+        return [mc "vorto '%s' enhavas grandajn literojn" $vorto]
+    }
+    if {![esp::enhavasEsparantajLiteroj $vorto]} {
+        return [mc "vorto '%s' enhavas ne esperantajn literojn" $vorto]
+    }
+    set vortaro [Vortaro prenuVortaron]
+    if {[$vortaro estasVorto $vorto]==2 && ![$vortaro set estasNumeralo] && [EORadikilo radikigi $vorto] ne $vorto && [string range $vorto end-1 end] ne "en"} {
+        return [mc "La vortaro akceptas nur bazajn formojn: %s" [EORadikilo radikigi $vorto]]
+    }
+    if {$traduko ne "{}"} {
+        set tlen [string length $traduko]
+        for {set t 0} {$t<$tlen} {incr t} {
+            set c [string index $traduko $t]
+            if {$c ne " " && ![string is alpha $c] && $c ne "-" && $c ne "~" && $c ne "'"} {
+                return [mc "%s ne estas valida vorto" $traduko]
+            }
+        }
+    }
+
+    if {![info complete $gramatiko] || [catch {llength $gramatiko}]} {
+        return [mc "parentezoj en gramatiko ne kunagordas"]
+    }
+    if {![info complete $fgrupo] || [catch {llength $fgrupo}]} {
+        return [mc "parentezoj en 'fleksia grupo' ne kunagordas"]
+    }
+    if {$ordo ne "" && ![string is integer $ordo]} {
+        return [mc "ordo devas esti numero"]
+    }
+    if {$rordo ne "" && ![string is integer $rordo]} {
+        return [mc "ordo devas esti numero"]
+    }
+    set lvortaro [HunspellTestilo prenuInstancoPorLingvo $lingvo]
+    if {$lvortaro ne ""} {
+        foreach v $traduko {
+            if {[$lvortaro estasVorto [string trimright $v "~-"]]!=2} {
+                if {[EsperantoBrowser yesNo [mc "Vorto '%s' estas eble skriberaro.\nĈu haltigi la konservadon?" $v]] eq "yes"} {
+                    return "error"
+                }
+            }
+        }
+    }
+    if {$sento ne ""} {
+        foreach f $sento {
+            if {[llength $f]==1} {
+                if {![EspSentoElektilo testuPriskribon $f]} {
+                    return [mc "Priskribo por senco ne estas valida %s" $f]
+                }
+            } else {
+                if {[set ret [my testuKuntekston $vorto $f]] ne ""} {
+                    return $ret
+                }
+            }
+        }
+    }
+    if {$gramatiko ne ""} {
+        if {[set ret [my testuGramatikon $vorto $gramatiko $lingvo]] ne ""} {
+            return $ret
+        }
+    }
+    if {$fgrupo ne ""} {
+        if {[set ret [my testuFleksion $vorto $fgrupo $lingvo]] ne ""} {
+            return $ret
+        }
+    }
+
+    return
+}
+TradukaBazaMontrilo proc prenuKuntektojPriskribo {} {
+    # Priskribo de eblaj kuntekstoj por tradukado
+    return {
+        o {kun i kunobj i kunadj a}
+        i {kun o kunobj o kunadv e}
+        a {kun o}
+        e {kun i kunadj a kunadv e kunpp p}
+        p {kun o}
+    }
+}
+Class TradukaNovaVortaroMontrilo -superclass ::TradukaBazaMontrilo -parameter {{atHead 1}}
+@ ::TradukaNovaVortaroMontrilo idemeta categories {init-release rapida-vortaro vortaro-sercxado}
+@ ::TradukaNovaVortaroMontrilo idemeta categoriesMethods {{getTitle closeWindow initTags specificInit createMenuNavigado} {vortaroYView montruDeRapidaFonto montruVortaron montruEnVortaro initVoraroListo montruVortaroRegiono pressKey aliguVortaroElemento} {trovuEspVorton trovuTraduko trovuTradukoPorLingvoj trovuInversajnTradukojn trovuVorton sxercxuVorto}}
+@ ::TradukaNovaVortaroMontrilo idemeta component EspTradukaVortaroGUI
+TradukaNovaVortaroMontrilo instproc aliguVortaroElemento {l numrows {insertmark end}} {
+    my instvar win odd nombro progresilo estasTraduko
+
+    if {$odd} {
+        set odd 0
+        set additem odditem
+    } else {
+        set odd 1
+        set additem ""
+    }
+    array set tradArr $l
+    if {$estasTraduko} {
+        $win.out insert $insertmark $tradArr(traduko): [list fonto $additem] "\t$tradArr(vorto)" [list traduko $additem] "$tradArr(gramatiko) " [list gramatiko $additem] "$tradArr(fgrupo) " [list fgrupo $additem] $tradArr(sento) [list sento $additem] ... redaktu \n $additem
+    } else {
+        if {[info exists tradArr(ftraduko)]} {
+            set f "$tradArr(ftraduko)\t($tradArr(vorto)):"
+        } else {
+            set f "$tradArr(vorto):"
+        }
+        $win.out insert $insertmark $f  [list fonto $additem] "\t$tradArr(traduko) " [list traduko $additem] "$tradArr(gramatiko) " [list gramatiko $additem] "$tradArr(fgrupo) " [list fgrupo $additem] $tradArr(sento) [list sento $additem] ... redaktu \n $additem
+    }
+    incr nombro
+    if {$nombro%20} {
+        update
+        if {$progresilo ne "" && $numrows>0} {
+           $progresilo setProgress [expr {round(100.0*double($nombro)/double($numrows))}]
+           if {[$progresilo isStopped]} {
+               return 0
+           }
+        }
+    }
+    if {$progresilo eq "" && ($numrows>100 || $nombro>100)} {
+        set progresilo [ProgresoMontrilo startProgress {vortaro}]
+    }
+    return 1
+
+}
+TradukaNovaVortaroMontrilo instproc alliguLeks elemento {
+    my instvar win dbvortaro celalingvo
+    my alliguBazaLeks $elemento $celalingvo 0
+}
+TradukaNovaVortaroMontrilo instproc closeWindow {} {
+    my instvar win
+    EsperantoConf set prefGeometryNVortaro [wm geometry $win]
+    next
+}
+TradukaNovaVortaroMontrilo instproc createMenuNavigado {} {
+    my instvar konservuButono
+    set fm [IDE::MenuStruct new -childof [self] [mc "Navigado"] 0]
+    $fm addCommand [mc "Trovu vorton"] [list [self] trovuVorton] {} {Control-w}
+    set mitem [$fm addCommand [mc "Trovu vorton en REVO"] [list [self] trovuVortonRevo] {} {Control-w}]
+    my @toolbar addMenu $mitem revo 0.5
+
+    $fm addCommand [mc "Ŝanĝu direkton"] [list [self] sxangxuDirekton] {} {Control-q}
+    set mitem [$fm addCommand [mc "Lasta Serĉado"] [list [self] naviguLastan] {} {Alt-Left}]
+    my @toolbar addMenu $mitem undo 0.1
+    set mitem [$fm addCommand [mc "Mallasta Serĉado"] [list [self] naviguMallastan] {} {Alt-Right}]
+    my @toolbar addMenu $mitem redo 0.2
+    set mitem [$fm addCommand [mc "Refreŝigu rezulton"] [list [self] refresxiguRezulton] {} {F2}]
+    my @toolbar addMenu $mitem reload 0.3
+    set mitem [$fm addCommand [mc "Kroniko de Serĉado"] [list [self] navigadoKroniko]]
+    my @toolbar addMenu $mitem history 0.4
+    return $fm
+}
+TradukaNovaVortaroMontrilo instproc eblasNovaTraduko {} {
+    my instvar fontolingvo
+    expr {$fontolingvo eq "eo"}
+}
+TradukaNovaVortaroMontrilo instproc getTitle {} {
+    return "Multlingva Vortaro"
+}
+TradukaNovaVortaroMontrilo instproc initTags {} {
+    my instvar win
+
+    $win.out tag configure odditem -background LemonChiffon2
+    $win.out tag configure fonto -font vorfonto -spacing3 4
+    $win.out tag configure fgrupo -font vorfgrupo
+    $win.out tag configure gramatiko -font vorgramatiko
+    $win.out tag configure sento -background yellow
+    $win.out tag configure redaktu -background green -borderwidth 3 -relief raised
+    $win.out tag configure traduko
+    $win.out tag bind redaktu <Button-1> "[self] redaktuElementon %x %y; break"
+    $win.out tag bind traduko <Button-1> [list [self] trovuInversajnTradukojn %x %y]
+}
+TradukaNovaVortaroMontrilo instproc initVoraroListo {} {
+    my instvar win dbvortaro lastaIndekso lvorto svortopreLastaIndekso vortaraLingvo rvortaro fontolingvo celalingvo komencoIndekso estasBaza vortojEnListo rvortaro svorto
+    set lastaIndekso 0
+    set preLastaIndekso 0
+    # lasta vorto
+    set lvorto ""
+    # selektiva vorto
+    set svorto ""
+    # estasBaza estas 1 se lvorto=svorto
+    set estasBaza 0
+    set vortojEnListo 30
+    if {[$dbvortaro istype SQLAldonaVortaro]} {
+        set rvortaro [RapidaUnuigaTVortaro new -childof [self] -vortaro $dbvortaro]
+        set progreso [ProgresoMontrilo startNurProgress {Preparado de vortaro}]
+        $rvortaro leguVortojn $fontolingvo $celalingvo $progreso
+        $progreso cleanUpAfterSignal
+        $progreso destroy
+    } else {
+        set rvortaro [RapidaUnuigaTVortaro prenuVortaron $fontolingvo $celalingvo]
+    }
+
+    set komencoIndekso 0
+    set nombro [$rvortaro set nombro]
+    foreach {fx fy} [$win.tradFonto yview] break
+    set size [$win.tradFonto size]
+    set viziblaj [expr {round($fy*$size-$fx*$size)}]
+    if {$nombro>0} {
+        $win.v.scroll set [expr {double($komencoIndekso)/$nombro}] [expr {double($komencoIndekso+$viziblaj)/$nombro}]
+    }
+    my montruVortaroRegiono 0  ""
+}
+TradukaNovaVortaroMontrilo instproc kreuNovanTradukon {} {
+    my instvar fontolingvo celalingvo vorto win
+    if {$fontolingvo eq "eo"} {
+        set rez [TradElementoDialogo redaktuTradElementon [list nova 1 vorto $vorto] $celalingvo $win [self]]
+        if {[llength $rez]>0} {
+            update
+            if {[my alliguLeks $rez]} {
+                foreach {k v} $rez {
+                    if {$k eq "vorto"} {
+                        my sxercxuVorto $v
+                    }
+                }
+            }
+        }
+    }
+}
+TradukaNovaVortaroMontrilo instproc modifuLeks {novaList oldaList} {
+    my instvar dbvortaro celalingvo fontolingvo win
+    array set novaArr $novaList
+    if {$celalingvo eq "eo"} {
+        set lingvo $fontolingvo
+    } else {
+        set lingvo $celalingvo
+    }
+    if {[info exists novaArr(forigu)] && $novaArr(forigu) eq "1"} {
+        update
+        if {[EsperantoBrowser yesNo "Ĉu vi estas certa forigi la tradukon $novaArr(vorto)>$novaArr(traduko)"] eq "yes"} {
+            $dbvortaro nuliguTradukon $novaArr(id) $lingvo $novaArr(vorto) $novaArr(traduko)
+            $dbvortaro commit
+            return 2
+        } else {
+            return 0
+        }
+    }
+    my modifuBazaLeks $novaList $oldaList $lingvo 0
+}
+TradukaNovaVortaroMontrilo instproc montruDeRapidaFonto {} {
+    my instvar win vortaroDirektoCelo vortaraLingvo vorto
+    set w $win.tradFonto
+    set currsel [lindex [$w curselection] 0]
+    if {$currsel ne ""} {
+        set vorto [$w get $currsel]
+        my sxercxuVorto
+    }
+}
+TradukaNovaVortaroMontrilo instproc montruElemento elemento {
+    my instvar fontolingvo celalingvo vorto
+    foreach {flingvo zlingvo vorto} $elemento {}
+    if {$fontolingvo ne $flingvo} {
+        set fontolingvo $flingvo
+    }
+    if {$celalingvo ne $zlingvo} {
+        set celalingvo $zlingvo
+    }
+    my remontruFlagojn
+    my sxercxuVorto $vorto
+}
+TradukaNovaVortaroMontrilo instproc montruEnVortaro key {
+    my instvar lvorto preLastaIndekso lastaIndekso rvortaro fontolingvo celalingvo vorto estasBaza rvortaro
+    set key [string tolower $key]
+    set preLastaIndekso $lastaIndekso
+    if {$lvorto eq "_"} {
+        # cx,gx,jx
+        set indekso [$rvortaro prenuIndekso $lastaIndekso "" $key estasBaza]
+        set lvorto $key
+    } elseif {$lvorto eq ""} {
+        set avorto $vorto
+        set indekso [$rvortaro prenuIndekso $lastaIndekso "" $avorto$key estasBaza]
+        set lvorto $avorto$key
+        set bazaVorto ""
+    } else {
+        set estasBaza 0
+        set indekso [$rvortaro prenuIndekso $lastaIndekso $lvorto $key estasBaza]
+        append lvorto $key
+    }
+    if {$indekso ne ""} {
+        my montruVortaroRegiono $indekso $lvorto
+    } else {
+        set indekso 0
+        set preLastaIndekso 0
+    }
+    set lastaIndekso $indekso
+}
+TradukaNovaVortaroMontrilo instproc montruRezListon rezListoP {
+    my instvar rezListo montroPagxo
+    set rezListo $rezListoP
+    set montroPagxo 0
+    my remontruRezListon
+    my setStatusBarText ""
+}
+TradukaNovaVortaroMontrilo instproc montruVortaroRegiono {indekso mvorto} {
+    my instvar win vortaraLingvo komencoIndekso rvortaro svorto vortojEnListo
+    set komencoIndekso $indekso
+    set vortojEnListo 30
+    set gravaVortoInd 5
+    if {$komencoIndekso+$gravaVortoInd-4>[$rvortaro set nombro]} {
+        set komencoIndekso [expr {[$rvortaro set nombro]-$gravaVortoInd+3}]
+        return
+    }
+    set y1 [lindex [$win.tradFonto bbox 0] 1]
+    set y2 [lindex [$win.tradFonto bbox 1] 1]
+    if {$y1 ne "" && $y2 ne ""} {
+        set vortojEnListo [expr {[winfo height $win.tradFonto]/($y2-$y1)+1}]
+    }
+
+    if {$vortojEnListo<$gravaVortoInd} {
+        set gravaVortoInd 0
+    }
+    if {$indekso>$gravaVortoInd} {
+        set indekso [expr {$indekso-$gravaVortoInd}]
+    } else {
+        set gravaVortoInd $indekso
+        set indekso 0
+    }
+    $win.tradFonto delete 0 end
+    set nombro [$rvortaro set nombro]
+    if {[winfo viewable $win.v.scroll]} {
+        foreach {fx fy} [$win.tradFonto yview] break
+        set size [$win.tradFonto size]
+        set viziblaj [expr {round($fy*$size-$fx*$size)}]
+        if {$nombro>0} {
+            $win.v.scroll set [expr {double($indekso)/$nombro}] [expr {double($indekso+$viziblaj)/$nombro}]
+        }
+    }
+    set i 0
+    set regiono [$rvortaro prenuListparton $indekso [expr {$indekso+$vortojEnListo}]]
+    foreach t $regiono {
+        $win.tradFonto insert end $t
+        if {$i==$gravaVortoInd && $mvorto ne ""} {
+            set svorto $t
+            if {[string compare -nocase $t $mvorto]==0 || $mvorto eq "_"} {
+                $win.tradFonto itemconfigure $gravaVortoInd -background PaleGreen2
+            } elseif {[string range $t 0 [expr {[string length $mvorto]-1}]] eq $mvorto} {
+                $win.tradFonto itemconfigure $gravaVortoInd -background LightSkyBlue1
+            } else {
+                $win.tradFonto itemconfigure $gravaVortoInd -background sienna1
+            }
+        }
+        incr i
+    }
+}
+TradukaNovaVortaroMontrilo instproc montruVortaron {} {
+    my instvar win havasVortaron lastaIndekso lvorto svortopreLastaIndekso vortaraLingvo rvortaro fontolingvo celalingvo komencoIndekso estasBaza vortojEnListo
+    if {![winfo exists $win.tradFonto]} {
+        frame $win.v
+        listbox $win.tradFonto -width 20 -takefocus 0
+        bind $win.tradFonto <Double-Button-1> [list [self] montruDeRapidaFonto]
+        scrollbar $win.v.scroll -command [list [self] vortaroYView] -takefocus 0
+        button $win.mvortaro -text "x" -padx 1 -pady 1 -command [list [self] montruVortaron]
+        set vortaraLingvo $celalingvo
+        grid $win.mvortaro -in $win.v -column 0 -row 0 -sticky w
+        grid $win.tradFonto -in $win.v -column 0 -row 1 -columnspan 2 -sticky news
+        grid $win.v.scroll -column 3 -row 1 -sticky ns
+        grid rowconfigure $win.v 1 -weight 1
+    }
+    if {[winfo viewable $win.v]} {
+        grid forget $win.v
+        grid $win.svortaro -column 0 -row 2 -sticky n
+        set havasVortaron 0
+    } else {
+        grid forget $win.svortaro
+        grid $win.v -column 0 -row 2 -sticky ns
+        set havasVortaron 1
+        my initVoraroListo
+    }
+}
+TradukaNovaVortaroMontrilo instproc novalingvo {caller lingvo} {
+    my instvar havasVortaron fontolingvo celalingvo novaTradukoButono
+    if {$fontolingvo eq "eo" && $fontolingvo eq $celalingvo} {
+        set celalingvo [EsperantoConf set lingvo]
+        if {$havasVortaron} {
+            my initVoraroListo
+        }
+        my setStatusBarText [mc "Esperanto kiel fonto kaj celo ne estas ebla"]
+        my @lingvocbut sxangxuFlagon
+        return 0
+    }
+    if {$havasVortaron} {
+        my initVoraroListo
+    }
+    if {$fontolingvo eq "eo"} {
+        $novaTradukoButono configure -state normal
+    } else {
+        $novaTradukoButono configure -state disabled
+    }
+    return 1
+}
+TradukaNovaVortaroMontrilo instproc prenuLingvon {} {
+    my set celalingvo
+}
+TradukaNovaVortaroMontrilo instproc pressKey {key keyUnicode state} {
+   my instvar lastKey vorto lastaIndekso havasVortaron fontolingvo characterMap lvorto komencoIndekso svorto vortojEnListo rvortaro
+   # nur shift aux sen aliaj modifioj
+   # state XOR 4
+   set state [expr {$state&0xFFFB}]
+   #puts $state
+   if {$state!=0 && $state!=1} {
+       return 0
+   }
+   #puts $key
+   if {$havasVortaron} {
+       if {![string is alpha $keyUnicode] || [string length $keyUnicode]>1} {
+           set lvorto ""
+           set lastaIndekso -1
+           if {$key eq "Down"} {
+               incr komencoIndekso
+               my montruVortaroRegiono $komencoIndekso _
+               set vorto $svorto
+               my sxercxuVorto
+           } elseif {$key eq "Up"} {
+               incr komencoIndekso -1
+               my montruVortaroRegiono $komencoIndekso _
+               set vorto $svorto
+               my sxercxuVorto
+           } elseif {$key eq "Next"} {
+               incr komencoIndekso $vortojEnListo
+               my montruVortaroRegiono $komencoIndekso _
+               set vorto $svorto
+               my sxercxuVorto
+           } elseif {$key eq "Prior"} {
+               incr komencoIndekso -$vortojEnListo
+               my montruVortaroRegiono $komencoIndekso _
+               set vorto $svorto
+               my sxercxuVorto
+           } elseif {$key eq "Home"} {
+               set komencoIndekso 0
+               my montruVortaroRegiono $komencoIndekso _
+               set vorto $svorto
+               my sxercxuVorto
+           } elseif {$key eq "End"} {
+               set komencoIndekso [expr {[$rvortaro set nombro]-$vortojEnListo}]
+               my montruVortaroRegiono $komencoIndekso _
+               set vorto $svorto
+               my sxercxuVorto
+           } elseif {$key eq "BackSpace"} {
+               set lvorto _
+               my montruEnVortaro [string range $vorto 0 end-1]
+           }
+           #puts $key
+       } else {
+           if {$fontolingvo eq "eo" && [EsperantoConf set xAnstatuaigo] && ($key eq "x" || $key eq "X")} {
+               set index [string first [string index $vorto end] {cghjsuCGHJSU}]
+               if {$index>-1} {
+                   set lastaIndekso 0
+                   set avorto $vorto
+                   set lvorto _
+                   my montruEnVortaro [string range $avorto 0 end-1]$characterMap($lastKey)
+               }
+           } else {
+               my montruEnVortaro $keyUnicode
+           }
+       }
+   }
+   if {![EsperantoConf set xAnstatuaigo] || $fontolingvo ne "eo"} {
+       return 0
+   }
+   if {($key eq "x" || $key eq "X") && [info exists lastKey]} {
+       set index [string first $lastKey {cghjsuCGHJSU}]
+       if {$index>-1} {
+           set vorto [string range $vorto 0 end-1]$characterMap($lastKey)
+           set lastKey $key
+           return 1
+       }
+   } else {
+       set lastKey $key
+   }
+   return 0
+}
+TradukaNovaVortaroMontrilo instproc redaktuElementon {x y} {
+    my instvar enprogreso elementolisto win odd dbvortaro celalingvo fontolingvo win
+
+    if {$enprogreso} return
+    set linio [lindex [split [$win.out index @$x,$y] .] 0]
+    if {$linio eq ""} return
+    incr linio -1
+    set elemento [lindex $elementolisto $linio]
+    if {$celalingvo eq "eo"} {
+        set lingvo $fontolingvo
+    } else {
+        set lingvo $celalingvo
+    }
+    if {[llength $elemento]>0} {
+        set rez [TradElementoDialogo redaktuTradElementon $elemento $lingvo $win [self]]
+        if {[llength $rez]>0} {
+            set indekso $linio
+            incr linio
+            if {[set ret [my modifuLeks $rez $elemento]]>0} {
+                if {$ret==3} {
+                    # refreshigo jam farita
+                } elseif {$ret==2} {
+                    set elementolisto [lreplace $elementolisto $indekso $indekso]
+                    $win.out configure -state normal
+                    $win.out delete $linio.0 [expr {$linio+1}].0
+                    $win.out configure -state disabled
+                } else {
+                    lset elementolisto $indekso $rez
+                    $win.out configure -state normal
+                    $win.out delete $linio.0 [expr {$linio+1}].0
+                    set odd [expr {$indekso%2}]
+                    my aliguVortaroElemento $rez 0 $linio.0
+                    $win.out configure -state disabled
+                }
+            }
+        }
+    }
+}
+TradukaNovaVortaroMontrilo instproc redaktuVortaron vortaro {
+    my instvar dbvortaro fontolingvo celalingvo
+    next
+    if {[$vortaro istype SQLAldonaVortaro]} {
+        my setTitleAddition "privata vortaro '[file rootname [file tail [$vortaro set dosiero]]]'"
+        set fontolingvo eo
+        set celalingvo [$vortaro prenuLingvon]
+        my remontruFlagojn
+        my @lingvofbut setState disabled
+        my @lingvocbut setState disabled
+    } else {
+        if {$fontolingvo ne "eo" && [lsearch [$vortaro subtenatajLingvoj] $fontolingvo]<0} {
+            set fontolingvo eo
+        }
+        if {$celalingvo ne "eo" && [lsearch [$vortaro subtenatajLingvoj] $celalingvo]<0} {
+            set celalingvo [lindex [$vortaro subtenatajLingvoj] 0]
+        }
+        my setTitleAddition "sistema vortaro"
+        my @lingvofbut setState normal
+        my @lingvocbut setState normal
+        my remontruFlagojn
+    }
+    my sxercxuVorto
+}
+TradukaNovaVortaroMontrilo instproc refresxiguRezulton {} {
+    TradukaNovaVortaroMontrilo instvar history historyIndex
+    if {[llength $history]>$historyIndex} {
+        set hitem [lindex $history $historyIndex]
+        if {$hitem ne ""} {
+            my montruElemento $hitem
+        }
+    }
+}
+TradukaNovaVortaroMontrilo instproc remontruFlagojn {} {
+    my instvar fontolingvo celalingvo havasVortaron novaTradukoButono
+    my @lingvofbut sxangxuFlagon
+    my @lingvocbut sxangxuFlagon
+    if {$havasVortaron} {
+        my initVoraroListo
+    }
+    if {$fontolingvo eq "eo"} {
+        $novaTradukoButono configure -state normal
+    } else {
+        $novaTradukoButono configure -state disabled
+    }
+
+}
+TradukaNovaVortaroMontrilo instproc remontruRezListon {} {
+    my instvar win rezListo
+
+    $win.out configure -state normal
+    $win.out delete 1.0 end
+    set odd 0
+
+    foreach l $rezListo {
+        my aliguElemento $l
+    }
+
+    $win.out configure -state disabled
+}
+TradukaNovaVortaroMontrilo instproc specificInit {} {
+    my instvar win history historyIndex sercxuRadikon redaktoModo normalaSubFarbo fontolingvo celalingvo enprogreso vorto havasVortaron
+
+    set enprogreso 0
+    set havasVortaron 0
+    my initVariables
+    my requireNamespace
+    IDE::Toolbar create [self]::@toolbar $win.toolbar
+    set fontolingvo eo
+    set celalingvo [EsperantoConf set lingvo]
+
+
+    set history [list]
+    # Signifas cxe la programo aux uzanto redaktas kampojn
+    set redaktoModo 0
+    set historyIndex -1
+    set sercxuRadikon 0
+
+    frame $win.f
+    entry $win.f.vorto -textvariable [self]::vorto -font espfont
+    esp::initCharmap
+    bind $win.f.vorto <KeyPress> "if \[[self] pressKey %K %A %s\] break"
+
+    bind $win.f.vorto <Return> [list [self] sxercxuVorto]
+    button $win.f.ekvorto -text [mc "Ek"] -command [list [self] sxercxuVorto] -takefocus 0
+    button $win.svortaro -text | -command [list [self] montruVortaron] -padx 1 -pady 1
+
+    LingvoSelektoButono create [self]::@lingvofbut $win.f.flingvo -variable [self]::fontolingvo -callback [self]
+    ::IDE::Toolbar createImage forward
+    button $win.f.aliadirekto -image forward -relief flat -overrelief raised -takefocus 0 -command [list [self] sxangxuDirekton]
+    LingvoSelektoButono create [self]::@lingvocbut $win.f.clingvo -variable [self]::celalingvo -callback [self]
+
+    pack $win.f.vorto -padx {5 0} -side left -anchor w
+    pack $win.f.ekvorto $win.f.flingvo $win.f.aliadirekto $win.f.clingvo -side left -anchor w
+
+    scrollbar $win.tscroll -command [list $win.out yview] -takefocus 0
+    text $win.out -yscroll [list $win.tscroll set] -font [EsperantoConf prenuRevoFont] -takefocus 0 -wrap word -cursor {}
+    $win.out configure -tabs {3c left}
+
+    TradukaNovaVortaroMontrilo initFonts
+    my initTags
+
+    $win.out configure -takefocus 0
+
+    grid $win.toolbar -column 0 -row 0 -columnspan 3 -sticky ew
+    grid $win.f -column 0 -row 1 -columnspan 3 -sticky ew
+    grid $win.svortaro -column 0 -row 2 -sticky n
+    grid $win.out -column 1 -row 2 -sticky news
+    grid $win.tscroll -column 2 -row 2 -sticky ns
+
+    grid columnconfigure $win 1 -weight 1
+    grid rowconfigure $win 2 -weight 1
+
+    set geo [EsperantoConf set prefGeometryNVortaro]
+    if {$geo ne ""} {
+        wm geometry $win $geo
+    }
+    my initStatusBar 3 3
+
+    focus $win.f.vorto
+}
+TradukaNovaVortaroMontrilo instproc sxangxuDirekton {} {
+    my instvar fontolingvo celalingvo
+    set t $fontolingvo
+    set fontolingvo $celalingvo
+    set celalingvo $t
+    my remontruFlagojn
+}
+TradukaNovaVortaroMontrilo instproc sxercxuVorto {{tvorto {}} {tlingvo {}}} {
+    my instvar dbvortaro win fontolingvo celalingvo odd nombro progresilo enprogreso estasTraduko vorto estasBaza svorto havasVortaron elementolisto
+
+    if {$enprogreso} return
+    set enprogreso 1
+
+    $win.out configure -state normal
+    $win.out delete 1.0 end
+    set odd 0
+    set nombro 0
+    set progresilo ""
+    if {$tvorto ne ""} {
+        set vorto $tvorto
+    }
+
+    set pass 1
+
+    while {$pass} {
+        if {$fontolingvo eq "eo"} {
+            set estasTraduko 0
+            set l [$dbvortaro sxercxuRezListoMeta $vorto $celalingvo [self]]
+        } elseif {$celalingvo eq "eo"} {
+            set estasTraduko 1
+            set l [$dbvortaro sxercxuRezListoPorTraduko $vorto $fontolingvo [self]]
+        } else {
+            set estasTraduko 0
+            set l [$dbvortaro sxercxuRezListoTransTraduko $vorto $fontolingvo $celalingvo [self]]
+        }
+        if {$pass!=2 && [llength $l]==0 && $havasVortaron && $estasBaza==0} {
+            set vorto $svorto
+            set pass 2
+            continue
+        } else {
+            my aliguElemento [list $fontolingvo $celalingvo $vorto]
+        }
+        if {[llength $l] == 0} {
+            if {$fontolingvo eq "eo"} {
+                set rvorto [EORadikilo radikigi $vorto]
+                incr pass
+                if {$rvorto ne $vorto} {
+                    set vorto $rvorto
+                    continue
+                } else {
+                    incr pass
+                }
+                # participoj
+                if {$pass>2 && [regexp {^(.+?)[aoi]n?t[oae]$} $vorto _ rvorto]} {
+                    set vorto ${rvorto}i
+                    continue
+                }
+            }
+            my setStatusBarText [mc "neniu vorto en vortaro estas trovita"]
+        } elseif {[llength $l]>1} {
+            my setStatusBarText [mc "trovis %s vortojn" [llength $l]]
+        }
+        set pass 0
+    }
+    set elementolisto $l
+
+    $win.out configure -state disabled
+    if {$progresilo ne ""} {
+       $progresilo cleanUpAfterSignal
+       $progresilo destroy
+    }
+    set enprogreso 0
+}
+TradukaNovaVortaroMontrilo instproc trovuEspVorton vorto {
+    my instvar fontolingvo celalingvo
+    set fontolingvo eo
+    set celalingvo [EsperantoConf set lingvo]
+    my remontruFlagojn
+    my sxercxuVorto $vorto
+
+}
+TradukaNovaVortaroMontrilo instproc trovuInversajnTradukojn {x y} {
+    my instvar win
+    set twin $win.out
+    set cur [$twin index @$x,$y]
+    set range [$twin tag prevrange traduko $cur]
+    if {[llength $range]>0} {
+        set start [lindex $range 0]
+        set stop [lindex $range 1]
+        set text [string trim [$twin get $start $stop]]
+        if {$text ne ""} {
+            my sxangxuDirekton
+            my sxercxuVorto $text
+        }
+    }
+}
+TradukaNovaVortaroMontrilo instproc trovuTraduko {vorto vortaraLingvo} {
+    my instvar fontolingvo celalingvo
+    set fontolingvo $vortaraLingvo
+    set celalingvo eo
+    my remontruFlagojn
+    my sxercxuVorto $vorto
+
+}
+TradukaNovaVortaroMontrilo instproc trovuTradukoPorLingvoj {vorto fontaLingvo celaLingvo} {
+    my instvar fontolingvo celalingvo
+    set fontolingvo $fontaLingvo
+    set celalingvo $celaLingvo
+    my remontruFlagojn
+    my sxercxuVorto $vorto
+
+}
+TradukaNovaVortaroMontrilo instproc trovuVorton {} {
+    my instvar win
+
+    focus $win.f.vorto
+
+}
+TradukaNovaVortaroMontrilo instproc trovuVortonRevo {} {
+    my instvar vorto fontolingvo
+    if {$fontolingvo eq "eo"} {
+        if {$vorto ne ""} {
+            REVOLeksMontrilo newBrowser [string tolower $vorto]
+        }
+    } else {
+        my setStatusBarText [mc "fontolingvo ne estas Esperanto"]
+    }
+}
+TradukaNovaVortaroMontrilo instproc vortaroDirekto {} {
+    my instvar win vortaroDirektoCelo lastaIndekso preLastaIndekso vorto
+    set vortaroDirektoCelo [expr {!$vortaroDirektoCelo}]
+    if {$vortaroDirektoCelo} {
+        $win.v.lab configure -text [$win.v.lingvo cget -text]
+        $win.v.lingvo configure -text esperanto
+    } else {
+        $win.v.lingvo configure -text [$win.v.lab cget -text]
+        $win.v.lab configure -text esperanto
+    }
+    set lastaIndekso 0
+    set preLastaIndekso 0
+    set vorto ""
+    my montruVortaroRegiono 0  ""
+}
+TradukaNovaVortaroMontrilo instproc vortaroYView {command arg1 {arg2 {}}} {
+    my instvar win komencoIndekso rvortaro
+    foreach {fx fy} [$win.tradFonto yview] break
+    set size [$win.tradFonto size]
+    set viziblaj [expr {round($fy*$size-$fx*$size)}]
+
+    switch -exact $command {
+        moveto {
+            set novaIndekso [expr {round($arg1*[$rvortaro set nombro])}]
+        }
+        scroll {
+            if {$arg2 eq "pages"} {
+                set novaIndekso [expr {$komencoIndekso+$arg1*$viziblaj}]
+            } else {
+                set novaIndekso [expr {$komencoIndekso+$arg1}]
+            }
+        }
+    }
+    if {$novaIndekso<0} {
+        set novaIndekso 0
+    } elseif {$novaIndekso>[$rvortaro set nombro]-$viziblaj} {
+        set novaIndekso [expr {[$rvortaro set nombro]-$viziblaj}]
+    }
+    if {$novaIndekso!=$komencoIndekso} {
+        my montruVortaroRegiono $novaIndekso ""
+    }
+
+}
+TradukaNovaVortaroMontrilo proc initFonts {} {
+    my instvar selFonto kutimaFonto
+    if {[lsearch [font names] vorfonto]<0} {
+        font create vorfonto -weight bold -size 12 -family Helvetica
+        #eval font configure vorfonto [font actual revfonto]
+        #font configure vorfonto -weight bold -size 10 -family Helvetica
+        font actual vorfonto
+
+        font create vorgramatiko  -slant italic -family Helvetica -size 12
+        # eval font configure vorgramatiko [font actual revfonto]
+        # ::font configure vorgramatiko -slant italic -size 10 -family Helvetica
+        # font delete vorgramatiko
+
+        font create vorfgrupo -family Courier -size 12
+        #eval font configure vorfgrupo [font actual revfonto]
+        #font configure vorfgrupo -family Courier -size 10
+    }
+}
+TradukaNovaVortaroMontrilo proc initializeAfterLoad {} {
+    NavigadaKronikoMix initHistory [self]
+}
+TradukaNovaVortaroMontrilo proc newBrowser {} {
+    EsperantoConf statAktiono VT
+    if {![Object isobject ::nrevoMontrilo]} {
+        set dbvortaro [DBVortaro prenuDepVortaron]
+        if {[$dbvortaro cxuVortaroTrovita]} {
+            my create ::nrevoMontrilo .nrevoMontrilo
+        } else {
+            $dbvortaro montruMesagxonNeTrovita
+            return
+        }
+    }
+    return ::nrevoMontrilo
+}
+Class TradukaVortaroMontrilo -superclass ::TradukaBazaMontrilo -parameter {{atHead 1}}
+@ ::TradukaVortaroMontrilo idemeta categories {programado init-release private}
+@ ::TradukaVortaroMontrilo idemeta categoriesMethods {{uzuSQLVortaro uzuMetakit} {getTitle closeWindow createMenuNavigado init specificInit fillMenuStruct} prenuRedIndekso}
+@ ::TradukaVortaroMontrilo idemeta categoriesMethodsProcs {{prenuLinvoNomoPorSimbolo lingvojPorMc lingvoListo} {newBrowser trovuEspVorton aliguTradukon}}
+@ ::TradukaVortaroMontrilo idemeta categoriesProcs {lingvo-nomoj api}
+@ ::TradukaVortaroMontrilo idemeta component EspTradukaVortaroGUI
+TradukaVortaroMontrilo instproc aliguTekston teksto {
+    my @text appendToEnd $teksto
+    update idletasks
+}
+TradukaVortaroMontrilo instproc aliguTradukon vorto {
+    my instvar redaktoModo win novaTradukoVorto
+    if {!$redaktoModo} {
+        set redaktoModo 1
+        my sxangxuModon
+    }
+    $win.vorto delete 0 end
+    $win.vorto insert 0 $vorto
+    focus $win.editf.traduko0
+    my sxercxuVorto
+    if {[$win.editf.traduko0 get] eq $novaTradukoVorto} {
+        $win.editf.traduko0 selection range 0 end
+    }
+}
+TradukaVortaroMontrilo instproc alliguLeks {indekso lingvo} {
+    my instvar win rezListo dbvortaro montroPagxo nombroLinioRedMode
+    set vorto ""
+    set traduko ""
+    set sento ""
+    set gramatiko ""
+    set fgrupo ""
+    set ordo ""
+    set ret [list]
+    foreach a {vorto traduko sento ordo fgrupo gramatiko} {
+        lappend ret $a [$win.editf.$a$indekso get]
+    }
+    my alliguBazaLeks $ret $lingvo
+
+}
+TradukaVortaroMontrilo instproc closeWindow {} {
+    my instvar win
+    EsperantoConf set prefGeometryVortaro [wm geometry $win]
+    next
+}
+TradukaVortaroMontrilo instproc createMenuNavigado {} {
+    my instvar konservuButono
+    set fm [IDE::MenuStruct new -childof [self] [mc "Navigado"] 0]
+    set mitem [$fm addCommand [mc "Lasta Serĉado"] [list [self] naviguLastan] {} {Alt-Left}]
+    my @toolbar addMenu $mitem undo 0.1
+    set mitem [$fm addCommand [mc "Mallasta Serĉado"] [list [self] naviguMallastan] {} {Alt-Right}]
+    my @toolbar addMenu $mitem redo 0.2
+    set mitem [$fm addCommand [mc "Refreŝigu rezulton"] [list [self] refresxiguRezulton] {} {F2}]
+    my @toolbar addMenu $mitem reload 0.3
+    set mitem [$fm addCommand [mc "Kroniko de Serĉado"] [list [self] navigadoKroniko]]
+    my @toolbar addMenu $mitem history 0.4
+    set mitem [$fm addCommand [mc "Konservu"] [list [self] konservuSxangxojn]  {} {Control-s}]
+    set konservuButono [my @toolbar addMenu $mitem filesave 0.5]
+    $konservuButono configure -state disabled
+    return $fm
+}
+TradukaVortaroMontrilo instproc dialogFGrupo indekso {
+    my instvar win
+    set lingvo [my prenuLingvon]
+    set vorto [$win.editf.vorto$indekso get]
+    set traduko [$win.editf.traduko$indekso get]
+    set fgrupo [$win.editf.fgrupo$indekso get]
+    switch -glob $vorto {
+        *i {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Verbo $fgrupo]
+            if {$rez ne ""} {
+                $win.editf.fgrupo$indekso delete 0 end
+                $win.editf.fgrupo$indekso insert 0 $rez
+            }
+        }
+        *o {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Substantivo $fgrupo]
+            if {$rez ne ""} {
+                $win.editf.fgrupo$indekso delete 0 end
+                $win.editf.fgrupo$indekso insert 0 $rez
+            }
+        }
+        *a
+        {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Adjektivo $fgrupo]
+            if {$rez ne ""} {
+                $win.editf.fgrupo$indekso delete 0 end
+                $win.editf.fgrupo$indekso insert 0 $rez
+            }
+        }
+        *e
+        {
+            set rez [GramFiniloMontriloDialogoMix prenuFGrupon $lingvo $traduko Adverbo $fgrupo]
+            if {$rez ne ""} {
+                $win.editf.fgrupo$indekso delete 0 end
+                $win.editf.fgrupo$indekso insert 0 $rez
+            }
+        }
+        default {
+            EsperantoBrowser message [mc "Fleksia grupo nur por verboj kaj substantivoj"]
+            return
+        }
+    }
+}
+TradukaVortaroMontrilo instproc dialogGramatiko indekso {
+    my instvar rezListo win
+    set vorto [$win.editf.vorto$indekso get]
+    set gwin $win.editf.gramatiko$indekso
+    set gramatiko [$gwin get]
+    set fleksilo [my prenuFleksilon]
+    if {$fleksilo eq ""} {
+        EsperantoBrowser message [mc "gramatikaj priskriboj ne estas difinitaj por tiu lingvo"]
+        return
+    }
+    switch -glob $vorto {
+        *i {
+            set g [EspVerboGramElektilo elektuGramatikon $fleksilo $gramatiko]
+        }
+        *o {
+            set g [EspSubstivoGramElektilo elektuGramatikon $fleksilo $gramatiko]
+        }
+        *a {
+            set g  [EspSubstivoGramElektilo elektuGramatikonDePriskribo [$fleksilo metaPriskribojPor Adjektivo] $gramatiko]
+        }
+        *e {
+            set g  [EspSubstivoGramElektilo elektuGramatikonDePriskribo [$fleksilo metaPriskribojPor Adverbo] $gramatiko]
+        }
+        default {
+            EsperantoBrowser message [mc "Asistanto nur por verboj kaj substantivoj"]
+            return
+        }
+    }
+    if {$g ne "_cancel"} {
+        $gwin del 0 end
+        $gwin insert 0 $g
+    }
+}
+TradukaVortaroMontrilo instproc dialogSento indekso {
+    my instvar rezListo win
+    set ewin $win.editf.sento$indekso
+    set sento [$ewin get]
+    set s [EspSentoElektilo elektuFakojn $sento]
+    if {$s ne "_cancel"} {
+        $ewin del 0 end
+        $ewin insert 0 $s
+    }
+
+}
+TradukaVortaroMontrilo instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+    my requireNamespace
+    $ms addCommand [mc "Elektu vortaron"] [list [self] elektuVortaron]
+    $ms addCommand [mc "Kreu privatan vortaron"] [list SQLAldonaVortaro aliguPrivatanVortaron]
+    $ms addCheckButton "Testu datojn" [self]::testuDatojn
+    $ms addSeparator
+    $ms addCommand [mc "Montru protokolon de ŝanĝojn"] [list [self] montruProtokolon]
+    $ms addCommand [mc "Eksportu vortliston"] [list [self] eksportuVortliston]
+    $ms addCommand [mc "Importu vortliston"] [list [self] importuVortliston]
+    $ms addCommand [mc "Aligu lingvon"] [list [self] aliguLingvon]
+    $ms addCommand [mc "Montru statistikon"] [list [self] montruStatistikon]
+    $ms addCommand [mc "Importu dosieron kun ŝanĝoj"] [list [self] importuSxangxoj]
+    $ms addCommand [mc "Kreu liston kun nekonataj tradukoj"] [list [self] kreuNekonatajListo]
+    $ms addCommand [mc "Kreu liston kun nekonataj tradukoj laŭ ofteco"] [list [self] kreuNekonatajListoLauOfteco]
+    IDE::MenuStruct ${ms}::dlingvo [mc "Translingva tradukado"]
+    $ms addCascadeMenu ${ms}::dlingvo
+    my set dlingvo eo
+    ${ms}::dlingvo addRadioButton esperanto [self]::dlingvo {} eo
+    foreach {lng lingvo} [my subtenatajLingvoj] {
+        ${ms}::dlingvo addRadioButton [mc $lingvo] [self]::dlingvo {} $lng
+    }
+}
+TradukaVortaroMontrilo instproc getTitle {} {
+    return "Multlingva Vortaro"
+}
+TradukaVortaroMontrilo instproc init args {
+    my instvar nombroLinioRedMode montroPagxo
+    set nombroLinioRedMode 5
+    set montroPagxo 0
+    next
+}
+TradukaVortaroMontrilo instproc konservuSxangxojn {} {
+    my instvar nombroLinioRedMode montroPagxo rezListo win novaTradukoVorto
+    set lingvo [my prenuLingvon]
+    set montroKomenco [expr {$montroPagxo*$nombroLinioRedMode}]
+    set sxangxoj 0
+    set novaTrado 0
+
+    for {set i 0} {$i<$nombroLinioRedMode} {incr i} {
+        if {![info exists rezListo] || [llength $rezListo]-$montroKomenco<=$i} {
+            foreach a {vorto traduko sento ordo fgrupo gramatiko rordo} {
+                set $a [$win.editf.$a$i get]
+            }
+            if {$vorto eq "" || $traduko eq "" || $traduko eq $novaTradukoVorto} {
+                continue
+            }
+            set novaTrado [expr {[my alliguLeks $i $lingvo] || $novaTrado}]
+            set sxangxoj 1
+        } else {
+            set indekso [expr {$i+$montroKomenco}]
+            array set attrArr [lindex $rezListo $indekso]
+            set sxangxoListo [list]
+            foreach a {vorto traduko sento ordo fgrupo gramatiko rordo} {
+                set nvalue [$win.editf.$a$i get]
+                if {[info exists attrArr($a)]} {
+                    set ovalue $attrArr($a)
+                } else {
+                    set ovalue ""
+                }
+                if {$nvalue ne $ovalue} {
+                    lappend sxangxoListo $a $nvalue
+                }
+            }
+            if {[llength $sxangxoListo]==0} {
+                continue
+            }
+            my modifiuLeks traduko $i
+            set sxangxoj 1
+        }
+    }
+    if {!$sxangxoj} {
+        my setStatusBarText [mc "nenio ŝanĝo estas konservita"]
+    }
+    if {$novaTrado} {
+        my sxercxuVorto
+    }
+}
+TradukaVortaroMontrilo instproc kreuNekonatajListo {} {
+    my instvar dbvortaro
+    set rez [IDE::IDialogEntry getValueWithCancel [mc "Specifu ekzemplon por esperantaj vortoj (* = ĉiu vorto).\nLa serĉado povas longe daŭri"] *]
+    if {$rez eq "_cancel" || $rez eq ""} return
+    set lingvo [my prenuLingvon]
+    set listo [$dbvortaro sercxuSenTraduko $rez $lingvo]
+    if {[llength $listo]>0} {
+        EsperantoBrowser redaktoTekston [join $listo ";\n"]\;\n
+        EsperantoBrowser message [mc "Ekzistas ankoraŭ %s nekonataj tradukoj" [llength $listo]]
+    } else {
+        EsperantoBrowser message [mc "neniu vorto por ekzemplo '%s' estis trovita" $rez]
+    }
+}
+TradukaVortaroMontrilo instproc kreuNekonatajListoLauOfteco {} {
+    my instvar dbvortaro
+    set rez [IDE::IDialogEntry getValueWithCancel [mc "Specifu ekzemplon por esperantaj vortoj (* = ĉiu vorto).\nLa serĉado povas longe daŭri"] *]
+    if {$rez eq "_cancel" || $rez eq ""} return
+    set lingvo [my prenuLingvon]
+    set freq [FrekvencoListo prenuFrekveno]
+    set radikilo [Radikilaro prenuPorLingvo eo]
+    set limo [IDE::IDialogEntry getValueWithCancel [mc "Difinu la grupon de frekventeco"] 9]
+    if {$limo eq "_cancel" || ![string is integer $limo]} {
+        return
+    }
+    set listo [list]
+    foreach vorto [$dbvortaro sercxuSenTraduko $rez $lingvo] {
+        set f [$freq prenuFrekvencon $vorto]
+        if {$f<$limo && $f!=-1} {
+            lappend listo [list $vorto $f]
+        }
+    }
+    set l [lsort -integer -index 1 $listo]
+    set listo [list]
+    foreach vorto $l {
+        lappend listo [lindex $vorto 0]
+    }
+    if {[llength $listo]>0} {
+        EsperantoBrowser redaktoTekston [join $listo ";\n"]\;\n
+        EsperantoBrowser message [mc "Ekzistas ankoraŭ %s nekonataj tradukoj" [llength $listo]]
+    } else {
+        EsperantoBrowser message [mc "neniu vorto por ekzemplo '%s' estis trovita" $rez]
+    }
+}
+TradukaVortaroMontrilo instproc metuRezulton teksto {
+    my instvar win
+    $win.out delete 1.0 end
+    $win.out insert 1.0 $teksto
+}
+TradukaVortaroMontrilo instproc modifitaKampo {ewin nvalue} {
+    my instvar redaktoModo konservuButono montroPagxo nombroLinioRedMode rezListo normalaSubFarbo
+    if {$redaktoModo} {
+        # my setStatusBarText "modifita $ewin"
+        set montroKomenco [expr {$montroPagxo*$nombroLinioRedMode}]
+        if {[regexp {\.(\w+)(\d+)} $ewin _ kampo indekso]} {
+            set i [expr {$indekso+$montroKomenco}]
+            if {[info exists rezListo] && [llength $rezListo]>$i} {
+                array set attrArr [lindex $rezListo $i]
+                set ovalue $attrArr($kampo)
+                if {$ovalue eq $nvalue} {
+                    $ewin configure -background $normalaSubFarbo
+                    return 1
+                }
+            }
+        }
+        $ewin configure -background pink
+        $konservuButono configure -state normal
+    }
+    return 1
+}
+TradukaVortaroMontrilo instproc modifiuLeks {attr indekso} {
+    my instvar win rezListo dbvortaro montroPagxo nombroLinioRedMode normalaSubFarbo
+    set lingvo [my prenuLingvon]
+    set montroKomenco [expr {$montroPagxo*$nombroLinioRedMode}]
+    set i [expr {$indekso+$montroKomenco}]
+    if {![info exists rezListo] || [llength $rezListo]<=$i} {
+        my alliguLeks $indekso $lingvo
+    } else {
+        foreach a {vorto traduko sento ordo fgrupo gramatiko rordo} {
+            set nattrArr($a) [$win.editf.$a$indekso get]
+        }
+        if {[my modifuBazaLeks [array get nattrArr] [lindex $rezListo $i] $lingvo]} {
+            array set oArr [lindex $rezListo $i]
+            array set oArr [array get nattrArr]
+            lset rezListo $i [array get oArr]
+        }
+    }
+}
+TradukaVortaroMontrilo instproc montruAntauen {} {
+    my incr montroPagxo
+    my remontruRezListon
+}
+TradukaVortaroMontrilo instproc montruElemento elemento {
+    foreach {flingvo zlingvo vorto} $elemento {}
+    my instvar win
+    if {$flingvo eq "eo"} {
+        $win.vorto delete 0 end
+        $win.vorto insert 0 $vorto
+        my sxercxuVorto $vorto $zlingvo
+    } else {
+        $win.traduko delete 0 end
+        $win.traduko insert 0 $vorto
+        my sxercxuTraduko $vorto $flingvo
+    }
+}
+TradukaVortaroMontrilo instproc montruMalantauen {} {
+    my incr montroPagxo -1
+    my remontruRezListon
+}
+TradukaVortaroMontrilo instproc montruRezListon rezListoP {
+    my instvar rezListo montroPagxo
+    set rezListo $rezListoP
+    set montroPagxo 0
+    my remontruRezListon
+    my setStatusBarText ""
+}
+TradukaVortaroMontrilo instproc nuliguTekston {} {
+    my @text set state full
+    my @text makeEmpty
+}
+TradukaVortaroMontrilo instproc nuliguTradukon indekso {
+    my instvar win rezListo dbvortaro
+    set i [my prenuRedIndekso $indekso]
+    set lingvo [my prenuLingvon]
+    if {[llength $rezListo]>=$i} {
+        array set attrArr [lindex $rezListo $i]
+        if {[EsperantoBrowser yesNo "Ĉu vi estas certa forigi la tradukon $attrArr(vorto)>$attrArr(traduko)"] eq "yes"} {
+            $dbvortaro nuliguTradukon $attrArr(id) $lingvo $attrArr(vorto) $attrArr(traduko)
+            $dbvortaro commit
+            my sxercxuVorto
+        }
+    }
+}
+TradukaVortaroMontrilo instproc prenuLingvon {} {
+    my set lingvo
+}
+TradukaVortaroMontrilo instproc prenuRedIndekso index {
+    my instvar nombroLinioRedMode montroPagxo
+    expr {$montroPagxo*$nombroLinioRedMode+$index}
+}
+TradukaVortaroMontrilo instproc redaktuVortaron vortaro {
+    my instvar dbvortaro
+    next
+    if {[$dbvortaro istype SQLAldonaVortaro]} {
+        my setTitleAddition "privata vortaro '[file rootname [file tail [$vortaro set dosiero]]]'"
+        EsperantoConf set lingvo [$vortaro prenuLingvon]
+        my @lingvobut setState disabled
+    } else {
+        my setTitleAddition "sistema vortaro"
+        my @lingvobut setState normal
+    }
+    my sxercxuVorto
+}
+TradukaVortaroMontrilo instproc refresxiguRezulton {} {
+    TradukaVortaroMontrilo instvar history historyIndex
+    if {[llength $history]>$historyIndex} {
+        set hitem [lindex $history $historyIndex]
+        my montruElemento $hitem
+    }
+}
+TradukaVortaroMontrilo instproc remontruFlagojn {} {
+    my @lingvobut sxangxuFlagon
+}
+TradukaVortaroMontrilo instproc remontruRezListon {} {
+    my instvar win rezListo nombroLinioRedMode montroPagxo redaktoModo normalaSubFarbo konservuButono novaTradukoVorto
+    set redaktoModo 0
+    $konservuButono configure -state disabled
+    set montroKomenco [expr {$montroPagxo*$nombroLinioRedMode}]
+    for {set x 0} {$x<$nombroLinioRedMode} {incr x} {
+        $win.editf.vorto$x configure -state normal
+        foreach a {vorto traduko sento fgrupo gramatiko ordo rordo} {
+            $win.editf.$a$x delete 0 end
+            $win.editf.$a$x configure -background $normalaSubFarbo
+        }
+    }
+    set x 0
+    set vorto [$win.vorto get]
+    foreach l [lrange $rezListo $montroKomenco end] {
+        array set tradArr $l
+        if {$x>$nombroLinioRedMode-1} break
+        foreach a {vorto traduko sento fgrupo gramatiko ordo rordo} {
+            if {[info exists tradArr($a)]} {
+                $win.editf.$a$x insert 0 $tradArr($a)
+            }
+            if {$a eq "vorto"} {
+                set vorto $tradArr($a)
+            }
+        }
+        $win.editf.vorto$x configure -state readonly
+        $win.editf.del$x configure -state normal
+        incr x
+    }
+    set fvorto [$win.vorto get]
+    for {set y $x} {$y<$nombroLinioRedMode} {incr y} {
+        $win.editf.del$y configure -state disabled
+        $win.editf.vorto$y delete 0 end
+        $win.editf.traduko$y delete 0 end
+        if {$fvorto eq $vorto} {
+            $win.editf.vorto$y insert 0 $vorto
+            $win.editf.traduko$y insert 0 $novaTradukoVorto
+        }
+    }
+    $win.editfb.nav.info configure -text "[expr {$montroKomenco+1}] - [expr {$x+$montroKomenco}] de [llength $rezListo]"
+    if {$montroKomenco == 0} {
+        $win.editfb.nav.prev configure -state disabled
+    } else {
+        $win.editfb.nav.prev configure -state normal
+    }
+    if {$montroKomenco+$nombroLinioRedMode<[llength $rezListo]+1} {
+        $win.editfb.nav.next configure -state normal
+    } else {
+        $win.editfb.nav.next configure -state disabled
+    }
+    set redaktoModo 1
+}
+TradukaVortaroMontrilo instproc specificInit {} {
+    my instvar win history historyIndex sercxuRadikon redaktoModo normalaSubFarbo lingvo
+
+    my initVariables
+    my requireNamespace
+    set lingvo [EsperantoConf set lingvo]
+
+    IDE::Toolbar create [self]::@toolbar $win.toolbar
+    set history [list]
+    # Signifas cxe la programo aux uzanto redaktas kampojn
+    set redaktoModo 0
+    set historyIndex -1
+    set sercxuRadikon 0
+
+    frame $win.f
+    label $win.helpo -text [mc "uzu ankaŭ * kaj ? anstataŭojn" ]
+    label $win.lvorto -text [mc "Esperanta vorto"]
+    entry $win.vorto
+    esp::metuXEvento $win.vorto
+    bind $win.vorto <Return> [list [self] sxercxuVorto]
+    button $win.ekvorto -text [mc "Ek"] -command [list [self] sxercxuVorto] -takefocus 0
+    my set testuMorfemoj 1
+    checkbutton $win.morfemoj -text [mc "traduku morfemojn"] -variable [self]::testuMorfemoj -takefocus 0
+    my set redaktoModo 1
+    checkbutton $win.redaktoModo -text [mc "redaktomodo"] -variable [self]::redaktoModo -command [list [self] sxangxuModon] -takefocus 0
+    checkbutton $win.sercxuRadikon -text [mc "serĉu radikon"] -variable [self]::sercxuRadikon -takefocus 0
+
+    label $win.ltraduko -text [mc "Traduko"]
+    entry $win.traduko
+    bind $win.traduko <Return> [list [self] sxercxuTraduko]
+    button $win.traduku -text [mc "Ek"] -command [list [self] sxercxuTraduko] -takefocus 0
+    IDE::Text create [self]::@text $win.out
+    [my @text getTextWindow] configure -takefocus 0
+
+    frame $win.editfb
+    frame $win.editf
+    set x 0
+    foreach a {vorto traduko sento fgrupo gramatiko ordo rordo} {
+        # [mc "vorto"] [mc "traduko"] [mc "sento"] [mc "gramatiko"] [mc "ordo"]
+        set l $a
+        if {$l eq "sento"} {
+            set l senco
+        }
+        label $win.editf.l$a -text [mc $l]
+        grid $win.editf.l$a -column $x -row 0 -columnspan 2 -sticky w
+        incr x 2
+    }
+    for {set x 0} {$x<5} {incr x} {
+        entry $win.editf.vorto$x -width 20 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+        button $win.editf.tvorto$x -text "T" -command [list [self] trovuRedVorto $x] -padx 0 -pady 1 -border 2 -takefocus 0
+        entry $win.editf.traduko$x -width 25 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+        button $win.editf.ttraduko$x -text "T" -command [list [self] trovuRedTraduko $x] -padx 0 -pady 1 -border 2 -takefocus 0
+        entry $win.editf.sento$x -width 15 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+        button $win.editf.tsento$x -text "A" -command [list [self] dialogSento $x] -padx 0 -pady 1 -border 2 -takefocus 0
+        entry $win.editf.fgrupo$x -width 20 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+        button $win.editf.tfgrupo$x -text "A" -command [list [self] dialogFGrupo $x] -padx 0 -pady 1 -border 2 -takefocus 0
+        entry $win.editf.gramatiko$x -width 10 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+        button $win.editf.tgramatiko$x -text "A" -command [list [self] dialogGramatiko $x] -padx 0 -pady 1 -border 2 -takefocus 0
+        entry $win.editf.ordo$x -width 2 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+        entry $win.editf.rordo$x -width 2 -validate key -validatecommand [list [self] modifitaKampo %W %P]
+
+        bind $win.editf.traduko$x <Return> [list [self] modifiuLeks traduko $x]
+        bind $win.editf.sento$x <Return> [list [self] modifiuLeks sento $x]
+        bind $win.editf.fgrupo$x <Return> [list [self] modifiuLeks fgrupo $x]
+        bind $win.editf.gramatiko$x <Return> [list [self] modifiuLeks gramatiko $x]
+        bind $win.editf.ordo$x <Return> [list [self] modifiuLeks ordo $x]
+        bind $win.editf.rordo$x <Return> [list [self] modifiuLeks rordo $x]
+
+        button $win.editf.del$x -text "x" -command [list [self] nuliguTradukon $x] -takefocus 0
+
+        set r $x
+        incr r
+        grid $win.editf.vorto$x -column 0 -row $r -sticky we
+        grid $win.editf.tvorto$x -column 1 -row $r
+        grid $win.editf.traduko$x -column 2 -row $r
+        grid $win.editf.ttraduko$x -column 3 -row $r
+        grid $win.editf.sento$x  -column 4 -row $r
+        grid $win.editf.tsento$x  -column 5 -row $r
+        grid $win.editf.fgrupo$x  -column 6 -row $r -sticky we
+        grid $win.editf.tfgrupo$x  -column 7 -row $r
+        grid $win.editf.gramatiko$x  -column 8 -row $r
+        grid $win.editf.tgramatiko$x  -column 9 -row $r
+        grid $win.editf.ordo$x -column 10 -row $r
+        grid $win.editf.rordo$x -column 11 -row $r
+        grid $win.editf.del$x -column 12 -row $r
+    }
+    set normalaSubFarbo [$win.editf.vorto0 cget -background]
+    #grid propagate $win.editf 0
+
+    grid columnconfigure $win.editf 0 -weight 1
+    grid columnconfigure $win.editf 6 -weight 1
+    frame $win.editfb.nav
+    label $win.editfb.nav.info
+    button $win.editfb.nav.prev -image [IDE::Toolbar createImage back] -relief flat -overrelief raised -takefocus 0 -state disabled -command [list [self] montruMalantauen]
+    button $win.editfb.nav.next -image [IDE::Toolbar createImage forward2] -relief flat -overrelief raised -takefocus 0 -state disabled -command [list [self] montruAntauen]
+    pack $win.editfb.nav.info $win.editfb.nav.prev $win.editfb.nav.next -side left
+    grid $win.editf -column 0 -row 0 -stick news -in $win.editfb
+    grid $win.editfb.nav -column 0 -row 1 -stick ew
+    grid columnconfigure $win.editfb 0 -weight 1
+
+    grid $win.helpo -column 1 -row 0 -columnspan 3 -in $win.f -sticky w
+    grid $win.lvorto -column 0 -row 1 -in $win.f
+    grid $win.vorto -column 1 -row 1 -in $win.f
+    grid $win.ekvorto  -column 2 -row 1 -in $win.f
+    grid $win.morfemoj -column 3 -row 1 -in $win.f -sticky w
+    grid $win.sercxuRadikon -column 4 -row 1 -in $win.f -sticky w
+    grid $win.redaktoModo -column 3 -row 2 -in $win.f -sticky w
+    grid $win.ltraduko -column 0 -row 2 -in $win.f
+    grid $win.traduko -column 1 -row 2 -in $win.f
+    grid $win.traduku -column 2 -row 2 -in $win.f
+
+    pack $win.toolbar -fill x
+    pack $win.f -anchor w
+    if {[my set redaktoModo]} {
+        pack $win.editfb -fill x -expand 1 -anchor n -after $win.f
+    } else {
+        pack $win.out -fill both -expand 1
+    }
+    my initStatusBar -1 -1
+
+    set labwin [LingvoSelektoButono create [self]::@lingvobut $win.toolbar.lingvo -variable [self]::lingvo]
+    my @toolbar addWin $win.toolbar.lingvo 20.1
+
+    set geo [EsperantoConf set prefGeometryVortaro]
+    if {$geo ne ""} {
+        wm geometry $win $geo
+    }
+
+}
+TradukaVortaroMontrilo instproc sxangxuModon {} {
+    my instvar redaktoModo win
+    if {$redaktoModo} {
+        pack forget $win.out
+        pack $win.editfb -fill x -expand 1 -anchor n -after $win.f
+    } else {
+        pack forget $win.editfb
+        pack $win.out -fill both -expand 1 -after $win.f
+    }
+}
+TradukaVortaroMontrilo instproc sxercxuRadiko radiko {
+    my instvar win dbvortaro redaktoModo
+    set lingvo [my prenuLingvon]
+    if {$redaktoModo} {
+        set rez [list]
+        foreach robj [Radiko sxercxiRadikojn $radiko] {
+            set radiko [$robj prenuRadiko]
+            my aliguTekston "radiko: $radiko\n"
+            foreach derivoVorto [$robj prenuDerivoj] {
+                foreach r [$dbvortaro sxercxuRezListo $derivoVorto $lingvo] {
+                    lappend rez $r
+                }
+            }
+        }
+        my montruRezListon $rez
+    } else {
+        my nuliguTekston
+        set trovita 0
+        foreach robj [Radiko sxercxiRadikojn $radiko] {
+            set trovita 1
+            set radiko [$robj prenuRadiko]
+            my aliguTekston "radiko: $radiko\n"
+            foreach derivoVorto [$robj prenuDerivoj] {
+                $dbvortaro sxercxuVortoEkzakt $derivoVorto $lingvo [self]
+            }
+        }
+        if {!$trovita} {
+            my aliguTekston "radiko '$radiko' ne trovita"
+        }
+    }
+}
+TradukaVortaroMontrilo instproc sxercxuTraduko {{ttraduko {}} {tlingvo {}}} {
+    my instvar win dbvortaro dlingvo redaktoModo
+    if {$tlingvo eq ""} {
+        set lingvo [my prenuLingvon]
+    } else {
+        set lingvo $tlingvo
+    }
+    if {$ttraduko eq ""} {
+        set traduko [$win.traduko get]
+        my aliguElemento [list $lingvo eo $traduko]
+    } else {
+        $win.traduko delete 0 end
+        $win.traduko insert 0 $ttraduko
+        set traduko $ttraduko
+    }
+    if {[regexp {[\*\?]+} $traduko] && $redaktoModo} {
+        set redaktoModo 0
+        my sxangxuModon
+    }
+    my nuliguTekston
+    if {$redaktoModo} {
+        my montruRezListon [$dbvortaro sxercxuRezListoPorTraduko $traduko $lingvo]
+    } else {
+        if {$dlingvo eq "eo"} {
+            $dbvortaro sxercxuTraduko $traduko $lingvo [self]
+        } else {
+            $dbvortaro sxercxuTransVorto $traduko $lingvo $dlingvo [self]
+        }
+    }
+}
+TradukaVortaroMontrilo instproc sxercxuVorto {{tvorto {}} {tlingvo {}}} {
+    my instvar win dbvortaro testuMorfemoj redaktoModo sercxuRadikon
+    if {$tlingvo eq ""} {
+        set lingvo [my prenuLingvon]
+    } else {
+        set lingvo $tlingvo
+    }
+    if {$tvorto eq ""} {
+        set vorto [string tolower [my translateString [$win.vorto get] gx \u011d]]
+        if {$vorto eq ""} {
+            return
+        }
+        my aliguElemento [list eo $lingvo $vorto]
+    } else {
+        set vorto $tvorto
+    }
+    if {$sercxuRadikon} {
+        my sxercxuRadiko $vorto
+        return
+    }
+    if {[regexp {[\*\?]+} $vorto] && $redaktoModo} {
+        set redaktoModo 0
+        my sxangxuModon
+    }
+    if {$redaktoModo} {
+        my montruRezListon [$dbvortaro sxercxuRezListo $vorto $lingvo]
+    } else {
+        my nuliguTekston
+        if {!$testuMorfemoj} {
+            $dbvortaro sxercxuVorto $vorto $lingvo [self]
+        } else {
+            $dbvortaro sxercxuMorfVorto $vorto $lingvo [self]
+        }
+    }
+}
+TradukaVortaroMontrilo instproc trovuEspVorton vorto {
+    my instvar win redaktoModo
+    if {!$redaktoModo} {
+        set redaktoModo 1
+        my sxangxuModon
+    }
+    $win.vorto delete 0 end
+    $win.vorto insert 0 $vorto
+    my sxercxuVorto
+    wm withdraw $win
+    wm deiconify $win
+    focus $win
+}
+TradukaVortaroMontrilo instproc trovuRedTraduko indekso {
+    my instvar win
+    set vorto [$win.editf.traduko$indekso get]
+    $win.traduko del 0 end
+    $win.traduko insert 0 $vorto
+    my sxercxuTraduko
+}
+TradukaVortaroMontrilo instproc trovuRedVorto indekso {
+    my instvar win
+    set vorto [$win.editf.vorto$indekso get]
+    $win.vorto del 0 end
+    $win.vorto insert 0 $vorto
+    my sxercxuVorto
+}
+TradukaVortaroMontrilo instproc trovuTradukoPorLingvoj {vorto fontaLingvo celaLingvo} {
+    my instvar lingvo
+    if {$fontaLingvo eq "eo"} {
+        set lingvo $celaLingvo
+        my remontruFlagojn
+        my trovuEspVorton $vorto
+    } else {
+        set lingvo $fontaLingvo
+        my remontruFlagojn
+        my sxercxuTraduko $vorto $fontaLingvo
+    }
+
+}
+TradukaVortaroMontrilo instproc uzuMetakit {} {
+    my set dbvortaro [DBVortaro prenuVortaron]
+}
+TradukaVortaroMontrilo instproc uzuSQLVortaro {} {
+    my set dbvortaro [SQLDBVortaro getSQLDBVortaron]
+}
+TradukaVortaroMontrilo proc aliguTradukon vorto {
+    set m [my newBrowser]
+    if {$m ne ""} {
+        $m aliguTradukon $vorto
+    }
+}
+TradukaVortaroMontrilo proc initializeAfterLoad {} {
+    NavigadaKronikoMix initHistory [self]
+}
+TradukaVortaroMontrilo proc lingvoListo {} {
+    return {ab abĥaza
+af afrikansa
+am amhara
+ar araba
+as asama
+ay ajmara
+az azerbajĝana
+ba baŝkira
+be belorusa
+bg bulgara
+bh bihara
+bi bislama
+bn bengala
+bo tibeta
+br bretona
+ca kataluna
+co korsika
+cs ĉeĥa
+cy kimra
+da dana
+de germana
+dz dzonka
+el greka
+en angla
+eo esperanta
+es hispana
+et estona
+eu eŭska
+fa persa
+fi finna
+fj fiĝia
+fo feroa
+fr franca
+fy frisa
+ga irlanda
+gd gaela
+gl galega
+gn gvarania
+grc malnovgreka
+gu guĝarata
+ha haŭsa
+he hebrea
+hi hinda
+hr kroata
+hu hungara
+hy armena
+ia interlingvaa
+id indonezia
+ie okcidentala
+ik eskima
+is islanda
+it itala
+iu inuita
+ja japana
+jw java
+ka kartvela
+kk kazaĥa
+kl gronlanda
+km kmera
+kn kanara
+ko korea
+ks kaŝmira
+ku kurda
+ky kirgiza
+la latina/scienca
+lat malnovlatina
+ln lingala
+lo laŭa
+lt litova
+lv latva
+mg malagasa
+mi maoria
+mk makedona
+ml malajalama
+mn mongola
+mo moldava
+mr marata
+ms malaja
+mt malta
+my birma
+na naura
+ne nepala
+nl nederlanda
+no norvega
+oc okcitana
+om oroma
+or orijo
+os oseta
+pa panĝaba
+pl pola
+ps paŝtua
+pt portugala
+qu keĉua
+rm romanĉa
+rn burunda
+ro rumana
+ru rusa
+rw ruanda
+sa sanskrita
+sd sinda
+sg sangoa
+sh serbo-kroata
+si sinhala
+sk slovaka
+sl slovena
+sm samoa
+sn ŝona
+so somala
+sq albana
+sr serba
+ss svazia
+st sota
+su sunda
+sv sveda
+sw svahila
+szl silezia
+ta tamila
+te telugua
+tg taĝika
+th taja
+ti tigraja
+tk turkmena
+tl filipina
+tn cvana
+to tongaa
+tr turka
+ts conga
+tt tatara
+tw akana
+ug ujgura
+uk ukrajna
+ur urduo
+uz uzbeka
+vi vjetnama
+vo volapuka
+wo volofa
+xh ksosa
+yi jida
+yo joruba
+za ĝuanga
+zh ĉina
+zu zulua}
+}
+TradukaVortaroMontrilo proc lingvojPorMc {} {
+set dummy {
+[mc "abĥaza"]
+[mc "afrikansa"]
+[mc "amhara"]
+[mc "araba"]
+[mc "asama"]
+[mc "ajmara"]
+[mc "azerbajĝana"]
+[mc "baŝkira"]
+[mc "belorusa"]
+[mc "bulgara"]
+[mc "bihara"]
+[mc "bislama"]
+[mc "bengala"]
+[mc "tibeta"]
+[mc "bretona"]
+[mc "kataluna"]
+[mc "korsika"]
+[mc "ĉeĥa"]
+[mc "kimra"]
+[mc "dana"]
+[mc "germana"]
+[mc "dzonka"]
+[mc "greka"]
+[mc "angla"]
+[mc "esperanta"]
+[mc "hispana"]
+[mc "estona"]
+[mc "eŭska"]
+[mc "persa"]
+[mc "finna"]
+[mc "fiĝia"]
+[mc "feroa"]
+[mc "franca"]
+[mc "frisa"]
+[mc "irlanda"]
+[mc "gaela"]
+[mc "galega"]
+[mc "gvarania"]
+[mc "malnovgreka"]
+[mc "guĝarata"]
+[mc "haŭsa"]
+[mc "hebrea"]
+[mc "hinda"]
+[mc "kroata"]
+[mc "hungara"]
+[mc "armena"]
+[mc "interlingvaa"]
+[mc "indonezia"]
+[mc "okcidentala"]
+[mc "eskima"]
+[mc "islanda"]
+[mc "itala"]
+[mc "inuita"]
+[mc "japana"]
+[mc "java"]
+[mc "kartvela"]
+[mc "kazaĥa"]
+[mc "gronlanda"]
+[mc "kmera"]
+[mc "kanara"]
+[mc "korea"]
+[mc "kaŝmira"]
+[mc "kurda"]
+[mc "kirgiza"]
+[mc "latina/scienca"]
+[mc "malnovlatina"]
+[mc "lingala"]
+[mc "laŭa"]
+[mc "litova"]
+[mc "latva"]
+[mc "malagasa"]
+[mc "maoria"]
+[mc "makedona"]
+[mc "malajalama"]
+[mc "mongola"]
+[mc "moldava"]
+[mc "marata"]
+[mc "malaja"]
+[mc "malta"]
+[mc "birma"]
+[mc "naura"]
+[mc "nepala"]
+[mc "nederlanda"]
+[mc "norvega"]
+[mc "okcitana"]
+[mc "oroma"]
+[mc "orijo"]
+[mc "oseta"]
+[mc "panĝaba"]
+[mc "pola"]
+[mc "paŝtua"]
+[mc "portugala"]
+[mc "keĉua"]
+[mc "romanĉa"]
+[mc "burunda"]
+[mc "rumana"]
+[mc "rusa"]
+[mc "ruanda"]
+[mc "sanskrita"]
+[mc "sinda"]
+[mc "sangoa"]
+[mc "serbo-kroata"]
+[mc "sinhala"]
+[mc "slovaka"]
+[mc "slovena"]
+[mc "samoa"]
+[mc "ŝona"]
+[mc "somala"]
+[mc "albana"]
+[mc "serba"]
+[mc "svazia"]
+[mc "sota"]
+[mc "sunda"]
+[mc "sveda"]
+[mc "svahila"]
+[mc "tamila"]
+[mc "telugua"]
+[mc "taĝika"]
+[mc "taja"]
+[mc "tigraja"]
+[mc "turkmena"]
+[mc "filipina"]
+[mc "cvana"]
+[mc "tongaa"]
+[mc "turka"]
+[mc "conga"]
+[mc "tatara"]
+[mc "akana"]
+[mc "ujgura"]
+[mc "ukrajna"]
+[mc "urduo"]
+[mc "uzbeka"]
+[mc "vjetnama"]
+[mc "volapuka"]
+[mc "volofa"]
+[mc "ksosa"]
+[mc "jida"]
+[mc "joruba"]
+[mc "ĝuanga"]
+[mc "ĉina"]
+[mc "zulua"]
+}
+}
+TradukaVortaroMontrilo proc newBrowser {} {
+    if {![EsperantoConf set uzuMalnovanVortaron]} {
+        return [TradukaNovaVortaroMontrilo newBrowser]
+    }
+    EsperantoConf statAktiono VT
+    if {![Object isobject ::revoMontrilo]} {
+        set dbvortaro [DBVortaro prenuDepVortaron]
+        if {[$dbvortaro cxuVortaroTrovita]} {
+            my create ::revoMontrilo .revoMontrilo
+        } else {
+            $dbvortaro montruMesagxonNeTrovita
+            return
+        }
+    }
+    return ::revoMontrilo
+}
+TradukaVortaroMontrilo proc prenuLinvoNomoPorSimbolo simbolo {
+    my instvar lingvoArr
+    if {![info exists lingvoArr]} {
+        foreach {s l} [my lingvoListo] {
+            set lingvoArr($s) $l
+        }
+    }
+    return $lingvoArr($simbolo)
+}
+TradukaVortaroMontrilo proc redaktuVortaron vortaro {
+    set m [my newBrowser]
+    if {$m ne ""} {
+        $m redaktuVortaron $vortaro
+    }
+}
+TradukaVortaroMontrilo proc trovuEspVorton vorto {
+    set m [my newBrowser]
+    if {$m ne ""} {
+        $m trovuEspVorton $vorto
+    }
+}
+TradukaVortaroMontrilo proc trovuTradukoPorLingvoj {vorto fontaLingvo celaLingvo} {
+    set m [my newBrowser]
+    if {$m ne ""} {
+        $m trovuTradukoPorLingvoj $vorto $fontaLingvo $celaLingvo
+    }
+}
+Class UzantojDialogo -superclass ::IDE::Dialog -parameter {{type okcancel} uzantoj uzanto {title Uzanto}}
+@ ::UzantojDialogo idemeta component EspTradukaVortaroGUI
+UzantojDialogo instproc init {} {
+    my instvar win uzantoj uzanto
+    next
+
+    my requireNamespace
+
+    frame $win.listo
+
+    ::scrollbar $win.listo.scroll -command "$win.listo.listbox yview"
+    ::listbox $win.listo.listbox -yscroll "$win.listo.scroll set" -exportselection no
+    grid $win.listo.listbox -row 0 -column 0 -sticky news
+    grid $win.listo.scroll -row 0 -column 1 -sticky ns
+    grid rowconfigure $win.listo 0 -weight 1
+    grid columnconfigure $win.listo 0 -weight 1
+
+    bind $win.listo.listbox <<ListboxSelect>> [list [self] selektuUzanton]
+    bind $win.listo.listbox <Double-Button-1> [list [self] selektuUzantonOK]
+
+    pack $win.listo -fill both -expand yes -before $win.buttons -padx 5 -pady 5
+
+    label $win.luzanto -text [mc "Nova uzanto"]
+    entry $win.uzanto -width 30 -textvariable [self]::uzanto
+
+    pack $win.luzanto -anchor w -before $win.buttons
+    pack $win.uzanto -fill x -before $win.buttons
+
+    set sel -1
+    set i 0
+    set trovita 0
+    foreach u $uzantoj {
+        $win.listo.listbox insert end $u
+        if {$uzanto eq $u} {
+            $win.listo.listbox selection set $i $i
+            set trovita 1
+        }
+        incr i
+    }
+
+    if {$trovita || [llength $uzantoj]==0} {
+        focus $win.uzanto
+    }
+
+    wm deiconify $win
+}
+UzantojDialogo instproc selektuUzanton {} {
+    my instvar win uzanto
+    set selekto [$win.listo.listbox curselection]
+    if {[llength $selekto]>0} {
+        set uzanto [$win.listo.listbox get [lindex $selekto 0]]
+    }
+}
+UzantojDialogo instproc selektuUzantonOK {} {
+    my instvar win uzanto
+    set selekto [$win.listo.listbox curselection]
+    if {[llength $selekto]>0} {
+        set uzanto [$win.listo.listbox get [lindex $selekto 0]]
+        my actionOk
+    }
+}
+UzantojDialogo proc elektuUzanton {uzantoj aktuala} {
+    set parent [focus]
+    if {$parent ne ""} {
+        set parent [winfo toplevel $parent]
+    }
+    set i [UzantojDialogo new -volatile [list -message "Elektu uzanton de listo aŭ enskribu novan nomon"] [list -uzantoj $uzantoj]  [list -uzanto $aktuala]]
+    set ret ""
+    if {[$i prompt] eq "ok"} {
+        set ret [$i uzanto]
+    }
+    return $ret
+}
+TradukaNovaVortaroMontrilo initializeAfterLoad
+TradukaVortaroMontrilo initializeAfterLoad
+

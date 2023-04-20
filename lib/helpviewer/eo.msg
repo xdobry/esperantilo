@@ -1,0 +1,6 @@
+::msgcat::mcset de "No index found!" 	"Indekso ne trovita!"
+::msgcat::mcset de "Help" 		"Helpo"
+::msgcat::mcset de "Table of content" 	"Enhavo"
+::msgcat::mcset de "Previous" 		"Lasta"
+::msgcat::mcset de "Next" 		"Sekvanta"
+::msgcat::mcset de "Exit" 		"Forlasu"

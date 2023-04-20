@@ -1,0 +1,82 @@
+# automatically generated from XOTclIDE
+# script require component {IDECore IDEView xotcl::xml::parser}
+package provide IDETutorial 0.1
+package require IDECore
+package require IDEView
+package require xotcl::xml::parser
+Class IDE::Tutorial -parameter {lesson {editMode 0}}
+@ ::IDE::Tutorial idemeta component IDETutorial
+IDE::Tutorial instproc getLessonFile {} {
+    [self] instvar lesson
+    set file [open [file join [IDE::System getSystemDir] tutorials $lesson.xml]]
+    set ret [read $file]
+    close $file
+    return $ret
+}
+IDE::Tutorial instproc getTopic topic {
+    [self] set topic($topic)
+}
+IDE::Tutorial instproc getTopics {} {
+    [self] set topicList
+}
+IDE::Tutorial instproc initTopicContents {} {
+    [self] instvar document
+    [self] initXMLInterface
+    XMLParser [self]::parser
+    [self]::parser parse [[self] getLessonFile]
+    IDE::XMLTutVisitor [self]::visitor -tutorial [self] 
+    [self]::visitor interpretAll [self]::parser
+    [self]::visitor destroy
+    [self]::parser destroy
+}
+IDE::Tutorial instproc initXMLInterface {} {
+    if {![Object isobject XMLParser]} {
+       IDE::SystemConfigMap loadComponentFromAny xotcl::xml::parser
+    }
+}
+IDE::Tutorial instproc lessonName {} {
+   [self] lesson
+}
+IDE::Tutorial instproc setTopic {topic content} {
+    [self] lappend topicList $topic
+    [self] set topic($topic) $content
+}
+Class IDE::SimpleTutBrowser -superclass {::IDE::Browser ::IDE::Tutorial} 
+@ ::IDE::SimpleTutBrowser idemeta component IDETutorial
+IDE::SimpleTutBrowser instproc getTitle {} {
+  return Tutorial
+}
+IDE::SimpleTutBrowser instproc initTopicContents {} {
+   next
+   [self]::topics setListUnsorted [[self] getTopics]
+}
+IDE::SimpleTutBrowser instproc selectTopic item {
+   [self]::edit setText [[self] getTopic $item]
+}
+IDE::SimpleTutBrowser instproc specificInit {} {
+    [self] instvar win vobject varray
+
+    IDE::NListView create [self]::topics $win.topics -notify [self] -notifyProc selectTopic -height 30
+    IDE::MethodEdit [self]::edit $win.edit -width 50
+
+    grid $win.topics -row 0 -column 0 -sticky w
+    grid $win.edit -row 0 -column 1 -sticky news 
+
+    [self] initTopicContents
+    [self] setTitleAddition [[self] lessonName]
+    next
+}
+IDE::SimpleTutBrowser proc testSample {} {
+   [self] new .tut -lesson tcl
+}
+Class IDE::XMLTutVisitor -superclass ::NodeTreeVisitor  -parameter tutorial
+@ ::IDE::XMLTutVisitor idemeta component IDETutorial
+IDE::XMLTutVisitor instproc interpretNodeTree node {
+   $node accept [self]
+}
+IDE::XMLTutVisitor instproc visit objName {
+   if {[$objName content]=="topic"} {
+      [[self] tutorial] setTopic [$objName set attributes(name)] [$objName getFirstPCData]
+   }
+}
+

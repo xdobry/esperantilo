@@ -1,0 +1,1 @@
+tclkit-win32upx852enc.exe mainXOTclIDE.tcl -startMode ideDB -nodialog -configmapdb Esperantilo -preferences "interface sqlite connection {sqlfile repository.sql}"

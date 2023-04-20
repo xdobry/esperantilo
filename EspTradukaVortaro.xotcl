@@ -1,0 +1,2953 @@
+# automatically generated from XOTclIDE
+@ Component EspTradukaVortaro {
+description {Tiu modulo enhavas programaro, kiu temas pri traduka vortaro sen GUI partoj
+    * Baza klaso por vortaro ''BasaVortaro''
+    * Konservado en mysql per SQL
+    * Konservado en Metakit datumbazo http://www.equi4.com/metakit.html
+La vortaro estas uzate kaj de tradukilo kaj de redaktilo}
+}
+package provide EspTradukaVortaro 0.993
+Class BasaVortaro
+@ ::BasaVortaro idemeta categories {morf-traduko service}
+@ ::BasaVortaro idemeta categoriesMethods {{sxercxuMorfVorto sxercxuMorfTraduko} {nuliguTradukonDeVorto modifuTradukonDeVorto}}
+@ ::BasaVortaro idemeta component EspTradukaVortaro
+BasaVortaro instproc aliguTekston t {
+    my instvar teksto
+    append teksto $t
+}
+BasaVortaro instproc beginUnitOfWork {} {
+}
+BasaVortaro instproc cxuSubtenatasLingvon lingvo {
+    foreach {lng nomo} [my subtenatajLingvoj] {
+        if {$lng eq $lingvo} {return 1}
+    }
+    return 0
+}
+BasaVortaro instproc cxuVortaroTrovita {} {
+    return 1
+}
+BasaVortaro instproc endUnitOfWork {} {
+}
+@ BasaVortaro instproc importuTraduko {} {
+description {rezulto:
+0 - derivo ne konata
+1 - imortita
+2 - traduko jam konata}
+}
+BasaVortaro instproc importuTraduko {lingvo derivo traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}}} {
+    error "devas esti programita"
+}
+BasaVortaro instproc importuVorton derivo {
+    error "sould be overwritten"
+}
+BasaVortaro instproc init args {
+    DBVortaroLogMix sxaltuLog
+}
+BasaVortaro instproc modifuTradukonDeVorto {vorto traduko sxangxoListo lingvo {oldaOrdo {}}} {
+    foreach listo [my sxercxuRezListo $vorto $lingvo] {
+        if {[dict get $listo traduko] eq $traduko} {
+            my modifuTradukon [dict get $listo id] $vorto $traduko $sxangxoListo $lingvo $oldaOrdo
+            break
+        }
+    }
+}
+BasaVortaro instproc nuliguTradukonDeVorto {lingvo vorto traduko} {
+    foreach listo [my sxercxuRezListo $vorto $lingvo] {
+        if {[dict get $listo traduko] eq $traduko} {
+            my nuliguTradukon [dict get $listo id] $lingvo $vorto $traduko
+            break
+        }
+    }
+}
+BasaVortaro instproc parseLeksikoElemento {deskribo {sep ,}} {
+    # ekzemploj
+    # Attake (Krieg), Akku(mulator), (Kraft)Wagen,
+    # Kosten(Voranschlag), (Sonnen~, Mond-)Finsternis
+
+    # cxangxi komoj en parentezo al ##
+    set delementoj [list]
+    set deskribo [string map {[ ( ] )} $deskribo]
+    # sxangxi separatiloj al ,
+    set deskribo [string map [list $sep ,] $deskribo]
+    while {[regsub -all {\(([^\)]+?),([^\)]+?)\)} $deskribo {(\1##\2)} deskribo]} {}
+    foreach elemento [split $deskribo $sep] {
+        set elemento [string trim $elemento]
+        set elemento [string map {## ,} $elemento]
+        set gramatiko ""
+        if {[regexp {<g>(.+?)</g>} $elemento _ gramatiko]} {
+            regsub <g>(.+)</g> $elemento "" elemento
+        }
+        set fgrupo ""
+        if {[regexp {<f>(.+?)</f>} $elemento _ fgrupo]} {
+            regsub <f>(.+)</f> $elemento "" elemento
+        }
+        set seml [list]
+        # (priskribo) traduko
+        if {[regexp {^\((.+?)\) (.+)$} $elemento tuta sem ntraduko]} {
+            set elemento $ntraduko
+            lappend seml $sem
+        }
+        # traduko (priskribo)
+        if {[regexp {(.+) \((.+?)\)} $elemento tuta ntraduko sem]} {
+            set elemento $ntraduko
+            lappend seml $sem
+        }
+        foreach opvorto [my parseOpciajnVortojn $elemento] {
+            # por priskriboj
+            # Reizung, (Med.)
+            if {[regexp {^\((.+?)\)$} $opvorto tuta sem] && [llength $delementoj]>0} {
+                set s [lindex [lindex $delementoj end] end]
+                if {$s eq ""} {
+                    set s $sem
+                } else {
+                    append s ", $sem"
+                }
+                if {[catch {lset delementoj end end $s}]} {
+                    #my halt
+                }
+            }
+            if {[regexp {^[\w ]+$} $opvorto]} {
+                lappend delementoj [list $opvorto [join $seml ", "] $gramatiko $fgrupo]
+            }
+        }
+    }
+    return $delementoj
+}
+BasaVortaro instproc parseOpciajnVortojn elemento {
+    # ekzemploj
+    # Attake (Krieg), Akku(mulator), (Kraft)Wagen,
+    # Kosten(Voranschlag), (Sonnen~, Mond-)Finsternis
+    #
+
+    set vortoj [list]
+    set elemento [string trim $elemento \"']
+    if {[regexp {\(([\w\-~, ]+)\)(\w+)} $elemento tuta opcio baza]} {
+        set opcioj [list]
+        foreach o [split $opcio ,] {
+            set o [string trim $o]
+            set l [string index $o end]
+            if {$l eq "-" || $l eq "~"} {
+                set o [string range $o 0 end-1]
+            }
+            lappend opcioj ${o}[string tolower $baza]
+        }
+        if {[llength $opcioj]==1} {
+            lappend opcioj $baza
+        }
+        foreach o $opcioj {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } elseif {[regexp {(\w+)\((\w+?)\)(\w+)} $elemento tuta prebaza opcio postbaza]} {
+        foreach o [list ${prebaza}${postbaza} ${prebaza}${opcio}${postbaza}] {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } elseif {[regexp {(\w+)\(([~\-\w, ]+?)\)} $elemento tuta baza opcio]} {
+        set opcioj [list]
+        foreach o [split $opcio ,] {
+            set o [string trim $o]
+            set l [string index $o 0]
+            if {$l eq "-" || $l eq "~"} {
+                set o [string range $o 1 end]
+            }
+            lappend opcioj $baza[string tolower ${o}]
+        }
+        if {[llength $opcioj]==1} {
+            lappend opcioj $baza
+        }
+        foreach o $opcioj {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } elseif {[regexp {(\w+)/(\w+)} $elemento tuta opcio1 opcio2]} {
+        foreach o [list $opcio1 $opcio2] {
+            lappend vortoj [string map [list $tuta $o] $elemento]
+        }
+    } else {
+        lappend vortoj $elemento
+    }
+    return $vortoj
+}
+BasaVortaro instproc parseVortojnSenPriskribo {elemento {sep ,}} {
+    # ekzemploj
+    # Attake (Krieg), Akku(mulator), (Kraft)Wagen,
+    # Kosten(Voranschlag), (Sonnen~, Mond-)Finsternis
+    #
+    set elementoj [list]
+    foreach e [split $elemento $sep] {
+        set e [string trim $e]
+        foreach e2 [my parseOpciajnVortojn $e] {
+            lappend elementoj $e2
+        }
+    }
+    return $elementoj
+}
+BasaVortaro instproc sxercxuMorfTraduko {vorto lingvo} {
+    my instvar teksto
+    set teksto ""
+    my sxercxuMorfVorto $vorto $lingvo [self]
+    string map [list "\n" " "] $teksto
+}
+BasaVortaro instproc sxercxuMorfVorto {vorto lingvo montrilo} {
+    if {[string first ? $vorto]>=0 || [string first * $vorto]>=0} {
+        my sxercxuVorto $vorto $lingvo $montrilo
+        return
+    }
+    set vortaro [Vortaro prenuVortaron]
+    set ret [$vortaro estasVorto $vorto]
+    if {$ret==0} {
+        $montrilo aliguTekston "nekonata vorto '$vorto'\n"
+        return 0
+    } elseif {$ret==2} {
+        set derivo [$vortaro set derivo]
+        set tradukoj [my sxercxuVortoListo $vorto $lingvo]
+        if {[llength $tradukoj]==0} {
+            set tradukoj [my sxercxuVortoListo $vorto $lingvo]
+        } else {
+            set derivo $vorto
+        }
+        if {[llength $tradukoj]>0} {
+            $montrilo aliguTekston "$derivo; [join $tradukoj {, }]\n"
+        } else {
+            set trovita 0
+            set ret "? $vorto -> [join [$vortaro prenuMorfcxeno] -] ->"
+            set ktg [$vortaro set vortktg]
+            set vortfarado [$vortaro prenuVortfarado]
+            if {[lindex $vortfarado 0] ne ""} {
+                set rad [lindex $vortfarado 0]
+                set tradukoj [my sxercxuVortoListo $rad $lingvo]
+                append ret "\n  $rad (prefikso) - [join $tradukoj {, }]"
+            }
+            foreach rad [lindex $vortfarado 1] {
+                foreach k [list $ktg o i a e] {
+                    set trovita 1
+                    set tradukoj [my sxercxuVortoListo ${rad}$k $lingvo]
+                    if {[llength $tradukoj]>0} break
+                }
+                append ret "\n  ${rad}$k - [join $tradukoj {, }]"
+            }
+            foreach rad [lindex $vortfarado 2] {
+                foreach k [list $ktg o i a e] {
+                    set tradukoj [my sxercxuVortoListo ${rad}$k $lingvo]
+                    if {[llength $tradukoj]>0} break
+                }
+                if {[llength $tradukoj]>0} {
+                    append ret "\n  ${rad}$k - [join $tradukoj {, }]"
+                }
+            }
+            if {!$trovita} {
+                $montrilo aliguTekston "? traduko ne konata por $derivo\n"
+            } else {
+                $montrilo aliguTekston $ret\n
+            }
+        }
+    } elseif {$ret==1} {
+        set ret "? $vorto -> [join [$vortaro prenuMorfcxeno] -] ->"
+        set ktg [$vortaro set vortktg]
+        set vortfarado [$vortaro prenuVortfarado]
+        if {[lindex $vortfarado 0] ne ""} {
+            set rad [lindex $vortfarado 0]
+            set tradukoj [my sxercxuVortoListo $rad $lingvo]
+            append ret "\n  $rad (sufikso) - [join $tradukoj {, }]"
+        }
+        foreach rad [lindex $vortfarado 1] {
+            foreach k [list $ktg {} o i a e] {
+                set tradukoj [my sxercxuVortoListo ${rad}$k $lingvo]
+                if {[llength $tradukoj]>0} break
+            }
+            append ret "\n  ${rad}$k - [join $tradukoj {, }]"
+        }
+        foreach rad [lindex $vortfarado 2] {
+            foreach k [list $ktg o i a e] {
+                set tradukoj [my sxercxuVortoListo ${rad}$k $lingvo]
+                if {[llength $tradukoj]>0} break
+            }
+            if {[llength $tradukoj]>0} {
+                append ret "\n  ${rad}$k - [join $tradukoj {, }]"
+            }
+        }
+        $montrilo aliguTekston $ret\n
+    }
+}
+BasaVortaro instproc sxercxuRezListoMeta {vorto lingvo {montrilo {}}} {
+    my sxercxuRezListo $vorto $lingvo $montrilo
+}
+@ Class DBVortaro {
+description {Mk4tcl vortaro por uzanto
+(ne plu uzata - nuntempe SQLPrivateVortaro}
+}
+Class DBVortaro -superclass ::BasaVortaro
+@ ::DBVortaro idemeta categories {init-release api}
+@ ::DBVortaro idemeta categoriesMethods {{destroy init} {montruStatistikon sxercxuVortoListo sxercxuVortoEkzakt sxercxuVorto sxercxuTraduko eksportuVortliston}}
+@ ::DBVortaro idemeta component EspTradukaVortaro
+DBVortaro instproc aliguLingvon {lng lingvo} {
+   if {[my pruviSkriboEblon]} {
+       mk::row append revodb.lingvoj lng $lng lingvo $lingvo
+       set tradukojView [mk::view layout revodb.tradukoj$lng {derivoid:I traduko sento fgrupo gramatiko ordo:I rordo:I}]
+       mk::file commit $tradukojView
+       my commit
+   }
+}
+DBVortaro instproc commit {} {
+    my instvar nurLega
+    if {!$nurLega} {
+        mk::file commit revodb
+    }
+}
+DBVortaro instproc createCache {} {
+    my instvar derivoj
+    foreach id [mk::select revodb.derivoj] {
+        set derivoj([mk::get revodb.derivoj!$id vorto]) $id
+    }
+}
+DBVortaro instproc cxuVortaroTrovita {} {
+    expr {![my exists neTrovita] || ![my set neTrovita]}
+}
+DBVortaro instproc destroy {} {
+    catch {mk::file close revodb}
+    next
+}
+DBVortaro instproc dropCache {} {
+    my unset derivoj
+}
+DBVortaro instproc eksportuVortliston {outstream lingvo {progresoMontrilo {}}} {
+    set vortojid [mk::select revodb.derivoj -sort vorto]
+    set length [llength $vortojid]
+    set count 0
+    foreach i $vortojid {
+        set traduklisto [list]
+        foreach tid [mk::select revodb.tradukoj$lingvo -exact derivoid $i] {
+            foreach n {traduko sento fgrupo gramatiko} v [mk::get revodb.tradukoj$lingvo!$tid traduko sento fgrupo gramatiko] {
+                set $n $v
+            }
+            if {$sento ne ""} {
+                append traduko " ($sento)"
+            }
+            if {$fgrupo ne ""} {
+                append traduko " <f>$fgrupo</f>"
+            }
+            if {$gramatiko ne ""} {
+                append traduko " <g>$gramatiko</g>"
+            }
+            lappend traduklisto $traduko
+        }
+        if {[llength $traduklisto]>0} {
+            puts $outstream "[mk::get revodb.derivoj!$i vorto]; [join $traduklisto {, }]"
+        }
+        if {$progresoMontrilo ne ""} {
+            $progresoMontrilo setProgress [expr {round(100.0*$count/$length)}]
+            update
+            if {[$progresoMontrilo isStopped]} {
+                break
+            }
+        }
+        incr count
+    }
+}
+DBVortaro instproc importuAlSQLVortaro lingvo {
+    my instvar win
+    set sqlvortaor [SQLDBVortaro getSQLDBVortaron]
+    $sqlvortaor preparuLingvon $lingvo
+    foreach tid [mk::select revodb.tradukoj$lingvo] {
+        array set traduko [mk::get revodb.tradukoj${lingvo}!$tid]
+        set derivo [mk::get revodb.derivoj!$traduko(derivoid) vorto]
+        $sqlvortaor importuTraduko $lingvo $derivo $traduko(traduko)
+    }
+}
+DBVortaro instproc importuAlSQLVortaroCxio {} {
+    foreach lingvo [REVOLegiloDB subtenatajLingvojML] {
+        my importuAlSQLVortaro $lingvo
+    }
+}
+DBVortaro instproc importuDerivo derivo {
+    if {![my pruviSkriboEblon]} return
+
+    my instvar lderivo ldid
+    set lderivo $derivo
+    set row [mk::row append revodb.derivoj vorto $derivo]
+    set ldid [lindex [split $row !] 1]
+}
+DBVortaro instproc importuTraduko {lingvo esperanto traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}} {certa 0}} {
+    my instvar lesperanto ldid
+    if {![my pruviSkriboEblon]} return
+
+    if {[info exists lesperanto] && $esperanto eq $lesperanto} {
+        set did $ldid
+    } else {
+        set did [mk::select revodb.derivoj -count 1 -exact vorto $esperanto]
+        set lesperanto $esperanto
+        set ldid $did
+    }
+    if {$did eq ""} {
+        return 0
+    }
+    set cArr [list]
+    foreach v {traduko sento gramatiko fgrupo ordo} {
+        if {[set $v] ne ""} {
+            lappend cArr $v [set $v]
+        }
+    }
+    if {$certa} {
+        eval mk::row append revodb.tradukoj$lingvo derivoid $did $cArr
+        #puts "importu $lingvo did=$did traduko=$traduko esp=$esperanto"
+        return 1
+    }
+    set tid [mk::select revodb.tradukoj$lingvo -count 1 -exact derivoid $did -exact traduko $traduko]
+    if {$tid eq ""} {
+        set max 1
+        foreach tid [mk::select revodb.tradukoj$lingvo -exact derivoid $did] {
+            set melem [mk::get revodb.tradukoj$lingvo!$tid ordo]
+            if {$melem>$max} {
+                set max $melem
+            }
+        }
+        incr max
+        array set arr $cArr
+        set arr(ordo) $max
+        set cArr [array get arr]
+        eval mk::row append revodb.tradukoj$lingvo derivoid $did $cArr
+        return 1
+    } else {
+        return 2
+    }
+    return 0
+}
+DBVortaro instproc importuTradukoCerta {lingvo esperanto traduko sento gramatiko fgrupo ordo rordo} {
+    my instvar lesperanto ldid
+    if {![my pruviSkriboEblon]} return
+
+    if {[info exists lesperanto] && $esperanto eq $lesperanto} {
+        set did $ldid
+    } else {
+        set did [mk::select revodb.derivoj -count 1 -exact vorto $esperanto]
+        set lesperanto $esperanto
+        set ldid $did
+    }
+    if {$did eq ""} {
+        return 0
+    }
+    set cArr [list]
+    foreach v {traduko sento gramatiko fgrupo ordo rordo} {
+        if {[set $v] ne ""} {
+            lappend cArr $v [set $v]
+        }
+    }
+    eval mk::row append revodb.tradukoj$lingvo derivoid $did $cArr
+    #puts "importu $lingvo did=$did traduko=$traduko esp=$esperanto"
+    return 1
+}
+DBVortaro instproc importuVorton vorto {
+    # 0 - ok importita
+    # 1 - ne vorto
+    # 2 - jam konata
+    if {![my pruviSkriboEblon]} return
+
+    set vortaro [Vortaro prenuVortaron]
+    if {[$vortaro estasVorto $vorto]==2} {
+        set did [mk::select revodb.derivoj -count 1 -exact vorto $vorto]
+        if {$did eq ""} {
+            my importuDerivo $vorto
+            return 0
+        }
+        return 2
+    }
+    return 1
+}
+DBVortaro instproc init args {
+    package require Mk4tcl
+    my instvar nurLega
+    set nurLega 0
+    set vortaroDosiero [file join [EsperantoConf prenuVortaroDosierujo] vortaro.db]
+    if {![file exists $vortaroDosiero]} {
+        my set neTrovita 1
+        return
+    }
+    if {![file writable $vortaroDosiero]} {
+        mk::file open revodb $vortaroDosiero -readonly
+        set nurLega 1
+    } else {
+        mk::file open revodb $vortaroDosiero
+        set nurLega 0
+    }
+    next
+}
+DBVortaro instproc modifuTradukon {id vorto traduko sxangxoListo lingvo {oldaOrdo {}}} {
+    if {[my pruviSkriboEblon]} {
+        foreach {k v} $sxangxoListo {
+            if {$k eq "ordo" && $v ne ""} {
+                set did [mk::get revodb.tradukoj${lingvo}!$id derivoid]
+                set rows [mk::select revodb.tradukoj$lingvo -exact derivoid $did ordo $v]
+                foreach tid $rows {
+                    mk::set revodb.tradukoj${lingvo}!$tid] ordo $oldaOrdo
+                    break
+                }
+            }
+        }
+        eval mk::set revodb.tradukoj${lingvo}!$id $sxangxoListo
+    }
+}
+DBVortaro instproc montruMesagxonNeTrovita {} {
+    EsperantoBrowser message [mc "Vi bezonas la dosieron 'vortaro.db' en dosierujo %s por uzi la multlingvan vortaron. Poste rekomencu la programon denove" [pwd]]
+}
+DBVortaro instproc montruStatistikon {} {
+   set rezulto ""
+   set esperDeriv [llength [mk::select revodb.derivoj]]
+   foreach {lng lingvo} [my subtenatajLingvoj] {
+       # nombro de tradukoj
+       set ltradnombro 0
+       # nombro de tradukitaj derivaĵoj
+       set ldernombro 0
+       set lid -1
+       foreach id [mk::select revodb.tradukoj$lng -sort derivoid] {
+           incr ltradnombro
+           set did [mk::get revodb.tradukoj$lng!$id derivoid]
+           if {$did!=$lid} {
+               incr ldernombro
+               set lid $did
+           }
+       }
+       set lelem "[format %-15s $lingvo] [format %6i $ltradnombro] [format %6i $ldernombro] - [format "% 6.2f" [expr {100.0*$ldernombro/$esperDeriv}]] "
+       if {$ldernombro>0} {
+           append lelem [format "% 6.2f" [expr {1.0*$ltradnombro/$ldernombro}]]
+       }
+       set stat($ltradnombro) $lelem
+   }
+   append rezulto " esperantaj derivaĵoj - $esperDeriv\n"
+   append rezulto " lingvo         trad#   der#     kovro   trad#/der#\n"
+   foreach nbro [lsort -integer -decreasing [array names stat]] {
+       append rezulto "$stat($nbro)\n"
+   }
+   RezultoFenestro newBrowser $rezulto
+}
+DBVortaro instproc nuliguTradukon {id lingvo vorto traduko} {
+    if {![my pruviSkriboEblon]} return
+    mk::row delete revodb.tradukoj${lingvo}!$id
+}
+DBVortaro instproc prenuNomo {} {
+    return "Sistema vortaro"
+}
+DBVortaro instproc prenuVortliston {lingvo {progresoMontrilo {}}} {
+    my instvar connection
+    set rez [list]
+    update
+    set count 0
+    mk::loop tradukoc revodb.tradukoj$lingvo {
+        if {$progresoMontrilo ne ""  && $count%50==0} {
+            $progresoMontrilo setProgress [expr {round(100.0*$count/50000)}]
+            if {[$progresoMontrilo isStopped]} {
+                break
+            }
+        }
+        foreach {traduko derivoid} [mk::get $tradukoc traduko derivoid] break
+        lappend rez [list [mk::get revodb.derivoj!$derivoid vorto] $traduko]
+        incr count
+    }
+    return $rez
+}
+DBVortaro instproc pruviSkriboEblon {} {
+    my instvar nurLega
+    if {$nurLega} {
+        EsperantoBrowser message [mc "Vi ne povas modifi la vortaron, ĉar vi ne havas skribrajton por la dosiero"]
+        return 0
+    }
+    return 1
+}
+DBVortaro instproc purigiTraduko {} {
+    set count 0
+    foreach {lingvo dummy} [my subtenatajLingvoj] {
+        foreach i [mk::select revodb.tradukoj$lingvo] {
+            set traduko [mk::get revodb.tradukoj${lingvo}!$i traduko]
+            if {[regsub -all {[\s]{2,}} $traduko { } traduko]} {
+                mk::set revodb.tradukoj${lingvo}!$i traduko $traduko
+                incr count
+            }
+        }
+    }
+    return $count
+}
+DBVortaro instproc sercxuSenTraduko {vorto lingvo} {
+    set derivolisto [list]
+    foreach did [mk::select revodb.derivoj -glob vorto $vorto] {
+        if {[llength [mk::select revodb.tradukoj$lingvo -exact derivoid $did]]==0} {
+            lappend derivolisto [mk::get revodb.derivoj!$did vorto]
+        }
+    }
+    return $derivolisto
+}
+DBVortaro instproc subtenatajLingvoj {} {
+    set lngv [list]
+    foreach i [mk::select revodb.lingvoj -sort lng] {
+        lappend lngv [mk::get revodb.lingvoj!$i lng] [mk::get revodb.lingvoj!$i lingvo]
+    }
+    return $lngv
+}
+DBVortaro instproc sxercxuRezListo {derivoVorto lingvo {montrilo {}}} {
+    set op -exact
+    if {[string first ? $derivoVorto]>=0 || [string first * $derivoVorto]>=0} {
+        set op -glob
+    } else {
+        set vorto $derivoVorto
+    }
+    set break 0
+    set rez [list]
+    foreach did [mk::select revodb.derivoj $op vorto $derivoVorto] {
+        if {$did eq ""} return
+        if {$op eq "-glob"} {
+            set vorto [mk::get revodb.derivoj!$did vorto]
+        }
+        # TODO Tcl dict 8.5
+        # set rows [dict create {*}]
+        set rows [mk::select revodb.tradukoj$lingvo -exact derivoid $did -sort ordo]
+        set length [llength $rows]
+        foreach tid $rows {
+            set linio [concat [mk::get revodb.tradukoj${lingvo}!$tid] vorto $vorto id $tid]
+            if {$montrilo ne ""} {
+                if {![$montrilo aliguVortaroElemento $linio $length]} {
+                    set break 1
+                    break
+                }
+            }
+            lappend rez $linio
+        }
+        if {$break} break
+    }
+    return $rez
+}
+DBVortaro instproc sxercxuRezListoPorTraduko {traduko lingvo {montrilo {}}} {
+    set rez [list]
+    set op -exact
+    if {[string first ? $traduko]>=0 || [string first * $traduko]>=0} {
+        set op -glob
+    }
+    set rows [mk::select revodb.tradukoj$lingvo $op traduko $traduko]
+    set length [llength $rows]
+    foreach tid $rows {
+        array set tradukoarr [mk::get revodb.tradukoj${lingvo}!$tid]
+        set vorto [mk::get revodb.derivoj!$tradukoarr(derivoid) vorto]
+        set linio [concat [mk::get revodb.tradukoj${lingvo}!$tid] vorto $vorto id $tid]
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $linio $length]} {
+                break
+            }
+        }
+        lappend rez $linio
+    }
+    return $rez
+}
+DBVortaro instproc sxercxuRezListoTransTraduko {traduko fontalingvo celalingvo {montrilo {}}} {
+    set rez [list]
+    set op -exact
+    if {[string first ? $traduko]>=0 || [string first * $traduko]>=0} {
+        set op -glob
+    }
+    set rows [mk::select revodb.tradukoj$fontalingvo $op traduko $traduko]
+    foreach tid $rows {
+        foreach {ftraduko derivoid} [mk::get revodb.tradukoj${fontalingvo}!$tid traduko derivoid] break
+        set derivoVorto [mk::get revodb.derivoj!$derivoid vorto]
+        set rows [mk::select revodb.tradukoj$celalingvo -exact derivoid $derivoid]
+        set length [llength $rows]
+        foreach tid $rows {
+            set linio [concat [mk::get revodb.tradukoj${celalingvo}!$tid] vorto $derivoVorto id $tid ftraduko $ftraduko]
+            if {$montrilo ne ""} {
+                if {![$montrilo aliguVortaroElemento $linio $length]} {
+                    break
+                }
+            }
+            lappend rez $linio
+        }
+    }
+    return $rez
+}
+DBVortaro instproc sxercxuTraduko {traduko lingvo montrilo} {
+    set trovita 0
+    foreach i [mk::select revodb.tradukoj$lingvo -glob traduko $traduko -sort traduko] {
+        set trovita 1
+        array set tradukoarr [mk::get revodb.tradukoj${lingvo}!$i]
+        set vorto [mk::get revodb.derivoj!$tradukoarr(derivoid) vorto]
+        $montrilo aliguTekston "$tradukoarr(traduko); $vorto\n"
+    }
+    if {!$trovita} {
+        $montrilo aliguTekston "traduko de vorto '$traduko' ne trovita"
+    }
+}
+DBVortaro instproc sxercxuTransVorto {vorto fontoLingvo zielLingvo montrilo} {
+    my instvar connection
+    set trovita 0
+
+    foreach id [mk::select revodb.tradukoj$fontoLingvo -glob traduko $vorto] {
+        set did [mk::get revodb.tradukoj$fontoLingvo!$id derivoid]
+        set tradtrovita 0
+        foreach zid [mk::select revodb.tradukoj$zielLingvo -exact derivoid $did] {
+            set derivo [mk::get revodb.derivoj!$did vorto]
+            set traduko [mk::get revodb.tradukoj$zielLingvo!$zid traduko]
+            $montrilo aliguTekston "$vorto; (trans: $derivo) - $traduko\n"
+            set trovita 1
+            set tradtrovita 1
+        }
+        if {!$tradtrovita} {
+            set derivo [mk::get revodb.derivoj!$did vorto]
+            $montrilo aliguTekston "$vorto; (trans: $derivo) - ?"
+        }
+    }
+    if {!$trovita} {
+        $montrilo aliguTekston "vorto '$vorto' ne trovita"
+    }
+}
+DBVortaro instproc sxercxuVorto {vorto lingvo montrilo} {
+    set trovita 0
+    set tradTrovita 0
+    foreach did [mk::select revodb.derivoj -glob vorto $vorto] {
+        set trovita 1
+        $montrilo aliguTekston "[mk::get revodb.derivoj!$did vorto]; "
+        set tradukoj [list]
+        foreach tid [mk::select revodb.tradukoj$lingvo -exact derivoid $did] {
+            set tradTrovita 1
+            array set traduko [mk::get revodb.tradukoj${lingvo}!$tid]
+            if {[info exists traduko(sento)] && $traduko(sento) ne ""} {
+                lappend tradukoj "$traduko(traduko) ($traduko(sento))"
+            } else {
+                lappend tradukoj $traduko(traduko)
+            }
+            unset traduko
+        }
+        $montrilo aliguTekston [join $tradukoj ", "]\n
+    }
+    if {!$trovita} {
+        $montrilo aliguTekston "vorto '$vorto' ne trovita"
+    } elseif {!$tradTrovita} {
+        $montrilo aliguTekston "traduko de vorto '$vorto' ne trovita"
+    }
+}
+DBVortaro instproc sxercxuVortoEkzakt {derivoVorto lingvo montrilo} {
+    set did [lindex [mk::select revodb.derivoj -exact vorto $derivoVorto] 0]
+    if {$did eq ""} {
+        $montrilo aliguTekston " $derivoVorto\n"
+        return
+    }
+    $montrilo aliguTekston " $derivoVorto; "
+    set tradukoj [list]
+    foreach tid [mk::select revodb.tradukoj$lingvo -exact derivoid $did] {
+        array set traduko [mk::get revodb.tradukoj${lingvo}!$tid]
+        if {[info exists traduko(sento)] && $traduko(sento) ne ""} {
+            lappend tradukoj "$traduko(traduko) ($traduko(sento))"
+        } else {
+            lappend tradukoj $traduko(traduko)
+        }
+        unset traduko
+    }
+    $montrilo aliguTekston "[join $tradukoj ", "]\n"
+}
+DBVortaro instproc sxercxuVortoListo {vorto lingvo} {
+    set tradukoj [list]
+    foreach did [mk::select revodb.derivoj -glob vorto $vorto] {
+        foreach tid [mk::select revodb.tradukoj$lingvo -exact derivoid $did] {
+            lappend tradukoj [mk::get revodb.tradukoj${lingvo}!$tid traduko]
+        }
+    }
+    return $tradukoj
+}
+DBVortaro instproc useCache derivo {
+    my instvar lesperanto ldid derivoj
+    set lesperanto $derivo
+    set ldid $derivoj($derivo)
+}
+DBVortaro proc importuTraduko {lingvo derivo traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}} args} {
+    set depVortaro [my prenuDepVortaron]
+    set rez [$depVortaro importuTraduko $lingvo $derivo $traduko $sento $gramatiko $fgrupo $ordo]
+    if {$rez==0} {
+        set rez [$depVortaro importuVorton $derivo]
+        if {$rez==0} {
+            $depVortaro importuTraduko $lingvo $derivo $traduko $sento $gramatiko $fgrupo $ordo
+        }
+    }
+}
+DBVortaro proc modifuTradukonDeVorto {vorto traduko sxangxoListo lingvo {oldaOrdo {}}} {
+    [my prenuDepVortaron] modifuTradukonDeVorto $vorto $traduko $sxangxoListo $lingvo $oldaOrdo
+}
+DBVortaro proc nuliguTradukonDeVorto {lingvo vorto traduko} {
+    [my prenuDepVortaron] nuliguTradukonDeVorto $lingvo $vorto $traduko
+}
+DBVortaro proc prenuDepVortaron {} {
+    my instvar forceMetakit
+    if {[EsperantoConf isInDelopingMode] && (![info exists forceMetakit] || $forceMetakit eq "0")} {
+        SQLDBVortaro getSQLDBVortaron
+    } else {
+        SQLPrivataVortaro getSQLDBVortaron
+    }
+}
+DBVortaro proc prenuVortaron {} {
+    my prenuDepVortaron
+}
+DBVortaro proc unknown args {
+    error "unknow method [lindex $args 0]"
+}
+Class DBVortaroLogMix
+@ ::DBVortaroLogMix idemeta component EspTradukaVortaro
+DBVortaroLogMix instproc importuTraduko {lingvo derivo traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}} args} {
+    set rez [next]
+    if {$rez == 1} {
+        set file [DBVortaroLogMix prenuPrivatanVortaronFHandle]
+        puts $file "DBVortaro importuTraduko [list $lingvo] [list $derivo] [list $traduko] [list $sento] [list $gramatiko] [list $fgrupo] [list $ordo]"
+        DBVortaroLogMix malfermuPrivatanVortaron $file
+    }
+    return $rez
+}
+DBVortaroLogMix instproc modifuTradukon {id vorto traduko sxangxoListo lingvo {oldaOrdo {}}} {
+   next
+   set file [DBVortaroLogMix prenuPrivatanVortaronFHandle]
+   puts $file "DBVortaro modifuTradukonDeVorto [list $vorto] [list $traduko] [list $sxangxoListo] [list $lingvo] $oldaOrdo"
+   DBVortaroLogMix malfermuPrivatanVortaron $file
+}
+DBVortaroLogMix instproc nuliguTradukon {id lingvo vorto traduko} {
+   next
+   set file [DBVortaroLogMix prenuPrivatanVortaronFHandle]
+   puts $file "DBVortaro nuliguTradukonDeVorto  [list $lingvo] [list $vorto] [list $traduko]"
+   DBVortaroLogMix malfermuPrivatanVortaron $file
+}
+DBVortaroLogMix proc importuSxangxojDeLog dosiero {
+    my malsxaltuLog
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    while {[gets $f line]>=0} {
+        if {[catch {
+            namespace eval :: $line
+        } out]} {
+            puts "eraro en importo de loka vortaro.\n$out\n$::errorInfo"
+        }
+    }
+    my sxaltuLog
+}
+DBVortaroLogMix proc malfermuPrivatanVortaron f {
+    EsperantoConf statAktiono VS
+    close $f
+}
+DBVortaroLogMix proc malsxaltuLog {} {
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    if {[$dbvortaro hasclass DBVortaroLogMix]} {
+       $dbvortaro mixin delete [self]
+    }
+
+}
+DBVortaroLogMix proc prenuPrivatanVortaronFHandle {} {
+    set file [my prenuPrivateFVortaroDosieron]
+    set f [open $file a]
+    fconfigure $f -encoding utf-8
+    if {![my exists estasUzita]} {
+        global env
+        if {[info exists env(USER)]} {
+            set user $env(USER)
+        } elseif {[info exists env(USERNAME)]} {
+            set user $env(USERNAME)
+        } else {
+            set user ""
+        }
+        puts $f "# [clock format [clock seconds]] $user"
+        my set estasUzita 1
+    }
+    return $f
+}
+DBVortaroLogMix proc prenuPrivateFVortaroDosieron {} {
+    file join [EsperantoConf prefEspDosierujo] esp-vortaro.txt
+}
+DBVortaroLogMix proc sxaltuLog {} {
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    if {![$dbvortaro hasclass DBVortaroLogMix]} {
+       $dbvortaro mixin add [self]
+    }
+}
+Class FrazpartoVortaro -parameter lingvo
+@ ::FrazpartoVortaro idemeta component EspTradukaVortaro
+FrazpartoVortaro instproc leguDeDosiero {} {
+    my instvar lingvo iarr oarr aarr earr parr tipoj
+
+    unset -nocomplain iarr oarr aarr earr parr
+    if {[info exists tipoj]} {
+        foreach tipo $tipoj {
+            my instvar m_$tipo
+            unset -nocomplain m_$tipo
+        }
+    }
+    set tipoj {}
+
+    set d [FrazpartoVortaro prenuDosierujonPorLingvo $lingvo]
+    if {![file exists $d]} {
+        return
+    }
+    set fh [open $d r]
+    fconfigure $fh -encoding utf-8
+    while {[gets $fh line]>=0} {
+        set line [string trim $line]
+        if {[string index $line 0] eq "#"} {
+            continue
+        }
+        if {![info complete $line]} {
+            append line \n
+            while {[gets $fh cline]>=0} {
+                append line $cline \n
+                if {[info complete $line]} {
+                    break
+                }
+            }
+            my leguKompleksanMusteron $line
+            continue
+        }
+        set unua [lindex $line 0]
+        if {[regexp {.+(i|a|o|e)$} $unua _ fino]} {
+            my leguFrazo-$fino $unua [lrange $line 1 end]
+        } else {
+            my leguFrazo-p $unua [lrange $line 1 end]
+        }
+    }
+
+    close $fh
+}
+FrazpartoVortaro instproc leguFrazo-a {unua resto} {
+    my instvar aarr
+    ide::addToValueForKey aarr $unua $resto
+}
+FrazpartoVortaro instproc leguFrazo-e {unua resto} {
+    my instvar earr
+    ide::addToValueForKey earr $unua $resto
+}
+FrazpartoVortaro instproc leguFrazo-i {unua resto} {
+    my instvar iarr
+    ide::addToValueForKey iarr $unua $resto
+}
+FrazpartoVortaro instproc leguFrazo-o {unua resto} {
+    my instvar oarr
+    ide::addToValueForKey oarr $unua $resto
+}
+FrazpartoVortaro instproc leguFrazo-p {unua resto} {
+    my instvar parr
+    ide::addToValueForKey parr $unua $resto
+}
+FrazpartoVortaro instproc leguKompleksanMusteron mustero {
+    set tipo ""
+    set radiko ""
+    set aliaj [list]
+    foreach {k v} [lindex $mustero 0] {
+        if {$k eq "tipo"} {
+            set tipo $v
+        } elseif {$k eq "radiko"} {
+            set radiko $v
+        } else {
+            lappend aliaj $k $v
+        }
+    }
+    if {$tipo ne "" && $radiko ne ""} {
+        my instvar m_${tipo} tipoj
+        if {[lsearch $tipoj $tipo]<0} {
+            lappend tipoj $tipo
+        }
+        lappend m_${tipo}($radiko) $aliaj
+    } else {
+        puts "falsa traduka mustero $mustero"
+    }
+}
+FrazpartoVortaro instproc prenuMusteronPorRadiko {tipo radiko} {
+    my instvar m_${tipo} tipoj
+    if {[info exists m_${tipo}($radiko)]} {
+        return [set m_${tipo}($radiko)]
+    }
+    return
+}
+FrazpartoVortaro instproc prenuPorRadiko radiko {
+    if {![regexp {.+(i|a|o|e)$} $radiko _ fino]} {
+        set fino p
+    }
+    my instvar ${fino}arr
+    if {[info exists ${fino}arr($radiko)]} {
+        return [set ${fino}arr($radiko)]
+    }
+    return
+}
+FrazpartoVortaro proc prenuDosierujonPorLingvo lingvo {
+    set d "frazparto_$lingvo.txt"
+    file join [EsperantoConf prenuVortaroDosierujo] $d
+}
+FrazpartoVortaro proc prenuPorLingvo lingvo {
+    my instvar instancojArr
+    set lvg [string tolower $lingvo]
+    if {![info exists instancojArr($lvg)] || ![Object isobject $instancojArr($lvg)]} {
+        set instanco [my new -lingvo $lvg]
+        $instanco leguDeDosiero
+        set instancojArr($lvg) $instanco
+        return $instanco
+    }
+    return $instancojArr($lvg)
+}
+Class PrivataTradukaVortaro -superclass ::BasaVortaro
+@ ::PrivataTradukaVortaro idemeta component EspTradukaVortaro
+PrivataTradukaVortaro instproc commit {} {
+    my instvar nurLega mkhandle
+    mk::file commit $mkhandle
+}
+PrivataTradukaVortaro instproc destroy {} {
+    my instvar mkhandle
+    catch {mk::file close $mkhandle}
+    next
+}
+PrivataTradukaVortaro instproc eksportuVortliston {outstream lingvo {progresoMontrilo {}}} {
+    my instvar mkhandle
+    set vortojid [mk::select $mkhandle.tradukoj]
+    set length [llength $vortojid]
+    set count 0
+    mk::loop tid $mkhandle.tradukoj {
+        set traduklisto [list]
+        foreach n {vorto traduko sento fgrupo gramatiko} v [mk::get $tid vorto traduko sento fgrupo gramatiko] {
+            set $n $v
+        }
+        if {$sento ne ""} {
+            append traduko " ($sento)"
+        }
+        if {$fgrupo ne ""} {
+            append traduko " <f>$fgrupo</f>"
+        }
+        if {$gramatiko ne ""} {
+            append traduko " <g>$gramatiko</g>"
+        }
+        lappend traduklisto $traduko
+        if {[llength $traduklisto]>0} {
+            puts $outstream "$vorto; [join $traduklisto {, }]"
+        }
+        if {$progresoMontrilo ne ""} {
+            $progresoMontrilo setProgress [expr {round(100.0*$count/$length)}]
+            update
+            if {[$progresoMontrilo isStopped]} {
+                break
+            }
+        }
+        incr count
+    }
+}
+PrivataTradukaVortaro instproc importuTraduko {lingvo derivo traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}} {certa 0}} {
+    my instvar mkhandle
+    if {$ordo eq ""} {
+        set ordo 0
+    }
+    foreach v {derivo traduko sento gramatiko fgrupo ordo} {
+        if {[set $v] ne ""} {
+            lappend cArr $v [set $v]
+        }
+    }
+    if {$certa} {
+        mk::row append $mkhandle.tradukoj vorto $derivo traduko $traduko sento $sento gramatiko $gramatiko fgrupo $fgrupo ordo $ordo
+        return 1
+    }
+    set tid [mk::select $mkhandle.tradukoj -count 1 -exact derivo $derivo -exact traduko $traduko]
+    if {$tid eq ""} {
+        mk::row append $mkhandle.tradukoj vorto $derivo traduko $traduko sento $sento gramatiko $gramatiko fgrupo $fgrupo ordo $ordo
+        return 1
+    } else {
+        return 2
+    }
+    return 0
+}
+PrivataTradukaVortaro instproc importuVorton derivo {
+    # jam konata
+    return 2
+}
+PrivataTradukaVortaro instproc kreuVortaron {adosiero alingvo} {
+    my instvar mkhandle lingvo dosiero
+    set lingvo $alingvo
+    set dosiero $adosiero
+    file delete $dosiero
+    package require Mk4tcl
+
+    mk::file open [set mkhandle [Object autoname mkhandle]] [file native $dosiero]
+
+    set view [mk::view layout $mkhandle.priskriboj {nomo valuo}]
+    mk::row append $mkhandle.priskriboj nomo lingvo valuo $lingvo
+    mk::file commit $view
+
+    set view [mk::view layout $mkhandle.tradukoj {vorto traduko sento fgrupo gramatiko ordo:I}]
+    mk::file commit $view
+
+    mk::file commit $mkhandle
+}
+PrivataTradukaVortaro instproc malfermuVortaron adosiero {
+    my instvar mkhandle lingvo dosiero
+    set dosiero $adosiero
+    package require Mk4tcl
+
+    mk::file open [set mkhandle [Object autoname mkhandle]] [file native $dosiero]
+}
+PrivataTradukaVortaro instproc montruStatistikon {} {
+   my instvar mkhandle
+   set rezulto "lingvo: [my prenuLingvon]\n"
+   append rezulto "tradukoj [llength [mk::select $mkhandle.tradukoj]]"
+   RezultoFenestro newBrowser $rezulto
+}
+PrivataTradukaVortaro instproc nuliguTradukon {id lingvo vorto traduko} {
+    my instvar mkhandle
+    mk::row delete $mkhandle.tradukoj!$id
+}
+PrivataTradukaVortaro instproc prenuLingvon {} {
+    my instvar lingvo mkhandle
+    if {[info exists lingvo]} {
+        return $lingvo
+    }
+    foreach tid [mk::select $mkhandle.priskriboj -exact nomo lingvo] {
+        set lingvo [mk::get $mkhandle.priskriboj!$tid valuo]
+    }
+    return $lingvo
+}
+PrivataTradukaVortaro instproc prenuNomo {} {
+    my instvar dosiero
+    file tail $dosiero
+}
+PrivataTradukaVortaro instproc sxercxuRezListo {derivoVorto lingvo {montrilo {}}} {
+    my instvar mkhandle
+    set rez [list]
+    set op -exact
+    if {[string first ? $derivoVorto]>=0 || [string first * $derivoVorto]>=0} {
+        set op -glob
+    }
+    set rows [mk::select $mkhandle.tradukoj $op vorto $derivoVorto]
+    set length [llength $rows]
+    foreach tid $rows {
+        set linio [concat [mk::get $mkhandle.tradukoj!$tid] id $tid]
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $linio $length]} {
+                break
+            }
+        }
+        lappend rez $linio
+    }
+    return $rez
+}
+PrivataTradukaVortaro instproc sxercxuRezListoPorTraduko {traduko lingvo {montrilo {}}} {
+    my instvar mkhandle
+    set rez [list]
+    set op -exact
+    if {[string first ? $traduko]>=0 || [string first * $traduko]>=0} {
+        set op -glob
+    }
+    set rows [mk::select $mkhandle.tradukoj $op traduko $traduko]
+    set length [llength $rows]
+    foreach tid $rows {
+        set linio [mk::get $mkhandle.tradukoj!$tid]
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $linio $length]} {
+                break
+            }
+        }
+        lappend rez $linio
+    }
+    return $rez
+}
+PrivataTradukaVortaro instproc sxercxuRezListoTransTraduko {traduko fontalingvo celalingvo {montrilo {}}} {
+    return
+}
+PrivataTradukaVortaro instproc sxercxuTraduko {traduko lingvo montrilo} {
+    my instvar mkhandle
+    set trovita 0
+    foreach i [mk::select $mkhandle.tradukoj -glob traduko $traduko -sort traduko] {
+        set trovita 1
+        array set tradukoarr [mk::get $mkhandle.tradukoj!$i]
+        $montrilo aliguTekston "$tradukoarr(traduko); $tradukoarr(vorto)\n"
+    }
+    if {!$trovita} {
+        $montrilo aliguTekston "traduko de vorto '$traduko' ne trovita"
+    }
+}
+PrivataTradukaVortaro instproc sxercxuVorto {vorto lingvo montrilo} {
+    my instvar mkhandle
+    set trovita 0
+    set tradTrovita 0
+    set tradukoj [list]
+    foreach tid [mk::select $mkhandle.tradukoj -glob vorto $vorto] {
+        array set traduko [mk::get $mkhandle.tradukoj!$tid]
+        set trovita 1
+        if {[info exists traduko(sento)] && $traduko(sento) ne ""} {
+            lappend tradukoj "$traduko(vorto); $traduko(traduko) ($traduko(sento))"
+        } else {
+            lappend tradukoj "$traduko(vorto); $traduko(traduko)"
+        }
+        unset traduko
+    }
+    if {!$trovita} {
+        $montrilo aliguTekston "vorto '$vorto' ne trovita"
+    } else {
+        $montrilo aliguTekston [join $tradukoj \n]\n
+    }
+}
+PrivataTradukaVortaro instproc sxercxuVortoEkzakt {derivoVorto lingvo montrilo} {
+    my instvar mkhandle
+    $montrilo aliguTekston " $derivoVorto; "
+    set tradukoj [list]
+    foreach tid [mk::select revodb.tradukoj -exact vorto $derivoVorto] {
+        array set traduko [mk::get revodb.tradukoj!$tid]
+        if {[info exists traduko(sento)] && $traduko(sento) ne ""} {
+            lappend tradukoj "$traduko(traduko) ($traduko(sento))"
+        } else {
+            lappend tradukoj $traduko(traduko)
+        }
+        unset traduko
+    }
+    $montrilo aliguTekston "[join $tradukoj ", "]\n"
+}
+PrivataTradukaVortaro instproc sxercxuVortoListo {vorto lingvo} {
+    my instvar mkhandle
+    set tradukoj [list]
+    foreach tid [mk::select $mkhandle.tradukoj -exact vorto $vorto] {
+        lappend tradukoj [mk::get $mkhandle.tradukoj!$tid traduko]
+    }
+    return $tradukoj
+}
+PrivataTradukaVortaro proc aliguPrivatanVortaron {} {
+    set lingvo [EsperantoConf set lingvo]
+    foreach {l nomo} [TradukaVortaroMontrilo lingvoListo] {
+        lappend lingvoj [list $l $nomo]
+    }
+    set s [::IDE::IDialogList getListItem "Elektu la lingvon" $lingvoj [list $lingvo [TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $lingvo]]]
+    if {$s eq ""} return
+    set nlingvo [lindex $s 0]
+    set nomo [IDE::IDialogEntry getValueWithCancel "nomo de privata vortaro" pvortaro-$nlingvo]
+    if {$nomo eq "" || $nomo eq "_cancel"} {
+        return
+    }
+    set dn [file join [EsperantoConf prefEspDosierujo] $nomo.pdb]
+    if {[file exists $dn]} {
+        EsperantoBrowser message "Vortaro kun la sama nomo jam ekzistas."
+        return
+    }
+    set pvortaro [PrivataTradukaVortaro new]
+    $pvortaro kreuVortaron $dn $nlingvo
+    TradukaVortaroMontrilo redaktuVortaron $pvortaro
+}
+PrivataTradukaVortaro proc prenuPrivatajnVortarojn {} {
+    glob -nocomplain -directory [EsperantoConf prefEspDosierujo] *.pdb
+}
+Class RapidaTradukaVortaro -parameter {{fontaLingvo eo} celaLingvo}
+@ ::RapidaTradukaVortaro idemeta component EspTradukaVortaro
+RapidaTradukaVortaro instproc leguVortojn {{progresoMontrilo {}}} {
+    set vortaro [DBVortaro prenuDepVortaron]
+    my instvar vortlisto nombro literoArr literoj celoListo literoCeloArr literojCelo celaLingvo
+    set literoj ""
+    set vortlisto [lsort -index 0 [$vortaro prenuVortliston $celaLingvo $progresoMontrilo]]
+    set i 0
+    set tempIndekso [list]
+    foreach t $vortlisto {
+        lappend tempIndekso [list [string tolower [lindex $t 1]] $i]
+        incr i
+    }
+    set celoListo [list]
+    foreach t [lsort -index 0 $tempIndekso] {
+        lappend celoListo [lindex $t 1]
+    }
+
+    set nombro [llength $vortlisto]
+    set i 0
+    set lasta ""
+    set literoj [list]
+    foreach v $vortlisto {
+        set d [string tolower [string index [lindex $v 0] 0]]
+        if {$lasta ne $d} {
+            set lasta $d
+            append literoj $d
+            set literoArr($d) $i
+        }
+        incr i
+    }
+    set i 0
+    set lasta ""
+    set literojCelo [list]
+    foreach v $celoListo {
+        set d [string tolower [string index [lindex $vortlisto $v 1] 0]]
+        if {$lasta ne $d} {
+            set lasta $d
+            append literojCelo $d
+            set literoCeloArr($d) $i
+        }
+        incr i
+    }
+}
+RapidaTradukaVortaro instproc prenuCeloListparton {de al} {
+    my instvar vortlisto celoListo
+    set ret [list]
+    foreach i [lrange $celoListo $de $al] {
+        lappend ret [lindex $vortlisto $i]
+    }
+    return $ret
+}
+RapidaTradukaVortaro instproc prenuIndekso {nunaIndekso nunajLiteroj novajLiteroj bazaVortoRef} {
+    my instvar vortlisto nombro literoArr literoj
+    set vorto $nunajLiteroj$novajLiteroj
+    if {$nunaIndekso==-1 || $nunajLiteroj eq ""} {
+        set litero [string index $novajLiteroj 0]
+        if {[catch {set subaLimo $literoArr($litero)}]} {
+            return
+        }
+        set slit [string index $literoj [expr {[string first $litero $literoj]+1}]]
+        if {$slit eq ""} {
+            set supraLimo [expr {$nombro-1}]
+        } else {
+            set supraLimo $literoArr([string index $literoj [expr {[string first $litero $literoj]+1}]])
+        }
+    } else {
+        set subaLimo $nunaIndekso
+        set zono [expr {$nombro/([string length $nunajLiteroj]*28)}]
+        if {$zono<20} {
+            set zono 20
+        }
+        set esupraLimo [expr {$subaLimo+$zono}]
+        if {$esupraLimo>=$nombro-1} {
+            set supraLimo [expr {$nombro-1}]
+        } else {
+            while {[string compare -nocase [lindex $vortlisto $esupraLimo 0] $vorto]<0} {
+                incr esupraLimo $zono
+                if {$esupraLimo>=$nombro-1} {
+                    set esupraLimo [expr {$nombro-1}]
+                    break
+                }
+            }
+            set supraLimo $esupraLimo
+        }
+    }
+    upvar $bazaVortoRef bazaVorto
+    set bazaVorto 0
+    while {$supraLimo!=$subaLimo} {
+        set m [expr {($subaLimo+$supraLimo)/2}]
+        set crez [string compare -nocase [lindex $vortlisto $m 0] $vorto]
+        if {$crez==0} {
+            set bazaVorto 1
+            incr m -1
+            while {$m>0 && [string compare -nocase [lindex $vortlisto $m 0] $vorto]==0} {
+                incr m -1
+            }
+            incr m
+            return $m
+        } elseif {$crez<0} {
+            if {$subaLimo==$supraLimo-1} {
+                return $supraLimo
+            }
+            set subaLimo $m
+        } else {
+            set supraLimo $m
+        }
+    }
+    return $supraLimo
+}
+RapidaTradukaVortaro instproc prenuIndeksoCelo {nunaIndekso nunajLiteroj novajLiteroj bazaVortoRef} {
+    my instvar vortlisto nombro celoListo literoCeloArr literojCelo
+    set vorto $nunajLiteroj$novajLiteroj
+    if {$nunaIndekso==-1 || $nunajLiteroj eq ""} {
+        set litero [string index $novajLiteroj 0]
+        if {[catch {set subaLimo $literoCeloArr($litero)}]} {
+            return
+        }
+        set slit [string index $literojCelo [expr {[string first $litero $literojCelo]+1}]]
+        if {$slit eq ""} {
+            set supraLimo [expr {$nombro-1}]
+        } else {
+            set supraLimo $literoCeloArr([string index $literojCelo [expr {[string first $litero $literojCelo]+1}]])
+        }
+    } else {
+        set subaLimo $nunaIndekso
+        set zono [expr {$nombro/([string length $nunajLiteroj]*28)}]
+        if {$zono<20} {
+            set zono 20
+        }
+        set esupraLimo [expr {$subaLimo+$zono}]
+        if {$esupraLimo>=$nombro-1} {
+            set supraLimo [expr {$nombro-1}]
+        } else {
+            while {[string compare [string tolower [lindex $vortlisto [lindex $celoListo $esupraLimo] 1]] $vorto]<0} {
+                incr esupraLimo $zono
+                if {$esupraLimo>=$nombro-1} {
+                    set esupraLimo [expr {$nombro-1}]
+                    break
+                }
+            }
+            set supraLimo $esupraLimo
+        }
+    }
+    upvar $bazaVortoRef bazaVorto
+    set bazaVorto 0
+    while {$supraLimo!=$subaLimo} {
+        set m [expr {($subaLimo+$supraLimo)/2}]
+        set crez [string compare [string tolower [lindex $vortlisto [lindex $celoListo $m] 1]] $vorto]
+        if {$crez==0} {
+            set bazaVorto 1
+            incr m -1
+            while {$m>0 && [string compare [string tolower [lindex $vortlisto [lindex $celoListo $m] 1]] $vorto]==0} {
+                incr m -1
+            }
+            incr m
+            return $m
+        } elseif {$crez<0} {
+            if {$subaLimo==$supraLimo-1} {
+                return $supraLimo
+            }
+            set subaLimo $m
+        } else {
+            set supraLimo $m
+        }
+    }
+    return $supraLimo
+}
+RapidaTradukaVortaro instproc prenuListparton {de al} {
+    my instvar vortlisto
+    lrange $vortlisto $de $al
+}
+RapidaTradukaVortaro proc prenuVortaron lingvo {
+    my instvar vortarojArr
+    if {[info exists vortarojArr($lingvo)] && [Object isobject $vortarojArr($lingvo)]} {
+        return $vortarojArr($lingvo)
+    }
+    set v [RapidaTradukaVortaro new -celaLingvo $lingvo]
+    set progreso [ProgresoMontrilo startNurProgress {Preparado de vortaro}]
+    $v leguVortojn $progreso
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    set vortarojArr($lingvo) $v
+    return $v
+}
+Class RapidaUnuigaTVortaro -parameter vortaro
+@ ::RapidaUnuigaTVortaro idemeta component EspTradukaVortaro
+RapidaUnuigaTVortaro instproc leguVortojn {flingvo clingvo {progresoMontrilo {}}} {
+    my instvar vortaro
+    if {![info exists vortaro]} {
+        set vortaro [DBVortaro prenuDepVortaron]
+    }
+    my instvar vortlisto nombro literoArr literoj fontolingvo celolingvo
+    set fontolingvo $flingvo
+    set celolingvo $clingvo
+
+    set literoj ""
+    set vortlisto [list]
+    if {$fontolingvo eq "eo"} {
+         foreach v [$vortaro prenuVortliston $celolingvo $progresoMontrilo] {
+             lappend vortlisto [lindex $v 0]
+         }
+    } elseif {$celolingvo eq "eo"} {
+         foreach v [$vortaro prenuVortliston $fontolingvo $progresoMontrilo] {
+             lappend vortlisto [lindex $v 1]
+         }
+    } else {
+         foreach v [$vortaro prenuVortliston $celolingvo $progresoMontrilo] {
+             set tmpArr([lindex $v 0]) 1
+         }
+         foreach v [$vortaro prenuVortliston $fontolingvo $progresoMontrilo] {
+             if {[info exists tmpArr([lindex $v 0])]} {
+                 lappend vortlisto [lindex $v 1]
+             }
+         }
+
+    }
+    set vortlisto [lsort -dictionary -unique $vortlisto]
+
+    set nombro [llength $vortlisto]
+    set i 0
+    set lasta ""
+    set literoj [list]
+    foreach v $vortlisto {
+        set d [string tolower [string index [lindex $v 0] 0]]
+        if {$lasta ne $d} {
+            set lasta $d
+            append literoj $d
+            set literoArr($d) $i
+        }
+        incr i
+    }
+}
+RapidaUnuigaTVortaro instproc prenuIndekso {nunaIndekso nunajLiteroj novajLiteroj bazaVortoRef} {
+    my instvar vortlisto nombro literoArr literoj
+    set vorto $nunajLiteroj$novajLiteroj
+    if {$vorto eq ""} {
+        return
+    }
+    if {$nunaIndekso==-1 || $nunajLiteroj eq ""} {
+        set litero [string tolower [string index $novajLiteroj 0]]
+        if {[catch {set subaLimo $literoArr($litero)}]} {
+            return
+        }
+        set slit [string index $literoj [expr {[string first $litero $literoj]+1}]]
+        if {$slit eq ""} {
+            set supraLimo [expr {$nombro-1}]
+        } else {
+            set supraLimo $literoArr([string index $literoj [expr {[string first $litero $literoj]+1}]])
+        }
+    } else {
+        set subaLimo $nunaIndekso
+        set zono [expr {$nombro/([string length $nunajLiteroj]*28)}]
+        if {$zono<20} {
+            set zono 20
+        }
+        set esupraLimo [expr {$subaLimo+$zono}]
+        if {$esupraLimo>=$nombro-1} {
+            set supraLimo [expr {$nombro-1}]
+        } else {
+            while {[string compare -nocase [lindex $vortlisto $esupraLimo] $vorto]<0} {
+                incr esupraLimo $zono
+                if {$esupraLimo>=$nombro-1} {
+                    set esupraLimo [expr {$nombro-1}]
+                    break
+                }
+            }
+            set supraLimo $esupraLimo
+        }
+    }
+    upvar $bazaVortoRef bazaVorto
+    set bazaVorto 0
+    set i 0
+    while {$supraLimo!=$subaLimo} {
+        set m [expr {($subaLimo+$supraLimo)/2}]
+        set crez [string compare  -nocase [lindex $vortlisto $m] $vorto]
+        if {$crez==0} {
+            set bazaVorto 1
+            incr m -1
+            while {$m>0 && [string compare -nocase [lindex $vortlisto $m] $vorto]==0} {
+                incr m -1
+            }
+            incr m
+            return $m
+        } elseif {$crez<0} {
+            if {$subaLimo==$supraLimo-1} {
+                return $supraLimo
+            }
+            set subaLimo $m
+        } else {
+            set supraLimo $m
+        }
+        incr i
+        if {$i>1000} {
+            #my halt
+            break
+        }
+    }
+    return $supraLimo
+}
+RapidaUnuigaTVortaro instproc prenuListparton {de al} {
+    my instvar vortlisto
+    lrange $vortlisto $de $al
+}
+RapidaUnuigaTVortaro proc prenuVortaron {fontolingvo celolingvo} {
+    my instvar vortarojArr
+    set key $fontolingvo-$celolingvo
+    if {[info exists vortarojArr($key)] && [Object isobject $vortarojArr($key)]} {
+        return $vortarojArr($key)
+    }
+    set v [RapidaUnuigaTVortaro new]
+    set progreso [ProgresoMontrilo startNurProgress {Preparado de vortaro}]
+    $v leguVortojn $fontolingvo $celolingvo $progreso
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+    set vortarojArr($key) $v
+    return $v
+}
+Class SQLDBVortaro -superclass ::BasaVortaro
+@ ::SQLDBVortaro idemeta categories {importado traduk-strukturoj api uzanto}
+@ ::SQLDBVortaro idemeta categoriesMethods {{sxercxuRadikoId importuRadikoj importuDerivon importuRadikon sxercxuDerivoId sxercxuTradukoId importuTraduko} {testuLingvo preparuLingvon kreuTradukoTablo} {cxuVortaroTrovita montruStatistikon subtenatajLingvoj eksportuVortliston sxercxuRezListo sxercxuTraduko sxercxuTransVorto sxercxuVorto sxercxuVortoEkzakt sxercxuVortoListo modifuTradukon sxercxuRezListoPorTraduko sxercxuRezListoMeta} {initUzantoj prenuUzantoId prenuUzantojNomoj prenuUzantoNomo metuUzantoNomo}}
+@ ::SQLDBVortaro idemeta component EspTradukaVortaro
+SQLDBVortaro instproc aliguLingvon {lng lingvo} {
+    my preparuLingvon $lng
+}
+SQLDBVortaro instproc aliguTekston t {
+    my instvar teksto
+    append teksto $t
+}
+SQLDBVortaro instproc alterTable {} {
+    my instvar connection
+    foreach {lng nomo} [my subtenatajLingvoj] {
+        set kreostmt "ALTER TABLE traduko_$lng add column (kreinto int default null)"
+        $connection execute $kreostmt
+    }
+
+    return
+
+    set a {
+        CREATE TABLE uzanto (
+  id int NOT NULL auto_increment,
+  nomo VARCHAR(50),
+  priskribo VARCHAR(500),
+  create_date TIMESTAMP(14),
+  PRIMARY KEY (id)
+)
+    }
+}
+SQLDBVortaro instproc beginUnitOfWork {} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+}
+SQLDBVortaro instproc commit {} {
+}
+SQLDBVortaro instproc cxuVortaroTrovita {} {
+    return 1
+}
+SQLDBVortaro instproc destroy {} {
+    my instvar connection
+    catch {$connection destroy}
+    next
+}
+SQLDBVortaro instproc eksportuVortliston {outstream lingvo {progresoMontrilo {}}} {
+    my instvar connection
+    set sql "select derivo,traduko,sento,fgrupo,t.gramatiko from derivo,traduko_$lingvo t where derivo.id=derivoid order by derivo"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        EsperantoBrowser message [$connection errorMessage]
+        return
+    }
+    set lastderivo ""
+    set traduklisto [list]
+    set count 0
+    set length [$query rows]
+    while {[llength [set row [$query fetch]]]>0} {
+        if {$lastderivo ne [lindex $row 0]} {
+            if {$lastderivo ne ""} {
+                puts $outstream "$lastderivo; [join $traduklisto {, }]"
+            }
+            set lastderivo [lindex $row 0]
+            set traduklisto [list]
+        }
+        if {[lindex $row 1] ne ""} {
+            set traduko [lindex $row 1]
+            set sento [lindex $row 2]
+            if {$sento ne ""} {
+                append traduko " ($sento)"
+            }
+            set fgrupo [lindex $row 3]
+            if {$fgrupo ne ""} {
+                append traduko " <f>$fgrupo</f>"
+            }
+            set gramatiko [lindex $row 4]
+            if {$gramatiko ne ""} {
+                append traduko " <g>$gramatiko</g>"
+            }
+            lappend traduklisto $traduko
+        }
+        if {$progresoMontrilo ne ""} {
+            $progresoMontrilo setProgress [expr {round(100.0*$count/$length)}]
+            update
+            if {[$progresoMontrilo isStopped]} {
+                break
+            }
+        }
+        incr count
+    }
+    $query destroy
+}
+SQLDBVortaro instproc endUnitOfWork {} {
+    my instvar connection
+    $connection execute "END TRANSACTION"
+}
+SQLDBVortaro instproc importuDerivon {radid radobj derivoListo} {
+    my instvar connection
+    set derivo [lindex $derivoListo 0][$radobj prenuRadiko][lindex $derivoListo 1]
+    if {[my sxercxuDerivoId $derivo] eq ""} {
+        set typo nekonata
+        if {[lindex $derivoListo 0] eq "" && [lindex $derivoListo 1] eq ""} {
+            if {[$radobj istype Pronomo]} {
+                set type [string tolower [$radobj prenuTypo]]
+            }
+        } else {
+            switch [string index $derivo end] {
+                o {
+                    set typo substantivo
+                }
+                a {
+                    set typo adjektivo
+                }
+                e {
+                    set typo adverbo
+                }
+                i {
+                    set typo verbo
+                }
+                default {
+                    set type nekonata
+                }
+            }
+        }
+        $connection insertRowAutoId derivo {radikoid derivo prefikso sufikso typo gramatiko} [list $radid $derivo [lindex $derivoListo 0] [lindex $derivoListo 1] $typo [lindex $derivoListo 2]] id
+    }
+}
+SQLDBVortaro instproc importuRadikoj {} {
+    foreach r [Radiko chiojRadikoj] {
+        my importuRadikon $r
+    }
+}
+SQLDBVortaro instproc importuRadikon radobj {
+    my instvar connection
+    if {[set id [my sxercxuRadikoId $radobj]] eq ""} {
+        set id [$connection insertRowAutoId radiko radiko [$radobj prenuRadiko] id]
+    }
+    foreach derivoListo [$radobj prenuListDerivoj] {
+        my importuDerivon $id $radobj $derivoListo
+    }
+}
+SQLDBVortaro instproc importuTraduko {lingvo derivo traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}}} {
+    my instvar connection lderivo ldid
+
+    if {[info exists lderivo] && $lderivo eq $derivo} {
+        set did $ldid
+    } else {
+        set did [my sxercxuDerivoId $derivo]
+    }
+    if {$did ne ""} {
+        set lderivo $derivo
+        set ldid $did
+        if {[my sxercxuTradukoId $lingvo $did $traduko] eq ""} {
+            set max [lindex [$connection queryList "select max(ordo) from traduko_$lingvo where derivoid=$did"] 0 0]
+            if {$max==""} {
+                set max 1
+            } else {
+                incr max
+            }
+            if {$ordo ne "" && $ordo ne "0" && $max>1} {
+                $connection execute "update traduko_$lingvo set ordo=$max where ordo=$ordo and derivoid=$did"
+            } else {
+                set ordo $max
+            }
+            $connection insertRowAutoId traduko_$lingvo {derivoid traduko sento gramatiko fgrupo ordo kreinto create_date} [list $did $traduko $sento $gramatiko $fgrupo $ordo [my prenuUzantoId] [$connection getTimeStampFunction]] id
+            return 1
+        } else {
+            return 2
+        }
+    } else {
+        return 0
+    }
+}
+SQLDBVortaro instproc importuVorton vorto {
+    # 0 - ok importita
+    # 1 - ne vorto
+    # 2 - jam konata
+    set vortaro [Vortaro prenuVortaron]
+    if {[$vortaro estasVorto $vorto 0]==2} {
+        set radobj [Radiko pr [$vortaro set radiko]]
+        set radid [my sxercxuRadikoId $radobj]
+        if {$radid eq ""} {
+            my importuRadikon $radobj
+        } else {
+            if {[$radobj prenuRadiko] eq $vorto} {
+                my importuDerivon $radid $radobj [list {} {}]
+            } else {
+                set cxeno [$vortaro prenuFiksaMorfcxeno]
+                set pref [lindex $cxeno 0]
+                set suf [join [lindex $cxeno 2] ""][join [lindex $cxeno 3] ""]
+                my importuDerivon $radid $radobj [list $pref $suf]
+            }
+        }
+        return 0
+    }
+    return 1
+}
+SQLDBVortaro instproc init {} {
+    my set connection [SQLDBVortaro getVortaroConnection]
+    next
+}
+SQLDBVortaro instproc initUzantoj {} {
+    my instvar uzantojArr uzantoId connection
+    if {[array exists uzantojArr]} {
+        return
+    }
+    if {[EsperantoConf isInDelopingMode]} {
+        set unomo Esperantilo
+    } else {
+        set unomo [EsperantoConf set uzantoNomo]
+    }
+    set uzantoId ""
+    foreach s [$connection queryList "select id,nomo from uzanto"] {
+        set uzantojArr([lindex $s 0]) [lindex $s 1]
+        if {$unomo eq [lindex $s 1]} {
+            set uzantoId [lindex $s 0]
+        }
+    }
+    if {$uzantoId eq ""} {
+        my metuUzantoNomo $unomo
+    }
+}
+SQLDBVortaro instproc kreuMetakit {} {
+    my instvar connection metakitdb
+    file delete vortaro.db
+    package require Mk4tcl
+    mk::file open revodb vortaro.db
+    set lng_listo [list]
+    foreach {lng lingvo} [my subtenatajLingvoj] {
+        lappend lng_listo $lng
+    }
+
+    set view [mk::view layout revodb.lingvoj {lng lingvo}]
+    foreach {l lingvo} [my subtenatajLingvoj] {
+        mk::row append revodb.lingvoj lng $l lingvo $lingvo
+        set tradukojView [mk::view layout revodb.tradukoj$l {derivoid:I traduko sento fgrupo gramatiko ordo:I rordo:I}]
+        mk::file commit $tradukojView
+    }
+    mk::file commit $view
+    set derivojView [mk::view layout revodb.derivoj {vorto}]
+    mk::file commit $derivojView
+    mk::file close revodb
+
+    set metakitdb [DBVortaro prenuVortaron]
+    set progreso [ProgresoMontrilo startProgress {Kreado de metakit vortaro}]
+
+    set sql "select id,derivo from derivo order by derivo"
+    set count [lindex [lindex [$connection queryList "select count(id) from derivo"] 0] 0]
+    set qderivo [$connection query $sql]
+
+    set index 0
+    while {[llength [set row [$qderivo fetch]]]>0} {
+        set derivoid [lindex $row 0]
+        $metakitdb importuDerivo [lindex $row 1]
+        update
+        $progreso setProgress [expr {round(100.0*$index/$count)}]
+        if {[$progreso isStopped]} {
+            break
+        }
+        incr index
+    }
+    $qderivo destroy
+
+    $metakitdb createCache
+    foreach lng $lng_listo {
+        # $progreso setProgress [expr {round(100.0*$index/[llength $lng_listo])}]
+        set ssql "select d.derivo,t.traduko,t.sento,t.fgrupo,t.gramatiko,t.ordo,t.rordo from traduko_$lng t,derivo d where t.derivoid=d.id"
+        set qtraduko [$connection query $ssql]
+        set index 0
+        while {[llength [set trow [$qtraduko fetch]]]>0} {
+            $metakitdb useCache [lindex $trow 0]
+            $metakitdb importuTradukoCerta $lng [lindex $trow 0] [lindex $trow 1] [lindex $trow 2]  [lindex $trow 4] [lindex $trow 3] [lindex $trow 5] [lindex $trow 6]
+            update
+            if {[$progreso isStopped]} {
+                break
+            }
+            $progreso setProgress [expr {round(100.0*$index/$count)}]
+            incr index
+        }
+        $qtraduko destroy
+        if {[$progreso isStopped]} {
+            break
+        }
+    }
+    $metakitdb dropCache
+
+    mk::file commit revodb
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+}
+SQLDBVortaro instproc kreuTradukoTablo lingvo {
+    my instvar connection
+    set kreostmt "CREATE TABLE traduko_$lingvo (
+  id int primary key auto_increment,
+  derivoid int,
+  traduko varchar(200),
+  sento varchar(200),
+  fgrupo varchar(200),
+  gramatiko varchar(200),
+  ordo int,
+  rordo int,
+  kreinto int default null,
+  uzanto int default null,
+  create_date datetime default null,
+  update_date datetime default null,
+  index (derivoid),
+  index (traduko))"
+    $connection execute $kreostmt
+}
+SQLDBVortaro instproc metuStatistikon {} {
+   my instvar connection
+   set rezulto ""
+   set esperDeriv [lindex [lindex [$connection queryList "select count(*) from derivo"] 0] 0]
+   foreach {lng lingvo} [my subtenatajLingvoj] {
+       # nombro de tradukoj
+       set ltradnombro [lindex [lindex [$connection queryList "select count(*) from traduko_$lng"] 0] 0]
+       set ldernombro [lindex [lindex [$connection queryList "select count(distinct derivoid) from traduko_$lng"] 0] 0]
+       set lelem "[format %-15s $lingvo] [format %6i $ltradnombro] [format %6i $ldernombro] - [format "% 6.2f" [expr {100.0*$ldernombro/$esperDeriv}]] "
+       if {$ldernombro>0} {
+           append lelem [format "% 6.2f" [expr {1.0*$ltradnombro/$ldernombro}]]
+       }
+       set stat($ltradnombro) $lelem
+   }
+   append rezulto " esperantaj derivaĵoj - $esperDeriv\n"
+   append rezulto " lingvo         trad#   der#     kovro   trad#/der#\n"
+   foreach nbro [lsort -integer -decreasing [array names stat]] {
+       append rezulto "$stat($nbro)\n"
+   }
+   return $rezulto
+}
+SQLDBVortaro instproc metuUzantoNomo nomo {
+    my instvar uzantojArr uzantoId connection
+    #my initUzantoj
+    set trovita 0
+    if {[array exists uzantojArr]} {
+        foreach {k v} [array get uzantojArr] {
+            if {$v eq $nomo} {
+                set uzantoId $k
+                set trovita 1
+                break
+            }
+        }
+    }
+    if {!$trovita} {
+         set id [$connection insertRowAutoId uzanto [list nomo create_date] [list $nomo [$connection getTimeStampFunction]] id]
+         set uzantoId $id
+         set uzantojArr($id) $nomo
+    }
+}
+SQLDBVortaro instproc modifuTradukon {id vorto traduko sxangxoListo lingvo {oldaOrdo {}}} {
+    my instvar connection
+    set sxangxoj {traduko sento ordo fgrupo gramatiko rordo}
+    set sql "update traduko_$lingvo set "
+    set first 1
+    foreach {a v} $sxangxoListo {
+        if {[lsearch $sxangxoj $a]<0} continue
+        if {!$first} {
+            append sql ,
+        }
+        set first 0
+        if {$a eq "ordo" && $oldaOrdo ne ""} {
+            if {$v ne "" && $v ne "0"} {
+                set did [lindex [$connection queryList "select derivoid from traduko_$lingvo where id=$id"] 0 0]
+                if {$did ne ""} {
+                    $connection execute "update traduko_$lingvo set ordo=$oldaOrdo where ordo=$v and derivoid=$did"
+                }
+            }
+        }
+        append sql "$a='[$connection escape $v]'"
+    }
+    append sql ",uzanto=[my prenuUzantoId]"
+    append sql ",update_date=[$connection getTimeStampFunction]"
+
+    append sql " where id=$id"
+    $connection execute $sql
+}
+SQLDBVortaro instproc montruStatistikon {} {
+   RezultoFenestro newBrowser [my metuStatistikon]
+}
+SQLDBVortaro instproc nuliguTradukon {id lingvo vorto traduko} {
+    my instvar connection
+    set sql "delete from traduko_$lingvo where id=$id"
+    $connection execute $sql
+}
+SQLDBVortaro instproc prenuNomo {} {
+    return "SQL vortaro"
+}
+SQLDBVortaro instproc prenuUzantoId {} {
+    my initUzantoj
+    my instvar uzantoId
+    return $uzantoId
+}
+SQLDBVortaro instproc prenuUzantoNomo {} {
+    my instvar uzantoId uzantojArr
+    my initUzantoj
+    return $uzantojArr($uzantoId)
+}
+SQLDBVortaro instproc prenuUzantojNomoj {} {
+    my instvar uzantojArr
+    my initUzantoj
+    set rez [list]
+    if {[array exists uzantojArr]} {
+        foreach {k v} [array get uzantojArr] {
+            lappend rez $v
+        }
+    }
+    return $rez
+}
+SQLDBVortaro instproc prenuVortliston {lingvo {progresoMontrilo {}}} {
+    my instvar connection
+    set sql "select derivo,traduko from derivo,traduko_$lingvo t where derivo.id=derivoid"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        EsperantoBrowser message [$connection errorMessage]
+        return
+    }
+    set count 0
+    set rez [list]
+    #set length [$query rows]
+    set count 0
+    set length [$query rows]
+
+    update
+    while {[llength [set row [$query fetch]]]>0} {
+        lappend rez $row
+        if {$progresoMontrilo ne "" && $count%50==0} {
+            $progresoMontrilo setProgress [expr {round(100.0*$count/$length)}]
+            if {[$progresoMontrilo isStopped]} {
+                break
+            }
+        }
+        incr count
+    }
+    $query destroy
+    return $rez
+}
+SQLDBVortaro instproc preparuLingvon lingvo {
+    if {![my testuLingvo $lingvo]} {
+        my kreuTradukoTablo $lingvo
+    }
+}
+SQLDBVortaro instproc purigu {} {
+    foreach {lng lingvo} [my subtenatajLingvoj] {
+        my puriguDatumaron $lng
+        my puriguDuoblajDatumaron $lng
+    }
+}
+SQLDBVortaro instproc puriguDatumaron lingvo {
+    my instvar connection
+    set trovita 0
+    set sql "select id,traduko from traduko_$lingvo where traduko REGEXP '\[()\]'"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    while {[llength [set row [$query fetch]]]>0} {
+        set traduko [lindex $row 1]
+        set id [lindex $row 0]
+        set atraduko $traduko
+        set seml [list]
+        if {[regexp {\((.+?)\) (.+)$} $traduko tuta sem ntraduko]} {
+            set traduko $ntraduko
+            lappend seml $sem
+        }
+        if {[regexp {(.+) \((.+?)\)} $traduko tuta ntraduko sem]} {
+            set traduko $ntraduko
+            lappend seml $sem
+        }
+        if {[llength $seml]>0} {
+            set sento [join $seml ", "]
+            puts "update $id - $traduko : $sento"
+            $connection execute "UPDATE traduko_$lingvo SET traduko='[$connection escape $traduko]',sento='[$connection escape $sento]' WHERE id=$id"
+        } else {
+            puts "  nuligita -$atraduko-"
+            $connection execute "DELETE FROM traduko_$lingvo WHERE id=$id"
+        }
+    }
+    $query destroy
+}
+SQLDBVortaro instproc puriguDuoblajDatumaron lingvo {
+    my instvar connection
+    set trovita 0
+    set sql "select derivoid,traduko from traduko_$lingvo group by derivoid,traduko having count(derivoid)>1"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    while {[llength [set row [$query fetch]]]>0} {
+        set derivoid [lindex $row 0]
+        set traduko [lindex $row 1]
+        set inner [$connection query "select id,sento from traduko_$lingvo where derivoid=$derivoid AND traduko='[$connection escape $traduko]'"]
+        set nuliguid [list]
+        set restu ""
+        while {[llength [set irow [$inner fetch]]]>0} {
+            if {$restu eq ""} {
+                set restu [lindex $irow 0]
+                continue
+            }
+            if {[lindex $irow 1] ne ""} {
+                lappend nuliguid $restu
+                set restu [lindex $irow 0]
+            } else {
+                lappend nuliguid [lindex $irow 0]
+            }
+        }
+        $inner destroy
+        $connection execute "delete from traduko_$lingvo where id in ([join $nuliguid ,])"
+        puts "trad -$traduko $derivoid restu $restu - nuligu $nuliguid"
+    }
+    $query destroy
+}
+SQLDBVortaro instproc puriguOrdo lingvo {
+    my instvar connection
+    set trovita 0
+    set sql "select t.id,ordo,derivo,traduko from derivo d,traduko_$lingvo t where d.id=t.derivoid order by derivo,t.id,ordo"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    set lderivo ""
+    set grupo [list]
+    set maxordo 0
+    while {[llength [set row [$query fetch]]]>0} {
+        foreach {tid ordo derivo traduko} $row break
+        if {$lderivo ne "" && $lderivo ne $derivo} {
+            foreach {itid iordo} $grupo {
+                incr maxordo
+                $connection execute "update traduko_$lingvo set ordo=$maxordo where id=$itid"
+                #puts "update traduko_$lingvo set ordo=$maxordo where id=$itid"
+            }
+            set grupo [list]
+            set maxordo 0
+        }
+        if {$ordo eq "" || $ordo==0} {
+            lappend grupo $tid $ordo
+        } elseif {$maxordo<$ordo} {
+            set maxordo $ordo
+        }
+        set lderivo $derivo
+    }
+    foreach {tid ordo} $grupo {
+        incr maxordo
+        $connection execute "update traduko_$lingvo set ordo=$maxordo where id=$tid"
+        #puts "update traduko_$lingvo set ordo=$maxordo where id=$tid"
+    }
+    $query destroy
+}
+SQLDBVortaro instproc puriguOrdoCxiuj {} {
+    foreach {lng dummy} [my subtenatajLingvoj] {
+        #if {$lng eq "pl"} continue
+        my puriguOrdo $lng
+    }
+}
+SQLDBVortaro instproc puriguSemikolonDatumaron lingvo {
+    my instvar connection
+    set trovita 0
+    set sql "select t.id,traduko,d.derivo from traduko_$lingvo t,derivo d where traduko like '%;%' and d.id=t.derivoid"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    while {[llength [set row [$query fetch]]]>0} {
+        set traduko [lindex $row 1]
+        set id [lindex $row 0]
+        set derivo [lindex $row 2]
+        set atraduko $traduko
+        puts "$id - $derivo - $traduko"
+        set tradukoj [split $traduko \;]
+        set traduko [lindex $tradukoj 0]
+        set traduko [string trim $traduko]
+        $connection execute "UPDATE traduko_$lingvo SET traduko='[$connection escape $traduko]'  WHERE id=$id"
+        puts "unua - $traduko"
+        foreach traduko [lrange $tradukoj 1 end] {
+            set traduko [string trim $traduko]
+            puts " add - $traduko"
+            my importuTraduko $lingvo $derivo $traduko
+        }
+
+    }
+    $query destroy
+}
+SQLDBVortaro instproc sercxuSenTraduko {vorto lingvo} {
+    my instvar connection
+    set vorto [string map {* % ? _} $vorto]
+
+    set sql "select derivo from derivo left join traduko_$lingvo t on derivo.id=derivoid where derivo like '$vorto' and t.id is null order by derivo"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return 0
+    }
+    set derivolisto [list]
+    while {[llength [set row [$query fetch]]]>0} {
+        lappend derivolisto [lindex $row 0]
+    }
+    $query destroy
+    return $derivolisto
+}
+SQLDBVortaro instproc subtenatajLingvoj {} {
+    my instvar connection
+    #return {pl polski}
+    set lngv_list [list]
+    foreach t [$connection getTables] {
+        if {[regexp {traduko_(.+)} $t _ lngv]} {
+            lappend lngv_list $lngv
+        }
+    }
+    array set lngarr [TradukaVortaroMontrilo lingvoListo]
+    set rez [list]
+    foreach l [lsort $lngv_list] {
+        lappend rez $l $lngarr($l)
+    }
+    return $rez
+}
+SQLDBVortaro instproc sxercxuDerivoId derivo {
+    my instvar connection
+    lindex [$connection queryList "select id from derivo where derivo='$derivo'"] 0 0
+}
+SQLDBVortaro instproc sxercxuRadikoId robj {
+    my instvar connection
+    lindex [lindex [$connection queryList "select id from radiko where radiko='[$robj prenuRadiko]'"] 0] 0
+}
+SQLDBVortaro instproc sxercxuRezListo {vorto lingvo {montrilo {}}} {
+    my instvar connection
+    set op =
+    if {[string first ? $vorto]>=0 || [string first * $vorto]>=0} {
+        set op like
+        set vorto [string map [list ? _ * %] $vorto]
+    }
+
+    set sql [format "select t.id as tid,derivo.id,derivo,traduko,sento,ordo,fgrupo,t.gramatiko,rordo from derivo,traduko_$lingvo t where derivo.id=derivoid and derivo $op '%s' order by derivo,ordo" [$connection escape $vorto]]
+    set listo [list]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        set rdic [dict create]
+        foreach attrname {id derivoid vorto traduko sento ordo fgrupo gramatiko rordo} attr $row {
+            dict set rdic $attrname $attr
+        }
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $rdic $rows]} {
+                break
+            }
+        }
+        lappend listo $rdic
+    }
+    $query destroy
+    return $listo
+}
+SQLDBVortaro instproc sxercxuRezListoMeta {vorto lingvo {montrilo {}}} {
+    my instvar connection uzantojArr
+    my initUzantoj
+    set op =
+    if {[string first ? $vorto]>=0 || [string first * $vorto]>=0} {
+        set op like
+        set vorto [string map [list ? _ * %] $vorto]
+    }
+
+    set sql [format "select t.id as tid,derivo.id,derivo,traduko,sento,ordo,fgrupo,t.gramatiko,rordo,kreinto,uzanto,create_date,update_date from derivo,traduko_$lingvo t where derivo.id=derivoid and derivo $op '%s' order by derivo,ordo" [$connection escape $vorto]]
+    set listo [list]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        set rdic [dict create]
+        foreach attrname {id derivoid vorto traduko sento ordo fgrupo gramatiko rordo kreinto uzanto create_date update_date} attr $row {
+            if {$attrname in {kreinto uzanto}} {
+                if {$attr ne "" && [catch {set uzantojArr($attr)} attr]} {
+                    set attr ""
+                }
+            }
+            dict set rdic $attrname $attr
+        }
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $rdic $rows]} {
+                break
+            }
+        }
+        lappend listo $rdic
+    }
+    $query destroy
+    return $listo
+}
+SQLDBVortaro instproc sxercxuRezListoPorTraduko {traduko lingvo {montrilo {}}} {
+    my instvar connection
+    set op =
+    if {[string first ? $traduko]>=0 || [string first * $traduko]>=0} {
+        set op like
+        set traduko [string map [list ? _ * %] $traduko]
+    }
+
+    set sql "select t.id as tid,derivo,traduko,sento,ordo,fgrupo,t.gramatiko,rordo from derivo,traduko_$lingvo t where derivo.id=derivoid and traduko $op '[$connection escape $traduko]' order by rordo"
+    set listo [list]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    set listo [list]
+    while {[llength [set row [$query fetch]]]>0} {
+        set linio [dict create]
+        foreach attrname {id vorto traduko sento ordo fgrupo gramatiko rordo} attr $row {
+            dict set linio $attrname $attr
+        }
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $linio $rows]} {
+                break
+            }
+        }
+        lappend listo $linio
+    }
+    $query destroy
+
+    return $listo
+}
+SQLDBVortaro instproc sxercxuRezListoTransTraduko {traduko fontalingvo celalingvo {montrilo {}}} {
+    my instvar connection
+    set op =
+    if {[string first ? $traduko]>=0 || [string first * $traduko]>=0} {
+        set op like
+        set traduko [string map [list ? _ * %] $traduko]
+    }
+
+
+    set sql "select tc.id,derivo,tc.traduko,tc.sento,tc.ordo,tc.fgrupo,tc.gramatiko,tf.traduko as tftraduko,tc.rordo from derivo d,traduko_$fontalingvo tf,traduko_$celalingvo tc where d.id=tf.derivoid and d.id=tc.derivoid and tf.traduko $op '$traduko' order by tf.traduko,derivo,tc.ordo"
+    set listo [list]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        set linio [dict create]
+        foreach attrname {id vorto traduko sento ordo fgrupo gramatiko ftraduko rordo} attr $row {
+            dict set linio $attrname $attr
+        }
+        if {$montrilo ne ""} {
+            if {![$montrilo aliguVortaroElemento $linio $rows]} {
+                break
+            }
+        }
+        lappend listo $linio
+    }
+    $query destroy
+    return $listo
+}
+SQLDBVortaro instproc sxercxuTraduko {traduko lingvo montrilo} {
+    my instvar connection
+    set trovita 0
+    if {[string first * $traduko]>=0 || [string first ? $traduko]>=0} {
+        set traduko [string map {* % ? _} $traduko]
+        set op like
+    } else {
+        set op =
+    }
+    set sql "select derivo,traduko,sento from derivo,traduko_$lingvo where derivo.id=derivoid and traduko $op '[$connection escape $traduko]' order by traduko"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    while {[llength [set row [$query fetch]]]>0} {
+        set trovita 1
+        set sento [lindex $row 2]
+        if {$sento eq ""} {
+            $montrilo aliguTekston "[lindex $row 1]; [lindex $row 0]\n"
+        } else {
+            $montrilo aliguTekston "[lindex $row 1]; [lindex $row 0] ($sento)\n"
+        }
+    }
+    if {!$trovita} {
+        $montrilo aliguTekston "traduko de vorto '$traduko' ne trovita"
+    }
+    $query destroy
+    return $trovita
+}
+SQLDBVortaro instproc sxercxuTradukoId {lingvo did traduko} {
+    my instvar connection
+    lindex [lindex [$connection queryList "select id from traduko_$lingvo where derivoid=$did AND traduko='$traduko'"] 0] 0
+}
+SQLDBVortaro instproc sxercxuTransVorto {vorto fontoLingvo zielLinvo montrilo} {
+    my instvar connection
+    set trovita 0
+    set tradTrovita 0
+    if {[string first * $vorto]>=0 || [string first ? $vorto]>=0} {
+        set vorto [string map {* % ? _} $vorto]
+        set op like
+    } else {
+        set op =
+    }
+    set sql "select derivo,f.traduko,z.traduko from derivo,traduko_$fontoLingvo f,traduko_$zielLinvo z where derivo.id=f.derivoid and derivo.id=z.derivoid and f.traduko $op '[$connection escape $vorto]' order by f.traduko"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    while {[llength [set row [$query fetch]]]>0} {
+        set trovita 1
+        $montrilo aliguTekston "[lindex $row 1] - (trans: [lindex $row 0]) - [lindex $row 2]\n"
+    }
+    $query destroy
+    if {!$trovita} {
+        $montrilo aliguTekston "vorto '$vorto' ne trovita"
+    }
+}
+SQLDBVortaro instproc sxercxuVorto {vorto lingvo montrilo} {
+    my instvar connection
+    set trovita 0
+    set tradTrovita 0
+    if {[string first * $vorto]>=0 || [string first ? $vorto]>=0} {
+        set vorto [string map {* % ? _} $vorto]
+        set op like
+    } else {
+        set op =
+    }
+    set sql "select derivo,traduko,sento from derivo left join traduko_$lingvo on derivo.id=derivoid where derivo $op '[$connection escape $vorto]' order by derivo"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return 0
+    }
+    set lastderivo ""
+    set traduklisto [list]
+    while {[llength [set row [$query fetch]]]>0} {
+        set trovita 1
+        if {$lastderivo ne [lindex $row 0]} {
+            if {$lastderivo ne ""} {
+                $montrilo aliguTekston "$lastderivo; [join $traduklisto {, }]\n"
+            }
+            set lastderivo [lindex $row 0]
+            set traduklisto [list]
+        }
+        if {[lindex $row 1] ne ""} {
+            if {[lindex $row 2] eq ""} {
+                lappend traduklisto [lindex $row 1]
+            } else {
+                lappend traduklisto "[lindex $row 1] ([lindex $row 2])"
+            }
+        }
+    }
+    if {$lastderivo ne ""} {
+        $montrilo aliguTekston "$lastderivo; [join $traduklisto {, }]\n"
+    }
+    $query destroy
+    if {!$trovita} {
+        $montrilo aliguTekston "vorto '$vorto' ne trovita"
+    }
+    return $trovita
+}
+SQLDBVortaro instproc sxercxuVortoEkzakt {derivoVorto lingvo montrilo} {
+    my instvar connection
+    set sql "select derivo,traduko from derivo left join traduko_$lingvo on derivo.id=derivoid where derivo = '[$connection escape $derivoVorto]' order by derivo"
+    set query [$connection query $sql]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    set lastderivo ""
+    set traduklisto [list]
+    while {[llength [set row [$query fetch]]]>0} {
+        if {$lastderivo ne [lindex $row 0]} {
+            if {$lastderivo ne ""} {
+                $montrilo aliguTekston "  $lastderivo; [join $traduklisto {, }]\n"
+            }
+            set lastderivo [lindex $row 0]
+            set traduklisto [list]
+        }
+        lappend traduklisto [lindex $row 1]
+    }
+    if {$lastderivo ne ""} {
+        $montrilo aliguTekston "  $lastderivo; [join $traduklisto {, }]\n"
+    }
+    $query destroy
+}
+SQLDBVortaro instproc sxercxuVortoListo {vorto lingvo} {
+    my instvar connection
+    set trovita 0
+    set sql "select traduko,sento from derivo,traduko_$lingvo where derivo.id=derivoid and derivo = '[$connection escape $vorto]' order by traduko"
+    set listo [list]
+    foreach l [$connection queryList $sql] {
+        set sento [lindex $l 1]
+        if {$sento eq ""} {
+            lappend listo [lindex $l 0]
+        } else {
+            lappend listo "[lindex $l 0] ($sento)"
+        }
+    }
+    return $listo
+}
+SQLDBVortaro instproc testuLingvo lingvo {
+    my instvar connection
+    expr {[lsearch [$connection getTables] traduko_$lingvo]>=0}
+}
+SQLDBVortaro proc getSQLDBVortaron {} {
+    set vobj ::sqldbvortaro
+    if {![Object isobject $vobj]} {
+        SQLDBVortaro create $vobj
+        VortarojAro initVortaroj $vobj
+    }
+    return $vobj
+}
+SQLDBVortaro proc getVortaroConnection {} {
+    KorpusoImporter getKorpusoConnection
+}
+@ Class SQLPrivataVortaro {
+description {La SQLite vortaro por normala uzanto}
+}
+Class SQLPrivataVortaro -superclass ::SQLDBVortaro
+@ ::SQLPrivataVortaro idemeta component EspTradukaVortaro
+SQLPrivataVortaro instproc commit {} {
+    my instvar connection
+    #$connection execute "END TRANSACTION"
+}
+SQLPrivataVortaro instproc cxuVortaroTrovita {} {
+    expr {![my exists neTrovita] || ![my set neTrovita]}
+}
+SQLPrivataVortaro instproc eksportuVortliston {outstream lingvo {progresoMontrilo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc foriguLingvon lg {
+    my instvar connection lingvoj
+    if {[set id [lsearch $lingvoj $lg]]<0} {
+        return
+    }
+    $connection execute "DETACH DATABASE $lg"
+    set lingvoj [lreplace $lingvoj $id $id]
+}
+SQLPrivataVortaro instproc importuDerivon derivo {
+    my instvar connection
+    $connection insertRowAutoId derivo {derivo} [list $derivo]
+}
+SQLPrivataVortaro instproc importuTraduko {lingvo derivo traduko {sento {}} {gramatiko {}} {fgrupo {}} {ordo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc importuVorton vorto {
+    # 0 - ok importita
+    # 1 - ne vorto
+    # 2 - jam konata
+    set vortaro [Vortaro prenuVortaron]
+    if {[$vortaro estasVorto $vorto]==2} {
+        set did [my sxercxuDerivoId $vorto]
+        if {$did eq ""} {
+            my importuDerivon $vorto
+            return 0
+        }
+        return 2
+    }
+    return 1
+}
+SQLPrivataVortaro instproc init {} {
+    my instvar lingvoj
+    set lingvoj [list]
+
+    set vortaroDosiero [SQLPrivataVortaro prenuDosieron]
+    if {![file exists $vortaroDosiero]} {
+        my set neTrovita 1
+    } else {
+        my konektu
+    }
+    DBVortaroLogMix sxaltuLog
+}
+SQLPrivataVortaro instproc konektu {} {
+    set vortaroDosiero [SQLPrivataVortaro prenuDosieron]
+
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set dbConnection [$iclass new -childof [self]]
+    $dbConnection connect [list sqlfile $vortaroDosiero noMeta 1]
+
+    my set connection $dbConnection
+    next
+}
+SQLPrivataVortaro instproc kreuDerivoTablo {} {
+    my instvar connection
+    set kreostmt "CREATE TABLE derivo (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  derivo VARCHAR(50))"
+    $connection execute $kreostmt
+    set kreostmt "CREATE INDEX derivo_derivo ON derivo (derivo)"
+    $connection execute $kreostmt
+
+    set kreostmt "CREATE TABLE uzanto (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nomo VARCHAR(50),
+  priskribo VARCHAR(500),
+  create_date TIMESTAMP(14) DEFAULT NULL)"
+    $connection execute $kreostmt
+}
+SQLPrivataVortaro instproc kreuLingvon lg {
+    my instvar connection lingvoj
+    if {[lsearch $lingvoj $lg]>=0} {
+        return
+    }
+    set vortaroDosiero [SQLPrivataVortaro prenuDosieronPorLingvo $lg]
+    if {![file exists $vortaroDosiero]} {
+        set iclass [Sqlinterface loadInterface sqlite]
+        set dbConnection [$iclass new -childof [self]]
+        $dbConnection connect [list sqlfile $vortaroDosiero]
+        my kreuTradukoTablo $dbConnection $lg
+        $dbConnection destroy
+        my pretiguLingvon $lg
+    }
+
+}
+SQLPrivataVortaro instproc kreuTradukoTablo {connection lingvo} {
+    set tablo traduko_$lingvo
+    set kreostmt "CREATE TABLE $tablo (
+  id integer primary key AUTOINCREMENT,
+  derivoid integer,
+  traduko varchar(200),
+  sento varchar(200),
+  fgrupo varchar(200),
+  gramatiko varchar(200),
+  ordo integer,
+  rordo integer,
+  kreinto int default null,
+  uzanto int default null,
+  create_date datetime default null,
+  update_date datetime default null)"
+    $connection execute $kreostmt
+    set kreostmt "CREATE INDEX ${tablo}_derivoid ON $tablo (derivoid)"
+    $connection execute $kreostmt
+    set kreostmt "CREATE INDEX ${tablo}_traduko ON $tablo (traduko)"
+    $connection execute $kreostmt
+}
+SQLPrivataVortaro instproc kreuVortaronDeBaza {} {
+    my instvar connection
+
+    if {[info exists connection] && [Object isobject $connection]} {
+        $connection destroy
+    }
+    set vortaroDosiero [SQLPrivataVortaro prenuDosieron]
+    if {[file exists $vortaroDosiero]} {
+        file delete $vortaroDosiero
+    }
+    my konektu
+    my kreuDerivoTablo
+    set dvortaro [SQLDBVortaro getSQLDBVortaron]
+    set dconnection [$dvortaro set connection]
+
+    set query [$dconnection query "select id,derivo from derivo"]
+    if {$query eq ""} {
+        IDE::Dialog message [$connection errorMessage]
+        return
+    }
+    $connection execute "BEGIN TRANSACTION"
+    puts "creating derivo"
+    while {[llength [set row [$query fetch]]]>0} {
+        $connection insertRow derivo {id derivo} $row {int varchar}
+    }
+    $connection execute "END TRANSACTION"
+
+    foreach {lingvo plena} [$dvortaro subtenatajLingvoj] {
+        set d [SQLPrivataVortaro prenuDosieronPorLingvo $lingvo]
+        if {[file exists $d]} {
+            file delete $d
+        }
+        my kreuLingvon $lingvo
+        set table traduko_$lingvo
+        set columns {id derivoid traduko sento fgrupo gramatiko ordo rordo}
+        set query [$dconnection query "select [join $columns ,] from $table"]
+        if {$query eq ""} {
+            IDE::Dialog message [$connection errorMessage]
+            return
+        }
+        $connection execute "BEGIN TRANSACTION"
+        puts "creating $table"
+        while {[llength [set row [$query fetch]]]>0} {
+            $connection insertRow $table $columns $row {int int varchar varchar varchar varchar varchar varchar}
+        }
+        $connection execute "END TRANSACTION"
+        my foriguLingvon $lingvo
+    }
+}
+SQLPrivataVortaro instproc metuStatistikon {} {
+   my instvar connection
+   set rezulto ""
+   set esperDeriv [lindex [lindex [$connection queryList "select count(*) from derivo"] 0] 0]
+   foreach {lng lingvo} [my subtenatajLingvoj] {
+       # nombro de tradukoj
+       my pretiguLingvon $lng
+       set ltradnombro [lindex [$connection queryList "select count(*) from traduko_$lng"] 0 0]
+       set ldernombro [lindex [$connection queryList "select count(distinct derivoid) from traduko_$lng"] 0 0]
+       set lelem "[format %-15s $lingvo] [format %6i $ltradnombro] [format %6i $ldernombro] - [format "% 6.2f" [expr {100.0*$ldernombro/$esperDeriv}]] "
+       if {$ldernombro>0} {
+           append lelem [format "% 6.2f" [expr {1.0*$ltradnombro/$ldernombro}]]
+       }
+       set stat($ltradnombro) $lelem
+       my foriguLingvon $lng
+   }
+   append rezulto " esperantaj derivaĵoj - $esperDeriv\n"
+   append rezulto " lingvo         trad#   der#     kovro   trad#/der#\n"
+   foreach nbro [lsort -integer -decreasing [array names stat]] {
+       append rezulto "$stat($nbro)\n"
+   }
+   return $rezulto
+}
+SQLPrivataVortaro instproc modifuTradukon {id vorto traduko sxangxoListo lingvo {oldaOrdo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc montruMesagxonNeTrovita {} {
+    EsperantoBrowser message [mc "Vi bezonas la dosieron 'evortaro.sql' en dosierujo %s por uzi la multlingvan vortaron. Poste rekomencu la programon denove" [EsperantoConf prenuVortaroDosierujo]]
+}
+SQLPrivataVortaro instproc nuliguTradukon {id lingvo vorto traduko} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc prenuVortliston {lingvo {progresoMontrilo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc preparuLingvon lingvo {
+    my kreuLingvon $lingvo
+}
+SQLPrivataVortaro instproc pretiguLingvon lg {
+    my instvar connection lingvoj lingvoOfteco
+    if {[lsearch $lingvoj $lg]>=0} {
+        incr lingvoOfteco($lg)
+        return 1
+    }
+    set vortaroDosiero [SQLPrivataVortaro prenuDosieronPorLingvo $lg]
+    if {[file exists $vortaroDosiero]} {
+        if {[llength $lingvoj]>=5} {
+            foreach {l n} [array get lingvoOfteco] {
+                lappend oflisto [list $l $n]
+            }
+            # forigu la plej maloftan lingvon
+            my foriguLingvon [lindex [lsort -integer -index 1 $oflisto] 0 0]
+        }
+        $connection execute "ATTACH DATABASE '$vortaroDosiero' AS $lg"
+        lappend lingvoj $lg
+        set lingvoOfteco($lg) 0
+    } else {
+        return 0
+    }
+    return 1
+}
+SQLPrivataVortaro instproc sercxuSenTraduko {vorto lingvo} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc subtenatajLingvoj {} {
+    set d [file dirname [SQLPrivataVortaro prenuDosieron]]
+    set rez [list]
+    array set lngarr [TradukaVortaroMontrilo lingvoListo]
+    foreach f [glob -nocomplain -directory $d evortaro-*.sql] {
+        set f [file tail $f]
+        if {[regexp -- {-(.+)\.sql} $f _ l]} {
+            if {![catch {set lngarr($l)} lingvo]} {
+                lappend rez $l $lingvo
+            } else {
+                #lappend rez $l $l
+            }
+        }
+    }
+    return $rez
+}
+SQLPrivataVortaro instproc sxercxuRezListo {vorto lingvo {montrilo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuRezListoMeta {vorto lingvo {montrilo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuRezListoPorTraduko {traduko lingvo {montrilo {}}} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuRezListoTransTraduko {traduko fontalingvo celalingvo {montrilo {}}} {
+    if {![my pretiguLingvon $fontalingvo]} {
+        return
+    }
+    if {![my pretiguLingvon $celalingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuTraduko {traduko lingvo montrilo} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuTradukoId {lingvo did traduko} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuTransVorto {vorto fontoLingvo zielLinvo montrilo} {
+    if {![my pretiguLingvon $fontoLingvo]} {
+        return
+    }
+    if {![my pretiguLingvon $zielLinvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuVorto {vorto lingvo montrilo} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuVortoEkzakt {derivoVorto lingvo montrilo} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro instproc sxercxuVortoListo {vorto lingvo} {
+    if {![my pretiguLingvon $lingvo]} {
+        return
+    }
+    next
+}
+SQLPrivataVortaro proc getSQLDBVortaron {} {
+    set vobj ::sqlvortaro
+    if {![Object isobject $vobj]} {
+        SQLPrivataVortaro create $vobj
+        VortarojAro initVortaroj $vobj
+    }
+    return $vobj
+}
+SQLPrivataVortaro proc prenuDosieron {} {
+    file join [EsperantoConf prenuVortaroDosierujo] evortaro.sql
+}
+SQLPrivataVortaro proc prenuDosieronPorLingvo lingvo {
+    file join [EsperantoConf prenuVortaroDosierujo] evortaro-$lingvo.sql
+}
+Class SQLAldonaVortaro -superclass ::SQLPrivataVortaro
+@ ::SQLAldonaVortaro idemeta component EspTradukaVortaro
+SQLAldonaVortaro instproc kreuVortaron {adosiero alingvo} {
+    my instvar connection lingvo dosiero
+
+    set dosiero $adosiero
+    set lingvo $alingvo
+
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set dbConnection [$iclass new -childof [self]]
+    $dbConnection connect [list sqlfile $adosiero noMeta 1]
+
+    set connection $dbConnection
+
+    my kreuDerivoTablo
+    my kreuTradukoTablo $connection $lingvo
+
+    $connection execute {CREATE TABLE priskribo (
+    nomo VARCHAR(50),
+    valuo VARCHAR(400)
+)}
+    $connection execute "INSERT INTO priskribo (nomo,valuo) VALUES ('lingvo','$alingvo')"
+}
+SQLAldonaVortaro instproc malfermuVortaron adosiero {
+    my instvar connection lingvo dosiero
+
+    set dosiero $adosiero
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set dbConnection [$iclass new -childof [self]]
+    $dbConnection connect [list sqlfile $adosiero noMeta 1]
+
+    set connection $dbConnection
+}
+SQLAldonaVortaro instproc prenuLingvon {} {
+    my instvar lingvo connection
+    if {![info exists lingvo]} {
+        set lingvo [lindex [$connection queryList {select valuo from priskribo where nomo='lingvo'}] 0 0]
+    }
+    return $lingvo
+}
+SQLAldonaVortaro instproc pretiguLingvon lng {
+    if {[my prenuLingvon] ne $lng} {
+        error "lingvoj ne kongruas"
+    }
+    return 1
+}
+SQLAldonaVortaro proc aliguPrivatanVortaron {} {
+    set lingvo [EsperantoConf set lingvo]
+    foreach {l nomo} [TradukaVortaroMontrilo lingvoListo] {
+        lappend lingvoj [list $l $nomo]
+    }
+    set s [::IDE::IDialogList getListItem "Elektu la lingvon" $lingvoj [list $lingvo [TradukaVortaroMontrilo prenuLinvoNomoPorSimbolo $lingvo]]]
+    if {$s eq ""} return
+    set nlingvo [lindex $s 0]
+    set nomo [IDE::IDialogEntry getValueWithCancel "nomo de privata vortaro" pvortaro-$nlingvo]
+    if {$nomo eq "" || $nomo eq "_cancel"} {
+        return
+    }
+    set dn [file join [EsperantoConf prefEspDosierujo] $nomo.sqlpdb]
+    if {[file exists $dn]} {
+        EsperantoBrowser message "Vortaro kun la sama nomo jam ekzistas."
+        return
+    }
+    set pvortaro [SQLAldonaVortaro new]
+    $pvortaro kreuVortaron $dn $nlingvo
+    TradukaVortaroMontrilo redaktuVortaron $pvortaro
+}
+SQLAldonaVortaro proc prenuPrivatajnVortarojn {} {
+    glob -nocomplain -directory [EsperantoConf prefEspDosierujo] *.sqlpdb
+}
+Object VortarojAro
+@ ::VortarojAro idemeta component EspTradukaVortaro
+VortarojAro proc elektuVortarojn {} {
+    my instvar vortaroj
+    EsperantoConf statAktiono EV
+    set vdosieroj [SQLAldonaVortaro prenuPrivatajnVortarojn]
+    foreach v $vortaroj {
+        foreach vdosiero $vdosieroj {
+            if {[file normalize [$v set dosiero]] eq [file normalize $vdosiero]} {
+                ide::lremove vdosieroj $vdosiero
+                break
+            }
+        }
+    }
+    set i 1
+    set inlist [list]
+    foreach v $vdosieroj {
+        lappend inlist "$i [file rootname [file tail $v]]"
+        incr i
+    }
+    set i 1
+    set outlist [list]
+    foreach v $vortaroj {
+        lappend outlist "$i [file rootname [file tail [$v set dosiero]]]"
+        incr i
+    }
+    set listchooser [IDE::IDialogListOrderChooser new -volatile -message "Elektu privatajn vortarojn por tradukado" -listout $outlist -listin $inlist]
+    set ret [$listchooser prompt]
+    if {$ret eq "cancel"} return
+    set listchooser [$listchooser set listout]
+
+    set nvortaroj [list]
+    foreach v $listchooser {
+        if {[set ci [lsearch $outlist $v]]<0} {
+            set dosiero [lindex $vdosieroj [expr {[lindex $v 0]-1}]]
+            lappend nvortaroj [my prenuVortaron $dosiero]
+        } else {
+            lappend nvortaroj [lindex $vortaroj [expr {[lindex $v 0]-1}]]
+        }
+    }
+    foreach v $vortaroj {
+        if {[lsearch $nvortaroj $v]<0} {
+            $v destroy
+        }
+    }
+    set vortaroj $nvortaroj
+}
+VortarojAro proc initVortaroj cvortaro {
+    my instvar cxefaVortaro vortaroj
+    if {![info exists cxefaVortaro]} {
+        set cxefaVortaro $cvortaro
+        set vortaroj [list]
+    }
+}
+VortarojAro proc initializeAfterLoad {} {
+    my set vortaroj [list]
+}
+VortarojAro proc liberiguVortaron vortaro {
+    my instvar vortaroj
+    if {[lsearch $vortaroj $vortaro]>=0} {
+        return
+    }
+    $vortaro destroy
+}
+VortarojAro proc prenuVortaron dosiero {
+    my instvar vortaroj
+    foreach v $vortaroj {
+        if {[file normalize [$v set dosiero]] eq [file normalize $dosiero]} {
+            return $v
+        }
+    }
+    set pvortaro [SQLAldonaVortaro new]
+    $pvortaro malfermuVortaron $dosiero
+    return $pvortaro
+}
+VortarojAro proc sxercxuRezListo {derivoVorto lingvo} {
+    my instvar cxefaVortaro vortaroj
+    foreach v $vortaroj {
+        if {[$v prenuLingvon] ne $lingvo} continue
+        set rez [$v sxercxuRezListo $derivoVorto $lingvo]
+        if {[llength $rez]>0} {
+            return $rez
+        }
+    }
+    $cxefaVortaro sxercxuRezListo $derivoVorto $lingvo
+}
+VortarojAro initializeAfterLoad
+

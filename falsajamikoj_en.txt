@@ -1,0 +1,178 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+(to be) able 	povi, kapabli 	ebli 	to be possible
+abort (a fetus) 	abortigi 	aborti 	suffer miscarriage
+accurate 	preciza, ekzakta, ĝusta, fidinda 	akurata 	prompt, punctual, on time
+action 	ago, faro 	akcio 	share of corporate stock
+adult 	plenkreskulo 	adulti 	commit adultery (sex with married person)
+affair 	amafero aŭ amorafero 	afero 	matter, deal, business, subject, concern, thing
+affect 	influi, efiki sur 	afekti 	feign, pretend
+apply (for a job, position) 	proponi sin, kandidatiĝi, peti, ... 	apliki 	apply, use (a principle, method, technique)
+ass 	pugo, azeno 	aso 	ace
+attend 	prizorgi (malsanulon), ĉeesti (spektaklon) 	atendi 	to wait for, to expect
+balance 	ekvilibri, stabili, resti, ŝvebi, ktp (be at rest); bilanci (accounting) 	balanci 	swing, rock (transitive)
+ball (for throwing) 	pilko, globo 	balo 	ball (for dancing)
+billet 	loĝejo 	bileto 	ticket
+blank 	malplena spaceto, senesprima (vizaĝe) 	blanka 	white
+bone 	osto 	bone 	well
+brass (copper + zinc) 	latuno 	braso 	brace, guy (nautical)
+bulb (glass, electric) 	ampolo 	bulbo 	bulb (base of plant)
+bush 	arbeto, arbusto, vepro 	buŝo 	mouth
+camera (photo) 	fotilo 	kamerao 	camera (movie, film, video)
+can 	ladskatolo, necesejo, povi, maldungi 	kano 	cane
+casino 	kazino, vetejo 	kasino 	female cashbox (kas-ino)
+cassette 	kasedo 	kaseto 	small cashbox (kas-eto)
+cell 	ĉelo 	celo 	goal
+cello 	violonĉelo 	ĉelo 	cell
+character (in a story) 	rolo, persono 	karaktero 	moral quality, personal nature
+chord (musical notes) 	akordo 	kordo 	string of a musical instrument
+cloak 	mantelo 	kloako 	sewer
+coma 	komato 	komo 	comma
+concourse 	vojkruciĝo 	konkurso 	contest
+confession 	konfeso 	konfesio 	religious denomination
+control 	regi, direkti 	kontroli 	check, supervise, examine
+correct 	ĝusta 	korekta 	corrective
+count 	nombri, kalkuli, kompti; grafo 	konto 	account
+crisp 	krusta, krusteca 	krispa 	wavy, crimped, crinkled
+curious (wanting to know) 	scivola 	kurioza 	odd, interesting
+dam 	digo, baraĵo 	damo 	lady; "queen" in games
+deck 	ferdeko, kartaro, ornami 	dek 	ten
+demand 	postuli, postulo 	demandi 	ask, question
+demonstration (mass protest) 	manifestacio 	demonstracio 	proof; military demonstration
+dew 	roso 	du 	two
+dick 	kaco, peniso 	dika 	thick
+dike 	digo 	dike 	thickly
+dog 	hundo 	dogo 	mastiff (iu speco de hundo)
+dome 	kupolo 	domo 	house, building
+dress (clothe, put on clothes) 	vesti 	dresi 	to train/tame an animal
+drink 	trinki 	drinki 	(heavily) imbibe alcohol
+due 	ŝuldata 	du 	two
+dung 	fekaĵo 	dungo 	employment
+dyke 	(viraspekta) samseksemulino 	dike 	thickly
+eventually 	finfine 	eventuale 	maybe
+fake 	trompa, artefarita 	fake 	according to department; by specialty; by specialization
+fart 	furzi 	farti 	to fare
+feel 	palp-senti 	filo 	son
+for 	por 	for 	away
+forest 	arbaro 	foresto 	absence
+fossil 	fosilio 	fosilo 	digging tool (fos-ilo)
+frequently 	ofte 	frekventi 	to go often, to frequent
+fuck 	fiki 	fako 	department
+gem 	gemo 	ĝemo 	groan, moan
+general (military rank) 	generalo 	ĝenerala 	not specific
+glass (rigid clear material) 	vitro 	glaso 	drinking glass, tumbler, cup
+graph (picture) 	grafikaĵo 	grafo 	count (earl, nobleman)
+grill 	krado, rostokrado 	grilo 	cricket (insect)
+hate 	malami 	hejti 	heat
+hazard 	risko 	hazarde 	randomly
+hound 	ĉashundo 	hundo 	dog
+image (picture) 	bildo 	imago 	imagination; mental image, fancy
+inside 	en, interne (de) 	inside 	insidiously
+intelligence (information) 	informoj 	inteligento 	intelligence (cleverness)
+intrigue (to interest, fascinate) 	interesi, fascini, ktp 	intrigi 	to plot, scheme; "intrigo" also is the plot of a story, or a secret love affair
+intrigue (interest, fascination) 	intereso, fascino, ktp 	intrigo 	a plot, scheme; plot of a story; secret love affair
+jar (wide glass container) 	bokalo 	ĵaro 	large earthenware vessel
+jog 	troti, troteti 	jogo 	yoga
+just 	nur 	ĵus 	just now
+KKK 	Ku-Kluks-Klano 	KKK 	Permanent Convention Committee
+lake 	lago 	lako 	lacquer, varnish, shellac
+large 	granda 	larĝa 	wide
+last night 	hieraŭ nokte 	la lasta(n) nokto(n) [ne necese hieraŭ] 	the previous night
+lava 	lafo 	lavo 	act of washing
+letter (of alphabet) 	litero 	letero 	letter (mail)
+libel 	kalumnio 	libelo 	dragonfly
+lick (with tongue) 	leki 	liki 	leak
+live 	viva, vivi 	live 	on the left (maldekstre)
+male 	vira 	male 	in the opposite way
+man 	viro 	mano 	hand
+mantel 	kamenbreto, breto, kovraĵo 	mantelo 	cape, cloak, coat
+march (long walk) 	marŝo 	marĉo 	marsh
+mar 	difekti 	maro 	sea
+marsh 	marĉo 	marŝo 	march (long walk)
+mess 	malordaĉo 	meso 	mass (Catholic religious service)
+match 	alumeto; kongrui; matĉo 	maĉo 	act of chewing
+milk (liquid) 	lakto 	melki 	squeeze milk from udder
+negotiate 	intertrakti, diskuti, interkonsenti 	negoci 	transact business for money
+Negro (arĥaika termino) 	nigrulo; negro (arĥaika termino) 	nigro, nigra 	black
+note (musical sound) 	tono 	noto 	written information
+novel 	romano (longa fikcio) 	novelo 	short story
+now 	nun 	naŭ 	nine
+oak 	kverko 	ok 	eight
+oar 	remilo 	oro 	gold
+offer (bid) 	oferto 	ofero 	sacrifice
+or 	aŭ 	oro 	gold
+order (command) 	ordono 	ordo 	order (sorted arrangement)
+order (society, e.g. religious or honor) 	ordeno 	ordo 	order (sorted arrangement)
+organ (musical instrument) 	orgeno 	organo 	organ (of the body)
+paragraph 	alineo 	paragrafo 	(1) section (the subdivision of a chapter of a legal or technical document). Ankaŭ, (2) Section Symbol (§)
+parents 	gepatroj 	parencoj 	relatives
+participate 	partopreni 	participo 	participle (grammatical term)
+pass (an exam) 	sukcesi, trapasi sukcese 	pasi 	pass (move)
+peach 	persiko 	piĉo 	vagina, vulva
+petite 	malgranda (ĝenerale je virinaj vestaĵoj) 	petite 	having been asked/requested
+phone 	telefono, sonero 	fono 	background
+phrase 	frazero, vortumo 	frazo 	sentence
+pig 	porko 	pigo 	magpie
+planet 	planedo 	planeto 	small plan (plan-eto)
+plug 	malingo, eningigi 	plugi 	plow
+pollution 	poluado 	polucio 	nocturnal emission
+population (of country, city, etc) 	loĝantaro 	populacio 	population (statistical; biological)
+pound (weight) 	funto 	pundo 	pound (British money £)
+pour 	verŝi, ŝuti 	por 	for
+practice 	ekzerci sin (ekz ludi muzikon) por pliboniĝi 	praktiki 	professionally practice (e.g. law, medicine)
+predict 	antaŭdiri, prognozi 	prediki 	preach
+prescription (medical) 	preskribo 	preskripto 	legal period of possession
+process 	procezo 	proceso 	lawsuit
+product (multiplication) 	produto 	produkto 	product (manufactured good)
+proper 	taŭga, ĝusta, deca, konvena, bona, ktp 	propra 	own, belonging to one
+read 	legi 	ridi 	laugh
+refer 	aludi; direkti; referenci; resendi; rilati; submeti 	referi 	make a scholarly report, read a paper
+roll (dice) 	ĵeti (ĵetkubojn) 	rolo 	role
+roll (bread) 	bulko 	rolo 	role
+Roman 	roma (de praa Italio) 	romano 	novel (long fiction)
+salt 	salo 	salto 	jump
+satisfaction (contentment) 	kontenteco 	satisfakcio 	satisfaction (chance to fight a duel against someone who offended)
+sense (meaning, idea) 	senco 	senso 	sense (sight, hearing)
+sentence 	frazo; kondamno 	sentenco 	proverb
+shat 	fekis 	ŝati 	appreciate
+sheep 	ŝafo 	ŝipo 	ship
+shoot 	pafi; ŝutilo 	ŝuti 	pour (non-liquid)
+soft 	mola (ankaŭ) 	softa (neologismo anstataŭ mallaŭta) 	quiet, soft-spoken, sotto voce
+sort 	speco; ordigi 	sorto 	fate
+space (character, ASCII 32) 	spaceto 	spaco 	space (3-dimensional)
+stall (animal compartment in a stable) 	stalfako, stalofako, stala fako 	stalo 	stable, shed, sty (building for animals, possibly with stalls)
+standard 	normo 	standardo 	flag
+star 	stelo 	stari 	stand
+stage (theater) 	scenejo 	staĝo 	internship, traineeship; short training course
+state (country, part of country) 	ŝtato 	stato 	condition
+steal 	ŝteli 	stelo 	star
+step 	ŝtupo; paŝo 	stepo 	steppe
+subject 	temo (de retmesaĝoj) 	subjekto 	grammatical subject
+subscribe 	aboni (gazeton, telefonservon, ktp) 	subskribi 	sign (one's name)
+subsidy 	subvencio 	subsidi 	subside
+suspect (person suspected of crime) 	suspektato 	suspekto 	suspicion
+sympathetic 	kunsentema 	simpatia 	likeable
+table (list, index, chart) 	tabelo 	tablo 	table (furniture)
+tablet 	tabulo (board); pilolo (pill) 	tableto 	small table (tabl-eto)
+ten 	dek 	teni 	hold, keep
+tend 	varti 	tendo 	tent
+tent 	tendo 	tenti 	tempt, seduce
+term (technical word, jargon) 	termino 	termo 	term (algebra: part of a sum or difference)
+toast (drinka parolo) 	tosto 	toasto 	toast (pano)
+train (railroad) 	trajno 	trejni 	coach, teach
+train (coach, teach) 	trejni 	trajno 	railroad train
+tree 	arbo 	tri 	three
+trivial 	bagatela 	triviala 	vulgar, coarse, commonplace
+tune (an instrument); melody 	agordi; melodio 	tuno 	ton, tonne
+tush (slango) 	pugo 	tuŝi 	touch
+UK 	Britio 	UK (Universala Kongreso) 	Esperanto world congress
+vain (conceited) 	vanta 	vana 	vain (futile)
+veto 	vetoo 	veto 	bet
+viola 	aldo, aldviolono 	violo 	violet (flower)
+violin 	violono 	violino 	female violet flower (viol-ino)
+vote 	voĉdoni al 	voti 	promesi al Dio
+whore 	putino 	horo 	hour

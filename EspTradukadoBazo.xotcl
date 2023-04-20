@@ -1,0 +1,2930 @@
+# automatically generated from XOTclIDE
+# script require component EspBazaLingvo
+@ Component EspTradukadoBazo {
+description {Tiu modulo enhavas elementojn por tradukado, kiuj
+estas sendependaj de konkreta lingvo kaj ne estas GUI partoj}
+}
+package provide EspTradukadoBazo 0.993
+package require EspBazaLingvo
+namespace eval ::esptm {}
+@ tclproc esptm::TextInsert idemeta struct EspTradukadoBazo esptm
+proc esptm::TextInsert {w s} {
+    if {$s eq "" || [$w cget -state] eq "disabled"} {
+        return
+    }
+    set compound 0
+    if {[llength [set range [$w tag ranges sel]]]} {
+        if {[$w compare [lindex $range 0] <= insert]  && [$w compare [lindex $range end] >= insert]} {
+            set oldSeparator [$w cget -autoseparators]
+            if {$oldSeparator} {
+                $w configure -autoseparators 0
+                $w edit separator
+                set compound 1
+            }
+            $w delete [lindex $range 0] [lindex $range end]
+        }
+    }
+    $w insert insert $s ""
+    $w see insert
+    if {$compound && $oldSeparator} {
+        $w edit separator
+        $w configure -autoseparators 1
+    }
+}
+@ Class DOMKursoro {
+description {La kursoro legas signoj de DOM XML sturkturo
+}
+}
+Class DOMKursoro -parameter {rootNode doc}
+@ ::DOMKursoro idemeta component EspTradukadoBazo
+@ DOMKursoro instproc anstauiguVorto {} {
+description {Vi povas nur anstatauigi vortojn en la sekvo
+de aparenco
+}
+}
+DOMKursoro instproc anstauiguVorto {komenco fino vorto} {
+    my instvar deltaArr
+    set node [lindex $komenco 0]
+    if {[info exists deltaArr($node)]} {
+        set delta $deltaArr($node)
+    } else {
+        set delta 0
+    }
+    set fpos [expr {[lindex $komenco 1]+$delta}]
+    set lpos [expr {[lindex $fino 1]+$delta-1}]
+    set text [$node nodeValue]
+    $node nodeValue [string replace $text $fpos $lpos $vorto]
+    incr delta [expr {[string length $vorto]-($lpos-$fpos)-1}]
+    set deltaArr($node) $delta
+}
+DOMKursoro instproc cxuTekstoEnmikso node {
+    if {[$node nodeType] ne "ELEMENT_NODE"} {
+        return 1
+    }
+    return 0
+}
+DOMKursoro instproc cxuVisiti node {
+    expr {[$node nodeType] eq "ELEMENT_NODE"}
+}
+DOMKursoro instproc destory {} {
+    my instvar doc
+    if {[info exists $doc] && $doc ne ""} {
+        $doc delete
+        set doc ""
+    }
+    next
+}
+DOMKursoro instproc estasFino {} {
+    my instvar nodeStack
+    expr {[llength $nodeStack]==0}
+}
+DOMKursoro instproc init {} {
+    my instvar nodeStack indexStack aktChildNodes aktNodeIndex rootNode teksto tekstoIndex
+    set nodeStack [list $rootNode]
+    set indexStack 0
+    set aktChildNodes [$rootNode childNodes]
+    set aktNodeIndex 0
+    set teksto ""
+    set tekstoIndex 1
+}
+DOMKursoro instproc kursoro {} {
+    my instvar tekstoIndex aktNode
+    list $aktNode $tekstoIndex
+}
+DOMKursoro instproc malAntauen {} {
+    my instvar tekstoIndex
+    incr tekstoIndex -1
+}
+DOMKursoro instproc metuVortkomenco {} {
+    if {[my exists aktNode]} {
+        my set vortkomenco [my kursoro]
+    }
+}
+DOMKursoro instproc prenuRegionon {komenco fino} {
+    foreach {kNode kIndex} $komenco {fNode fIndex} $fino {}
+    if {$kNode ne $fNode} return
+    set teksto [$kNode nodeValue]
+    string range $teksto $kIndex [expr {$fIndex-1}]
+}
+@ DOMKursoro instproc prenuTextNode {} {
+description {Tie vi povas progrmi kiujn "nodes" estu ignorataj}
+}
+DOMKursoro instproc prenuTextNode {} {
+    # proceduro implementas la rekursion
+    # proc showNodes nodes {
+    #      foreach n [$nodes childNodes] {
+    #          if {[$node nodeType] eq "TEXT_NODE"} {
+    #              yield $n
+    #          } else {
+    #              my showNodes $n
+    #          }
+    #      }
+    # }
+
+    my instvar nodeStack indexStack
+    set i 0
+    # puts "prenuTextNode $nodeStack $indexStack"
+    while 1 {
+        if {$i>5000} {
+            error "senfina loop"
+        }
+        set aktNode [lindex $nodeStack end]
+        set aktIndex [lindex $indexStack end]
+        set childList [$aktNode childNodes]
+
+        # end of loop
+        while {[llength $childList]<=$aktIndex} {
+            set nodeStack [lrange $nodeStack 0 end-1]
+            set indexStack [lrange $indexStack 0 end-1]
+            if {[llength $nodeStack]==0} {
+                return
+            }
+            set aktNode [lindex $nodeStack end]
+            set aktIndex [lindex $indexStack end]
+            set childList [$aktNode childNodes]
+        }
+        set node [lindex $childList $aktIndex]
+        if {[$node nodeType] eq "TEXT_NODE"} {
+            lset indexStack end [expr {$aktIndex+1}]
+            return $node
+        } else {
+            if {[my cxuVisiti $node]} {
+                lset indexStack end [expr {$aktIndex+1}]
+                lappend nodeStack $node
+                lappend indexStack 0
+                if {![my cxuTekstoEnmikso $node]} {
+                    return $node
+                }
+            } else {
+                lset indexStack end [expr {$aktIndex+1}]
+            }
+        }
+        incr i
+    }
+    return
+}
+DOMKursoro instproc sekvaSigno {} {
+    my instvar nodeStack indexStack teksto tekstoIndex aktNode
+    #puts "sekvaSigno ns:$nodeStack is:$indexStack ti:$tekstoIndex"
+    if {[string length $teksto]<$tekstoIndex} {
+        set node [my prenuTextNode]
+        if {$node eq ""} {
+            return ""
+        }
+        if {[$node nodeType] ne "TEXT_NODE"} {
+            return _FINO_
+        }
+        set aktNode $node
+        set teksto [$node nodeValue]
+        set tekstoIndex 0
+        my metuVortkomenco
+    }
+    set sig [string index $teksto $tekstoIndex]
+    incr tekstoIndex
+    return $sig
+}
+DOMKursoro instproc setNode node {
+    my instvar nodeStack indexStack aktChildNodes aktNodeIndex rootNode teksto tekstoIndex
+    set rootNode $node
+    set nodeStack [list $rootNode]
+    set indexStack 0
+    set aktChildNodes [$rootNode childNodes]
+    set aktNodeIndex 0
+    set teksto ""
+    set tekstoIndex 1
+}
+DOMKursoro instproc vortkomenco {} {
+    my set vortkomenco
+}
+@ Class EspTradikiloBazo {
+description {La baza klaso respondas pri statistiko
+voku la metodoj traduko post tradukado
+kaj tradukuFrazo antaux tradukado de ciu frazo}
+}
+Class EspTradikiloBazo -parameter {progresoObj {guiModo 0} {montruProgreson 0} {lingvofabriko {}} fontaLingvo celaLingvo}
+@ ::EspTradikiloBazo idemeta categories init
+@ ::EspTradikiloBazo idemeta categoriesMethods init
+@ ::EspTradikiloBazo idemeta component EspTradukadoBazo
+EspTradikiloBazo instproc daueroEnMSekKielString dauro {
+    set msekundoj [expr {$dauro%1000}]
+    set sekundoj [expr {($dauro/1000)%60}]
+    set minutoj [expr {($dauro/(1000*60))%360}]
+    set horoj [expr {$dauro/(1000*360)}]
+    format "%i:%02i:%02i %i" $horoj $minutoj $sekundoj $msekundoj
+}
+EspTradikiloBazo instproc daueroKielString dauro {
+    set sekundoj [expr {$dauro%60}]
+    set minutoj [expr {($dauro/60)%360}]
+    set horoj [expr {$dauro/360}]
+    format "%i:%02i:%02i" $horoj $minutoj $sekundoj
+}
+EspTradikiloBazo instproc eblasMasxinaTradukado {} {
+    my instvar lingvofabriko
+    expr {$lingvofabriko ne ""}
+}
+EspTradikiloBazo instproc eksportuTMX {file {havuProgreson 0}} {
+    my instvar fontaLingvo celaLingvo
+    # TODO! pritraktu separatilojn
+
+    package require tdom
+    set document [dom createDocument tmx]
+    set body [$document createElement body]
+    [$document documentElement] appendChild $body
+
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "eksporto de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set segmentoj [my prenuSegmentoIndikatorojn]
+    set rows [llength $segmentoj]
+    set i 0
+
+    foreach id $segmentoj {
+        if {$progreso ne ""} {
+            $progreso setProgress [expr {round(100.0*$i/$rows)}]
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        incr i
+        set fonto [my prenuFonton $id]
+        if {$fonto eq ""} continue
+        set traduko [my prenuTradukon $id]
+        if {$traduko eq ""} continue
+        
+        set tv [$document createElement tu]
+        $body appendChild $tv
+        set tuv [$document createElement tuv]
+        $tv appendChild $tuv
+        set seg [$document createElement seg]
+        $tuv appendChild $seg
+        $tuv setAttribute xml:lang $fontaLingvo
+        $seg appendChild [$document createTextNode $fonto]
+
+        set tuv [$document createElement tuv]
+        $tv appendChild $tuv
+        set seg [$document createElement seg]
+        $tuv appendChild $seg
+        $tuv setAttribute xml:lang $celaLingvo
+        $seg appendChild [$document createTextNode $traduko]
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+
+    set fhandle [open $file w]
+    fconfigure $fhandle -encoding utf-8
+    [$document documentElement] asXML -channel $fhandle
+    $document delete
+    close $fhandle
+    return 1
+}
+EspTradikiloBazo instproc estasKutimaSeparatilo {komenco fino} {
+    return 0
+}
+EspTradikiloBazo instproc havasMetaAtributojn {} {
+    return 0
+}
+EspTradikiloBazo instproc init args {
+    my instvar fontaLingvo celaLingvo lingvofabriko
+    if {![info exists fontaLingvo]} {
+        set fontaLingvo [$lingvofabriko prenuFontanLingvon]
+    }
+    if {![info exists celaLingvo]} {
+        set celaLingvo [$lingvofabriko prenuCelanLingvon]
+    }
+
+    next
+    if {[EsperantoConf set tradMontruRaporton]} {
+        my instvar frazoNombro vortoNombro nekonatajTradukojArr startTime
+        set startTime [clock seconds]
+        set frazoNombro 0
+        set vortoNombro 0
+    }
+    my instvar montruProgreson progresoObj
+
+    if {![EsperantoConf set tradInteraktiva] && [EsperantoConf isInDelopingMode]} {
+        set montruProgreson 0
+    }
+
+    if {(![info exists progresoObj] || $progresoObj eq "") && $montruProgreson && ![EsperantoConf set tradInteraktiva]} {
+        set progresoObj [ProgresoMontrilo startProgress [mc "Esperantilo tradukas"]]
+    }
+}
+EspTradikiloBazo instproc interaktivaTraduko tradFrazo {
+    next
+}
+EspTradikiloBazo instproc postTraduko {} {
+    if {[EsperantoConf set tradInteraktiva]} {
+        my instvar interaktivaDialogo
+        if {[info exists interaktivaDialogo] && [Object isobject $interaktivaDialogo]} {
+            $interaktivaDialogo destroy
+        }
+    } else {
+        my instvar progresoObj
+        if {[info exists progresoObj] && $progresoObj ne "" && [Object isobject $progresoObj] && [$progresoObj istype ::ProgresoMontrilo]} {
+            $progresoObj cleanUpAfterSignal
+            $progresoObj destroy
+        }
+    }
+    if {[EsperantoConf set tradMontruRaporton]} {
+        my instvar frazoNombro vortoNombro nekonatajTradukojArr startTime
+        set ret ""
+        set endTime [clock seconds]
+        set dauero [expr {$endTime-$startTime}]
+        append ret "nombro de frazoj: $frazoNombro\n"
+        append ret "nombro de vortoj: $vortoNombro\n"
+        if {$dauero>0 && $vortoNombro>0} {
+            append ret "dauro: [EspTradikiloBazo daueroKielString $dauero]\n"
+            append ret "dauro pro vorto: [my daueroEnMSekKielString [expr {$dauero*1000/$vortoNombro}]]\n"
+            append ret "rapideco (vortoj per minuto): [expr {60*$vortoNombro/$dauero}]\n"
+        }
+
+        if {[array exists nekonatajTradukojArr]} {
+            append ret "\n[llength [array names nekonatajTradukojArr]] nekonataj tradukoj laŭ nombro:\n"
+            set l [list]
+            for {set sid [array startsearch nekonatajTradukojArr]} {[array anymore nekonatajTradukojArr $sid]} {} {
+                set vorto [array nextelement nekonatajTradukojArr $sid]
+                set nombro $nekonatajTradukojArr($vorto)
+                lappend l [list $nombro $vorto]
+            }
+            array donesearch nekonatajTradukojArr $sid
+            foreach tupel [lsort -decreasing -index 0 -integer $l] {
+                append ret "[lindex $tupel 1]\t[lindex $tupel 0]\n"
+            }
+        }
+        if {[my guiModo]} {
+            RezultoFenestro newBrowserReuse $ret
+        } else {
+            return $ret
+        }
+    }
+}
+EspTradikiloBazo instproc prenuRegiononPorIndekso indekso {
+    return
+}
+EspTradikiloBazo instproc prenuSeparatilon {} {
+    # Teksto uzata kiel separatilo
+    return %#%
+}
+EspTradikiloBazo instproc pritraktuProgreson progresoProc {
+    # resultas 1 kiam la ado devas fini
+    my  instvar rootNode progresoObj
+    if {![info exists progresoObj] || $progresoObj eq ""} {
+        return 0
+    } else {
+        if {![Object isobject $progresoObj]} {
+            set progresoObj ""
+            return 0
+        }
+        $progresoObj setProgress $progresoProc
+        update
+        if {[$progresoObj isStopped]} {
+            return 1
+        }
+    }
+    return 0
+}
+EspTradikiloBazo instproc pritraktuTradukFrazon tradFrazo {
+    if {[EsperantoConf set tradMontruRaporton]} {
+        my instvar nekonatajTradukojArr progresoObj
+        update
+        foreach telemento [$tradFrazo prenuFoliojn] {
+            if {[$telemento exists mesagxoTipo] && [$telemento set mesagxoTipo] eq "traduko"} {
+                set orginaElemento [$telemento prenuOriginanElementon]
+                if {$orginaElemento ne ""} {
+                    set bformo [$orginaElemento prenuBazanFormon]
+                    if {![info exists nekonatajTradukojArr($bformo)]} {
+                        set nekonatajTradukojArr($bformo) 1
+                    } else {
+                        incr nekonatajTradukojArr($bformo)
+                    }
+                }
+            }
+        }
+    }
+    if {[Object isobject SentradoKolektilo]} {
+        foreach telemento [$tradFrazo prenuFoliojn] {
+            if {[$telemento exists mesagxoTipo] && [$telemento set mesagxoTipo] eq "traduko"} {
+                set orginaElemento [$telemento prenuOriginanElementon]
+                if {$orginaElemento ne ""} {
+                    set bformo [$orginaElemento prenuBazanFormon]
+                    SentradoKolektilo aliguVorton $bformo
+                }
+            }
+        }
+    }
+    next
+}
+EspTradikiloBazo instproc traduku {} {
+    next
+    my postTraduko
+}
+EspTradikiloBazo instproc tradukuFrazon frazo {
+    if {[EsperantoConf set tradMontruRaporton]} {
+        my instvar frazoNombro vortoNombro nekonatajTradukojArr
+        incr frazoNombro
+        incr vortoNombro [llength [$frazo set elementoj]]
+    }
+    next
+}
+EspTradikiloBazo instproc transferToOutput frazTraduko {
+    next
+}
+EspTradikiloBazo instproc trovuSegmenton {tteksto estasTraduko {komenco {}}} {
+    if {[string first * $tteksto]>=0 || [string first ? $tteksto]>=0} {
+        set match 1
+    } else {
+        set match 0
+    }
+    foreach id [my prenuSegmentoIndikatorojn] {
+        if {$komenco ne ""} {
+            if {$id eq $komenco} {
+                set komenco ""
+            }
+            continue
+        }
+        if {$estasTraduko} {
+            set teksto [my prenuTradukon $id]
+        } else {
+            set teksto [my prenuFonton $id]
+        }
+        if {$match} {
+            if {[string match -nocase $tteksto $teksto]} {
+                return $id
+            }
+        } else {
+            if {[string first $tteksto $teksto]>=0} {
+                return $id
+            }
+        }
+    }
+    return
+}
+EspTradikiloBazo proc daueroKielString dauro {
+    set sekundoj [expr {$dauro%60}]
+    set minutoj [expr {($dauro/60)%360}]
+    set horoj [expr {$dauro/360}]
+    format "%i:%02i:%02i" $horoj $minutoj $sekundoj
+}
+Class DOMTradukilo -superclass ::EspTradikiloBazo -parameter {{kursoroClass DOMKursoro} rootNode}
+@ ::DOMTradukilo idemeta component EspTradukadoBazo
+DOMTradukilo instproc estasKutimaSeparatilo {komenco fino} {
+    if {[lindex $komenco 0] ne [lindex $fino 0]} {
+        return 0
+    }
+    set sep [my @kursoro prenuRegionon $komenco $fino]
+    if {$sep eq "" || [string is space $sep]} {
+        return 1
+    }
+    return 0
+}
+DOMTradukilo instproc prenuTradukoDeElemento telemento {
+    $telemento prenuTradukon
+}
+DOMTradukilo instproc prenuVorton {} {
+    return [my @legilo prenuSVorton]
+}
+DOMTradukilo instproc preparuTradukadon {} {
+    my instvar vortaro kursoroClass rootNode
+    set vortaro [Vortaro prenuVortaron]
+    if {![Object isobject [self]::@kursoro]} {
+        $kursoroClass create [self]::@kursoro -rootNode $rootNode
+        StructFrazLegilo create [self]::@legilo -signoLegilo [self]::@kursoro
+        my @legilo komencuFrazon
+    }
+    if {[Object isobject [self]::@frazo]} {
+        my @frazo destroy
+        my @legilo komencuFrazon
+    }
+}
+DOMTradukilo instproc traduku {} {
+    my instvar vortaro lingvofabriko
+    my preparuTradukadon
+    set prog 0
+    for {set vorto [my prenuVorton]} {$vorto ne ""} {set vorto [my prenuVorton]} {
+        if {$vorto eq "_FINO_"} {
+            if {[Object isobject [self]::@frazo]} {
+                my tradukuFrazonKiamFino . 1
+            }
+            continue
+        }
+        set komenco [my @kursoro vortkomenco]
+        set fino [my @kursoro kursoro]
+        if {![Object isobject [self]::@frazo]} {
+            $lingvofabriko kreuFrazo [self]::@frazo
+            set frazFino 0
+            set frazoKomenco [my @kursoro kursoro]
+            my @legilo komencuFrazon
+        }
+        set erg [my @frazo aliguTestuVorto $vortaro $vorto $komenco $fino]
+        set tradRezulto [my tradukuFrazonKiamFino $vorto]
+        if {[my pritraktuProgreson $prog]} {
+            break
+        }
+        incr prog
+        if {$prog>100} {
+            set prog 0
+        }
+    }
+    if {$tradRezulto==0} {
+        my tradukuFrazonKiamFino . 1
+    }
+    my postTraduko
+}
+DOMTradukilo instproc tradukuFrazon frazo {
+    next
+    my instvar lingvofabriko celaLingvo
+    if {![Object isobject [self]::@sinanalizo]} {
+       $lingvofabriko kreuSintaksAnalizilo [self]::@sinanalizo
+    }
+    my @sinanalizo frazo $frazo
+    my @sinanalizo analizu
+
+    set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+    $frazTraduko metuLingvon $celaLingvo
+    $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+
+    $frazTraduko konstruuVortoGrupojOrgina [self]
+    if {[EsperantoConf isInDelopingMode]} {
+        $frazTraduko traduku
+    } elseif {[catch {$frazTraduko traduku}]} {
+        global errorInfo
+        set errorInfo
+        puts "ERARO - $errorInfo -[$frazo prenuTeksto]"
+    }
+    if {[EsperantoConf isInDelopingMode]} {
+        my transferToOutput $frazTraduko
+    } elseif {[catch {my transferToOutput $frazTraduko}]} {
+        global errorInfo
+        set errorInfo
+        puts "ERARO - $errorInfo -[$frazo prenuTeksto]"
+    }
+    # puts "ORID: [$frazo prenuTeksto]"
+    # puts "TRAD: [$frazTraduko prenuVortojn]"
+    my pritraktuTradukFrazon $frazTraduko
+    $frazTraduko destroy
+}
+DOMTradukilo instproc tradukuFrazonKiamFino {vorto {estasDifinitaFino 0}} {
+    # rezultoj
+    # 0 - nenio aktiono (ne fino)
+    # 1 - senerara
+    # 2 - eraro
+    # 3 - literuma eraro
+    if {([my @legilo estasSFrazFino $vorto] || $estasDifinitaFino) && [Object isobject [self]::@frazo]} {
+        my tradukuFrazon [my @frazo]
+        my @frazo destroy
+        my @legilo komencuFrazon
+        return 1
+    }
+    return 0
+}
+DOMTradukilo instproc transferToOutput frazTraduko {
+    next
+
+    foreach {komenco fino elementoj tradukoElementoj tradukoj} [$frazTraduko konstruuVortoGrupoj [self]] {
+        set tradPuf ""
+        set lastaTraduko ""
+        foreach e $elementoj eTraduko $tradukoElementoj traduko $tradukoj {
+            if {$lastaTraduko ne ""} {
+                if {$traduko ne ""} {
+                    append tradPuf [esp::prenuSeparatilon $traduko]
+                }
+            } else {
+                # nur komenci frazon
+                esp::prenuSeparatilon $traduko
+            }
+            append tradPuf $traduko
+            if {$traduko eq ""} {
+                set lastaTraduko ?
+            } else {
+                set lastaTraduko $traduko
+            }
+        }
+        my @kursoro anstauiguVorto $komenco $fino $tradPuf
+    }
+}
+Class TekstoTradukilo -superclass ::EspTradikiloBazo -parameter {frazoLegilo rezultoTeksto}
+@ ::TekstoTradukilo idemeta component EspTradukadoBazo
+TekstoTradukilo instproc addZipRek {zipArch dosierujo} {
+    foreach f [glob -nocomplain -tails -types f -directory [file join zip $dosierujo] *] {
+        $zipArch addFile [file join zip $dosierujo $f] [file join $dosierujo $f]
+    }
+    foreach d [glob -nocomplain -tails -types d -directory [file join zip $dosierujo] *] {
+        my addZipRek $zipArch [file join $dosierujo $d]
+    }
+}
+TekstoTradukilo instproc eksportuEnhavon {enhavo tipo originaDosiero cilaDosiero} {
+    if {$tipo eq "OpenOffice"} {
+        if {![file isfile $originaDosiero]} {
+            EsperantoBrowser message [mc "vi bezonas la fontan dosieron %s" por eksporti cilan dosieron" $originaDosiero]
+            return
+        }
+        set count 0
+        set tmpdir [file join [file dirname $originaDosiero] tmpdir]
+        while {[file exists $tmpdir]} {
+            set tmpdir [file join [file dirname $originaDosiero] tmpdir$count]
+            incr count
+        }
+        file mkdir $tmpdir
+
+        set labordosiero [file join $tmpdir content.xml]
+        set f [open $labordosiero w]
+        fconfigure $f -encoding utf-8
+        puts -nonewline $f $enhavo
+        close $f
+
+        set zipArch [ZipArchive new]
+
+        iloj::mountZip $originaDosiero zip
+
+        foreach d [glob -nocomplain -tails -directory zip *] {
+            if {$d eq "content.xml"} continue
+            #puts "copy $d"
+            file copy [file join zip $d] $tmpdir
+            if {[file isdirectory [file join zip $d]]} {
+                my addZipRek $zipArch $d
+            } else {
+                $zipArch addFile [file join $tmpdir $d] $d
+            }
+        }
+        $zipArch addFile $labordosiero content.xml
+
+
+        $zipArch createFile $cilaDosiero
+        $zipArch destroy
+        vfs::unmount zip
+        file delete -force $tmpdir
+    } elseif {$tipo eq "Word"} {
+        set tdosiero [file rootname $cilaDosiero].xml
+        set f [open $tdosiero w]
+        fconfigure $f -encoding utf-8
+        puts -nonewline $f $enhavo
+        close $f
+        package require tcom
+        # konvertu XML al DOC dosiero
+        set wordapp [::tcom::ref createobject "Word.Application"]
+        set worddoc [[$wordapp Documents] Open $tdosiero]
+        $worddoc SaveAs $cilaDosiero
+        $worddoc Close
+        $wordapp Quit
+    } else {
+        set f [open $cilaDosiero w]
+        fconfigure $f -encoding utf-8
+        puts -nonewline $f $enhavo
+        close $f
+    }
+    
+}
+TekstoTradukilo instproc estasKutimaSeparatilo {komenco fino} {
+    my instvar frazoLegilo
+    set sep [[$frazoLegilo signoLegilo] prenuRegionon $komenco $fino]
+    if {$sep eq "" || [string is space $sep]} {
+        return 1
+    }
+    return 0
+}
+TekstoTradukilo instproc finiOutput {} {
+    my instvar lastaElementoKursoro rezultoTeksto frazoLegilo
+    set signoLegilo [$frazoLegilo signoLegilo]
+    if {$lastaElementoKursoro ne ""} {
+        append rezultoTeksto [string range [$signoLegilo teksto] $lastaElementoKursoro end]
+    }
+
+}
+TekstoTradukilo instproc prenuVorton {} {
+    my instvar frazoLegilo
+    $frazoLegilo prenuSVorton
+}
+TekstoTradukilo instproc preparuTradukadon {} {
+    my instvar vortaro lastaElementoKursoro
+    set vortaro [Vortaro prenuVortaron]
+    set lastaElementoKursoro 0
+}
+TekstoTradukilo instproc traduku {} {
+    my preparuTradukadon
+    my instvar vortaro progresoObj frazoLegilo frazFino lingvofabriko
+    set signoLegilo [$frazoLegilo signoLegilo]
+    $frazoLegilo komencuFrazon
+    set signoNombro [string length [$signoLegilo set teksto]]
+
+    if {[Object isobject [self]::@frazo] && $frazFino} {
+        my @frazo destroy
+    }
+    if {![info exists progresoObj]} {
+        set progresoObj ""
+    }
+
+    set frazFino 0
+    set tradRezulto 0
+
+    for {set vorto [my prenuVorton]} {$vorto ne ""} {set vorto [my prenuVorton]} {
+        if {$vorto eq "_FINO_"} {
+            if {[Object isobject [self]::@frazo]} {
+                my tradukuFrazonKiamFino . 1
+            }
+            continue
+        }
+        set komenco [$signoLegilo vortkomenco]
+        set fino [$signoLegilo kursoro]
+        if {![Object isobject [self]::@frazo]} {
+            $lingvofabriko kreuFrazo [self]::@frazo
+        }
+        set lvorto [string tolower $vorto]
+        set erg [my @frazo aliguTestuVorto $vortaro $vorto $komenco $fino]
+        set tradRezulto [my tradukuFrazonKiamFino $vorto]
+        if {$progresoObj ne ""} {
+            set nunSignoPos [$signoLegilo set kursoro]
+            if {[my pritraktuProgreson [expr {round(100.0*$nunSignoPos/$signoNombro)}]]} {
+                break
+            }
+        }
+    }
+    if {$tradRezulto==0} {
+        my tradukuFrazonKiamFino . 1
+    }
+    my finiOutput
+    next
+}
+TekstoTradukilo instproc tradukuFrazon frazo {
+    next
+    my instvar tekstoRezulto lingvofabriko celaLingvo
+    if {![Object isobject [self]::@sinanalizo]} {
+        $lingvofabriko kreuSintaksAnalizilo [self]::@sinanalizo
+    }
+    my @sinanalizo frazo $frazo
+    if {[EsperantoConf isInDelopingMode] || ![EsperantoConf estasGUIModo]} {
+        my @sinanalizo analizu
+    } elseif {[catch {my @sinanalizo analizu}]} {
+        EspErrorReporter reportuTekston "teknika problemo kun analizo de frazo:\n\"[$frazo prenuTeksto]\"" $::errorInfo analizo
+        return
+    }
+
+    set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+    $frazTraduko metuLingvon $celaLingvo
+    $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+
+    $frazTraduko konstruuVortoGrupojOrgina [self]
+    if {[EsperantoConf isInDelopingMode] || ![EsperantoConf estasGUIModo]} {
+        $frazTraduko traduku
+    } elseif {[catch {$frazTraduko traduku}]} {
+        global errorInfo
+        puts stderr "tradukFrazon:traduku $errorInfo"
+        append tesktoRezulo "\nERARO - $errorInfo -[$frazo prenuTeksto]\n"
+        EspErrorReporter reportuTekston "teknika problemo kun traduko de frazo:\n\"[$frazo prenuTeksto]\"" $errorInfo tradukado
+        $frazTraduko destroy
+        return
+    }
+    if {[EsperantoConf isInDelopingMode]} {
+        my transferToOutput $frazTraduko
+    } elseif {[catch {my transferToOutput $frazTraduko}]} {
+        global errorInfo
+        puts stderr "tradukuFrazon:transferToOutput $errorInfo"
+        append tekstoRezulo "\nERARO - $errorInfo -[$frazo prenuTeksto]\n"
+        EspErrorReporter reportuTekston "teknika problemo kun traduko de frazo:\n\"[$frazo prenuTeksto]\"" $errorInfo tradukado
+        $frazTraduko destroy
+        return
+    }
+    my pritraktuTradukFrazon $frazTraduko
+    $frazTraduko destroy
+}
+TekstoTradukilo instproc tradukuFrazonKiamFino {vorto {estasDifinitaFino 0}} {
+    # rezultoj
+    # 0 - nenio aktiono (ne fino)
+    # 1 - senerara
+    # 2 - eraro
+    # 3 - literuma eraro
+    my instvar frazoLegilo
+    if {([$frazoLegilo estasSFrazFino $vorto] || $estasDifinitaFino) && [Object isobject [self]::@frazo]} {
+        my tradukuFrazon [my @frazo]
+        my @frazo destroy
+        $frazoLegilo komencuFrazon
+        return 1
+    }
+    return 0
+}
+TekstoTradukilo instproc transferToOutput frazTraduko {
+    my instvar lastaElementoKursoro rezultoTeksto frazoLegilo
+    next
+    set kursoroKomenco $lastaElementoKursoro
+    set signoLegilo [$frazoLegilo signoLegilo]
+    if {$kursoroKomenco eq ""} {
+        set kursoroKomenco 0
+    }
+    set lastaTraduko "dummy"
+
+    foreach {komenco fino elementoj tradukoElementoj tradukoj} [$frazTraduko konstruuVortoGrupoj [self]] {
+        if {$lastaElementoKursoro ne ""} {
+            set sep [$signoLegilo prenuRegionon $lastaElementoKursoro $komenco]
+            #puts "sep $sep lek=$lastaElementoKursoro k=$komenco f=$fino"
+            append rezultoTeksto $sep
+        }
+        set lastaElementoKursoro $fino
+        set lastaTraduko ""
+        foreach e $elementoj eTraduko $tradukoElementoj traduko $tradukoj {
+            if {$lastaTraduko ne "dummy"} {
+                append rezultoTeksto [esp::prenuSeparatilon $traduko]
+            } else {
+                # nur komenci frazon
+                esp::prenuSeparatilon $traduko
+            }
+            append rezultoTeksto $traduko
+            set lastaTraduko $traduko
+        }
+    }
+}
+TekstoTradukilo proc tradukuDosieron {fontoDosiero rezultoDosiero {tipo HTML} {montruProgreson 0} {lingvoFabriko EoFabriko}} {
+    EsperantoConf set tradInteraktiva 0
+    set frazoLegilo [FrazoLegiloFabriko kreuLegilonDeDosiero $fontoDosiero $tipo $lingvoFabriko]
+    set tradukilo [TekstoTradukilo new [list -frazoLegilo $frazoLegilo] [list -montruProgreson $montruProgreson] [list -lingvofabriko $lingvoFabriko]]
+    set rez [$tradukilo traduku]
+    $tradukilo eksportuEnhavon [$tradukilo rezultoTeksto] $tipo $fontoDosiero $rezultoDosiero
+    $tradukilo destroy
+    $frazoLegilo destroy
+    return $rez
+}
+TekstoTradukilo proc tradukuTekston {teksto {lingvofabriko EoFabriko}} {
+    set legilo [TekstoKursoro new -volatile [list -teksto $teksto]]
+    set frazLegilo [$lingvofabriko kreuFrazoLegilo [self] -childof]
+    $frazLegilo signoLegilo $legilo
+
+    set tradukilo [TekstoTradukilo new [list -frazoLegilo $frazLegilo] [list -lingvofabriko $lingvofabriko]]
+    set rez [$tradukilo traduku]
+    set rez [$tradukilo rezultoTeksto]
+    $tradukilo destroy
+    $frazLegilo destroy
+    return $rez
+}
+Class HTMLKomparadoTradukilo -superclass ::TekstoTradukilo -parameter enhavigoDosiero
+@ ::HTMLKomparadoTradukilo idemeta component EspTradukadoBazo
+HTMLKomparadoTradukilo instproc aliguParagrafon {} {
+    my instvar htmlRezultoTeksto fontoParagrafo tradukoParagrafo
+    if {$fontoParagrafo ne "" || $tradukoParagrafo ne ""} {
+        append htmlRezultoTeksto "<tr>
+<td>
+$fontoParagrafo
+</td>
+<td>
+$tradukoParagrafo
+</td>
+</tr>
+"
+        set fontoParagrafo ""
+        set tradukoParagrafo ""
+    }
+}
+HTMLKomparadoTradukilo instproc finiOutput {} {
+    next
+    my instvar rezultoTeksto fontoParagrafo tradukoParagrafo
+    my aliguParagrafon
+    append htmlRezultoTeksto "</table>
+</div>
+  </body>
+</html>"
+}
+HTMLKomparadoTradukilo instproc getTableHeader {} {
+    return {<table border="1" width="100%">
+<tr>
+<th>Fonto</th>
+<th>Maŝina Traduko</th>
+</tr>
+}
+
+}
+HTMLKomparadoTradukilo instproc preparuTradukadon {} {
+    next
+    my instvar htmlRezultoTeksto fontoParagrafo tradukoParagrafo frazoNombro enhavigoDosiero
+    set frazoNombro 0
+
+    set fontoParagrafo ""
+    set tradukoParagrafo ""
+
+    set htmlRezultoTeksto {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="PSPad editor, www.pspad.com">
+  <title>Esperantilo - Komparo inter fonto kaj rezulto de masxina tradukado</title>
+  <script type="text/javascript">
+
+var lastin;
+var lasthl;
+var hlcolor = "yellow"
+
+function sentencein(evt) {
+    evt = (evt) ? evt : ((window.event) ? window.event : "");
+    var obj =  (evt.target) ? evt.target : evt.srcElement;
+
+    if (!obj || obj.nodeType == 3 || obj.tagName.toLowerCase() != 'var') {
+        return;
+    }
+    if (obj.id==null) return;
+    var number = obj.id.substr(1);
+    var pre;
+    if (obj.id.substr(0,1)=="f") {
+       pre = "t";
+    } else {
+       pre = "f";
+    }
+    var a = document.getElementById(pre+number);
+    if (a!=null) {
+        if (lastin) {
+            lastin.style.background = "";
+        }
+        if (lasthl) {
+            lasthl.style.background = "";
+        }
+        a.style.background = hlcolor;
+        obj.style.background = hlcolor;
+        lasthl = a;
+        lastin = obj;
+    }
+}
+
+  </script>
+  </head>
+<body>
+<div onMouseover="sentencein(event);">
+}
+    if {[info exists enhavigoDosiero] && $enhavigoDosiero ne ""} {
+        set f [open $enhavigoDosiero r]
+        append htmlRezultoTeksto [read $f]
+        close $f
+    }
+    append htmlRezultoTeksto [my getTableHeader]
+}
+HTMLKomparadoTradukilo instproc transferToOutput frazTraduko {
+    my instvar lastaElementoKursoro frazoLegilo fontoParagrafo tradukoParagrafo frazoNombro
+
+    #next
+    # neniu interaktiva traduko
+
+    set kursoroKomenco $lastaElementoKursoro
+    set signoLegilo [$frazoLegilo signoLegilo]
+    if {$kursoroKomenco eq ""} {
+        set kursoroKomenco 0
+    }
+    set lastaTraduko "dummy"
+    incr frazoNombro
+
+
+    set vortoGrupoj [$frazTraduko konstruuVortoGrupoj [self]]
+    foreach {komenco fino elementoj tradukoElementoj tradukoj} $vortoGrupoj  {
+        if {$lastaTraduko eq "dummy"} {
+            if {$lastaElementoKursoro ne ""} {
+                set sep [$signoLegilo prenuRegionon $lastaElementoKursoro $komenco]
+                if {$sep eq "\n\n"} {
+                    my aliguParagrafon
+                } else {
+                    append tradukoParagrafo $sep
+                    append fontoParagrafo $sep
+                }
+            }
+            append fontoParagrafo "<var id=\"f$frazoNombro\">"
+            append fontoParagrafo [$signoLegilo prenuRegionon $komenco [lindex $vortoGrupoj end-3]]
+            append tradukoParagrafo "<var id=\"t$frazoNombro\">"
+        } else {
+            if {$lastaElementoKursoro ne ""} {
+                set sep [$signoLegilo prenuRegionon $lastaElementoKursoro $komenco]
+                append tradukoParagrafo $sep
+            }
+        }
+        set lastaElementoKursoro $fino
+        set lastaTraduko ""
+        foreach e $elementoj eTraduko $tradukoElementoj traduko $tradukoj {
+            if {$lastaTraduko ne ""} {
+                if {$traduko ne ""} {
+                    append tradukoParagrafo [esp::prenuSeparatilon $traduko]
+                }
+            } else {
+                # nur komenci frazon
+                esp::prenuSeparatilon $traduko
+            }
+            append tradukoParagrafo $traduko
+            if {$traduko eq ""} {
+                set lastaTraduko ?
+            } else {
+                set lastaTraduko $traduko
+            }
+        }
+    }
+
+    append fontoParagrafo "</var>"
+    append tradukoParagrafo "</var>"
+}
+HTMLKomparadoTradukilo proc tradukuTekston {teksto {lingvofabriko EoFabriko}} {
+    set legilo [TekstoKursoro new -volatile [list -teksto $teksto]]
+    set frazoLegilo [$lingvofabriko kreuFrazoLegilo [self] -childof]
+    $frazoLegilo signoLegilo $legilo
+
+    set tradukilo [HTMLKomparadoTradukilo new [list -frazoLegilo $frazoLegilo] -montruProgreson 1 [list -lingvofabriko $lingvofabriko]]
+    set rez [$tradukilo traduku]
+    set rez [$tradukilo set htmlRezultoTeksto]
+    $tradukilo destroy
+    $frazoLegilo destroy
+    return $rez
+}
+HTMLKomparadoTradukilo proc tradukuTesto {} {
+    set teksto {
+Mi volas diri, ke ekzistas neniu dubo pri tio.
+
+Vi estas remarkinda. La domo estas preta por vi.
+La sesa libro estas la plej bona.}
+    set trad [my tradukuTekston $teksto]
+    set fnomo {C:\temp\out.html}
+    set f [open $fnomo w]
+    puts -nonewline $f $trad
+    close $f
+    iloj::openHTMLBrowser $fnomo
+}
+Class HTMLKomparadoTradukilo3 -superclass ::HTMLKomparadoTradukilo -parameter htradukoParagrafoj
+@ ::HTMLKomparadoTradukilo3 idemeta component EspTradukadoBazo
+HTMLKomparadoTradukilo3 instproc aliguParagrafon {} {
+    my instvar htmlRezultoTeksto fontoParagrafo tradukoParagrafo htradukoParagrafoj paraNombro
+    if {$fontoParagrafo ne "" || $tradukoParagrafo ne ""} {
+        append htmlRezultoTeksto "<tr>
+<td>
+$fontoParagrafo
+</td>
+<td>
+$tradukoParagrafo
+</td>
+<td>
+[lindex $htradukoParagrafoj $paraNombro]
+</td>
+</tr>
+"
+        set fontoParagrafo ""
+        set tradukoParagrafo ""
+        incr paraNombro
+
+        # ne trolacigu la procesoron
+        after 100
+    }
+}
+HTMLKomparadoTradukilo3 instproc getTableHeader {} {
+    return {<table border="1" width="100%">
+<tr>
+<th>Fonto</th>
+<th>Maŝina Traduko</th>
+<th>Profesia Homa Traduko</th>
+</tr>
+}
+}
+HTMLKomparadoTradukilo3 instproc preparuTradukadon {} {
+    my set paraNombro 0
+    next
+}
+HTMLKomparadoTradukilo3 proc tradukuKunKomparo {origino homatraduko {enhavigoDosiero {}}} {
+    set f [open $origino r]
+    set teksto [read $f]
+    close $f
+
+    set f [open $homatraduko r]
+    set t [read $f]
+    while {[set pos [string first \n\n $t]]>=0} {
+        lappend htradukoTeksto [string range $t 0 $pos]
+        set t [string range $t [expr {$pos+2}] end]
+    }
+    lappend htradukoTeksto $t
+
+    close $f
+
+    set legilo [TekstoKursoro new -volatile [list -teksto $teksto]]
+    set frazoLegilo [FrazoLegilo new -volatile [list -signoLegilo $legilo]]
+
+    set tradukilo [HTMLKomparadoTradukilo3 new [list -frazoLegilo $frazoLegilo] [list -htradukoParagrafoj $htradukoTeksto]  -montruProgreson 1 -enhavigoDosiero $enhavigoDosiero -lingvofabriko EoFabriko]
+    $tradukilo traduku
+    set rez [$tradukilo set htmlRezultoTeksto]
+    $tradukilo destroy
+
+    set header {
+<style type="text/css">
+var {
+ font-style:normal;
+ text-decoration:none
+}
+</style>
+<LINK REL="StyleSheet" HREF="esperantilo.css" TYPE="text/css">
+<}
+    set id [string first </head> $rez]
+    if {$id>0} {
+        set rez [string replace $rez $id $id $header]
+    }
+
+    set f [open [file rootname $homatraduko].html w]
+    puts -nonewline $f $rez
+    close $f
+    if 0 {
+      EsperantoConf set lingvo pl
+      HTMLKomparadoTradukilo3 tradukuKunKomparo claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_pl.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo claudepiron.txt claudepiron_pl.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_2052.txt cp_2052_pl.txt
+      EsperantoConf set lingvo de
+      HTMLKomparadoTradukilo3 tradukuKunKomparo claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_de.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_2052.txt cp_2052_de.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_3langeuropo.txt cp_3langeuropo_de.txt
+      EsperantoConf set lingvo en
+      HTMLKomparadoTradukilo3 tradukuKunKomparo claudepiron_mitojrealeco.txt claudepiron_mitojrealeco_en.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_psychologikajkialoj.txt cp_psychologikajkialoj_en.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_psychologikajreagoj.txt cp_psychologikajreagoj_en.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_2052.txt cp_2052_en.txt
+      HTMLKomparadoTradukilo3 tradukuKunKomparo cp_3langeuropo.txt cp_3langeuropo_en.txt
+    }
+}
+Class StructFrazoLegiloMix
+@ ::StructFrazoLegiloMix idemeta component EspTradukadoBazo
+StructFrazoLegiloMix instproc estasSFrazFino vorto {
+    if {$vorto eq "_FINO_"} {
+        return 1
+    }
+    next
+}
+StructFrazoLegiloMix instproc prenuFrazon {} {
+    set frazo [list]
+    my komencuFrazon
+    while 1 {
+        set vorto [my prenuSVorton]
+        if {$vorto eq ""} break
+        if {$vorto eq "_FINO_"} {
+            if {[llength $frazo]>0} {
+                break
+            } else {
+                continue
+            }
+        }
+        lappend frazo $vorto
+        if {[my estasSFrazFino $vorto]} {
+            break
+        }
+    }
+    return $frazo
+}
+@ Class StructFrazLegilo {
+description {Tiu legilo povas ankaux pritrakti pli strukturitaj fontoj
+ekzempl XML.
+En tiu fontoj la fraz fino povas ne nur dependi de signo
+sed ankaux specialaj markiloj
+}
+}
+Class StructFrazLegilo -superclass {::StructFrazoLegiloMix ::FrazoLegilo}
+@ ::StructFrazLegilo idemeta component EspTradukadoBazo
+@ Class TekstoTradukiloSeg {
+description {Reprezentas tradukilo por segmentita teksto.
+Uzado
+ * uzu metodojn de klaso
+ * metu dosieron (metodo: metuOriginanDosieron), kaj fontan kaj celan lingvon
+ * voku metodon: traduku
+}
+}
+Class TekstoTradukiloSeg -superclass ::TekstoTradukilo -parameter {{dosiero  {}}}
+@ ::TekstoTradukiloSeg idemeta categories {api-segmentoj api basa-interne}
+@ ::TekstoTradukiloSeg idemeta categoriesMethods {{prenuSegmentoIndikatorojn foriguTradukon havasTradukon transferToOutput prenuFrazTradukoPorSegmento prenuFonton prenuTradukon akzeptuTraduko} {bezonasKonservadon metuOriginanDosieron prenuFontanTekston eksportuTradukon prenuTradukoTekston traduku konservu trovuSegmenton leguSegmentoj} {prenuSegmenton prenuGrupon prenuGrupoIndikojn modifuTradukoEngrupo prenuGrupojLen}}
+@ ::TekstoTradukiloSeg idemeta component EspTradukadoBazo
+@ TekstoTradukiloSeg instproc akzeptuTraduko {} {
+description {Akcepto de traduko de frazo de teksto.
+Subregionoj estas separatitaj je cxeno "%#%"}
+}
+TekstoTradukiloSeg instproc akzeptuTraduko {id traduko} {
+    my instvar konservita
+
+    set konservita 0
+    set komenco 0
+    set tradlisto [list]
+    # trim estas uzato por forigi cxiujn separatilojn
+    # cxar separatilo deves esti nur en [llindex $grupo 0]
+    # vidu ankaux prenu Tradukon kaj prenu Fonton
+    while {[set ri [string first [my prenuSeparatilon] $traduko $komenco]]>=0} {
+        lappend tradlisto [string trim [string range $traduko $komenco [expr {$ri-1}]]]
+        set komenco [expr {$ri+3}]
+    }
+    lappend tradlisto [string trim [string range $traduko $komenco end]]
+
+    set segmento [my prenuSegmenton $id]
+    set seglen [llength $segmento]
+    set grupoIndikoj [my prenuGrupoIndikojn $id]
+
+    if {[llength $tradlisto]>$seglen} {
+        set g 0
+        foreach t [lrange $tradlisto 0 [expr {$seglen-1}]] {
+            my modifuTradukoEngrupo $id [lindex $grupoIndikoj $g] $t
+            incr g
+        }
+        incr g -1
+        #my halt
+        my modifuTradukoEngrupo $id [lindex $grupoIndikoj $g] [join [lrange $tradlisto [expr {$seglen-1}] end] " "]
+    } else {
+        set g 0
+        foreach t $tradlisto {
+            my modifuTradukoEngrupo $id [lindex $grupoIndikoj $g] $t
+            incr g
+        }
+        while {$g<$seglen} {
+            my modifuTradukoEngrupo $id [lindex $grupoIndikoj $g] ""
+            incr g
+        }
+    }
+}
+TekstoTradukiloSeg instproc aliguSegmenton grupoj {
+    my instvar segmentoj
+    lappend segmentoj $grupoj
+}
+TekstoTradukiloSeg instproc bezonasKonservadon {} {
+    expr {![my set konservita]}
+}
+TekstoTradukiloSeg instproc eksportuTradukon {} {
+    my instvar originaDosiero dosiero celaLingvo cilaDosiero
+    if {![info exists cilaDosiero]} {
+        if {![info exists originaDosiero]} {
+            set originaDosiero teksto.txt
+        }
+        set cdosiero [file rootname $originaDosiero]_$celaLingvo[file extension  $originaDosiero]
+        set cdosiero [IDE::Dialog getSaveFile $cdosiero]
+        if {$cdosiero eq ""} {
+            return
+        }
+        set cilaDosiero $cdosiero
+    }
+    set tipo [FrazoLegiloFabriko prenuTypoPorDosiero $originaDosiero]
+    my eksportuEnhavon [my prenuTradukoTekston] $tipo $originaDosiero $cilaDosiero
+}
+TekstoTradukiloSeg instproc estasKutimaSeparatilo {komenco fino} {
+    my instvar frazoLegilo
+    if {$frazoLegilo ne ""} {
+        next
+    } else {
+        regexp {(.+)-.+} $komenco _ komenco
+        if {![regexp {(.+)-.+} $fino _ fino]} {
+            return 1
+        }
+        expr {$komenco eq $fino}
+    }
+}
+TekstoTradukiloSeg instproc foriguTradukon id {
+    my instvar segmentoj konservita
+    set konservita 0
+    set segmento [lindex $segmentoj $id]
+    set tradList [list]
+    set g 0
+    foreach grupo $segmento {
+        if {[lindex $grupo 2] ne ""} {
+            lset segmentoj $id $g 2 ""
+        }
+        incr g
+    }
+}
+TekstoTradukiloSeg instproc havasTradukon id {
+    set segmento [my prenuSegmenton $id]
+    set grupojNombro [llength $segmento]
+
+    for {set x 0} {$x<$grupojNombro} {incr x} {
+        set grupo [my prenuGrupon $segmento $x]
+        if {[lindex $grupo 2] ne ""} {
+            return 1
+        }
+    }
+    return 0
+}
+TekstoTradukiloSeg instproc init args {
+    my instvar segmentoj lingvofabriko
+    set segmentoj [list]
+}
+TekstoTradukiloSeg instproc komputuSegmentojn {} {
+    my instvar konservita finaDato frazoLegilo frazFino
+    set konservita 0
+
+    # strukturo por <body>Ekzemplo estas <b>jam</b> preta.</body>
+    # 1 segmento
+    # 3 gruppoj
+    # 4 separatiloj
+    # segmento estas list kun grupoj
+    # grupo = separatilo fonto traduko
+    # set segmentoj {
+    #       {
+    #           {
+    #               {<body>} {Ekzemplo estas} {Przyklad jest}
+    #           }
+    #           {
+    #               { <b>} {jam} {juz}
+    #           }
+    #           {
+    #               {</b> } {preta .} {gotowy.}
+    #           }
+    #       }
+    #       {
+    #           {
+    #               {</body>} {} {}
+    #           }
+    #       }
+    # }
+
+    set signoLegilo [$frazoLegilo signoLegilo]
+    set grupoj [list]
+    set vortoj [list]
+
+    $frazoLegilo komencuFrazon
+
+    set fino 0
+    set sep ""
+
+    for {set vorto [my prenuVorton]} {$vorto ne ""} {set vorto [my prenuVorton]} {
+        if {$vorto eq "_FINO_"} {
+            if {[llength $vortoj]>0} {
+                lappend grupoj [list $sep $vortoj [list]]
+                set vortoj [list]
+                my aliguSegmenton $grupoj
+                set grupoj [list]
+                $frazoLegilo komencuFrazon
+            }
+            continue
+        }
+
+        set komenco [$signoLegilo vortkomenco]
+        if {[llength $vortoj]==0} {
+            set sep [$signoLegilo prenuRegionon $fino $komenco]
+        } elseif {![my estasKutimaSeparatilo $fino $komenco]} {
+            if {[llength $vortoj]>0} {
+                lappend grupoj [list $sep $vortoj [list]]
+                set vortoj [list]
+            }
+            set sep [$signoLegilo prenuRegionon $fino $komenco]
+        }
+        lappend vortoj $vorto
+        set fino [$signoLegilo kursoro]
+
+        if {[$frazoLegilo estasSFrazFino $vorto]} {
+            lappend grupoj [list $sep $vortoj [list]]
+            set vortoj [list]
+            my aliguSegmenton $grupoj
+            set grupoj [list]
+            $frazoLegilo komencuFrazon
+            set sep ""
+        }
+    }
+    if {[llength $vortoj]>0} {
+        lappend grupoj [list $sep $vortoj [list]]
+        my aliguSegmenton $grupoj
+    }
+    set finaDato [string range [$signoLegilo teksto] $fino end]
+
+    [$frazoLegilo signoLegilo] destroy
+    $frazoLegilo destroy
+    set frazoLegilo ""
+}
+TekstoTradukiloSeg instproc konservu {{dnomo {}}} {
+    my instvar segmentoj dosiero finaDato fontaLingvo celaLingvo konservita originaDosiero deRedaktilo
+    if {$dosiero eq ""} {
+        if {![info exists originaDosiero] || $originaDosiero eq ""} {
+            set originaDosiero traduka_projekto
+        }
+        set tdosiero [file rootname $originaDosiero].espts
+        if {$dnomo eq ""} {
+        set dnomo [IDE::Dialog getSaveFile $tdosiero {{{Traduka Projekto} {.espts}}} .espts]
+        if {$dnomo eq ""} {
+            return 0
+        }
+        set dosiero $dnomo
+        my class TekstoTradukiloSegSql
+        my kreuDeMemoro
+        EsperantoConf aliguTradukProjekto $dosiero
+        return 1
+    }
+    set dosiero $dnomo
+    } else {
+        set tdosiero $dosiero
+    }
+    if {$dnomo eq ""} {
+        set dnomo [IDE::Dialog getSaveFile $tdosiero {{{Traduka Projekto} {.espt}}} .espt]
+        if {$dnomo eq ""} {
+            return 0
+        }
+    }
+    set dosiero $dnomo
+    EsperantoConf aliguTradukProjekto $dosiero
+    set f [open $dosiero w]
+    fconfigure $f -encoding utf-8
+    puts $f "#ESP traduka projekto de programo esperantilo"
+    puts $f "dos [list $dosiero]"
+    puts $f "odos [list $originaDosiero]"
+    if {[my exists cilaDosiero]} {
+        puts $f "cdos [list [my set cilaDosiero]]"
+    }
+    puts $f "fontaLingvo [list $fontaLingvo]"
+    puts $f "celaLingvo [list $celaLingvo]"
+    puts $f "segnombro [llength $segmentoj]"
+    if {[info exists deRedaktilo]} {
+        puts $f "deRedaktilo $deRedaktilo"
+    }
+    foreach segmento $segmentoj {
+        puts $f "seg [list $segmento]"
+    }
+    puts $f "fino [list $finaDato]"
+    set konservita 1
+    close $f
+    return 1
+}
+TekstoTradukiloSeg instproc lancxuInteraktivanDialogon {{nurTradukaModo 0}} {
+    my instvar dosiero lingvofabriko interaktivaDialogo
+    set interaktivaDialogo [InteraktivaTradukadoGUINavigado newBrowser [expr {$lingvofabriko ne ""}] $nurTradukaModo]
+    $interaktivaDialogo tradukilo [self]
+    $interaktivaDialogo initProgreso
+    if {[info exists dosiero]} {
+        $interaktivaDialogo setTitleAddition [file tail $dosiero]
+    }
+    $interaktivaDialogo komencuTradukadon
+}
+TekstoTradukiloSeg instproc leguSegmentoj {{dnomo {}}} {
+    my instvar segmentoj dosiero finaDato fontaLingvo celaLingvo konservita frazoLegilo originaDosiero cilaDosiero deRedaktilo lingvofabriko
+    set frazoLegilo ""
+    set konservita 1
+    if {$dnomo eq ""} {
+        #my halt
+        set dnomo [IDE::Dialog getOpenFile {{{Traduka Projekto} {.espt}}}]
+        if {$dnomo eq ""} {
+            return
+        }
+    }
+    set dosiero $dnomo
+    EsperantoConf aliguTradukProjekto $dosiero
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    set s ""
+    set segmentoj [list]
+    while {[gets $f linio]>=0} {
+        append s $linio
+        if {[info complete $s]} {
+            if {[string index $s 0] ne "#"} {
+                set data [lindex $s 1]
+                switch [lindex $s 0] {
+                    seg {
+                        lappend segmentoj $data
+                    }
+                    fontolingvo -
+                    fontaLingvo {
+                        set fontaLingvo $data
+                    }
+                    tradukolingvo -
+                    celaLingvo {
+                        set celaLingvo $data
+                    }
+                    fino {
+                        set finaDato $data
+                    }
+                    dos {
+                        set dosiero $data
+                    }
+                    odos {
+                        set originaDosiero $data
+                    }
+                    cdos {
+                        set cilaDosiero $data
+                    }
+                    deRedaktilo {
+                        set deRedaktilo $data
+                    }
+                }
+            }
+            set s ""
+        } else {
+            append s \n
+        }
+    }
+    close $f
+    my traduku 0
+}
+TekstoTradukiloSeg instproc metuOriginanDosieron odosiero {
+    my instvar originaDosiero konservita
+    set originaDosiero $odosiero
+    set konservita 0
+    # set dosiero [file rootname $odosiero].esp
+}
+TekstoTradukiloSeg instproc modifuTradukoEngrupo {segmentoid grupoid traduko} {
+    my instvar segmentoj
+    lset segmentoj $segmentoid $grupoid 2 $traduko
+}
+TekstoTradukiloSeg instproc prenuFontanTekston {} {
+    my instvar segmentoj finaDato
+    set ret ""
+    foreach segmentoid [my prenuSegmentoIndikatorojn] {
+        set segmento [my prenuSegmenton $segmentoid]
+        set glen [llength $segmento]
+        for {set i 0} {$i<$glen} {incr i} {
+            set grupo [my prenuGrupon $segmento $i]
+            append ret [lindex $grupo 0]
+            set vfirst 1
+            foreach vorto [lindex $grupo 1] {
+                set space [esp::prenuSeparatilon $vorto]
+                if {$vfirst} {
+                    append ret $vorto
+                } else {
+                    append ret $space$vorto
+                }
+                set vfirst 0
+            }
+        }
+    }
+    append ret $finaDato
+    return $ret
+}
+TekstoTradukiloSeg instproc prenuFonton segid {
+    my instvar vortoRefArr
+    set rez ""
+    set first 1
+    set asep ""
+    set psep ""
+    unset -nocomplain vortoRefArr
+    set g 0
+
+    set segmento [my prenuSegmenton $segid]
+    set grupojNombro [llength $segmento]
+
+    for {set x 0} {$x<$grupojNombro} {incr x} {
+        set grupo [my prenuGrupon $segmento $x]
+        if {$rez ne ""} {
+            if {[lindex $grupo 0] ne ""} {
+                if {[string is space [string index [lindex $grupo 0] 0]] && ![string is space [string index $rez end]]} {
+                    append rez " "
+                }
+                append rez [my prenuSeparatilon]
+                if {[string is space [string index [lindex $grupo 0] end]]} {
+                    append rez " "
+                }
+            }
+        }
+        set vfirst 1
+        set v 0
+        foreach vorto [lindex $grupo 1] {
+            set space [esp::prenuSeparatilon $vorto]
+            if {!$vfirst} {
+                append rez $space
+            }
+            set vortoRefArr($g-$v) [list [string length $rez] [string length $vorto]]
+            append rez $vorto
+            set vfirst 0
+            incr v
+        }
+        incr g
+    }
+    return $rez
+}
+TekstoTradukiloSeg instproc prenuFrazTradukoPorSegmento id {
+    my instvar vortaro aktSegmentoId lingvofabriko
+    set aktSegmentoId $id
+    set segmento [my prenuSegmenton $id]
+    set grupojNombro [llength $segmento]
+
+    if {![Object isobject [self]::@sinanalizo]} {
+        $lingvofabriko kreuSintaksAnalizilo [self]::@sinanalizo
+    }
+    if {[Object isobject [self]::@frazo]} {
+        my @frazo destroy
+    }
+    $lingvofabriko kreuFrazo [self]::@frazo
+
+    set g 0
+    for {set x 0} {$x<$grupojNombro} {incr x} {
+        set grupo [my prenuGrupon $segmento $x]
+        set v 0
+        foreach vorto [lindex $grupo 1] {
+            my @frazo aliguTestuVorto $vortaro $vorto $g-$v $g-$v
+            incr v
+        }
+        incr g
+    }
+    set frazo [my @frazo]
+    my @sinanalizo frazo $frazo
+    if {[EsperantoConf isInDelopingMode]} {
+        my @sinanalizo analizu
+    } elseif {[catch {my @sinanalizo analizu}]} {
+        EspErrorReporter reportuTekston "teknika problemo kun analizo de frazo:\n\"[$frazo prenuTeksto]\"" $::errorInfo
+        return
+    }
+    set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+    $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+    $frazTraduko metuLingvon [$lingvofabriko prenuCelanLingvon]
+    $frazTraduko konstruuVortoGrupojOrgina [self]
+    if {[EsperantoConf isInDelopingMode]} {
+        $frazTraduko traduku
+    } elseif {[catch {$frazTraduko traduku}]} {
+        EspErrorReporter reportuTekston "teknika problemo kun traduko de frazo:\n\"[$frazo prenuTeksto]\"" $::errorInfo
+        return
+    }
+    return $frazTraduko
+}
+TekstoTradukiloSeg instproc prenuGrupoIndikojn segid {
+    my instvar segmentoj
+
+    set ret [list]
+    set length [llength [lindex $segmentoj $segid]]
+    for {set i 0} {$i<$length} {incr i} {
+        lappend ret $i
+    }
+    return $ret
+}
+TekstoTradukiloSeg instproc prenuGrupojLen id {
+    my instvar segmentoj
+    return [llength [lindex $segmentoj $id]]
+}
+TekstoTradukiloSeg instproc prenuGrupon {segmento id} {
+    lindex $segmento $id
+}
+TekstoTradukiloSeg instproc prenuRegiononPorIndekso indekso {
+    my instvar vortoRefArr
+    if {[info exists vortoRefArr($indekso)]} {
+        return $vortoRefArr($indekso)
+    }
+    return
+}
+TekstoTradukiloSeg instproc prenuSegmentoIndikatorojn {} {
+    my instvar segmentoj
+    set rez [list]
+    for {set x 0} {$x<[llength $segmentoj]} {incr x} {
+        lappend rez $x
+    }
+    return $rez
+}
+TekstoTradukiloSeg instproc prenuSegmenton id {
+    my instvar segmentoj
+    lindex $segmentoj $id
+}
+TekstoTradukiloSeg instproc prenuTradukoTekston {} {
+    my instvar segmentoj finaDato
+    set ret ""
+    foreach segmentoid [my prenuSegmentoIndikatorojn] {
+        set segmento [my prenuSegmenton $segmentoid]
+        set glen [llength $segmento]
+        set havasTradukon 0
+        for {set i 0} {$i<$glen} {incr i} {
+            set grupo [my prenuGrupon $segmento $i]
+            if {[lindex $grupo 2] ne ""} {
+                set havasTradukon 1
+                break
+            }
+        }
+        if {$havasTradukon} {
+            for {set i 0} {$i<$glen} {incr i} {
+                set grupo [my prenuGrupon $segmento $i]
+                append ret [lindex $grupo 0] [lindex $grupo 2]
+            }
+        } else {
+            for {set i 0} {$i<$glen} {incr i} {
+                set grupo [my prenuGrupon $segmento $i]
+                append ret [lindex $grupo 0] [lindex $grupo 1]
+            }
+        }
+    }
+    append ret $finaDato
+    return $ret
+}
+TekstoTradukiloSeg instproc prenuTradukon id {
+    set segmento [my prenuSegmenton $id]
+    set grupojNombro [llength $segmento]
+
+    set trad ""
+    set first 1
+    set sep 0
+    for {set x 0} {$x<$grupojNombro} {incr x} {
+        set grupo [my prenuGrupon $segmento $x]
+        if {[lindex $grupo 2] eq ""} {
+            continue
+        } else {
+            if {!$first} {
+                if {[string is space [string index [lindex $grupo 0] 0]] && ![string is space [string index $trad end]]} {
+                    append trad " "
+                }
+                append trad [my prenuSeparatilon]
+                if {[string is space [string index [lindex $grupo 0] end]]} {
+                    append trad " "
+                    set sep 1
+                } else {
+                    set sep 0
+                }
+            }
+            set t [lindex $grupo 2]
+            if {!$sep} {
+                append trad $t
+            } else {
+                append trad [string trimleft $t]
+            }
+        }
+        set first 0
+    }
+    return $trad
+}
+TekstoTradukiloSeg instproc traduku {{komputuSegmentojn 1}} {
+    my instvar lingvofabriko fontaLingvo celaLingvo
+    if {$lingvofabriko eq ""} {
+        if {[lsearch [EsperantoConf prenuSubtenatajFontajLingvoj] $fontaLingvo]>=0 &&
+            [[DBVortaro prenuDepVortaron] cxuSubtenatasLingvon $celaLingvo]} {
+            set lingvofabriko [EsperantoConf prenuLingvoFabrikoTradukado $fontaLingvo $celaLingvo]
+        }
+    } else {
+        set fontaLingvo [$lingvofabriko prenuFontanLingvon]
+        set celaLingvo [$lingvofabriko prenuCelanLingvon]
+    }
+    my preparuTradukadon
+    if {$komputuSegmentojn} {
+        my komputuSegmentojn
+    }
+}
+@ TekstoTradukiloSeg instproc transferToOutput {} {
+description {akcepto tradukon de objekto de tipo "FrazTraduko"}
+}
+TekstoTradukiloSeg instproc transferToOutput frazTraduko {
+    my instvar aktSegmentoId segmentoj konservita
+    set konservita 0
+
+    set g 0
+    set rezultoTeksto ""
+    set lastaTraduko ""
+
+    set grupoindikoj [my prenuGrupoIndikojn $aktSegmentoId]
+    set seglen [llength $grupoindikoj]
+
+    foreach {komenco fino elementoj tradukoElementoj tradukoj} [$frazTraduko konstruuVortoGrupoj [self]] {
+        if {$g<$seglen-1} {
+            set lastaTraduko ""
+        }
+        foreach e $elementoj eTraduko $tradukoElementoj traduko $tradukoj {
+            if {$lastaTraduko ne "" && ![string is space [string index $rezultoTeksto end]]} {
+                if {$traduko ne ""} {
+                    append rezultoTeksto [esp::prenuSeparatilon $traduko]
+                }
+            } else {
+                # nur komenci frazon
+                esp::prenuSeparatilon $traduko
+            }
+            append rezultoTeksto $traduko
+            if {$traduko eq ""} {
+                set lastaTraduko ?
+            } else {
+                set lastaTraduko $traduko
+            }
+        }
+        my modifuTradukoEngrupo $aktSegmentoId [lindex $grupoindikoj $g] $rezultoTeksto
+        if {$g<$seglen-1} {
+           set rezultoTeksto ""
+           incr g
+        }
+    }
+}
+TekstoTradukiloSeg instproc trovuSegmenton {tteksto estasTraduko {komenco {}}} {
+    if {[string first * $tteksto]>=0 || [string first ? $tteksto]>=0} {
+        set match 1
+    } else {
+        set match 0
+    }
+    foreach id [my prenuSegmentoIndikatorojn] {
+        if {$komenco ne ""} {
+            if {$id eq $komenco} {
+                set komenco ""
+            }
+            continue
+        }
+        if {$estasTraduko} {
+            set teksto [my prenuTradukon $id]
+        } else {
+            set teksto [my prenuFonton $id]
+        }
+        if {$match} {
+            if {[string match -nocase $tteksto $teksto]} {
+                return $id
+            }
+        } else {
+            if {[string first $tteksto $teksto]>=0} {
+                return $id
+            }
+        }
+    }
+    return
+}
+TekstoTradukiloSeg proc malfermuProjekto {{adosiero {}} {nurTradukaModo 0}} {
+    if {$adosiero eq ""} {
+        set filetypes {{{traduka projekto} *.espts} {{malnova traduka projekto} *.espt}}
+        set dosiero [IDE::Dialog getOpenFile $filetypes]
+    } else {
+        set dosiero $adosiero
+    }
+    if {$dosiero ne ""} {
+        if {[file extension $dosiero] eq ".espt"} {
+            set t [TekstoTradukiloSeg new]
+        } else {
+            set t [TekstoTradukiloSegSql new]
+        }
+        $t leguSegmentoj $dosiero
+        $t lancxuInteraktivanDialogon $nurTradukaModo
+        return $t
+    }
+
+}
+TekstoTradukiloSeg proc tradukuDosieron {fontoDosiero {tipo HTML} {lingvoFabriko {}}} {
+    set frazoLegilo [FrazoLegiloFabriko kreuLegilonDeDosiero $fontoDosiero $tipo $lingvoFabriko]
+    TekstoTradukiloSegSql new [list -frazoLegilo $frazoLegilo] [list -lingvofabriko $lingvoFabriko]
+}
+TekstoTradukiloSeg proc tradukuTekston {teksto {lingvofabriko {}}} {
+    set frazoLegilo [FrazoLegiloFabriko kreuLegilonDeTeksto $teksto $lingvofabriko]
+    TekstoTradukiloSeg new [list -frazoLegilo $frazoLegilo] [list -lingvofabriko $lingvofabriko]
+}
+Class TekstoTradukiloSegSql -superclass ::TekstoTradukiloSeg
+@ ::TekstoTradukiloSegSql idemeta categories {api basa-interne meta tradukisto}
+@ ::TekstoTradukiloSegSql idemeta categoriesMethods {{havasTradukon prenuSegmentoIndikatorojn foriguTradukon} {prenuSegmenton prenuGrupojLen prenuGrupoIndikojn aliguSegmenton} {havasMetaAtributojn metuMetaAtributojn prenuMetaAtributojn} {prenuAktualanTradukiston prenuTradukistoj metuAktualanTradukiston}}
+@ ::TekstoTradukiloSegSql idemeta component EspTradukadoBazo
+TekstoTradukiloSegSql instproc akzeptuTraduko {id traduko} {
+    next
+    my instvar connection tradukistoid
+    set trad ""
+    if {[info exists tradukistoid]} {
+        set trad ",tradukistoid=$tradukistoid"
+    }
+    $connection execute "update segmento set lastamodifo=[clock seconds]$trad where segmentoid=$id"
+}
+TekstoTradukiloSegSql instproc aliguSegmenton grupoj {
+    my instvar connection
+    set tempo [clock seconds]
+    set segmentoid [$connection insertRowAutoId segmento [list lastamodifo] [list $tempo] segmentoid]
+    foreach g $grupoj {
+        $connection insertRowAutoId grupo {segmentoid separatilo fonto traduko} [concat $segmentoid $g]
+    }
+    return $segmentoid
+}
+TekstoTradukiloSegSql instproc foriguTradukon id {
+    my instvar connection
+    $connection execute "update grupo set traduko=NULL where segmentoid=$id"
+    $connection execute "update segemento set akceptita=NULL,tradukistoid=NULL where segmentoid=$id"
+}
+TekstoTradukiloSegSql instproc havasMetaAtributojn {} {
+    return 1
+}
+TekstoTradukiloSegSql instproc havasTradukon id {
+    my instvar connection
+    expr {[llength [$connection queryList "select grupoid from grupo where length(traduko)>0 and segmentoid=$id"]]>0}
+}
+TekstoTradukiloSegSql instproc komputuSegmentojn {} {
+    my kreuDBDosiero
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    next
+    $connection execute "END TRANSACTION"
+    my konservu
+}
+TekstoTradukiloSegSql instproc konektu {} {
+    my instvar dosiero autorid
+
+    set autorid 0
+
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set dbConnection [$iclass new -childof [self]]
+    # puts "sqlite connect $dosiero"
+    $dbConnection connect [list sqlfile $dosiero noMeta 1]
+
+    my set connection $dbConnection
+}
+TekstoTradukiloSegSql instproc konservu {{dnomo {}}} {
+    my instvar segmentoj dosiero finaDato fontaLingvo celaLingvo konservita originaDosiero deRedaktilo connection
+    if {(![info exists dosiero] || $dosiero eq "") && ![info exists connection]} {
+        if {![info exists originaDosiero] || $originaDosiero eq ""} {
+            set originaDosiero traduka_projekto
+        }
+        set tdosiero [file rootname $originaDosiero].espts
+        if {$dnomo eq ""} {
+            set dnomo [IDE::Dialog getSaveFile $tdosiero {{{Traduka Projekto} {.espts}}} .espts]
+            if {$dnomo eq ""} {
+                return 0
+            }
+        }
+        set dosiero $dnomo
+        my kreuDB
+    }
+
+
+
+    foreach v {finaDato fontaLingvo celaLingvo originaDosiero} {
+        if {[my exists $v]} {
+            my var2db $v [set $v]
+        }
+    }
+    set konservita 1
+    return 1
+}
+TekstoTradukiloSegSql instproc kreuDB {} {
+    my instvar connection dosiero
+    if {[file isfile $dosiero]} {
+        file delete $dosiero
+    }
+    my konektu
+    $connection execute {
+        CREATE TABLE segmento (
+            segmentoid INTEGER PRIMARY KEY AUTOINCREMENT,
+            akceptita INTEGER,
+            tradukistoid INTEGER,
+            lastamodifo INTEGER,
+            komento TEXT
+        )
+    }
+    $connection execute {
+        CREATE TABLE grupo (
+            grupoid INTEGER PRIMARY KEY AUTOINCREMENT,
+            segmentoid INTEGER,
+            fonto TEXT,
+            separatilo TEXT,
+            traduko TEXT
+        )
+    }
+    $connection execute {CREATE INDEX grupo_segmentoid ON grupo (segmentoid)}
+    $connection execute {
+        CREATE TABLE tradukisto (
+            tradukistoid INTEGER PRIMARY KEY AUTOINCREMENT,
+            nomo VARCHAR(200),
+            initialo VARCHAR(200)
+        )
+    }
+    set unomo [EsperantoConf set uzantoNomo]
+    if {$unomo ne ""} {
+        $connection insertRowAutoId tradukisto [list nomo] [list $unomo] tradukistoid
+    }
+    $connection execute {
+        CREATE TABLE priskribo (
+           nomo VARCHAR(50),
+           valuo TEXT
+        )
+    }
+    EsperantoConf aliguTradukProjekto $dosiero
+}
+TekstoTradukiloSegSql instproc kreuDBDosiero {} {
+    my instvar dosiero originaDosiero
+    if {![info exists dosiero] || $dosiero eq ""} {
+        if {![info exists originaDosiero] || $originaDosiero eq ""} {
+            set originaDosiero traduka_projekto
+        }
+        set tdosiero [file rootname $originaDosiero].espts
+        set dnomo [IDE::Dialog getSaveFile $tdosiero {{{Traduka Projekto} {.espts}}} .espts]
+        if {$dnomo eq ""} {
+            return 0
+        }
+        set dosiero $dnomo
+    }
+    my kreuDB
+}
+TekstoTradukiloSegSql instproc kreuDeMemoro {} {
+    my instvar segmentoj connection
+    my kreuDB
+    $connection execute "BEGIN TRANSACTION"
+    foreach s $segmentoj {
+        my aliguSegmenton $s
+    }
+    $connection execute "END TRANSACTION"
+    unset segmentoj
+    my konservu
+}
+TekstoTradukiloSegSql instproc leguSegmentoj {{dnomo {}}} {
+    my instvar segmentoj dosiero finaDato fontaLingvo celaLingvo konservita frazoLegilo originaDosiero cilaDosiero deRedaktilo lingvofabriko connection tradukistojArr tradukistoid
+    set frazoLegilo ""
+    set konservita 1
+    if {$dnomo ne ""} {
+        set dosiero $dnomo
+    } elseif {![info exists dosiero] || $dosiero eq "")} {
+        #my halt
+        set dnomo [IDE::Dialog getOpenFile {{{Traduka Projekto} {.espts}}}]
+        if {$dnomo eq ""} {
+            return
+        }
+        set dosiero $dnomo
+    }
+    EsperantoConf aliguTradukProjekto $dosiero
+    my konektu
+
+    foreach s [$connection queryList "select nomo,valuo from priskribo"] {
+        set data [lindex $s 1]
+        switch [lindex $s 0] {
+            seg {
+                lappend segmentoj $data
+            }
+            fontolingvo -
+            fontaLingvo {
+                set fontaLingvo $data
+            }
+            tradukolingvo -
+            celaLingvo {
+                set celaLingvo $data
+            }
+            finaDato -
+            fino {
+                set finaDato $data
+            }
+            dosiero -
+            dos {
+                set dosiero $data
+            }
+            originaDosiero -
+            odos {
+                set originaDosiero $data
+            }
+            cdos {
+                set cilaDosiero $data
+            }
+            deRedaktilo {
+                set deRedaktilo $data
+            }
+        }
+    }
+    set unomo [EsperantoConf set uzantoNomo]
+    foreach s [$connection queryList "select tradukistoid,nomo from tradukisto"] {
+        set tradukistojArr([lindex $s 0]) [lindex $s 1]
+        if {$unomo eq [lindex $s 1]} {
+            set tradukistoid [lindex $s 0]
+        }
+    }
+
+    my traduku 0
+}
+TekstoTradukiloSegSql instproc metuAktualanTradukiston nomo {
+    my instvar tradukistojArr tradukistoid connection
+    set trovita 0
+    if {[array exists tradukistojArr]} {
+        foreach {k v} [array get tradukistojArr] {
+            if {$v eq $nomo} {
+                set tradukistoid $k
+                set trovita 1
+                break
+            }
+        }
+    }
+    if {!$trovita} {
+         set id [$connection insertRowAutoId tradukisto [list nomo] [list $nomo] tradukistoid]
+         set tradukistoid $id
+         set tradukistojArr($id) $nomo
+    }
+}
+TekstoTradukiloSegSql instproc metuMetaAtributojn {segmentoid dict} {
+    my instvar connection
+    set sql "update segmento set"
+    set first 1
+    dict for {key value} $dict {
+        if {!$first} {
+            append sql ","
+        }
+        append sql " $key='[$connection escape $value]'"
+        set first 0
+    }
+    append sql " where segmentoid=$segmentoid"
+    $connection execute $sql
+}
+TekstoTradukiloSegSql instproc modifuTradukoEngrupo {segmentoid grupoid traduko} {
+    my instvar connection
+    $connection execute "update grupo set traduko='[$connection escape $traduko]' where grupoid=$grupoid"
+}
+TekstoTradukiloSegSql instproc prenuAktualanTradukiston {} {
+    my instvar tradukistojArr tradukistoid
+    if {[info exists tradukistoid]} {
+        return $tradukistojArr($tradukistoid)
+    }
+    return
+}
+TekstoTradukiloSegSql instproc prenuGrupoIndikojn segid {
+    my instvar connection
+    set ret [list]
+    foreach g [$connection queryList "select grupoid from grupo where segmentoid=$segid order by grupoid"] {
+        lappend ret [lindex $g 0]
+    }
+    return $ret
+}
+TekstoTradukiloSegSql instproc prenuGrupojLen id {
+    my instvar connection
+    lindex [$connection queryList "select count(grupoid) from grupo where segmentoid=$id"] 0 0
+}
+TekstoTradukiloSegSql instproc prenuMetaAtributojn segmentoid {
+    my instvar connection tradukistojArr
+    set sql "select akceptita,tradukistoid,lastamodifo,komento from segmento where segmentoid=$segmentoid"
+    foreach row [$connection queryList $sql] {
+        set dic [dict create akceptita [lindex $row 0] tradukisto [lindex $row 1] lastamodifo [lindex $row 2] komento [lindex $row 3]]
+        if {[dict get $dic akceptita] eq ""} {
+            dict set dic akceptita 0
+        }
+        if {![catch {set tradukistojArr([lindex $row 1])} tnomo]} {
+            dict set dic tradukisto $tnomo
+        }
+        return $dic
+    }
+    return
+}
+TekstoTradukiloSegSql instproc prenuSegmentoIndikatorojn {} {
+    my instvar connection
+    set ret [list]
+    foreach c [$connection queryList {select segmentoid from segmento order by segmentoid}] {
+        lappend ret [lindex $c 0]
+    }
+    return $ret
+}
+TekstoTradukiloSegSql instproc prenuSegmenton id {
+    my instvar connection
+    $connection queryList "select separatilo,fonto,traduko from grupo where segmentoid=$id order by grupoid"
+}
+TekstoTradukiloSegSql instproc prenuTradukistoj {} {
+    my instvar tradukistojArr
+    set rez [list]
+    if {[array exists tradukistojArr]} {
+        foreach {k v} [array get tradukistojArr] {
+            lappend rez $v
+        }
+    }
+    return $rez
+}
+TekstoTradukiloSegSql instproc transferToOutput frazTraduko {
+    next
+    my instvar connection tradukistoid aktSegmentoId
+    set trad ""
+    if {[info exists tradukistoid]} {
+        set trad ",tradukistoid=$tradukistoid"
+    }
+    $connection execute "update segmento set lastamodifo=[clock seconds]$trad where segmentoid=$aktSegmentoId"
+}
+TekstoTradukiloSegSql instproc var2db {var value} {
+    my instvar connection
+    set len [$connection execute "update priskribo set valuo='[$connection escape $value]' where nomo='$var'"]
+    if {$len==0} {
+        $connection insertRow priskribo {nomo valuo} [list $var $value]
+    }
+
+}
+TekstoTradukiloSegSql instproc varElDB var {
+    my instvar connection
+    lindex [$connection queryList "select valuo from priskribo where nomo='$var'"] 0 0
+
+}
+Class XLIFFCKursoro -superclass ::DOMKursoro
+@ ::XLIFFCKursoro idemeta component EspTradukadoBazo
+XLIFFCKursoro instproc cxuTekstoEnmikso node {
+    if {[$node nodeType] ne "ELEMENT_NODE"} {
+        return 1
+    }
+    set enListo {bpt ept it ph g bx ex x sub}
+    if {[lsearch $enListo [$node nodeName]]>=0} {
+        return 1
+    }
+    return 0
+}
+XLIFFCKursoro instproc cxuVisiti node {
+    if {[$node nodeType] ne "ELEMENT_NODE"} {
+        return 0
+    }
+    set aceptListo {file body trans-unit source}
+    if {[lsearch $aceptListo [$node nodeName]]>=0} {
+        return 1
+    }
+    return 0
+}
+Class XLIFFKursoro -superclass ::DOMKursoro
+@ ::XLIFFKursoro idemeta component EspTradukadoBazo
+XLIFFKursoro instproc cxuTekstoEnmikso node {
+    return 1
+}
+XLIFFKursoro instproc cxuVisiti node {
+    return 0
+}
+Class XLIFFTradukilo -superclass ::DOMTradukilo -parameter {rootNode {kursoroClass XLIFFKursoro} tipo dosiero}
+@ ::XLIFFTradukilo idemeta component EspTradukadoBazo
+XLIFFTradukilo instproc bezonasKonservadon {} {
+    expr {![my set konservita]}
+}
+XLIFFTradukilo instproc definuLingvojn {} {
+    my instvar rootNode fontaLingvo celaLingvo prefix
+    set filenode [lindex [$rootNode selectNodes ${prefix}file] 0]
+    if {$filenode ne ""} {
+        if {[$filenode hasAttribute source-language]} {
+            set slan [$filenode getAttribute source-language]
+            set fontaLingvo [string tolower [lindex [split $slan -] 0]]
+        }
+        if {[$filenode hasAttribute target-language]} {
+            set slan [$filenode getAttribute target-language]
+            set celaLingvo [string tolower [lindex [split $slan -] 0]]
+        }
+    }
+    #if {![info exists fontaLingvo]} {
+    #    set fontaLingvo eo
+    #    $filenode setAttribute target-language eo
+    #}
+}
+XLIFFTradukilo instproc estasInteraktiva {} {
+    return 0
+}
+XLIFFTradukilo instproc konservu {{dnomo {}}} {
+    my instvar tipo dosiero labordosiero document konservita
+    if {$dnomo ne ""} {
+        set dosiero $dnomo
+    }
+    if {$tipo eq "XLZ"} {
+        iloj::mountZip $dosiero xlz
+        set laborDosiero [file join [file dirname $dosiero] content.xlf]
+        set rezultoDosiero [file join [file dirname $dosiero] tmp]
+        set wh [open $laborDosiero w]
+        fconfigure $wh -encoding utf-8
+        puts -nonewline $wh [my prenuXML]
+        close $wh
+        ZipArchive createZip $rezultoDosiero [list [file join xlz skeleton.skl] $laborDosiero]
+        vfs::unmount xlz
+        file rename -force $rezultoDosiero $dosiero
+        file delete $laborDosiero
+    } else {
+        set wh [open $dosiero w]
+        fconfigure $wh -encoding utf-8
+        puts -nonewline $wh [my prenuXML]
+        close $wh
+    }
+    set konservita 1
+    return $konservita
+}
+XLIFFTradukilo instproc leguDosieron {} {
+    my instvar tipo dosiero montruProgreson document rootNode konservita prefix
+    package require tdom
+    set konservita 1
+    if {$tipo eq "XLZ"} {
+        iloj::mountZip $dosiero xlz
+        set xlzDosiero $dosiero
+        set fontoDosiero [file join xlz content.xlf]
+        if {![file exists $fontoDosiero] || ![file exists [file join xlz skeleton.skl]]} {
+            set messagxo [mc "xlz dosiero ne enhavas dosierojn 'content.xlf' kaj 'skeleton.skl'"]
+            vfs::unmount xlz
+            if {$montruProgreson} {
+                EsperantoBrowser message $messagxo
+            } else {
+                puts $messagxo
+            }
+            return
+        }
+    } else {
+        set fontoDosiero $dosiero
+    }
+    set fh [open $fontoDosiero r]
+    fconfigure $fh -encoding utf-8
+    set document [dom parse -keepEmpties -channel $fh]
+    set rootNode [$document documentElement]
+    if {[$rootNode namespaceURI] ne ""} {
+        $document selectNodesNamespaces [list t [$rootNode namespaceURI]]
+        set prefix "t:"
+    } else {
+        set prefix ""
+    }
+    if {$tipo eq "XLZ"} {
+        vfs::unmount xlz
+    }
+    close $fh
+    my definuLingvojn
+}
+XLIFFTradukilo instproc metuAktualanTradukiston tradukisto {
+    return
+}
+XLIFFTradukilo instproc prenuAktualanTradukiston {} {
+    return
+}
+XLIFFTradukilo instproc prenuAuxKreuTargetPor aktualaSegmento {
+    my instvar prefix
+    set targetObj ""
+    foreach t [$aktualaSegmento childNodes] {
+        if {[$t nodeType] eq "ELEMENT_NODE" && [$t nodeName] eq "target"} {
+            set targetObj $t
+        }
+        if {[$t nodeType] eq "ELEMENT_NODE" && [$t nodeName] eq "source"} {
+            set sourceObj $t
+        }
+    }
+    if {$targetObj eq ""} {
+        set uri [$aktualaSegmento namespaceURI]
+        if {[EsperantoConf set tradXLIFFUAltTrans] && ![my estasInteraktiva]} {
+            if {$uri eq ""} {
+                set altTarget [[$aktualaSegmento ownerDocument] createElement alt-trans]
+                set targetNode [[$aktualaSegmento ownerDocument] createElement target]
+            } else {
+                set altTarget [[$aktualaSegmento ownerDocument] createElementNS $uri alt-trans]
+                set targetNode [[$aktualaSegmento ownerDocument] createElementNS $uri target]
+            }
+            $altTarget appendChild $targetNode
+            $aktualaSegmento insertBefore $altTarget [$sourceObj nextSibling]
+            $altTarget setAttribute tool esperantilo
+        } else {
+            if {$uri eq ""} {
+                set targetNode [[$aktualaSegmento ownerDocument] createElement target]
+            } else {
+                set targetNode [[$aktualaSegmento ownerDocument] createElementNS $uri target]
+            }
+            $aktualaSegmento insertBefore $targetNode [$sourceObj nextSibling]
+            if {![my estasInteraktiva]} {
+                $targetNode setAttribute state needs-review-translation
+                $targetNode setAttribute state-qualifier mt-suggestion
+            }
+        }
+        set targetObj $targetNode
+    }
+    return $targetObj
+}
+XLIFFTradukilo instproc prenuSegmentoIndikatorojn {} {
+    my  instvar tradukoNodes
+    return $tradukoNodes
+}
+XLIFFTradukilo instproc prenuTradukistoj {} {
+    return
+}
+XLIFFTradukilo instproc prenuXML {} {
+    my instvar document
+    set version [[$document documentElement] getAttribute version noversion]
+    switch -- $version {
+        1.0 {
+            set pre {<?xml version="1.0" ?>
+<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN" "http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">}
+        }
+        1.1 {
+            set pre "<?xml version=\"1.0\" ?>\n"
+        }
+        1.2 {
+            set pre "<?xml version=\"1.0\" ?>\n"
+        }
+        default {
+            set pre "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        }
+    }
+
+    return $pre[$document asXML -indent none]
+}
+XLIFFTradukilo instproc tradukoTransUnit {transUnitNode sourceNode} {
+    # cxu estas jam tradukita
+    my instvar aktualaSegmento
+    set aktualaSegmento $transUnitNode
+    my tradukuNode $sourceNode
+}
+XLIFFTradukilo instproc traduku {} {
+    my  instvar rootNode progresoObj interaktivaDialogo prefix
+    my preparuTradukadon
+    set nodes [$rootNode selectNodes //${prefix}trans-unit]
+    set length [llength $nodes]
+    set i 0
+    foreach transUnitNode $nodes {
+        incr i
+        if {[$transUnitNode getAttribute translate yes] eq "no"} continue
+        if {[$transUnitNode getAttribute state new] eq "final"} continue
+        set sourceNode [lindex [$transUnitNode selectNodes ${prefix}source] 0]
+        if {$sourceNode eq ""} {
+            continue
+        }
+        my tradukoTransUnit $transUnitNode $sourceNode
+        if {[my pritraktuProgreson [expr {round(100.0*$i/$length)}]]} {
+            break
+        }
+    }
+    my postTraduko
+    my konservu
+    my destroy
+}
+XLIFFTradukilo instproc tradukuFrazonKiamFino {vorto {estasDifinitaFino 0}} {
+    my instvar arboastoj lingvofabriko
+    # rezultoj
+    # 0 - nenio aktiono (ne fino)
+    # 1 - senerara
+    # 2 - eraro
+    # 3 - literuma eraro
+    if {([my @legilo estasSFrazFino $vorto] || $estasDifinitaFino) && [Object isobject [self]::@frazo]} {
+        if {![Object isobject [self]::@sinanalizo]} {
+            $lingvofabriko kreuSintaksAnalizilo [self]::@sinanalizo
+        }
+        set frazo [my @frazo]
+        my @sinanalizo frazo $frazo
+        my @sinanalizo analizu
+        my @legilo komencuFrazon
+        lappend arboastoj [$frazo set sintaksoarbo]
+        $frazo set elementoj [list]
+        $frazo set sintaksoarbo ""
+        return 1
+    }
+    return 0
+}
+XLIFFTradukilo instproc tradukuNode targetNode {
+    my instvar vortaro arboastoj frazTraduko celaLingvo lingvofabriko
+    [self]::@kursoro setNode $targetNode
+    set arboastoj [list]
+    # ni uzas unu frazo por tuta segmento kvankam segmento povas enhavi multajn frazojn
+    if {[Object isobject [self]::@frazo]} {
+        my @frazo destroy
+    }
+    set tradRezulto 1
+    for {set vorto [my prenuVorton]} {$vorto ne ""} {set vorto [my prenuVorton]} {
+        if {$vorto eq "_FINO_"} {
+            if {[Object isobject [self]::@frazo]} {
+                my tradukuFrazonKiamFino . 1
+            }
+            continue
+        }
+        set komenco [my @kursoro vortkomenco]
+        set fino [my @kursoro kursoro]
+        if {![Object isobject [self]::@frazo]} {
+            $lingvofabriko kreuFrazo [self]::@frazo
+            set frazFino 0
+            set frazoKomenco [my @kursoro kursoro]
+            my @legilo komencuFrazon
+        }
+        set erg [my @frazo aliguTestuVorto $vortaro $vorto $komenco $fino]
+        set tradRezulto [my tradukuFrazonKiamFino $vorto]
+    }
+    if {$tradRezulto==0} {
+        my tradukuFrazonKiamFino . 1
+    }
+    if {![Object isobject [self]::@frazo]} {
+        return
+    }
+
+    set frazo [my @frazo]
+    set sa [SintaksAsto::mainc new -childof $frazo]
+    set astoj $arboastoj
+    $sa set astoj $astoj
+    $frazo set sintaksoarbo $sa
+
+    set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+    $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+    $frazTraduko metuLingvon $celaLingvo
+
+    $frazTraduko konstruuVortoGrupojOrgina [self]
+    if {[EsperantoConf isInDelopingMode]} {
+        $frazTraduko traduku
+    } elseif {[catch {$frazTraduko traduku}]} {
+        global errorInfo
+        set errorInfo
+        puts "ERARO - $errorInfo -[$frazo prenuTeksto]"
+    }
+
+    if {[EsperantoConf isInDelopingMode]} {
+        my transferToOutput $frazTraduko
+    } elseif {[catch {my transferToOutput $frazTraduko}]} {
+        global errorInfo
+        set errorInfo
+        puts "ERARO - $errorInfo -[$frazo prenuTeksto]"
+    }
+    # puts "ORID: [$frazo prenuTeksto]"
+    # puts "TRAD: [$frazTraduko prenuVortojn]"
+    my pritraktuTradukFrazon $frazTraduko
+    $frazTraduko destroy
+}
+XLIFFTradukilo instproc transferPuf {} {
+    my instvar targetObj tradPuf
+    foreach c [$targetObj childNodes] {
+        $targetObj removeChild $c
+    }
+    $targetObj appendChild [[$targetObj ownerDocument] createTextNode $tradPuf]
+}
+XLIFFTradukilo instproc transferToOutput frazTraduko {
+    my instvar tradPuf konservita aktualaSegmento prefix
+    set konservita 0
+    set tradPuf ""
+    set lfino ""
+    set targetObj [my prenuAuxKreuTargetPor $aktualaSegmento]
+
+    foreach c [$targetObj childNodes] {
+        $targetObj removeChild $c
+    }
+    foreach {komenco fino elementoj tradukoElementoj tradukoj} [$frazTraduko konstruuVortoGrupoj [self]] {
+        set lastaTraduko ""
+        # enigu cxiujn specialajn markiloj antaux la teksto
+        # eku "<source><it>??</it>mia teksto</source>
+        if {$lfino eq ""} {
+            set n [lindex $komenco 0]
+            if {[[$n parentNode] firstChild] ne $n} {
+                set anode [[$n parentNode] firstChild]
+                while {$anode ne $n && $anode ne ""} {
+                    $targetObj appendChild [$anode cloneNode -deep]
+                    set anode [$anode nextSibling]
+                }
+            }
+            if {[regexp {^\s+} [$n nodeValue] spc]} {
+                append tradPuf $spc
+            }
+        }
+        if {$lfino ne "" && [lindex $komenco 0] ne [lindex $lfino 0]} {
+            if {[regexp {\s+$} [[lindex $lfino 0] nodeValue] spc]} {
+                append tradPuf $spc
+            }
+            $targetObj appendChild [[$targetObj ownerDocument] createTextNode $tradPuf]
+            set anode [lindex $lfino 0]
+            while {[set ns [$anode nextSibling]] ne [lindex $komenco 0] && $ns ne ""} {
+                $targetObj appendChild [$ns cloneNode -deep]
+                set anode $ns
+            }
+            set tradPuf ""
+            if {[regexp {^\s+} [[lindex $komenco 0] nodeValue] spc]} {
+                append tradPuf $spc
+            }
+        }
+        foreach e $elementoj eTraduko $tradukoElementoj traduko $tradukoj {
+            if {$lastaTraduko ne "" && $traduko ne ""} {
+                append tradPuf [esp::prenuSeparatilon $traduko]
+            } else {
+                # nur komenci frazon
+                esp::prenuSeparatilon $traduko
+            }
+            append tradPuf $traduko
+            set lastaTraduko $traduko
+        }
+        # my @kursoro anstauiguVorto $komenco $fino $tradPuf
+        set lfino $fino
+    }
+    if {[regexp {\s+$} [[lindex $lfino 0] nodeValue] spc]} {
+        append tradPuf $spc
+    }
+    if {$tradPuf ne ""} {
+        $targetObj appendChild [[$targetObj ownerDocument] createTextNode $tradPuf]
+    }
+    # enigu cxiujn specialajn markiloj post la teksto
+    # eku "<source>mia teksto <it>??</it></source>
+    if {$lfino ne ""} {
+        set anode [[lindex $lfino 0] nextSibling]
+        while {$anode ne ""} {
+            $targetObj appendChild [$anode cloneNode -deep]
+            set anode [$anode nextSibling]
+        }
+
+    }
+}
+XLIFFTradukilo proc tradukuDosieron {fontoDosiero rezultoDosiero {tipo XLIFF} {montruProgreson 0} {lingvoFabriko EoFabriko}} {
+    if {[EsperantoConf set tradInteraktiva]} {
+        set cl XLIFFTradukiloSeg
+    } else {
+        set cl XLIFFTradukilo
+    }
+    set xfillTradukilo [$cl new -montruProgreson $montruProgreson -tipo $tipo -dosiero $fontoDosiero [list -lingvofabriko $lingvoFabriko]]
+    $xfillTradukilo leguDosieron
+    $xfillTradukilo traduku
+}
+XLIFFTradukilo proc tradukuFile {{file {}}} {
+    if {$file eq ""} {
+        set file [IDE::Dialog getOpenFile {{XLIFF *.xliff} {XLIFF *.xlf} {XLZ *.xlz}}]
+    }
+    if {$file eq ""} return
+    set wh [file rootname $file]_pl[file extension $file]
+    if {[file extension $file] eq ".xlz"} {
+        set tipo XLZ
+    } else {
+        set tipo XLIFF
+    }
+    my tradukuDosieron $file $wh $tipo 1
+}
+Class XLIFFTradukiloSeg -superclass ::XLIFFTradukilo
+@ ::XLIFFTradukiloSeg idemeta categories {api init privata meta}
+@ ::XLIFFTradukiloSeg idemeta categoriesMethods {{prenuSegmentoIndikatorojn foriguTradukon prenuTradukon prenuFonton akzeptuTraduko havasTradukon} init {prenuTekstonDeNode demanduLingvojnSeNecesas} {havasMetaAtributojn metuMetaAtributojn prenuMetaAtributojn}}
+@ ::XLIFFTradukiloSeg idemeta component EspTradukadoBazo
+XLIFFTradukiloSeg instproc akzeptuTraduko {segmento traduko} {
+    my instvar tradPuf targetObj konservita celaLingvo prefix
+    set konservita 0
+    set targetObj [my prenuAuxKreuTargetPor $segmento]
+
+    foreach c [$targetObj childNodes] {
+        $targetObj removeChild $c
+    }
+
+    set sourceObj [lindex [$segmento selectNodes ${prefix}source] 0]
+    if {[llength [$sourceObj childNodes]]==1} {
+        set traduko [string map [list [my prenuSeparatilon] ""] $traduko]
+        $targetObj appendChild [[$targetObj ownerDocument] createTextNode $traduko]
+    } else {
+        set aktFontoNode [$sourceObj firstChild]
+        set komenco 0
+        set txt ""
+        while {[set ri [string first [my prenuSeparatilon] $traduko $komenco]]>=0} {
+            append txt [string range $traduko $komenco [expr {$ri-1}]]
+            while 1 {
+                if {$aktFontoNode eq ""} break
+                if {[$aktFontoNode nodeType] ne "TEXT_NODE"} {
+                    if {$txt ne ""} {
+                        $targetObj appendChild [[$targetObj ownerDocument] createTextNode $txt]
+                        set txt ""
+                    }
+                    $targetObj appendChild [$aktFontoNode cloneNode -deep]
+                    set aktFontoNode [$aktFontoNode nextSibling]
+                    break
+                }
+                set aktFontoNode [$aktFontoNode nextSibling]
+            }
+            set komenco [expr {$ri+3}]
+        }
+        append txt [string range $traduko $komenco end]
+        if {$txt ne ""} {
+            $targetObj appendChild [[$targetObj ownerDocument] createTextNode $txt]
+        }
+        # aligu restantajn ne-teksto-markilojn
+        while {$aktFontoNode ne ""} {
+            if {[$aktFontoNode nodeType] ne "TEXT_NODE"} {
+                $targetObj appendChild [$aktFontoNode cloneNode -deep]
+            }
+            set aktFontoNode [$aktFontoNode nextSibling]
+        }
+    }
+}
+XLIFFTradukiloSeg instproc demanduLingvojnSeNecesas {fLingvo cLingvo} {
+    my instvar rootNode fontaLingvo celaLingvo prefix
+    set fileNode [lindex [$rootNode selectNodes ${prefix}file] 0]
+
+    # metu la lingvon nur se gxis nun ne ekzistas
+    if {![info exists fontaLingvo] || $fontaLingvo eq ""} {
+        set fontaLingvo $fLingvo
+        $fileNode setAttribute source-language $fontaLingvo
+    }
+    if {![info exists celaLingvo] || $celaLingvo eq ""} {
+        if {$cLingvo eq ""} {
+            set lingvoj [TradukaVortaroMontrilo lingvoListo]
+            set restoj [list]
+            foreach {lgv lingvo} $lingvoj {
+                lappend restoj [list $lgv [mc $lingvo]]
+            }
+            set s [::IDE::IDialogList getListItem [mc "Elektu la celan lingvon"] $restoj]
+            if {$s eq ""} {
+                set s eo
+            }
+            set cLingvo $s
+        }
+        set celaLingvo $cLingvo
+        $fileNode setAttribute target-language $celaLingvo
+    }
+}
+XLIFFTradukiloSeg instproc eksportuTradukon {} {
+    EsperantoBrowser message [mc "Konservu XLIFF kaj uzu viaj XLIFF-Filtron por krei celan dosieron"]
+}
+XLIFFTradukiloSeg instproc estasInteraktiva {} {
+    return 1
+}
+XLIFFTradukiloSeg instproc foriguTradukon segmento {
+    my instvar prefix
+    foreach target [$segmento selectNodes ${prefix}target] {
+        $segmento removeChild $target
+        $target delete
+    }
+}
+XLIFFTradukiloSeg instproc getFirstChildWithName {node name} {
+    foreach n [$node childNodes] {
+        if {[$n nodeType] eq "ELEMENT_NODE" && [$n nodeName] eq $name} {
+            return $n
+        }
+    }
+    return
+}
+XLIFFTradukiloSeg instproc havasMetaAtributojn {} {
+    return 1
+}
+XLIFFTradukiloSeg instproc havasTradukon segmento {
+    my instvar prefix
+    foreach t [$segmento childNodes] {
+        if {[$t nodeType] eq "ELEMENT_NODE" && [$t nodeName] eq "target"} {
+            return 1
+        }
+    }
+    return 0
+}
+XLIFFTradukiloSeg instproc init {} {
+}
+XLIFFTradukiloSeg instproc initInteraktivanDialogon {} {
+    my instvar interaktivaDialogo progresoObj montruProgreson dosiero lingvofabriko
+    if {![info exists interaktivaDialogo]} {
+        set interaktivaDialogo [InteraktivaTradukadoGUINavigado newBrowser [expr {$lingvofabriko ne ""}]]
+        $interaktivaDialogo tradukilo [self]
+        $interaktivaDialogo initProgreso
+        $interaktivaDialogo setTitleAddition [file tail $dosiero]
+        set progresoObj $interaktivaDialogo
+    }
+}
+XLIFFTradukiloSeg instproc interaktivaTraduko tradFrazo {
+    # nenio
+}
+XLIFFTradukiloSeg instproc komputuNodeListon {} {
+    my  instvar rootNode tradukoNodes prefix
+    set nodes [$rootNode selectNodes //${prefix}trans-unit]
+    set tradukoNodes [list]
+    foreach transUnitNode $nodes {
+        if {[$transUnitNode getAttribute translate yes] eq "no"} continue
+        if {[$transUnitNode getAttribute state new] eq "final"} continue
+        set sourceNode [lindex [$transUnitNode selectNodes ${prefix}source] 0]
+        if {$sourceNode eq ""} {
+            continue
+        }
+        lappend tradukoNodes $transUnitNode
+    }
+}
+XLIFFTradukiloSeg instproc kreuNode {node name} {
+    set uri [$node namespaceURI]
+    if {$uri eq ""} {
+        return [[$node ownerDocument] createElement $name]
+    } else {
+        return [[$node ownerDocument] createElementNS $uri $name]
+    }
+}
+XLIFFTradukiloSeg instproc metuMetaAtributojn {transUnitNode dict} {
+    my instvar prefix
+    if {[dict exists $dict akceptita]} {
+        if {[dict get $dict akceptita]} {
+           $transUnitNode setAttribute approved yes
+        } else {
+           $transUnitNode setAttribute approved no
+        }
+    }
+    if {[dict exists $dict komento]} {
+        set noteNode [my getFirstChildWithName $transUnitNode note]
+        if {[dict get $dict komento] eq ""} {
+            if {$noteNode ne ""} {
+                $transUnitNode removeChild $noteNode
+            }
+        } else {
+            my setNodeValue $transUnitNode note [dict get $dict komento]
+        }
+    }
+}
+XLIFFTradukiloSeg instproc prenuFonton segmento {
+    my instvar prefix
+    set node [lindex [$segmento selectNodes ${prefix}source] 0]
+    if {$node eq ""} {
+        return
+    }
+    my prenuTekstonDeNode $node
+}
+XLIFFTradukiloSeg instproc prenuFrazTradukoPorSegmento indikator {
+    my instvar frazTraduko prefix
+    set sourceNode [lindex [$indikator selectNodes ${prefix}source] 0]
+    my tradukoTransUnit $indikator $sourceNode
+    return $frazTraduko
+}
+XLIFFTradukiloSeg instproc prenuMetaAtributojn transUnitNode {
+    my instvar prefix
+    set dic [dict create]
+    if {[$transUnitNode getAttribute approved no] eq "yes"} {
+        dict set dic akceptita 1
+    } else {
+        dict set dic akceptita 0
+    }
+    set noteNode [my getFirstChildWithName $transUnitNode note]
+    dict set dic komento ""
+    if {$noteNode ne ""} {
+        foreach c [$noteNode childNodes] {
+            if {[$c nodeType] eq "TEXT_NODE"} {
+                dict set dic komento [$c nodeValue]
+                break
+            }
+        }
+    }
+    return $dic
+}
+XLIFFTradukiloSeg instproc prenuRegiononPorIndekso indekso {
+    return
+}
+XLIFFTradukiloSeg instproc prenuSegmentoIndikatorojn {} {
+    my  instvar tradukoNodes
+    return $tradukoNodes
+}
+XLIFFTradukiloSeg instproc prenuTekstonDeNode node {
+    set teksto ""
+    foreach t [$node childNodes] {
+        if {[$t nodeType] eq "TEXT_NODE"} {
+            append teksto [$t nodeValue]
+        } else {
+            append teksto [my prenuSeparatilon]
+        }
+    }
+    return $teksto
+}
+XLIFFTradukiloSeg instproc prenuTradukon segmento {
+    my instvar prefix
+    set node [lindex [$segmento selectNodes ${prefix}target] 0]
+    if {$node eq ""} {
+        return
+    }
+    my prenuTekstonDeNode $node
+}
+XLIFFTradukiloSeg instproc setNodeValue {node name value} {
+    if {$value ne ""} {
+        set n [my getFirstChildWithName $node $name]
+        if {$n ne ""} {
+            set textNode [$n firstChild]
+            $textNode nodeValue $value
+        } else {
+            set n [my kreuNode $node $name]
+            $node appendChild $n
+            set textNode [[$node ownerDocument] createTextNode $value]
+            $n appendChild $textNode
+        }
+    } else {
+        set n [my getFirstChildWithName $node $name]
+        if {$n ne ""} {
+            $n delete
+        }
+    }
+}
+XLIFFTradukiloSeg instproc testuXLIFF {} {
+    my instvar rootNode fontaLingvo celaLingvo prefix
+    set fileNode [lindex [$rootNode selectNodes ${prefix}file] 0]
+
+    expr {$fileNode ne ""}
+}
+XLIFFTradukiloSeg instproc traduku {} {
+    my instvar interaktivaDialogo fontaLingvo celaLingvo lingvofabriko
+    if {[lsearch [EsperantoConf prenuSubtenatajFontajLingvoj] $fontaLingvo]>=0 &&
+        [[DBVortaro prenuDepVortaron] cxuSubtenatasLingvon $celaLingvo]} {
+        set lingvofabriko [EsperantoConf prenuLingvoFabrikoTradukado $fontaLingvo $celaLingvo]
+        my preparuTradukadon
+    } else {
+        set lingvofabriko ""
+    }
+    my initInteraktivanDialogon
+    my komputuNodeListon
+    $interaktivaDialogo komencuTradukadon
+
+}
+XLIFFTradukiloSeg instproc tradukuFrazon frazo {
+    my instvar frazTraduko celaLingvo lingvofabriko
+    #next
+
+    if {![Object isobject [self]::@sinanalizo]} {
+        $lingvofabriko kreuSintaksAnalizilo [self]::@sinanalizo
+    }
+    my @sinanalizo frazo $frazo
+    if {[EsperantoConf isInDelopingMode]} {
+        my @sinanalizo analizu
+    } elseif {[catch {my @sinanalizo analizu}]} {
+        EspErrorReporter reportuTekston "teknika problemo kun analizo de frazo:\n\"[$frazo prenuTeksto]\"" $::errorInfo
+        return
+    }
+
+    set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+    $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+    $frazTraduko metuLingvon $celaLingvo
+
+    $frazTraduko konstruuVortoGrupojOrgina [self]
+    if {[EsperantoConf isInDelopingMode]} {
+        $frazTraduko traduku
+    } elseif {[catch {$frazTraduko traduku}]} {
+        global errorInfo
+        set errorInfo
+        puts "ERARO - $errorInfo -[$frazo prenuTeksto]"
+        EspErrorReporter reportuTekston "teknika problemo kun traduko de frazo:\n\"[$frazo prenuTeksto]\"" $errorInfo
+    }
+}
+XLIFFTradukiloSeg instproc tradukuNode targetNode {
+    my instvar vortaro arboastoj frazTraduko celaLingvo lingvofabriko
+    [self]::@kursoro setNode $targetNode
+    set arboastoj [list]
+    # ni uzas unu frazo por tuta segmento kvankam segmento povas enhavi multajn frazojn
+    if {[Object isobject [self]::@frazo]} {
+        my @frazo destroy
+    }
+    set tradRezulto 1
+    for {set vorto [my prenuVorton]} {$vorto ne ""} {set vorto [my prenuVorton]} {
+        if {$vorto eq "_FINO_"} {
+            if {[Object isobject [self]::@frazo]} {
+                my tradukuFrazonKiamFino . 1
+            }
+            continue
+        }
+        set komenco [my @kursoro vortkomenco]
+        set fino [my @kursoro kursoro]
+        if {![Object isobject [self]::@frazo]} {
+            $lingvofabriko kreuFrazo [self]::@frazo
+            set frazFino 0
+            set frazoKomenco [my @kursoro kursoro]
+            my @legilo komencuFrazon
+        }
+        set erg [my @frazo aliguTestuVorto $vortaro $vorto $komenco $fino]
+        set tradRezulto [my tradukuFrazonKiamFino $vorto]
+    }
+    if {$tradRezulto==0} {
+        my tradukuFrazonKiamFino . 1
+    }
+    if {[Object isobject [self]::@frazo]} {
+        set frazo [my @frazo]
+        if {[llength $arboastoj]>1} {
+            # Tio povus fari problemojn. La klaso ???::mainc estas necesa
+            set klass [[[lindex $arboastoj 0] info class] info parent]::mainc
+            set sa [$klass new -childof $frazo]
+            set astoj $arboastoj
+            $sa set astoj $astoj
+            $frazo set sintaksoarbo $sa
+        } else {
+            $frazo set sintaksoarbo [lindex $arboastoj 0]
+        }
+        set frazTraduko [$lingvofabriko kreuFrazTraduko [self] -childof]
+        $frazTraduko sintaksradiko [$frazo sintaksoarbo]
+        $frazTraduko metuLingvon $celaLingvo
+        $frazTraduko konstruuVortoGrupojOrgina [self]
+        $frazTraduko traduku
+    } else {
+        set frazTraduko ""
+    }
+}
+XLIFFTradukiloSeg proc tradukuDosieron {fontoDosiero {tipo XLIFF} {fontaLingvo {}} {celaLingvo {}}} {
+    set xfillTradukilo [XLIFFTradukiloSeg new -tipo $tipo -dosiero $fontoDosiero]
+    if {[catch {$xfillTradukilo leguDosieron} err]} {
+        EsperantoBrowser message [mc "La dosiero ne povis esti enlegita. %s" $err]
+        $xfillTradukilo destroy
+        return
+    }
+    if {![$xfillTradukilo testuXLIFF]} {
+        EsperantoBrowser message [mc "La dosiero ne aspektas kiel XLIFF"]
+        $xfillTradukilo destroy
+        return
+    }
+    $xfillTradukilo demanduLingvojnSeNecesas $fontaLingvo $celaLingvo
+    $xfillTradukilo traduku
+    return $xfillTradukilo
+}
+

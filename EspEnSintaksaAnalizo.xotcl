@@ -1,0 +1,3120 @@
+# automatically generated from XOTclIDE
+# script require component {EspBazaLingvo EspTradukilo}
+@ Component EspEnSintaksaAnalizo {
+description {Modulo por tradukado de angla lingvo al esperanta lingvo.
+La modulo uzas la "link grammar parser" de
+http://www.link.cs.cmu.edu/link/}
+}
+package provide EspEnSintaksaAnalizo 0.993
+package require EspBazaLingvo
+package require EspTradukilo
+Class ENRadikilo
+@ ::ENRadikilo idemeta component EspEnSintaksaAnalizo
+ENRadikilo instproc aliformuTekston teksto {
+    string map {'ll { will} 're {are} n't { not}} $teksto
+}
+ENRadikilo instproc aliguIregularVerbs args {
+    my instvar radArr
+    set listo {awake  	awoke  	awoken
+bear 	bore 	born
+beat 	beat 	beat
+become 	became 	become
+begin 	began 	begun
+bend 	bent 	bent
+bind 	bound 	bound
+bite 	bit 	bitten
+bleed 	bled 	bled
+blow 	blew 	blown
+break 	broke 	broken
+breed 	bred 	bred
+bring 	brought 	brought
+broadcast 	broadcast 	broadcast
+build 	built 	built
+burn 	burned 	burned
+burst 	burst 	burst
+buy 	bought 	bought
+cast 	cast 	cast
+catch 	caught 	caught
+choose 	chose 	chosen
+cling 	clung 	clung
+come 	came 	come
+creep 	crept 	crept
+deal 	dealt 	dealt
+dig 	dug 	dug
+dive 	dived 	dived
+do 	did 	done
+draw 	drew 	drawn
+dream 	dreamed 	dreamed
+drive 	drove 	driven
+drink 	drank 	drunk
+eat 	ate 	eaten
+fall 	fell 	fallen
+feed 	fed 	fed
+feel 	felt 	felt
+fight 	fought 	fought
+find 	found 	found
+fit 	fit 	fit
+flee 	fled 	fled
+fling 	flung 	flung
+fly 	flew 	flown
+forbid 	forbade 	forbidden
+forget 	forgot 	forgotten
+forego 	forewent 	foregone
+forgive 	forgave 	forgiven
+forsake 	forsook 	forsaken
+freeze 	froze 	frozen
+get 	got 	gotten
+give 	gave 	given
+go 	went 	gone
+grind 	ground 	ground
+grow 	grew 	grown
+hang 	hung 	hung
+hear 	heard 	heard
+hide 	hid 	hidden
+hit 	hit 	hit
+hold 	held 	held
+hurt 	hurt 	hurt
+keep 	kept 	kept
+kneel 	knelt 	knelt
+knit 	knit 	knit
+know 	knew 	known
+lay 	laid 	laid
+lead 	led 	led
+leap 	leaped 	leaped
+learn 	learned 	learned
+leave 	left 	left
+lend 	lent 	lent
+lie 	lay 	lain
+light 	lighted 	lighted
+lose 	lost 	lost
+make 	made 	made
+mean 	meant 	meant
+meet 	met 	met
+misspell 	misspelled 	misspelled
+mistake 	mistook 	mistaken
+mow 	mowed 	mowed
+overcome 	overcame 	overcome
+overdo 	overdid 	overdone
+overtake 	overtook 	overtaken
+overthrow 	overthrew 	overthrown
+pay 	paid 	paid
+plead 	pled 	pled
+prove 	proved 	proved
+ride 	rode 	ridden
+ring 	rang 	rung
+rise 	rose 	risen
+run 	ran 	run
+saw 	sawed 	sawed
+say 	said 	said
+see 	saw 	seen
+seek 	sought 	sought
+sell 	sold 	sold
+send 	sent 	sent
+set 	set 	set
+sew 	sewed 	sewed
+shake 	shook 	shaken
+shave 	shaved 	shaved
+shear 	shore 	shorn
+shed 	shed 	shed
+shine 	shone 	shone
+shoe 	shoed 	shoed
+shoot 	shot 	shot
+show 	showed 	showed
+shrink 	shrank 	shrunk
+shut 	shut 	shut
+sing 	sang 	sung
+sink 	sank 	sunk
+sit 	sat 	sat
+sleep 	slept 	slept
+slay 	slew 	slain
+slide 	slid 	slid
+sling 	slung 	slung
+slit 	slit 	slit
+smite 	smote 	smitten
+sow 	sowed 	sowed
+speak 	spoke 	spoken
+speed 	sped 	sped
+spend 	spent 	spent
+spill 	spilled 	spilled
+spin 	spun 	spun
+spit 	spit 	spit
+split 	split 	split
+spread 	spread 	spread
+spring 	sprang 	sprung
+stand 	stood 	stood
+steal 	stole 	stolen
+stick 	stuck 	stuck
+sting 	stung 	stung
+stink 	stank 	stunk
+stride 	strod 	stridden
+strike 	struck 	struck
+string 	strung 	strung
+strive 	strove 	striven
+swear 	swore 	sworn
+sweep 	swept 	swept
+swell 	swelled 	swelled
+swim 	swam 	swum
+swing 	swung 	swung
+take 	took 	taken
+teach 	taught 	taught
+tear 	tore 	torn
+tell 	told 	told
+think 	thought 	thought
+thrive 	thrived 	thrived
+throw 	threw 	thrown
+thrust 	thrust 	thrust
+tread 	trod 	trodden
+understand 	understood 	understood
+uphold 	upheld 	upheld
+upset 	upset 	upset
+wake 	woke 	woken
+wear 	wore 	worn
+weave 	weaved 	weaved
+wed 	wed 	wed
+weep 	wept 	wept
+wind 	wound 	wound
+win 	won 	won
+withhold 	withheld 	withheld
+withstand 	withstood 	withstood
+wring 	wrung 	wrung
+write 	wrote 	written}
+     foreach {base der1 der2} $listo {
+         set radArr($der1) $base
+         set radArr($der2) $base
+     }
+}
+ENRadikilo instproc cxuCertaj vorto {
+    expr {[lsearch {a an will would do does you she of they the our your her his it its to this that those these width there one man for about can not could} $vorto]>=0}
+}
+ENRadikilo instproc cxuIgnori vorto {
+    expr {[lsearch {a an will would do does} $vorto]>=0}
+}
+ENRadikilo instproc init {} {
+    my instvar radArr
+    my aliguIregularVerbs
+    # verbo - be, have
+    array set radArr {am be is be are be was be were be has have}
+    # alial malregulaj
+    array set radArr {better good best good worts bad men man women woman}
+}
+ENRadikilo instproc radikigi vorto {
+    my instvar radArr
+    if {[info exists radArr($vorto)]} {
+        return $radArr($vorto)
+    }
+    lappend res $vorto
+    # greater
+    if {[regexp {^(.+)er$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    # greatest
+    if {[regexp {^(.+)est$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    # worked
+    if {[regexp {^(.+)ed$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    # compared
+    if {[regexp {^(.+)ed$} $vorto _ radiko]} {
+        lappend res ${radiko}e
+    }
+    # does
+    if {[regexp {^(.+)es$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    # reading
+    if {[regexp {^(.+)ing$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    # investigate
+    if {[regexp {^(.+)ing$} $vorto _ radiko]} {
+        lappend res ${radiko}e
+    }
+    # tries
+    if {[regexp {^(.+)ies$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    # works, tables
+    if {[regexp {^(.+)s$} $vorto _ radiko]} {
+        lappend res $radiko
+    }
+    return $res
+}
+Object En
+@ ::En idemeta component EspEnSintaksaAnalizo
+En proc initializeAfterLoad {} {
+    if {$::tcl_version == 8.4} {
+        package require dict
+    }
+}
+Class En::Elemento -superclass ::NaciaElemento
+@ ::En::Elemento idemeta component EspEnSintaksaAnalizo
+En::Elemento instproc distinguDifinilon frazo {
+    next
+}
+En::Elemento instproc distinguGramatikon frazo {
+    next
+}
+En::Elemento instproc estasAscVorto {} {
+    expr {[string is ascii [my vorto]]}
+}
+En::Elemento instproc estasPluralo {} {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d nombro] && [dict get $d nombro] eq "pl"} {
+            return 1
+        }
+    }
+    return 0
+}
+En::Elemento instproc estasRadikoj vortoj {
+    my instvar radiko
+    expr {[lsearch -exact $vortoj $radiko]>=0}
+}
+En::Elemento instproc estasRegulaVorto {} {
+    set v [string map {' ""} [my vorto]]
+    expr {[string is ascii $v]}
+}
+En::Elemento instproc estasSingularo {} {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d nombro] && [dict get $d nombro] eq "sg"} {
+            return 1
+        }
+    }
+    return 0
+}
+En::Elemento instproc estasUnuaGrandSkribita {} {
+    my instvar vorto
+    expr {[string is alpha [string index $vorto 0]] && [string is upper [string index $vorto 0]] && [string is lower [string range $vorto 1 end]]}
+}
+En::Elemento instproc estasVortoj vortoj {
+    expr {[string tolower [my vorto]] in $vortoj}
+}
+En::Elemento instproc havasAktivanTradukon {} {
+    my instvar traduko
+    expr {[$traduko parenco] ne ""}
+}
+En::Elemento instproc havasKazon kazo {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d kazo] && [lsearch [dict get $d kazo] $kazo]>=0} {
+            return 1
+        }
+    }
+    return 0
+}
+En::Elemento instproc havasSimbolonDekstre simbolo {
+    my instvar dSimboloj
+    if {![info exists dSimboloj]} {return 0}
+    expr {[lsearch -glob $dSimboloj $simbolo]>=0}
+}
+En::Elemento instproc havasSimbolonLive simbolo {
+    my instvar lSimboloj
+    if {![info exists lSimboloj]} {return 0}
+    expr {[lsearch -glob $lSimboloj $simbolo]>=0}
+}
+En::Elemento instproc havasTagon tag {
+    my instvar tags
+    expr {[lsearch $tags $tag]>=0}
+}
+En::Elemento instproc havasTipojn tipoj {
+    return 0
+}
+En::Elemento instproc havasTipon tipo {
+    my instvar dtag
+    foreach t $dtag {
+        if {[dict get $t tipo] eq $tipo} {
+            return 1
+        }
+    }
+    return 0
+}
+En::Elemento instproc havasUnuDeTipon tipoj {
+    foreach t $tipoj {
+        if {[my havasTipon $t]} {
+            return 1
+        }
+    }
+    return 0
+}
+En::Elemento instproc prenuBazajnFormojn {} {
+    list [my prenuBazanFormon]
+}
+En::Elemento instproc prenuElementojDeSimboloDekstre simbolo {
+    my instvar dSimboloj dLinks
+    if {![info exists dSimboloj]} {return}
+    set rez [list]
+    foreach i [lsearch -glob -all $dSimboloj $simbolo] {
+       lappend rez [lindex $dLinks $i]
+    }
+    return $rez
+}
+En::Elemento instproc prenuElementojDeSimboloLive simbolo {
+    my instvar lSimboloj lLinks
+    if {![info exists lSimboloj]} {return}
+    set rez [list]
+    foreach i [lsearch -glob -all $lSimboloj $simbolo] {
+       lappend rez [lindex $lLinks $i]
+    }
+    return $rez
+}
+En::Elemento instproc prenuElementojDeSimbolojDekstre simboloj {
+    my instvar dSimboloj dLinks
+    if {![info exists dSimboloj]} {return}
+    set rez [list]
+    foreach simbolo $simboloj {
+        foreach i [lsearch -glob -all $dSimboloj $simbolo] {
+           lappend rez [lindex $dLinks $i]
+        }
+    }
+    return $rez
+}
+En::Elemento instproc prenuElementojDeSimbolojLive simboloj {
+    my instvar lSimboloj lLinks
+    if {![info exists lSimboloj]} {return}
+    set rez [list]
+    foreach simbolo $simboloj {
+        foreach i [lsearch -glob -all $lSimboloj $simbolo] {
+           lappend rez [lindex $lLinks $i]
+        }
+    }
+    return $rez
+}
+En::Elemento instproc prenuLingvon {} {
+    return en
+}
+En::Elemento instproc prenuNombron {} {
+    if {[my estasPluralo]} {
+        return pluralo
+    }
+    return singularo
+}
+En::Elemento instproc prenuPlejLivanElementon {} {
+    my instvar lLinks
+    if {![info exists lLinks] || [llength $lLinks] eq ""} {return [self]}
+    [lindex $lLinks 0] prenuPlejLivanElementon
+}
+En::Elemento instproc prenuTradukoPos {} {
+    my instvar traduko
+    lsearch [[$traduko parenco] astoj] $traduko
+}
+En::Elemento instproc rekonuGramTipon {ttvorto tagger} {
+    my instvar tvorto vorto
+    set tvorto $ttvorto
+    $tagger metuTipoKajTag [self] $vorto $tvorto
+}
+En::Elemento instproc trovuMainAston {} {
+    my trovuUnuanPerenconKiu par {[$par hasclass EnSAsto::main]}
+}
+En::Elemento proc unifyElementojTags {elem1 elem2 tagnomoj} {
+    set mdtag [list]
+    set adtag [list]
+    if {![$elem2 exists dtag]} {
+        return
+    }
+    foreach d [$elem1 set dtag] {
+        foreach ad [$elem2 set dtag] {
+            set dc $d
+            if {[dict exists [set u [iloj::unifyDict $d $ad $tagnomoj]] [lindex $tagnomoj 0]]} {
+                dict for {k v} $u {
+                    dict set dc $k $v
+                    dict set ad $k $v
+                }
+                if {$dc in $mdtag} {
+                    lappend mdtag $dc
+                }
+                if {$ad in $adtag} {
+                    lappend adtag $ad
+                }
+            }
+        }
+    }
+    if {[llength $mdtag]>0} {
+        $elem1 set dtag $mdtag
+        $elem2 set dtag $adtag
+    }
+}
+Class En::NombroKazoGenro -parameter {nombro kazo genro}
+@ ::En::NombroKazoGenro idemeta component EspEnSintaksaAnalizo
+En::NombroKazoGenro instproc distinguDifinilon frazo {
+    my instvar nombro kazo tags
+    set kazo ""
+    set nombro ""
+    
+    # Objekto sed ne cxe frazoj kun esti
+    # Mi estas granda
+    if {[my havasSimbolonLive O*] && [llength [my prenuElementojDeSimbolojLive {Ost Opt O*t}]]==0} {
+        set kazo n
+    }
+    if {[lsearch $tags pl]>=0} {
+        set nombro j
+    }
+
+}
+En::NombroKazoGenro instproc faruAkuzativo {} {
+    my instvar kazo
+    set kazo n
+}
+En::NombroKazoGenro instproc traduku vortaro {
+    my tradukuFinilon
+}
+En::NombroKazoGenro instproc tradukuFinilon {} {
+    my instvar traduko nombro kazo
+    if {![$traduko cxuSenTraduko]} {
+        set bazaTraduko [$traduko set bazaTraduko]
+        # wiele -> multajn
+        if {[string index $bazaTraduko end] eq "j"} {
+            set nombro ""
+        }
+        $traduko vorto ${bazaTraduko}${nombro}${kazo}
+    }
+}
+Class En::Adjektivo -superclass {::En::Elemento ::En::NombroKazoGenro}
+@ ::En::Adjektivo idemeta component EspEnSintaksaAnalizo
+En::Adjektivo instproc distinguGramatikon frazo {
+    my instvar kazo nombro tags traduko
+
+    foreach dElem [my prenuElementojDeSimboloDekstre A] {
+        if {[$dElem exists kazo]} {
+            set kazo [$dElem set kazo]
+        }
+        if {[$dElem exists nombro]} {
+            set nombro [$dElem set nombro]
+        }
+    }
+
+#   +--Dmc-+--Spx-+---Paf--+
+#   |      |      |        |
+# these books.n are.v expensive.a
+
+    foreach dElem [my prenuElementojDeSimboloLive Paf] {
+        foreach ee [$dElem prenuElementojDeSimboloLive Spx] {
+            if {[$ee exists nombro]} {
+                set nombro [$ee set nombro]
+            }
+        }
+    }
+
+    # pli kaj plej
+    if {[lsearch $tags pli]>=0} {
+        set p pli
+    } elseif {[lsearch $tags plej]>=0} {
+        set p plej
+    } else {
+        set p ""
+    }
+    if {$p ne ""} {
+        set komo [GP::PrimitivaAdverbo new -childof [my info parent] -vorto $p -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $komo $traduko]
+    }
+}
+En::Adjektivo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    if {$vtipo ne "a"} {
+        set espvortaro [Vortaro prenuVortaron]
+        if {![$espvortaro estasVorteto $traduko]} {
+            set rordo 101
+        }
+    }
+    return $rordo
+}
+Class En::Adverbo -superclass ::En::Elemento
+@ ::En::Adverbo idemeta component EspEnSintaksaAnalizo
+En::Adverbo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    if {$vtipo ne "e"} {
+        set rordo 101
+    }
+    return $rordo
+}
+En::Adverbo instproc traduku vortaro {
+    next
+    my tradukuFinilon
+}
+En::Adverbo instproc tradukuFinilon {} {
+    my instvar traduko
+    set t [$traduko set vorto]
+    if {[string index $t end] eq "a"} {
+        $traduko vorto [string range $t 0 end-1]e
+    }
+}
+Class En::PrimitivaElemento -superclass ::En::Elemento
+@ ::En::PrimitivaElemento idemeta component EspEnSintaksaAnalizo
+En::PrimitivaElemento instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    set espvortaro [Vortaro prenuVortaron]
+    if {![$espvortaro estasVorteto $traduko]} {
+        set rordo 101
+    }
+    return $rordo
+}
+Class En::Difinilo -superclass ::En::PrimitivaElemento
+@ ::En::Difinilo idemeta component EspEnSintaksaAnalizo
+En::Difinilo instproc traduku vortaro {
+    my instvar vorto traduko
+    if {[my estasVortoj {a an}]} {
+        my aliguMerkmalon forigu
+    } elseif {[my estasVorto the]} {
+        $traduko set vorto la
+    } else {
+        next
+    }
+}
+Class En::Frazo -parameter {elementoj sintaksoarbo}
+@ ::En::Frazo idemeta component EspEnSintaksaAnalizo
+En::Frazo instproc aliguKonstanto {vorto {arto konstanto} {komenco 0} {fino 0}} {
+    my lappend elementoj [En::Konstanto new -childof [self] [list -vorto $vorto] [list -arto konstanto] [list -komenco $komenco] [list -fino $fino]]
+}
+En::Frazo instproc aliguNekonatan {tvorto komenco fino} {
+    my instvar elementoj havasNekonataj
+    set havasNekonataj 1
+    my aliguTypo Nekonata $tvorto $komenco $fino
+}
+En::Frazo instproc aliguTestuVorto {vortaro tvorto {komenco 0} {fino 0}} {
+    my instvar elementoj havasNekonataj tagger
+    set vorto [string tolower $tvorto]
+    if {[string is punct $vorto]} {
+        my aliguTypo Simbolo $tvorto $komenco $fino
+        set rez 4
+    } elseif {[string index $vorto end] eq "."} {
+        my aliguKonstanto $vorto mallongigo $komenco $fino
+        set rez 4
+    } elseif {[llength $tvorto]>1} {
+        # aux - speciala du elementa vorto {nomo Artur}
+        my aliguKonstanto [lrange $tvorto 1 end] [lindex $tvorto 0] $komenco $fino
+        set rez 4
+    } elseif {[string length $tvorto]<=4 && [string length $tvorto]>1 && [string toupper $tvorto] eq $tvorto && ![string is digit $tvorto]} {
+        # ebla akronimo - ILEI, UEA, KD, ...
+        my aliguKonstanto $tvorto akronimo $komenco $fino
+        set rez 4
+    } elseif {[string is double $tvorto]} {
+        set obj [my aliguTypo Numeralo $vorto $komenco $fino]
+        $obj set veraNombro $tvorto
+        set rez 4
+    } else {
+        my aliguTypo Elemento $tvorto $komenco $fino
+        set rez 2
+    }
+    return $rez
+}
+En::Frazo instproc aliguTypo {typo vorto {komenco 0} {fino 0}} {
+    set typo [En::$typo new -childof [self] [list -vorto $vorto] [list -komenco $komenco] [list -fino $fino]]
+    my lappend elementoj $typo
+    return $typo
+}
+En::Frazo instproc aliguVorto {vorto rez vortaro} {
+    my instvar elementoj
+    if {[string length $vorto]==1 && [string is punct $vorto]} {
+        lappend elementoj [En::Simbolo new -childof [self] [list -vorto $vorto]]
+    } else {
+        if {$rez==2} {
+            lappend elementoj [$vortaro prenuGramElemento [self] $vorto]
+        } else {
+            lappend elementoj [::En::Nekonata new -childof [self] [list -vorto $vorto]]
+        }
+    }
+}
+En::Frazo instproc asDOM doc {
+    set elem [$doc createElement frazo]
+    if {[my exists sintaksoarbo]} {
+        set tekstoNode [$doc createElement teksto]
+        $tekstoNode appendChild [$doc createTextNode [my prenuTeksto]]
+        $elem appendChild $tekstoNode
+        set sintakso [$doc createElement sintakso]
+        $elem appendChild $sintakso
+        foreach e [my sintaksoarbo] {
+            $sintakso appendChild [$e asDOM $doc]
+        }
+    } else {
+        foreach e [my elementoj] {
+            $elem appendChild [$e asDOM $doc]
+        }
+    }
+    return $elem
+}
+En::Frazo instproc asXML {} {
+    set docu [dom createDocument frazoj]
+    set elem [my asDOM $docu]
+    [$docu documentElement] appendChild $elem
+    set text [$elem asXML]
+    $docu delete
+    return $text
+}
+En::Frazo instproc drawGraph {} {
+    [my set sintaksoarbo] drawGraph
+}
+En::Frazo instproc havasNekonataj {} {
+    my instvar havasNekonataj
+    expr {[info exists havasNekonataj] && $havasNekonataj}
+}
+En::Frazo instproc init args {
+    next
+    my instvar tagger
+    set tagger [EnTagger prenuTagger]
+}
+En::Frazo instproc leguFrazon {vortaro frazo} {
+    set elem [list]
+    set i 0
+    foreach vorto $frazo {
+        my aliguTestuVorto "" $vorto $i $i
+        incr i
+    }
+}
+En::Frazo instproc leguFrazonPerLegilo frazo {
+    set legilo [FrazoLegilo newOn $frazo]
+    $legilo komencuFrazon
+    for {set vorto [$legilo prenuSVorton]} {$vorto ne ""} {set vorto [$legilo prenuSVorton]} {
+        set komenco [[$legilo signoLegilo] vortkomenco]
+        set fino [[$legilo signoLegilo] kursoro]
+        my aliguTestuVorto "" $vorto $komenco $fino
+
+    }
+    $legilo destroy
+}
+En::Frazo instproc prenuListon {} {
+    if {[my exists sintaksoarbo]} {
+        [my sintaksoarbo] prenuListon
+    } else {
+        return
+    }
+}
+En::Frazo instproc prenuSimboloj {} {
+    set ret [list]
+    foreach e [my elementoj] {
+        lappend ret [$e prenuSimbolo]
+    }
+    return $ret
+}
+En::Frazo instproc prenuTeksto {} {
+    set teksto ""
+    if {[my exists elementoj]} {
+        foreach e [my elementoj] {
+            set vorto [$e vorto]
+            append teksto [esp::prenuSeparatilon $vorto]
+            append teksto $vorto
+        }
+    }
+    return $teksto
+}
+En::Frazo instproc traduku {} {
+    my instvar sintaksoarbo frazTraduko
+    set frazTraduko [EnFrazTraduko new -childof [self] -sintaksradiko $sintaksoarbo]
+    $frazTraduko traduku
+    $frazTraduko set tradukasto
+}
+En::Frazo instproc transVorto vorto {
+    my instvar transArr
+    if {[info exists transArr([string tolower $vorto])]} {
+        if {[string tolower $vorto] eq $vorto} {
+            return $transArr($vorto)
+        } else {
+            return [esp::grandskribi $transArr([string tolower $vorto])]
+        }
+    } else {
+        return $vorto
+    }
+}
+Class En::Partikolo -superclass ::En::PrimitivaElemento
+@ ::En::Partikolo idemeta component EspEnSintaksaAnalizo
+Class En::Konjunkcio -superclass ::En::Partikolo
+@ ::En::Konjunkcio idemeta component EspEnSintaksaAnalizo
+En::Konjunkcio instproc traduku vortaro {
+    my instvar vorto traduko
+    if {[my estasVorto that]} {
+        set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $komo $traduko]
+        $traduko set vorto ke
+    } else {
+        next
+    }
+}
+Class En::Interjekcio -superclass ::En::Konjunkcio
+@ ::En::Interjekcio idemeta component EspEnSintaksaAnalizo
+En::Interjekcio instproc traduku vortaro {
+    my instvar vorto traduko
+    if {[my estasVorto because] && [my prenuAntauxElemento] ne ""} {
+        set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $komo $traduko]
+        $traduko set vorto ĉar
+    } else {
+        next
+    }
+}
+Class En::Konstanto -superclass ::En::Elemento -parameter arto
+@ ::En::Konstanto idemeta component EspEnSintaksaAnalizo
+Class En::Nekonata -superclass ::En::Elemento
+@ ::En::Nekonata idemeta component EspEnSintaksaAnalizo
+Class En::Numeralo -superclass ::En::Partikolo
+@ ::En::Numeralo idemeta component EspEnSintaksaAnalizo
+En::Numeralo instproc traduku vortaro {
+    my instvar veraNombro traduko vorto
+    if {[info exists veraNombro] && $veraNombro ne ""} {
+        $traduko vorto $veraNombro
+    } else {
+        next
+        if {[$traduko cxuSenTraduko]} {
+            set trad {eleven twelve thirteen fourteen fivteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand}
+            if {[set num [lsearch $trad [string tolower $vorto]]]>=0} {
+                set tradt {{dek unu} {dek du} {dek tri} {dek kvar} {dek kvin}
+                           {dek ses} {dek sep} {dek ok} {dek naŭ}
+                           dudek tridek kvardek kvindek sesdek sepdek okdek naŭdek
+                           cent mil}
+                set t [lindex $tradt $num]
+                $traduko set bazaTraduko $t
+                $traduko set vorto $t
+                $traduko set senTraduko 0
+            }
+        }
+    }
+}
+Class En::Onomatopeo -superclass ::En::Partikolo
+@ ::En::Onomatopeo idemeta component EspEnSintaksaAnalizo
+Class En::Participo -superclass ::En::Adjektivo -parameter tempo
+@ ::En::Participo idemeta component EspEnSintaksaAnalizo
+En::Participo instproc prenuSimbolo {} {
+    return "[next]-PARTZ"
+}
+En::Participo instproc traduku vortaro {
+    my instvar traduko nombro kazo
+    next
+    if {![$traduko cxuSenTraduko]} {
+        set bazaTraduko [$traduko set bazaTraduko]
+        # working -> laboranta
+        $traduko vorto [string range $bazaTraduko 0 end-1]anta${nombro}${kazo}
+    }
+}
+Class En::Substantivo -superclass {::En::Elemento ::En::NombroKazoGenro}
+@ ::En::Substantivo idemeta component EspEnSintaksaAnalizo
+En::Substantivo instproc bazaTraduko vortaro {
+    set ret [next]
+    if {$ret && [my havasMerkmalon adj]} {
+        my instvar traduko
+        $traduko set bazaTraduko [string range [$traduko set bazaTraduko] 0 end-1]a
+    }
+    return $ret
+}
+En::Substantivo instproc distinguGramatikon frazo {
+    my instvar kazo nombro traduko
+    foreach elem [my prenuElementojDeSimboloDekstre AN] {
+        my aliguMerkmalon adj
+        if {[$elem exists kazo]} {
+            set kazo [$elem set kazo]
+        }
+        if {[$elem exists nombro]} {
+            set nombro [$elem set nombro]
+        }
+    }
+    foreach elem [my prenuElementojDeSimboloLive Os] {
+        if {[$elem prenuBazanFormon] eq "speak"} {
+            my aliguMerkmalon speak
+        }
+    }
+#           +-----Ce-----+
+#     +-Sp*i+    +---Ds--+---Ss--+--Pa-+
+#     |     |    |       |       |     |
+#    I.p know.v the building.n was.v big.a
+    if {[set ce [my prenuElementojDeSimboloLive Ce]] ne ""} {
+        set ce [lindex $ce 0]
+        set t [$ce traduko]
+        if {[$t parenco] ne ""} {
+            set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+            set ke [GP::Simbolo new -childof [my info parent] -vorto ke -funkcio parto -radiko Radiko::ke -mixin EspTradukoMix]
+            [$t parenco] tausxuAstojMultaj $t [list $t $komo $ke]
+        }
+    }
+}
+En::Substantivo instproc prenuPersonon {} {
+    return ter
+}
+En::Substantivo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    if {[my havasMerkmalon speak]} {
+        if {$vtipo ne "a"} {
+            set rordo 101
+        }
+    } elseif {$vtipo ne "o" && $vtipo ne "oj"} {
+        set rordo 101
+    }
+
+    return $rordo
+}
+En::Substantivo instproc traduku vortaro {
+    my instvar vorto traduko
+    next
+    # I speak Polish -> Mi parolas polan lingvon
+    if {[my havasMerkmalon speak] && [string is upper [string index $vorto 0]] && ![$traduko testuSentradukeco]} {
+        $traduko set vorto "la [string tolower [$traduko set vorto]] lingvon"
+        my aliguMerkmalon negrandskribu
+    }
+}
+Class En::PersonPronomo -superclass ::En::Substantivo
+@ ::En::PersonPronomo idemeta component EspEnSintaksaAnalizo
+En::PersonPronomo instproc distinguDifinilon frazo {
+    if {[my estasVortoj years]} {
+        my class En::Substantivo
+        my set radiko year
+        my set tags [list pl]
+        my distinguDifinilon $frazo
+    } else {
+        next
+    }
+}
+En::PersonPronomo instproc distinguGramatikon frazo {
+    my instvar vorto traduko lLinks
+    # I read my brother's big book every day
+    if {$vorto eq "'s"} {
+        foreach elem [my prenuElementojDeSimboloDekstre Ds] {
+             set mypos [my prenuTradukoPos]
+             set min $mypos
+             set selem [lindex [my prenuElementojDeSimboloLive YS] 0]
+             if {$selem eq "" || ![$selem exists lLinks]} return
+             foreach a [$selem set lLinks] {
+                 set amin [$a prenuTradukoPos]
+                 if {$amin<$min} {
+                     set min $amin
+                 }
+             }
+             set etraduko [$elem set traduko]
+             set asto [$etraduko parenco]
+             set astoj [$asto astoj]
+             set indekso [lsearch [$asto set astoj] $etraduko]
+
+             set newlist [list $traduko]
+             if {$min<$mypos} {
+                 foreach e [lrange $astoj $min [expr {$mypos-1}]] {
+                     lappend newlist $e
+                 }
+             }
+
+             $asto astoj [concat [lrange $astoj 0 [expr {$min-1}]] [lrange $astoj [expr {$mypos+1}] $indekso] $newlist [lrange $astoj [expr {$indekso+1}] end]]
+        }
+    }
+    # I know it woks -> Mi scias, ke tio laboras
+    if {[my havasSimbolonLive Ce]} {
+        set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+        set ke [GP::Simbolo new -childof [my info parent] -vorto ke -funkcio parto -radiko Radiko::ke -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $komo $ke $traduko]
+    }
+}
+En::PersonPronomo instproc prenuROrdo {traduko ordo} {
+    return $ordo
+}
+En::PersonPronomo instproc traduku vortaro {
+    my instvar vorto traduko
+    if {$vorto eq "I"} {
+        $traduko set vorto mi
+        if {[my prenuAntauxElemento] ne ""} {
+            my aliguMerkmalon negrandskribu
+        }
+    } elseif {$vorto eq "'s"} {
+        $traduko set vorto de
+    } else {
+        next
+    }
+}
+Class En::Pronomo -superclass ::En::PrimitivaElemento
+@ ::En::Pronomo idemeta component EspEnSintaksaAnalizo
+Class En::PosesivPronomo -superclass {::En::Pronomo ::En::NombroKazoGenro}
+@ ::En::PosesivPronomo idemeta component EspEnSintaksaAnalizo
+En::PosesivPronomo instproc traduku vortaro {
+    my instvar traduko kazo
+    if {[my bazaTraduko $vortaro]} {
+        set bazaTraduko [$traduko set bazaTraduko]
+        $traduko vorto ${bazaTraduko}${kazo}
+    }
+}
+En::PosesivPronomo instproc tradukuFinilon {} {
+    my instvar traduko kazo
+    set bazaTraduko [$traduko set bazaTraduko]
+    $traduko vorto ${bazaTraduko}${kazo}
+}
+Class En::Prepozicio -superclass ::En::Partikolo
+@ ::En::Prepozicio idemeta component EspEnSintaksaAnalizo
+En::Prepozicio instproc distinguDifinilon frazo {
+    my instvar traduko
+    if {[my estasVorto to]} {
+        foreach e [my prenuElementojDeSimboloDekstre I] {
+            $e aliguMerkmalon inf
+            my aliguMerkmalon forigu
+            break
+        }
+    }
+}
+En::Prepozicio instproc traduku vortaro {
+    my instvar vorto traduko
+    if {[my estasVorto by] && [my havasSimbolonLive MVp]} {
+        $traduko set vorto de
+    } elseif {[my estasVorto ago]} {
+        # I have read it 2 days ago.
+        # I have read it a long time ago.
+        set elem [lindex [my prenuElementojDeSimboloLive Yt] 0]
+        if {$elem ne ""} {
+            set elem [$elem prenuPlejLivanElementon]
+            if {$elem ne ""} {
+                set tp [$traduko parenco]
+                $traduko foriguDeParenco
+                $tp tausxuAstojMultaj [$elem set traduko] [list $traduko [$elem set traduko]]
+            }
+        }
+        $traduko set vorto antaŭ
+    } else {
+        next
+    }
+}
+Class En::PrimitivaAdverbo -superclass ::En::PrimitivaElemento
+@ ::En::PrimitivaAdverbo idemeta component EspEnSintaksaAnalizo
+En::PrimitivaAdverbo instproc traduku vortaro {
+    my instvar traduko
+    next
+    if {[my prenuBazanFormon] eq "there" && [my havasSimbolonDekstre SFp]} {
+        $traduko foriguDeParenco
+    }
+}
+Class En::Simbolo -superclass ::En::Elemento
+@ ::En::Simbolo idemeta component EspEnSintaksaAnalizo
+En::Simbolo instproc estasRegulaVorto {} {
+    my estasAscVorto
+}
+En::Simbolo instproc traduku vortaro {
+    my instvar traduko vorto
+    $traduko vorto $vorto
+}
+Class En::Subjunkcio -superclass ::En::Partikolo
+@ ::En::Subjunkcio idemeta component EspEnSintaksaAnalizo
+Class En::SubstTabloVorto -superclass ::En::Substantivo
+@ ::En::SubstTabloVorto idemeta component EspEnSintaksaAnalizo
+En::SubstTabloVorto instproc bazaTraduko vortaro {
+    my instvar tag traduko dtag radiko
+    if {$radiko eq "ten"} {
+        if {[dict get [lindex $dtag 0] genro] eq "n"} {
+            $traduko vorto tio
+            return 1
+        } else {
+            next
+        }
+    } else {
+        next
+    }
+}
+Class En::TabloVorto -superclass ::En::PrimitivaElemento
+@ ::En::TabloVorto idemeta component EspEnSintaksaAnalizo
+En::TabloVorto instproc distinguDifinilon frazo {
+    my instvar nombro kazo tags
+    set kazo ""
+    set nombro ""
+    if {[my havasSimbolonLive O*] && ![my havasSimbolonLive Ost] && ![my havasSimbolonLive Opt]} {
+        set kazo n
+    }
+    if {[info exists tags] && [lsearch $tags pl]>=0} {
+        set nombro j
+    }
+    next
+}
+En::TabloVorto instproc distinguGramatikon frazo {
+    my instvar kazo traduko nombro
+    foreach dElem [my prenuElementojDeSimboloDekstre Dsu] {
+        if {[$dElem exists kazo]} {
+            set kazo [$dElem set kazo]
+        }
+    }
+    foreach dElem [my prenuElementojDeSimboloDekstre Dmc] {
+        if {[$dElem exists kazo]} {
+            set kazo [$dElem set kazo]
+        }
+    }
+    # He says it is good
+    if {[set ce [my prenuElementojDeSimboloLive Ce]] ne ""} {
+        set t [[lindex $ce 0] traduko]
+        if {[$t parenco] ne ""} {
+            set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+            set ke [GP::Simbolo new -childof [my info parent] -vorto ke -funkcio parto -radiko Radiko::ke -mixin EspTradukoMix]
+            [$t parenco] tausxuAstojMultaj $t [list $t $komo $ke]
+        }
+    }
+    # I know who is he
+    #   +Sp*i+QI*d+Ss*w+-Pg*b-+
+    #   |    |    |    |      |
+    #  I.p see.v who is.v working.v
+    if {[set ce [my prenuElementojDeSimboloLive QI*d]] ne ""} {
+        if {[$traduko parenco] ne ""} {
+            set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+            [$traduko parenco] tausxuAstojMultaj $traduko [list $komo $traduko]
+        }
+    }
+#       +----Op----+------Bp-----+
+#  +Sp*i+    +-Dmc-+---R--+--RS--+---Paf--+
+#  |    |    |     |      |      |        |
+# I.p see.v the books.n which were.v expensive.a
+    if {[set ce [my prenuElementojDeSimboloLive R]] ne ""} {
+        if {[$traduko parenco] ne ""} {
+            set komo [GP::Simbolo new -childof [my info parent] -vorto , -funkcio parto -mixin EspTradukoMix]
+            [$traduko parenco] tausxuAstojMultaj $traduko [list $komo $traduko]
+        }
+        foreach e $ce {
+            if {[$e exists nombro]} {
+                set nombro [$e set nombro]
+                break
+            }
+        }
+    }
+
+
+}
+En::TabloVorto instproc traduku vortaro {
+    my instvar traduko vorto kazo nombro tvorto
+    set mvorto [string tolower $vorto]
+    if {$mvorto eq "this"} {
+        $traduko set vorto tiu$kazo
+    } elseif {$mvorto eq "these"} {
+        $traduko set vorto tiuj$kazo
+    } elseif {$mvorto eq "which"} {
+        $traduko set vorto kiu$nombro$kazo
+    } elseif {$mvorto eq "that" && [string index $tvorto end] eq "r"} {
+        $traduko set vorto kiu$nombro$kazo
+    } else {
+        next
+        if {![$traduko cxuSenTraduko]} {
+            $traduko set vorto [$traduko set bazaTraduko]$kazo$nombro
+        }
+    }
+}
+Class En::Verbo -superclass ::En::Elemento -parameter {tempo persono genro aspekto}
+@ ::En::Verbo idemeta component EspEnSintaksaAnalizo
+En::Verbo instproc distinguDifinilon frazo {
+    my instvar tempo tags radiko traduko
+    set tempo as
+    if {[lsearch $tags perf]>=0} {
+        set tempo is
+    }
+    set bazaFormo [my prenuBazanFormon]
+
+    if {$bazaFormo eq "have"} {
+        set forigu 1
+        foreach e [my prenuElementojDeSimboloDekstre SI*] {
+            # Will you come?
+            if {[my prenuAntauxElemento] eq ""} {
+                my class En::Interjekcio
+                $traduko set bazaTraduko ĉu
+                set forigu 0
+            }
+            break
+        }
+        foreach e [my prenuElementojDeSimboloDekstre PP] {
+            $e aliguMerkmalon perf
+            if {$forigu} {
+                $traduko foriguDeParenco
+            }
+            if {[my havasTagon not]} {
+                $e aliguMerkmalon not
+            }
+            break
+        }
+        # The book has been read
+        # The book could have been read
+        foreach e [my prenuElementojDeSimboloDekstre PPf] {
+            if {[my havasSimbolonLive If]} {
+                $e aliguMerkmalon inf
+            } else {
+                $e aliguMerkmalon perf
+            }
+            if {$forigu} {
+                $traduko foriguDeParenco
+            }
+            break
+        }
+    } elseif {$bazaFormo eq "will"} {
+        set forigu 1
+        foreach e [my prenuElementojDeSimboloDekstre SI*] {
+            # Will you come?
+            if {[my prenuAntauxElemento] eq ""} {
+                my class En::Interjekcio
+                $traduko set bazaTraduko ĉu
+                set forigu 0
+            }
+            break
+        }
+        # I will come
+        # I will have ....
+        # It will be good
+        foreach e [my prenuElementojDeSimbolojDekstre {I If Ix}] {
+            $e aliguMerkmalon os
+            if {$forigu} {
+                $traduko foriguDeParenco
+            }
+            break
+        }
+    } elseif {[lsearch {can must made should might} $bazaFormo]>=0} {
+        foreach e [my prenuElementojDeSimboloDekstre I] {
+            if {$bazaFormo eq "might"} {
+                $traduko set bazaTraduko eble
+                my class En::Elemento
+                $e aliguMerkmalon as
+                $e set tempo as
+            } else {
+                $e aliguMerkmalon inf
+            }
+            break
+        }
+    } elseif {$bazaFormo eq "be"} {
+        set preta 0
+        # He is going to win
+        foreach e [my prenuElementojDeSimboloDekstre Pgfb] {
+            foreach ee [$e prenuElementojDeSimboloDekstre TOf] {
+                foreach eee [$ee prenuElementojDeSimboloDekstre I] {
+                    $traduko foriguDeParenco
+                    $e aliguMerkmalon forigu
+                    $ee aliguMerkmalon forigu
+                    $eee aliguMerkmalon os
+                    set preta 1
+                }
+            }
+        }
+        if {!$preta} {
+            # He is wokring
+            foreach e [my prenuElementojDeSimboloDekstre Pg*] {
+                $traduko foriguDeParenco
+                # He was working
+                if {[lsearch $tags perf]>=0} {
+                    $e aliguMerkmalon perf
+                }
+                break
+            }
+        }
+    } elseif {$bazaFormo eq "do"} {
+        # Did I read a book?
+        foreach e [my prenuElementojDeSimboloDekstre SI*] {
+            if {[my prenuAntauxElemento] eq ""} {
+                my class En::Interjekcio
+                $traduko set bazaTraduko ĉu
+                if {[lsearch $tags perf]>=0} {
+                    foreach ee [my prenuElementojDeSimboloDekstre I*d] {
+                        $ee aliguMerkmalon perf
+                        break
+                    }
+                }
+            } else {
+                $traduko foriguDeParenco
+            }
+            break
+        }
+        # negado
+        # I do not read a book.
+        foreach e [my prenuElementojDeSimboloDekstre N] {
+            $traduko foriguDeParenco
+            if {[lsearch $tags perf]>=0} {
+                foreach ee [my prenuElementojDeSimboloDekstre I*d] {
+                    $ee aliguMerkmalon perf
+                    break
+                }
+            }
+            break
+        }
+        # I didn't read a book
+        if {[my havasTagon not]} {
+            foreach e [my prenuElementojDeSimboloDekstre I*d] {
+                if {[my havasTagon perf]} {
+                    $e aliguMerkmalon perf
+                }
+                $e aliguMerkmalon not
+                $traduko foriguDeParenco
+                break
+            }
+        }
+    } elseif {$bazaFormo eq "would"} {
+        set forigu 1
+        foreach e [my prenuElementojDeSimboloDekstre SI*] {
+            # Will you come?
+            if {[my prenuAntauxElemento] eq ""} {
+                my class En::Interjekcio
+                $traduko set bazaTraduko ĉu
+                set forigu 0
+            }
+            break
+        }
+        # I will come
+        foreach e [my prenuElementojDeSimbolojDekstre {I Ix If}] {
+            $e aliguMerkmalon us
+            if {$forigu} {
+                $traduko foriguDeParenco
+            }
+            break
+        }
+    } elseif {[my estasVorto used]} {
+        set forigu 1
+        # He used to read
+        foreach e [my prenuElementojDeSimbolojDekstre TO] {
+            foreach ee [$e prenuElementojDeSimbolojDekstre {I Ix If}] {
+                $ee aliguMerkmalon perf
+                if {$forigu} {
+                    $traduko set bazaTraduko kutime
+                    my class En::Elemento
+                }
+                break
+            }
+        }
+    }
+
+    # reordigo de negado
+    if {[lsearch {can should may must might} $bazaFormo]>=0} {
+        # I can not program.
+        foreach e [my prenuElementojDeSimboloDekstre N] {
+            set id [lsearch [[$traduko parenco] set astoj] $traduko]
+            if {$id>=0} {
+                [$traduko parenco] movuAlAbsPozicio [$e set traduko] $id
+            }
+            break
+        }
+    } elseif {$bazaFormo eq "be"} {
+        # I am not a teacher
+        foreach e [my prenuElementojDeSimboloDekstre EBm] {
+            set id [lsearch [[$traduko parenco] set astoj] $traduko]
+            if {$id>=0} {
+                [$traduko parenco] movuAlAbsPozicio [$e set traduko] $id
+            }
+            break
+        }
+    }
+}
+En::Verbo instproc distinguGramatikon frazo {
+    my instvar tempo lSimboloj
+
+    if {![my havasMerkmalon inf]} {
+        foreach elem [my prenuElementojDeSimbolojLive {I If Ix}] {
+            my aliguMerkmalon inf
+            if {[$elem estasVorto to]} {
+                $elem aliguMerkmalon forigu
+            }
+        }
+    }
+
+    if {[my havasMerkmalon perf]} {
+        set tempo is
+    } elseif {[my havasMerkmalon os]} {
+        set tempo os
+    } elseif {[my havasMerkmalon inf]} {
+        set tempo i
+    }
+    if {[my havasMerkmalon us]} {
+        set tempo us
+    }
+    if {[my havasMerkmalon as]} {
+        set tempo as
+    }
+    if {$tempo eq "as" && [info exists lSimboloj]} {
+        # Se neniu subjekto tiam eble la ordono
+        # Read the book
+        if {[llength [my prenuElementojDeSimbolojLive {S*}]]==0} {
+            set trovita 0
+            foreach e [my prenuElementojDeSimbolojLive {I* Pg*b}] {
+                if {[llength [$e prenuElementojDeSimbolojLive {S*}]]>0} {
+                    set trovita 1
+                    break
+                }
+                if {[llength [$e prenuElementojDeSimbolojDekstre {S*}]]>0} {
+                    set trovita 1
+                    break
+                }
+            }
+            if {!$trovita} {
+                set tempo u
+            }
+        }
+    }
+
+
+    foreach elem [my prenuElementojDeSimboloDekstre A] {
+        set tempo ita
+        if {[$elem exists nombro] } {
+            append tempo [$elem set nombro]
+        }
+        if {[$elem exists kazo] } {
+            append tempo [$elem set kazo]
+        }
+        break
+    }
+    foreach elem [my prenuElementojDeSimboloLive Pv*] {
+        if {[$elem havasTagon perf]} {
+            set tempo ita
+        } else {
+            set tempo ata
+        }
+        # ! Nombro el substantivo
+        foreach e [$elem prenuElementojDeSimboloLive Ss] {
+            if {[$e exists nombro] } {
+                append tempo [$e set nombro]
+            }
+        }
+        break
+    }
+    if {[my havasTagon not]} {
+        my aliguMerkmalon not
+    }
+}
+En::Verbo instproc konvertuPrepoziciojn disk {
+    my instvar parenco
+    set pola [lindex $disk 1 0]
+    set esp [lindex $disk 0]
+    if {$esp eq "A"} {
+        set esp ""
+    }
+    # TODO ne cxiuj prepozicioj povus esti gravaj por tio
+    foreach p [$parenco astoj] {
+        if {[$p istype En::Prepozicio] && [$p prenuBazanFormon] eq $pola && ![$p havasMerkmalon mvtraduko]} {
+            if {$esp eq ""} {
+                [$p traduko] set vorto $esp
+                [$p traduko] foriguDeParenco
+                if {[lindex $disk 0] eq "A"} {
+                    set se [$p prenuSekvaElemento]
+                    if {$se ne "" && [$se istype En::NombroKazoGenro]} {
+                        $se faruAkuzativo
+                    }
+                }
+                break
+            } else {
+                [$p traduko] set vorto $esp
+                $p mixin add ETFiksaMix
+                break
+            }
+        }
+    }
+}
+En::Verbo instproc prenuPersonon {} {
+    my instvar tag
+    if {[string first pri $tag]>=0} {
+        return 1
+    } elseif {[string first sec $tag]>=0} {
+        return 2
+    }
+    return 3
+}
+En::Verbo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    if {$vtipo ne "i"} {
+        set rordo 101
+    } else {
+        set rordo $ordo
+    }
+
+    return $rordo
+}
+En::Verbo instproc traduku vortaro {
+    next
+    my tradukuFinilon
+}
+En::Verbo instproc tradukuFinilon {} {
+    my instvar traduko tempo radiko fgrupo gramatiko
+    if {![$traduko cxuSenTraduko]} {
+        set etempo $tempo
+        if {$tempo eq "oniis"} {
+            set etempo is
+        }
+        set bazaTraduko [$traduko set bazaTraduko]
+        $traduko vorto [string range $bazaTraduko 0 end-1]$etempo
+        if {[my havasMerkmalon not]} {
+            $traduko vorto "ne [$traduko vorto]"
+        }
+    }
+    if {![$traduko cxuSenTraduko] && $gramatiko ne ""} {
+        foreach g $gramatiko {
+            if {[llength $g]==2} {
+                my konvertuPrepoziciojn $g
+            }
+        }
+    }
+}
+Class EnFrazTraduko -parameter {sintaksradiko elementoj lingvo}
+@ ::EnFrazTraduko idemeta component EspEnSintaksaAnalizo
+EnFrazTraduko instproc drawGraph {} {
+    my instvar tradukasto
+    SintaksCanvasGraf drawTradukGraph $tradukasto [[my sintaksradiko] prenuVortoj]
+}
+EnFrazTraduko instproc init args {
+    my instvar vortaro lingvo
+    if {![info exists lingvo]} {
+        set lingvo [EsperantoConf set lingvo]
+    }
+    DBVortaro prenuDepVortaron
+    set vortaro [VortarojAro]
+}
+EnFrazTraduko instproc konstruuVortoGrupoj tradukilo {
+    my instvar sintaksradiko
+    # la metodo grupigas vortoj je orignala elemento
+    # la grupo estas la sekvo de vortoj, kiujn ne estas speciale dispartigita
+    # ekzemple por html: La <i>unua libro</i> estas grava.
+    # rezultas tri grupoj {La} {unua libro} {estas grava .}
+    # tiu helpas konstrui tradukmemorojn aux ebligas duone auxtomatan tradukon.
+    # la strukturo estas listo kun komenco, fino de grupo, orignaj elementoj, tradukal elementoj, tradukaj vortoj
+    # list $komenco $fino $orignajElementoj $tradukElementoj $tradukVortoj
+    if {[my exists vortoGrupoj]} {
+        # interaktiva traduko povas cxangxi tion
+        # ekzemple : mana traduko (normale oni ne uzu la variablon kaj memoro)
+        return [my set vortoGrupoj]
+    }
+    set segNombro 0
+    set vortoGrupoj [list]
+    set origina [list]
+    set oElementoj [list]
+    set tradukoj [list]
+    set tradukojElementoj [list]
+    set gKomenco ""
+    set gFino ""
+    set vortoGrupoj [my konstruuVortoGrupojOrgina $tradukilo]
+    set segNombro [expr {[llength $vortoGrupoj]/5}]
+
+    # nur unu grupo, do tio estas facxila tasko
+    if {$segNombro==1} {
+        set tradukoj [list]
+        set tradukElementoj [list]
+        foreach e [my prenuFoliojn] {
+            lappend tradukoj [$e prenuTradukon]
+            lappend tradukojElementoj $e
+        }
+        lset vortoGrupoj 3 $tradukojElementoj
+        lset vortoGrupoj 4 $tradukoj
+        return $vortoGrupoj
+    }
+    set indeksoj [list]
+    set tradukoj [list]
+    set tradukojElementoj [list]
+    set oElementoj [list]
+    foreach e [my prenuFoliojn] {
+        set oElemento [$e prenuOriginanElementon]
+        if {$oElemento ne ""} {
+            lappend oElementoj $oElemento
+        } else {
+            lappend origina {}
+        }
+        lappend tradukoj [$e prenuTradukon]
+        lappend tradukojElementoj $e
+        if {$oElemento eq ""} {
+            lappend indeksoj ""
+        }
+        set id 0
+        # trovu grupo por vorto
+        foreach {gKomenco gFino origina _tradukojElementoj _tradukoj} $vortoGrupoj {
+            if {[lsearch $origina $oElemento]>=0} {
+                lappend indeksoj $id
+            }
+            incr id
+        }
+    }
+    set seg 0
+    set ttradukoj [list]
+    set ttradukojElementoj [list]
+    foreach id $indeksoj traduko $tradukoj tradukElemento $tradukojElementoj {
+        if {$id==$seg+1} {
+            lset vortoGrupoj [expr {$seg*5+3}] $ttradukojElementoj
+            lset vortoGrupoj [expr {$seg*5+4}] $ttradukoj
+            set ttradukoj [list]
+            set ttradukojElementoj [list]
+            incr seg
+        }
+        lappend ttradukoj $traduko
+        lappend ttradukojElementoj $tradukElemento
+    }
+    if {[llength $ttradukoj]>0} {
+        lset vortoGrupoj [expr {$seg*5+3}] $ttradukojElementoj
+        lset vortoGrupoj [expr {$seg*5+4}] $ttradukoj
+    }
+    #puts "vortogrupoj PL : $vortoGrupoj"
+    return $vortoGrupoj
+}
+EnFrazTraduko instproc konstruuVortoGrupojOrgina tradukilo {
+    my instvar sintaksradiko orginaVortoGrupoj
+    # vidu konstruuVortoGrupoj
+    # oni devas konstrui grupoj antaux ol tradukado
+    # cxar tradukado povus reordigi aux rekonstrui vortoj, de
+    # la grupoj povus ne kongrui
+
+
+    # la metodo grupigas vortoj je orignala elemento
+    # la grupo estas la sekvo de vortoj, kiujn ne estas speciale dispartigita
+    # ekzemple por html: La <i>unua libro</i> estas grava.
+    # rezultas tri grupoj {La} {unua libro} {estas grava .}
+    # tiu helpas konstrui tradukmemorojn aux ebligas duone auxtomatan tradukon.
+    # la strukturo estas listo kun komenco, fino de grupo, orignaj elementoj, tradukal elementoj, tradukaj vortoj
+    # list $komenco $fino $orignajElementoj $tradukElementoj $tradukVortoj
+    if {[info exists orginaVortoGrupoj]} {
+        # interaktiva traduko povas cxangxi tion
+        # ekzemple : mana traduko (normale oni ne uzu la variablon kaj memoro)
+        return $orginaVortoGrupoj
+    }
+    set segNombro 0
+    set vortoGrupoj [list]
+    set origina [list]
+    set oElementoj [list]
+    set tradukoj [list]
+    set tradukojElementoj [list]
+    set gKomenco ""
+    set gFino ""
+    foreach oElemento [$sintaksradiko prenuFoliojn] {
+        if {[llength $oElementoj]>0} {
+            set fino [$oElemento set komenco]
+            if {$fino ne "0" && $gFino ne "0" && ![$tradukilo estasKutimaSeparatilo $gFino $fino]} {
+                lappend vortoGrupoj $gKomenco $gFino $origina $tradukojElementoj $tradukoj
+                incr segNombro
+                #puts "grupo $gKomenco $gFino [join $tradukoj]"
+                set gKomenco ""
+                set origina [list]
+                set tradukoj [list]
+                set tradukojElementoj [list]
+            }
+        }
+        if {$gKomenco eq ""} {
+            set gKomenco [$oElemento set komenco]
+        }
+        set gFino [$oElemento set fino]
+        lappend origina $oElemento
+        lappend oElementoj $oElemento
+    }
+    if {[llength $origina]>0 || [llength $tradukoj]>0} {
+        lappend vortoGrupoj $gKomenco $gFino $origina $tradukojElementoj $tradukoj
+        incr segNombro
+    }
+    set orginaVortoGrupoj $vortoGrupoj
+}
+EnFrazTraduko instproc kreuTradElementojn {} {
+    my instvar tradukasto
+    set cl [EnSAsto klasoPorAsto [my sintaksradiko]]
+    set tradukasto [$cl new -childof [self] -parenco {} -mixin EspTradukoMix -elemento [my sintaksradiko]]
+    $tradukasto kreuArbon [self]
+}
+EnFrazTraduko instproc kreuTradElementojnSenTraduko {} {
+    my instvar tradukasto lingvo
+    set tradukasto [[TradukAsto klasoPorAsto [my sintaksradiko] $lingvo] new -childof [self] -parenco {} -elemento [my sintaksradiko]]
+    $tradukasto kreuArbonSentraduko [self]
+}
+EnFrazTraduko instproc lasuOriginan {} {
+    # !TODO vi forgesis astojn
+    foreach e [my prenuFoliojn] {
+        $e destroy
+    }
+    my set elementoj [list]
+    my kreuTradElementojnSenTraduko
+    my tradukuElementojn
+}
+EnFrazTraduko instproc metuLingvon lng {
+    my instvar lingvo
+    set lingvo $lng
+}
+EnFrazTraduko instproc pliricxiguGramatikon {} {
+    my instvar sintaksradiko
+    $sintaksradiko distinguDifinilon [self]
+    $sintaksradiko distinguGramatikon [self]
+}
+EnFrazTraduko instproc prenuFoliojn {} {
+    my instvar tradukasto
+    $tradukasto prenuFoliojn
+}
+EnFrazTraduko instproc prenuTradukVortoj {} {
+    set tradukVortoj {}
+    foreach e [my prenuFoliojn] {
+        lappend tradukVortoj [$e prenuTradukon]
+    }
+    return $tradukVortoj
+}
+EnFrazTraduko instproc prenuVortaron {} {
+    my set vortaro
+}
+EnFrazTraduko instproc prenuVortojn {} {
+    esp::joinFrazo [my prenuTradukVortoj]
+}
+EnFrazTraduko instproc pretiguTradukon {} {
+    my instvar tradukasto sintaksradiko
+    set tradukElementoj [my prenuFoliojn]
+    # La grandeco cxu unua vorto ne havas signifon de grandskribo
+    # sed komenco de frazo
+    set unua [$sintaksradiko prenuUnuan]
+    foreach te $tradukElementoj {
+        $te korektuLitergrandeco [expr {[$te exists elemento] && [$te set elemento] eq $unua}]
+    }
+    set tradukVortoj [my prenuTradukVortoj]
+    # La libro estas interesa -> "Ksiazka jest interesujaca"
+    if {[string is upper [string index [[$sintaksradiko prenuUnuan] set vorto] 0]]} {
+        foreach t $tradukElementoj {
+            if {[$t vorto] ne ""} {
+                $t vorto [esp::grandskribi [$t vorto]]
+                break
+            }
+        }
+    }
+    if {[$sintaksradiko havasMerkmalon senparsilo]} {
+        [lindex $tradukElementoj 0] metuMesagxon "neniu parso" traduko
+    }
+}
+EnFrazTraduko instproc pritradktuPosttraduko args {
+    my instvar tradukasto
+    set folioj [$tradukasto prenuFoliojn]
+    for {set i 0} {$i<[llength $folioj]} {incr i} {
+        [lindex $folioj $i] posttradukaPlibonigo $i $folioj
+    }
+}
+EnFrazTraduko instproc reordigu {} {
+    my instvar tradukasto
+    $tradukasto reordigu
+}
+EnFrazTraduko instproc retraduku {} {
+    # !TODO vi forgesis astojn
+    foreach e [my prenuFoliojn] {
+        $e destroy
+    }
+    my set elementoj [list]
+    my traduku
+}
+EnFrazTraduko instproc traduku {} {
+    my instvar sintaksradiko
+    my kreuTradElementojn
+    $sintaksradiko multvorteTraduku [DBVortaro prenuDepVortaron]
+    my pliricxiguGramatikon
+    my tradukuElementojn
+    #my reordigu
+    $sintaksradiko pritradktuPosttraduko
+    my pretiguTradukon
+}
+EnFrazTraduko instproc tradukuElementojn {} {
+    my instvar vortaro sintaksradiko
+    $sintaksradiko traduku [DBVortaro prenuDepVortaron]
+}
+Class EnFrazoLegilo
+@ ::EnFrazoLegilo idemeta component EspEnSintaksaAnalizo
+EnFrazoLegilo instproc prilaboruApostroph {ret_ref sig} {
+    upvar $ret_ref ret
+    # I'm you'are she's
+    # will be not put together because the link parser
+    # tread them as two words and can also
+    # parse "I 'm a programmer."
+    if {$ret eq "" || [string tolower $ret] in {isn aren wasn don doesn didn hasn haven can weren hadn couldn} } {
+        append ret $sig
+        return -code continue
+    }
+}
+EnFrazoLegilo proc newOn text {
+    set obj [my new]
+    $obj signoLegilo [TekstoKursoro new -childof $obj [list -teksto $text]]
+    return $obj
+}
+Class EnMultVortTradukado
+@ ::EnMultVortTradukado idemeta component EspEnSintaksaAnalizo
+EnMultVortTradukado instproc leguDeDosiero dosiero {
+    my instvar vortojArr
+    if {![file isfile $dosiero]} {
+        puts "dosiero por multvorta pl-eo Vortaro ne trovita $dosiero"
+        return
+    }
+    set dosieroSize [file size $dosiero]
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    unset -nocomplain vortojArr
+    set indekso 0
+    set sencoaroj [list]
+    if {[Object isobject ProgresoMontrilo]} {
+        set progreso [ProgresoMontrilo startNurProgress "Atendu! Esperantilo legas sinonimojn"]
+    } else {
+        set progreso ""
+    }
+    set i 0
+
+    while {[gets $f line]>=0} {
+        if {$i%30==0 && $progreso ne ""} {
+            set pos [tell $f]
+            $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+            $progreso isStopped
+        }
+        incr i
+        set line [string trim $line]
+        if {[string index $line 0] eq "#"} {
+            continue
+        }
+        if {[catch {set unua [lindex $line 0 0]}]} {
+            #my halt
+        }
+        lappend vortojArr($unua) $line
+    }
+    if {$progreso ne ""} {
+        $progreso cleanUpAfterSignal
+        $progreso destroy
+    }
+    close $f
+}
+EnMultVortTradukado instproc relegu {} {
+    my leguDeDosiero [[my class] prenuDosieron]
+}
+EnMultVortTradukado instproc trovuPorUnuaVorto vorto {
+    my instvar vortojArr
+    if {[info exists vortojArr($vorto)]} {
+        return $vortojArr($vorto)
+    }
+    return
+}
+EnMultVortTradukado proc prenuDosieron {} {
+    file join [EsperantoConf prenuVortaroDosierujo] eneo_mtradukoj.txt
+}
+EnMultVortTradukado proc prenuVortaron {} {
+    my instvar vortaro
+    if {![info exists vortaro] || ![Object isobject $vortaro]} {
+        set vortaro [my new]
+        $vortaro relegu
+    }
+    return $vortaro
+}
+Class EnSAsto -superclass {::AstoElemento ::ArboAsto} -parameter {funkcio radiko traduko}
+@ ::EnSAsto idemeta component EspEnSintaksaAnalizo
+EnSAsto instproc aliformuStrukturon {funkcio_p parenco pozicioKomenco pozicioFino postAktiono} {
+    my instvar astoj funkcio
+    set funkcio $funkcio_p
+    set astoj [lrange [$parenco set astoj] $pozicioKomenco $pozicioFino]
+    $parenco set astoj [lreplace [$parenco set astoj] $pozicioKomenco $pozicioFino [self]]
+    my init
+    if {$postAktiono ne ""} {
+        my $postAktiono
+    }
+}
+EnSAsto instproc analizu {} {
+    foreach a [my astoj] {
+        $a analizu
+    }
+}
+EnSAsto instproc asDOM doc {
+    my instvar radiko
+    set elem [$doc createElement [namespace tail [my info class]]]
+    $elem setAttribute funkcio [my funkcio]
+    set astoj [$doc createElement astoj]
+    $elem appendChild $astoj
+    foreach e [my astoj] {
+        set domElem [$e asDOM $doc]
+        if {[my exists radiko] && $radiko eq $e} {
+            $domElem setAttribute radiko 1
+        }
+        $astoj appendChild $domElem
+    }
+    return $elem
+}
+EnSAsto instproc asFormatedList {{ident 0}} {
+    set ret ""
+    set identString [string repeat "    " $ident]
+    append ret "$identString\{[my prenuSimbolo]:[my prenuFunkcioNomo]"
+    foreach e [my astoj] {
+        append ret "\n[$e asFormatedList [expr {$ident+1}]]"
+    }
+    append ret "\}"
+    return $ret
+}
+EnSAsto instproc asList {} {
+    set ret [list]
+    if {[my exists funkcio]} {
+        lappend ret [my prenuSimbolo]:[my funkcio]
+    } else {
+        lappend ret [my prenuSimbolo]:parto
+    }
+    foreach e [my astoj] {
+        lappend ret [$e asList]
+    }
+    return $ret
+}
+EnSAsto instproc debugAnalizo {stupo poziciono mustero} {
+    # uzo per mixin (vidu: SintaksAstoDebugMix)
+}
+EnSAsto instproc distinguDifinilon frazTraduko {
+    my instvar astoj
+    foreach a $astoj {
+        $a distinguDifinilon $frazTraduko
+    }
+}
+EnSAsto instproc distinguGramatikon frazTraduko {
+    my instvar astoj
+    foreach a $astoj {
+        $a distinguGramatikon $frazTraduko
+    }
+}
+EnSAsto instproc drawGraph {} {
+    SintaksCanvasGraf drawGraph [self] [my prenuVortoj]
+}
+EnSAsto instproc estasKuneblaj {elem ligilo} {
+    expr {[my prenuNomo] eq [$elem prenuNomo]}
+}
+EnSAsto instproc estasNombraAkuzativa {} {
+    my instvar astoj radiko
+    expr {[[lindex $astoj 0] prenuRadiko] istype GP::Numeralo] &&
+        [my estasAkuzativo]}
+}
+EnSAsto instproc generuDiskripto rfrazo {
+    set frazo [my info parent]
+    set last [my prenuLastan]
+    set relradiko [my prenuRelFrazoRadiko]
+    set f [SintaksAsto::disk new -childof $frazo -astoj [list $last $rfrazo] -funkcio disk -relradiko $relradiko]
+
+    set index [lsearch [my astoj] $last]
+    if {$index<0} {
+        set p [my sxercxiAsto asto {[lsearch [$asto astoj] $last]>=0}]
+        if {$p eq ""} {
+            error "neniu parenco"
+        }
+        set index [lsearch [$p astoj] $last]
+    } else {
+        set p [self]
+    }
+    $p instvar astoj
+    set alt [lindex $astoj $index]
+    lset astoj $index $f
+    if {[$p exists radiko] && [$p set radiko] eq $alt} {
+        $p set radiko $f
+    }
+    self
+}
+EnSAsto instproc havasFunkcion {} {
+    return 1
+}
+EnSAsto instproc init {} {
+}
+EnSAsto instproc initKunteksto parenco {
+    my instvar funkcio
+    foreach a [my astoj] {
+        $a initKunteksto [self]
+    }
+}
+EnSAsto instproc initParencon parenco {
+    next
+    if {![my exists funkcio]} {
+        my funkcio parto
+    }
+}
+EnSAsto instproc konvenasMusteron mustero {
+    my instvar astoj
+    set sindekso 0
+    set sukceso 1
+    if {[llength $mustero]!=[llength $astoj]} {
+        return 0
+    }
+    foreach e $mustero {
+        set elemento [lindex $astoj $sindekso]
+        regsub %e $e $elemento e
+        if {[string index $e 0] eq ":"} {
+            if {![$elemento testuStrukturo $e]} {
+                set sukceso 0
+                break
+            }
+        } else {
+            if {![$elemento testuSintakso $e]} {
+                set sukceso 0
+                break
+            }
+        }
+        incr sindekso
+    }
+    return $sukceso
+}
+EnSAsto instproc kunliguRilativanFrazonAl {rfrazo lelem} {
+    if {[$lelem istype GP::Elemento]} {
+        set frazo [my info parent]
+        set d [SintaksAsto::disk new -childof $rfrazo -astoj [list $lelem $rfrazo] -funkcio disk]
+        set lastIndex [lsearch [my astoj] $lelem]
+        my instvar astoj
+        lset astoj $lastIndex $d
+    } else {
+        $lelem generuDiskripto $rfrazo
+    }
+}
+EnSAsto instproc match expr {
+    switch -exact -- [lindex $expr 0] {
+        folioj {
+            set elementoj [my prenuFoliojn]
+        }
+        elementoj {
+            set elementoj [my prenuElementoj]
+        }
+        infanoj {
+            set elementoj [my astoj]
+        }
+        brancxoj {
+            set elementoj [my prenuBrancxoj]
+        }
+        default {
+            error "ne konata selektilo [lindex $expr 0]"
+        }
+    }
+    set expr [lindex $expr 1]
+    set startmatch 0
+    set len [expr {[llength $expr]/2}]
+    set wlen [llength $elementoj]
+    set found -1
+    while {$startmatch+$len<=$wlen} {
+        set m 0
+        foreach {tipo evaluo} $expr {
+            set elem [lindex $elementoj [expr {$startmatch+$m}]]
+            if {![$elem matchElem $tipo $evaluo]} {
+                break
+            }
+            incr m
+        }
+        if {$m==$len} {
+            set found $startmatch
+            break
+        }
+        incr startmatch
+    }
+    if {$found>=0} {
+        return [lrange $elementoj $startmatch [expr {$startmatch+$len-1}]]
+    }
+    return
+}
+EnSAsto instproc matchElem {tipo evaluo} {
+    switch -exact -- $tipo {
+        f {
+            set funkcio [my prenuFunkcioNomo]
+            if {$funkcio eq $evaluo} {
+                return 1
+            }
+        }
+        fr {
+            set funkcio [my prenuFunkcioNomo]
+            if {[regexp $evaluo $funkcio]} {
+                return 1
+            }
+        }
+        s {
+            set funkcio [my prenuSimbolo]
+            if {$funkcio eq $evaluo} {
+                return 1
+            }
+        }
+        sr {
+            set funkcio [my prenuSimbolo]
+            if {[regexp $evaluo $funkcio]} {
+                return 1
+            }
+        }
+        AND {
+            foreach {t v} $evaluo {
+                if {![my matchElem $t $v]} {
+                    return 0
+                }
+            }
+            return 1
+        }
+        NOT {
+           if {[my matchElem [lindex $evaluo 0] [lindex $evaluo 1]]} {
+               return 0
+           } else {
+               return 1
+           }
+        }
+        OR {
+            foreach {t v} $evaluo {
+                if {[my matchElem $t $v]} {
+                    return 1
+                }
+            }
+            return 0
+        }
+        match {
+            if {[llength [my match $evaluo]]>0} {
+                return 1
+            }
+        }
+        radiko {
+            return [[my miAuxRadikaElemento] matchElem [lindex $evaluo 0] [lindex $evaluo 1]]
+        }
+        parenco {
+            if {[my parenco] ne ""} {
+                return [[my parenco] matchElem [lindex $evaluo 0] [lindex $evaluo 1]]
+            }
+        }
+    }
+    return 0
+}
+EnSAsto instproc miAuxRadikaElemento {} {
+    my instvar funkcio parenco
+    if {$parenco eq "" || ![info exists funkcio] || $funkcio ne "radiko"} {
+       self
+    } else {
+       $parenco miAuxRadikaElemento
+    }
+}
+EnSAsto instproc multvorteTraduku vortaro {
+    my instvar astoj
+    set mvortaro [EnMultVortTradukado prenuVortaron]
+    set len [llength $astoj]
+    set forigelementoj [list]
+
+    # Traduku en unua pasxo nur per multvorta vortaro
+    for {set x 0} {$x<$len} {incr x} {
+        set e [lindex $astoj $x]
+        if {$e eq ""} continue
+        if {![$e istype En::Elemento]} {
+            $e multvorteTraduku $vortaro
+            continue
+        }
+        set vlisto [$mvortaro trovuPorUnuaVorto [$e prenuBazanFormon]]
+        set estasTrovita 0
+        set maxlen 0
+        set trovitaMaxElemento ""
+        foreach t $vlisto {
+            set pllist [lindex $t 0]
+            set plen [llength $pllist]
+            set eovorto [lindex $t 1]
+            if {$x+$plen>$len} continue
+            set estasTrovita 1
+            for {set i 1} {$i<$plen} {incr i} {
+                set plvorto [lindex $pllist $i]
+                set pelem [lindex $astoj [expr {$x+$i}]]
+                set plfonto [$pelem prenuBazanFormon]
+                if {$plfonto ne $plvorto} {
+                    set plfonto [string tolower [$pelem vorto]]
+                    if {$plfonto ne $plvorto} {
+                        set estasTrovita 0
+                        break
+                    }
+                }
+            }
+            if {$estasTrovita} {
+                if {$plen>$maxlen} {
+                    set maxlen $plen
+                    set trovitaMaxElemento $t
+                }
+            }
+        }
+        if {$trovitaMaxElemento ne ""} {
+            set pllist [lindex $trovitaMaxElemento 0]
+            set plen [llength $pllist]
+            set eovorto [lindex $trovitaMaxElemento 1]
+            [$e set traduko] set bazaTraduko $eovorto
+            $e aliguMerkmalon mvtraduko
+            # problemo de kie preni tiujn datojn
+            $e set gramatiko [lindex $trovitaMaxElemento 2]
+            $e set fgrupo [lindex $trovitaMaxElemento 3]
+            for {set i 1} {$i<$plen} {incr i} {
+                set felem [lindex $astoj [expr {$x+$i}]]
+                #[$felem set traduko] foriguDeParenco
+                lappend forigelementoj $felem
+            }
+            incr x [expr {$plen-1}]
+            continue
+        }
+        set olen $len
+        set len [llength $astoj]
+        if {$olen!=$len && $e ne [lindex $astoj $x]} {
+            incr x [expr {$len-$olen}]
+        }
+    }
+    foreach e $forigelementoj {
+        #$e aliguforiguDeParenco
+        $e aliguMerkmalon forigu
+    }
+}
+EnSAsto instproc prenuCxefRadiko {} {
+    self
+}
+EnSAsto instproc prenuCxefajElementoj {} {
+    set elementoj [list]
+    foreach a [my astoj] {
+        if {[$a istype SintaksAsto]} {
+            foreach e [$a prenuCxefajElementoj] {
+                lappend elementoj $e
+            }
+        } else {
+            lappend elementoj $a
+        }
+    }
+    return $elementoj
+}
+EnSAsto instproc prenuCxefajVortoj {} {
+    set vortoj [list]
+    foreach a [my prenuCxefajElementoj] {
+        lappend vortoj [$a vorto]
+    }
+    return $vortoj
+}
+EnSAsto instproc prenuFinon {} {
+    [lindex [my astoj] end] prenuFinon
+}
+EnSAsto instproc prenuFunkcioNomo {} {
+    if {[my exists funkcio]} {
+        my funkcio
+    } else {
+        return "nekonata"
+    }
+}
+EnSAsto instproc prenuKazon {} {
+    foreach e [my astoj] {
+        if {[$e istype ::GP::NombroKazo]} {
+            return [$e kazo]
+        }
+    }
+    return
+}
+EnSAsto instproc prenuKomencon {} {
+    [lindex [my astoj] 0] prenuKomencon
+}
+EnSAsto instproc prenuListon {} {
+    set ret [list]
+    foreach e [my astoj] {
+        lappend ret [$e prenuListon]
+    }
+    list [my prenuSimbolo]:[my prenuFunkcioNomo] $ret
+}
+EnSAsto instproc prenuNombron {} {
+    [my radiko] prenuNombron
+}
+EnSAsto instproc prenuNomo {} {
+    namespace tail [my info class]
+}
+EnSAsto instproc prenuRadiko {} {
+    if {[my exists radiko] && [my radiko] ne ""} {
+        [my radiko] prenuRadiko
+    } else {
+        return
+    }
+}
+EnSAsto instproc prenuRelFrazoRadiko {} {
+    set last [[lindex [my astoj] end] prenuRelFrazoRadiko]
+}
+EnSAsto instproc prenuSimbolo {} {
+    namespace tail [my info class]
+}
+EnSAsto instproc prenuVerbRadiko {} {
+    my prenuRadiko
+}
+EnSAsto instproc prenuVortoj {} {
+    set vortoj [list]
+    foreach a [my prenuFoliojn] {
+        lappend vortoj [$a vorto]
+    }
+    return $vortoj
+}
+EnSAsto instproc printString {} {
+    return "[my prenuFunkcioNomo] [my prenuSimbolo]: [my prenuVortoj]"
+}
+EnSAsto instproc pritradktuPosttraduko {} {
+    my instvar astoj
+    foreach e $astoj {
+        if {[$e havasMerkmalon forigu]} {
+            if {[$e exists traduko]} {
+                [$e set traduko] foriguDeParenco
+            }
+            $e foriguDeParenco
+        }
+    }
+}
+EnSAsto instproc sxercxiErarojn kolektilo {
+    foreach e [my astoj] {
+        $e sxercxiErarojn $kolektilo
+    }
+}
+EnSAsto instproc sxercxiFrazokapon {} {
+    foreach a [my astoj] {
+        $a sxercxiFrazokapon
+    }
+}
+EnSAsto instproc sxercxiKompleksajSubjektivanSuplementon {} {
+}
+EnSAsto instproc testuSintakso elem {
+    [my prenuRadiko] testuSintakso $elem
+}
+EnSAsto instproc testuStrukturo elem {
+    set cname [namespace tail [my info class]]
+    #puts "testuStrukturo [self] $elem"
+    if {[string range [lindex $elem 0] 1 end] ne $cname} {
+        return 0
+    }
+    if {[llength $elem]>1} {
+        return [eval [self] [lrange $elem 1 end]]
+    }
+    return 1
+}
+EnSAsto instproc traduku vortaro {
+    my instvar astoj
+    foreach e $astoj {
+        if {[$e havasMerkmalon forigu]} continue
+        $e traduku $vortaro
+    }
+}
+EnSAsto instproc trovuKunFunkcio funkcio {
+    my instvar astoj
+    foreach a $astoj  {
+        if {[$a exists funkcio] && [$a set funkcio] eq $funkcio} {
+            return $a
+        }
+    }
+    return
+}
+EnSAsto proc klasoPorAsto asto {
+    set cl SintaksAsto
+    set name [namespace tail [$asto info class]]
+    if {[Object isclass SintaksAsto::$name]} {
+            set cl SintaksAsto::$name
+    }
+    return $cl
+}
+Class EnSAsto::SintaksAsto -superclass ::EnSAsto
+@ ::EnSAsto::SintaksAsto idemeta component EspEnSintaksaAnalizo
+Class EnSAsto::amain -superclass ::EnSAsto
+@ ::EnSAsto::amain idemeta component EspEnSintaksaAnalizo
+Class EnSAsto::main -superclass ::EnSAsto::amain
+@ ::EnSAsto::main idemeta component EspEnSintaksaAnalizo
+EnSAsto::main instproc sxercxiCxefrazoj {} {
+    my instvar astoj
+    set grupoj [list]
+    set grupo [list]
+    # distrancxi je komoj (vere primitive)
+    foreach a $astoj {
+        lappend grupo $a
+        if {[$a istype En::Simbolo] && [$a estasVorto ,] && [llength $grupo]>1} {
+            lappend grupoj $grupo
+            set grupo [list]
+        }
+    }
+    lappend grupoj $grupo
+    if {[llength $grupoj]>1} {
+        set parenco [my info parent]
+        set astoj [list]
+        foreach g $grupoj {
+            lappend astoj [EnSAsto::main new -childof $parenco -funkcio smain -parenco [self] -astoj $g]
+        }
+        my class EnSAsto::mainc
+    }
+}
+EnSAsto::main instproc sxercxiFrazokapon {} {
+    my instvar radiko astoj
+    foreach a $astoj {
+        # verboj sen "to do"
+        if {[$a istype En::Verbo] && ![$a havasSimbolonLive I]} {
+            set radiko $a
+            $a funkcio radiko
+            break
+        }
+    }
+    next
+}
+Class EnSAsto::mainc -superclass ::EnSAsto
+@ ::EnSAsto::mainc idemeta component EspEnSintaksaAnalizo
+Class EnSAsto::npmain -superclass ::EnSAsto::amain
+@ ::EnSAsto::npmain idemeta component EspEnSintaksaAnalizo
+Class EnSAsto::smain -superclass ::EnSAsto::main
+@ ::EnSAsto::smain idemeta component EspEnSintaksaAnalizo
+Class EnSintaksaAnalizo -parameter frazo
+@ ::EnSintaksaAnalizo idemeta component EspEnSintaksaAnalizo
+EnSintaksaAnalizo instproc analizu {} {
+    my instvar frazo
+
+    EnSintaksaAnalizo initTcllinkparser
+
+    set radiko [EnSAsto::main new -childof $frazo -astoj [$frazo elementoj] -funkcio baza]
+    $frazo sintaksoarbo $radiko
+
+    set elementoj [list]
+    foreach e [$frazo elementoj] {
+        # link parser ignoras "
+        if {[$e estasRegulaVorto] && ![$e estasVorto \"]} {
+            lappend elementoj $e
+        }
+    }
+    set sep ""
+    set teksto ""
+    foreach e $elementoj {
+        set vorto [$e vorto]
+        if {$vorto eq "..."} {
+            set vorto _
+        }
+        append teksto $sep
+        append teksto $vorto
+        set sep " "
+    }
+    if {$teksto eq ""} {
+        my rapidaAnalizo
+        $radiko aliguMerkmalon senparsilo
+        return
+    }
+
+    if {[catch  {linkparser::parse $teksto} rez]} {
+        puts "GramParser error: $rez"
+        puts "frazo: [$frazo prenuTeksto]"
+        my rapidaAnalizo
+        $radiko aliguMerkmalon senparsilo
+        return
+    }
+
+    set lpVortoj [lindex $rez 0]
+    set lpTVortoj [lindex $rez 1]
+    $frazo set lpLinks [lrange $rez 2 end]
+
+    set len [llength $elementoj]
+    foreach link [$frazo set lpLinks] {
+        foreach {elElemento simbolo alElemento} $link break
+        if {$elElemento>0} {
+            set elElem [lindex $elementoj [expr {$elElemento-1}]]
+        } else {
+            set elElem ""
+        }
+        if {$alElemento>0 && $alElemento-1<$len} {
+            set alElem [lindex $elementoj [expr {$alElemento-1}]]
+        } else {
+            set alElem ""
+        }
+        if {$elElem ne ""} {
+            $elElem lappend dSimboloj $simbolo
+            $elElem lappend dLinks $alElem
+        }
+        if {$alElem ne ""} {
+            $alElem lappend lSimboloj $simbolo
+            $alElem lappend lLinks $elElem
+        }
+    }
+
+    set i 1
+    set tagger [EnTagger prenuTagger]
+    foreach e $elementoj {
+         $e rekonuGramTipon [lindex $lpTVortoj $i] $tagger
+         incr i
+    }
+
+    #$radiko sxercxiCxefrazoj
+    $radiko initParencon {}
+    $radiko sxercxiFrazokapon
+
+}
+EnSintaksaAnalizo instproc appendMesagxo mes {
+    my lappend mesagxoj $mes
+}
+EnSintaksaAnalizo instproc rapidaAnalizo {} {
+    my instvar frazo
+
+    set tagger [EnTagger prenuTagger]
+    foreach e [$frazo elementoj] {
+        $e set tags [list]
+        $e rekonuGramTipon ? $tagger
+    }
+}
+EnSintaksaAnalizo proc initTcllinkparser {} {
+    if {![namespace exists linkparser]} {
+        set pwd [pwd]
+        cd [EsperantoConf prenuVortaroDosierujo]
+        catch {package require tcllinkparser}
+        linkparser::init 30
+        cd $pwd
+    }
+}
+Class EnTagger
+@ ::EnTagger idemeta component EspEnSintaksaAnalizo
+EnTagger instproc init {} {
+    my instvar tipoArr radikilo
+    set radikilo [Radikilaro prenuPorLingvo en]
+
+    array set tipoArr {v En::Verbo
+                n En::Substantivo
+                a En::Adjektivo
+                e En::Adverbo
+                p En::PersonPronomo
+                prep En::Prepozicio
+                pos En::PosesivPronomo
+                the En::Difinilo
+                conj En::Konjunkcio
+                c En::Konjunkcio
+                inter En::Interjekcio
+                num En::Numeralo
+                ono En::Onomatopeo
+                sjun En::Subjunkcio
+                padv En::PrimitivaAdverbo
+                kor En::TabloVorto
+                g En::Participo
+                t En::TabloVorto
+                r En::TabloVorto
+    }
+    my initPVortoj
+    my initTagVortoj
+    my initEVortoj
+    my initTagVortaro
+}
+EnTagger instproc initEVortoj {} {
+    my instvar eVortoj eAdjVortoj sVortoj
+    set eVortoj [lsort {
+abase abate abbreviate abdicate abide abjure ablactate abnegate abominate abrade abridge abrogate absolve abuse accede accelerate accentuate acclimate acclimatise acclimatize accommodate accomodate accumulate accuse ache achieve acknowledge acquiesce acquire activate
+adhere admire adore advance advertise advise advocate aerate agglomerate agitate agree alienate alleviate alliterate allude alternate amalgamate amaze amortise amputate amuse anaesthetise analyse anathematize anathemetise anesthetize animate annihilate announce antedate anticipate antipathize ape apostatise apotheosise apothrosize appease appose appraise appreciate approve approximate arbitrate argue arise aromatize arouse arrange arrive arrogate articulate asphyxiate aspire assemble assimilate associate assure attitudinise attribute authenticate authorise automate avenge aviate bake balance bandage baptise baptize barbecue barricade base bathe be become begrudge behave believe belittle besiege bicycle bide bike bite
+blame blaspheme blockade bore bottle braise brake breathe bribe bridle browse bruise bubble buckle bungle burble burlesque cackle cajole calcine calculate calibrate calumniate camouflage canalize canonize capitulate capture caracole care caricature carve castle castrate catalogue catalyse catechize cause cauterize cease cede celebrate centralise cerebrate challenge change characterize charge chase chastise choke choose circulate circumcise cite civilise cleanse cleave close clothe co-operate co-ordinate coagulate coalesce coddle cohabitate cohere coincide collaborate collapse collide colonise colonize combine come commence commiserate communicate commutate commute compare compensate compete compile complete complicate compose comprise compromise compute concede conceive concentrate conclude condense condole confide configure confine confiscate confuse congratulate congregate conjecture conjugate conserve console conspire constipate constitute consume contemplate continue contribute contrive contuse convalesce convene converge converse convince convoke cooperate coordinate copulate corroborate corrode corrugate countermine couple crackle crease create cremate cripple criticise criticize cruise crumble crumple cultivate culture
+curdle cure curse curve cycle damage damascene dance dare date dazzle debate decapitate deceive decelerate decide declare decline decode decorate decrease decree dedicate deduce defame defecate defile define degenerate degrade dehisce delegate delete deliberate delineate delouse delude demonstrate demoralise denounce deplete depose deprive depute deride derive describe deserve desire despise destine determine deviate devote diagnose dialyse dictate die differentiate diffuse dilute disagree disapprove disarrange discharge discourage discriminate disintegrate dislike dislocate disperse dispose dispute dissemble disseminate dissipate dissolve distribute dive diverge divide divorce dominate donate dose double dramatise
+drape drive drizzle duplicate dye educate effervesce elaborate elecrtocute electrolyze elevate elide eliminate ellaborate emanate embrace emerge emigrate emphasise enable enclose encode encourage endorse endure engage engrave enhance enkindle enlarge ennoble enslave entangle entice entwine eradicate erase escape estimate evacuate evade evaporate evoke evolve exaggerate examine excavate excite exclude excommunicate excrete excuse execute exercise exhale exile exorcise expedite experience expire explicate explode explore expose exterminate extrapolate fabricate face facilitate fade fake fare fascinate federate fence fertilise figure file finance fine fire flame flare flee fondle force foredestine foresee forge forgive formulate forsake frame freeze fumble fume fuse gamble gape gargle generalise generalize generate germinate gesture give glance glaze glide glue graduate grapple grate graze grease grieve grimace grince grope grumble guarantee guide gurgle habilitate haggle handle harmonise hate have haze here hesitate hide hire hitchhike hope huddle hyperventilate hypnotise hypothesise hypothesize ignite ignore illuminate illustrate imagine imitate immerse immigrate immolate immunise impale impede implicate impose impregnate improve
+inaugurate incinerate incite incline include inconvenience increase incubate indicate indoctrinate induce indulge inflame inflate influence infuse inhale initiate injure inoculate inquire insinuate inspire instigate insulate insure integrate intercede interchange intercourse interrogate intervene intimidate intone intoxicate intrigue introduce intrude inundate invade investigate invite invoice invoke involve ionize irrigate irritate isolate issue jade jeapordize jibe jingle joke judge juggle juxtapose kindle lace lactate lapse lease leave lecture legitimise legitimize lie like line liquidate litigate live loathe locate lose love lowercase lubricate luminesce lure macerate magnetise magnetize make manage mangle manipulate manoeuvre manouvre manufacture marginalize marinate massacre massage masticate match-make mate materialise maximize measure meditate memorise menace migrate minace mine mingle miniaturise minimise miscalculate misguide misplace mistranslate mizzle mobilise moderate modernise modulate monopolise move muffle
+mutate mutilate narrate nationalise naturalize nauseate navigate negate negotiate nibble nominate normalize note notice nudge nurse obligate oblige observe ogle operate opine oppose organise organize originate oscillate overdrive overestimate override overtake overuse overwrite owe oxidize pace package paddle parade paralyse paralyze parasitise participate paste pasture pause pave peddle penetrate perceive perforate perfume perjure permute persecute persevere persuade philosophise phosphoresce phrase pickle pierce place
+plagiarise plague plane please plunge poise pollute popularise pose postpone postulate practice practise praise prance prate prattle precede prejudice prepare prescribe preserve preside presume presuppose probe procrastinate produce profane programme promenade promise promote pronounce propagate propose prosecute prostitute prove provide provoke prune publicise publicize pulsate pulverise pulvorize punctuate puncture purchase purge pursue puzzle quibble quote race radiate raise rake rape rate rattle ravage rave re-create re-educate realise reanimate rebate rebuke recalcitrate recalibrate recapture recede receive reciprocate recite recline recognise recognize recompile reconcile reconfigure reduce refine refuge refuse refute regulate rejoice rejuvenate relate release remove rename renounce renovate replace repose reproduce reprove repulse require rescue resemble reserve reside restore resume retire reunite reuse revenge revise
+revive revoke rewrite rhyme riddle ride ridicule rinse rise rouse rule rustle sabotage sacrifice saddle salivate salute satiate saturate save scale scare scheme scrape sculpture secede seclude secrete secure seduce see segregate seize sense sentence separate serve settle shackle shade shake shape share shave shine shoe shove shuffle silence silver-plate simulate size skate slice smile smite smoke smuggle snake sneeze snore snuffle solace solve soothe spade spare speculate spice spite sponge sprinkle squabble squeeze stage stagnate standardise state sterilise stimulate stipulate stoke store strangle stride strike stroke struggle stumble subdue subjugate submerge subordinate subscribe subside subsidise substitute
+suckle sue suffice suffocate suitable summarise supervise suppose surmise surprise survive swindle symbolise sympathize tackle take tame taste tease telephone terminate tickle tie tinkle tire title toddle toggle tolerate torture tousle trade translate transpose tremble trivialise trouble truncate tune tussle twine type tyrannise underestimate underline undermine undertake undulate unite untie update urge urinate use utilise vacate vaccinate validate vegetate ventilate venture vibrate victimise violate vitalize vote vulcanize wade waive wake wane wangle waste wave weave welcome wheedle whistle wipe wire wrangle wreathe wrestle wrinkle write writhe yoke}]
+
+   set eAdjVortoj [lsort -unique {wise large pure white stable unique safe strange positive alone vile base late polite rude ample wide active futile entire acute mere pale cute simple blue affine prude nice active sure native gentle fine stable huge close crude lame rare stale ripe mute nede fake rare sage safe stone whole grave loose awake single vague core}]
+
+   set sVortoj [lsort -unique {abacus abbas abbess abcess abscess abyss acanthus access acoustics acrobatics acropolis actress address adherents adulteress aegis aeneas aeronautics agaricus aids ailanthus airs albatross alias alms amaranthus amaryllis amends analogousness analysis angelus antichresis antisepsis antithesis antlers anus apophysis apotheosis apparatus appendicitis apsis aquarius arbutus archimedes archives areopagus ares arguments arrivals arteriosclerosis arthritis asbestos asepsis asparagus ass assets assumingness athletics atlas attractiveness augustus aurochs auspices authoress awareness axis bacillus bagpipes baldness balistics ballistics balminess banisters barbarousness baroness
+   barracks basis bass baubles beatus bed-clothes belles-lettres bellows berberis billiards binoculars birds bittercress bitterness blackness bleakness blindness bliss boldness bolus boss bourgeois brainless brains brass briefness briefs bronchitis bruges brussels bulwarks burnous bus business buttocks buttress by-laws cactus caduceus caius callus calmness cantharides canvas carelessness caress carlessness casualness celsius census cerberus chamois chaos chassis checkers cheeks cheops chess chimes chios cholecystitis chorus christmas chrysalis chymus cinders circus class cleanliness clematis clippings clitoris clothes-press clubs coals coattails coitus colchis colossus combinatorics comicalness
+   compass compress conciseness condolences confectioner's confucius congress conjunctivitis consciousness contents conures convolvulus corps correctness cosmos couch-grass covetousness crafts cress cretaceous crisis crocus cronus cross cumulus customs cuttings cypress damascus darkness debits debris deimos dermus desktops diabetes diaeresis diagnosis dialectics directions dirtiness disciples distress dizziness draughts drawers dregs dress drollness dross drunkenness dryness duchess dues dynamics eagerness easiness economics edelweiss effectiveness efforts electronics electrostatics ellipsis embers emphasis empirikus empress emptiness energetics environs ephesus epiglottis eros erysipelas esophagus ethics ethnos ethos euphrates exactness excess exegesis exodus expertness express fairgrounds favus fetus files fireworks firmness fitness flanders focus followers forceps forks fortress fungus funniness gaius galcis galois ganges gas gauss genesis genetics gengis genitals genius gentleness genus
+   gladness glass gloss goddess goodness governess gracefulness graphics grass greediness grounds guelders guess gymnastics hand-kiss handicrafts handlebars happiness hardness harness haughtiness hegumeness heights helpfulness hermes herpes hiatus hibiscus high-handedness highness highscores himalayas hippocrates hippopotamus holiness homesickness hops housedress humoursness humus hypnosis hypothesis iconostasis ideas idleness illness impatiens impetus incubus initials intellectuals interlinguistics intestines iris isthmus jaws jaxartes jeans jesus jewess kermis kindness kinematics kiss koumiss kumiss kvass laos laryngitis lass laundress laziness leanness leavings lens letters lias light-mindedness linguistics litmus logistics loneliness looking-glass loss lotus madness magus malines manners mantis marquis mars mass mathematics mattress mauritius means measles mechanics meddlesomeness meditations meekness megalopolis mellowness meninges meningitis menses mercifulness mess metamorphosis metaphysics metropolis mildness minutes miss mistress molasses morals mores moss mucus munitions mycosis nakedness
+   narcissus nastiness nautilus nearness nearsightedness nettles neurosis neurotics newness news nimbus ninepins nobleness noodles nucleus numismatics oasis oats octopus olympus omnibus open-mindedness orpheus outskirts overalls overbearingness oxus panties pants paralysis parenthesis paris parnassus pass pathos pelvis penis peremptoriness periphrasis pertussis pettiness pharmaceutics phobos phonetics phosphorus physics pincers pleasantness politeness politics powerlessness premises press princess proboscis process prognosis progress prospectus prosthesis provisions psychoanalysis psychosis pus pyjamas pyrosis pythagoras quietness rabies radius readiness recess records regulations relations relatives remissness rendezvous reparations resources restraints rhinoceros rhombus righteousness rightness rules sadness sagittarius savings scales scissors sclerosis seamstress seasickness selfishness semantics senselessness sergius series sharpness shorts silliness skilfulness skittles sleeplessness slothfulness small-mindedness socrates softness spades species specifications springs stachys stairs stanislaus statistics status stimulus strangeness stress stylus subconscious success succubus summons supplies
+   supporters surplus surroundings suspenders sweepings sweetness swiss syphilis tactics tagus tails talkativeness tantalus tenderness tennis terminus terms testis thales thanks thermos thesaurus thesis thickness this thoughtfulness tigris tongs tools topsides triteness tropics trousers truthfulness tuberculosis typhus ulysses underpants undershorts undress untidiness unwillingness uranus usefulness uterus venus vesuvius virus voluptuous wages waitress walrus wares watercress wilderness willingness windlass windlessness windows wireless witness wittiness womanliness worthiness wretchedness yaxartes yields zeus}]
+}
+EnTagger instproc initPVortoj {} {
+    my instvar vortetojArr
+    array set vortetojArr {
+you p
+and conj
+thou p
+beside prep
+near prep
+nearby prep
+at prep
+by prep
+one p
+everyone p
+they p
+also padv
+too padv
+moreover padv
+likewise padv
+the the
+than conj
+by prep
+beyond prep
+past prep
+except prep
+besides prep
+him p
+he p
+six num
+of prep
+through prep
+for prep
+because inter
+since inter
+as inter
+although inter
+though inter
+eight num
+seven num
+nor conj
+neither conj
+ten num
+minus conj
+hurrah ono
+hooray ono
+to prep
+toward prep
+towards prep
+more padv
+on padv
+further padv
+else padv
+not padv
+no padv
+already padv
+yet padv
+woe ono
+away padv
+from prep
+they p
+them p
+therefore padv
+so padv
+then padv
+upon prep
+on prep
+concerning prep
+about prep
+ah ono
+oh ono
+ha ono
+aha ono
+itself p
+herself p
+theirself p
+himself p
+despite prep
+it t
+if inter
+either inter
+whether inter
+behind prep
+after prep
+immediately padv
+I p
+me p
+shame ono
+well ono
+now ono
+zero num
+nought num
+itself padv
+herself padv
+self padv
+himself padv
+the padv
+with prep
+we p
+us p
+if inter
+oh ono
+whoa ono
+wow ono
+yikes ono
+yow ono
+even padv
+opposite prep
+against prep
+hundred num
+outside prep
+she p
+her p
+most padv
+till prep
+until prep
+today padv
+to-day padv
+upon prep
+at prep
+by prep
+on prep
+just padv
+surely padv
+indeed padv
+rather padv
+certainly padv
+over prep
+above prep
+in prep
+into prep
+within prep
+on prep
+per prep
+inside prep
+a the
+an the
+very padv
+quite padv
+across prep
+beyond prep
+plus conj
+but conj
+nevertheless padv
+but padv
+yet padv
+however padv
+exclusively padv
+just padv
+only padv
+yesterday padv
+almost padv
+nearly padv
+between prep
+among prep
+barely padv
+hardly padv
+scarcely padv
+beneath prep
+underneath prep
+below prep
+under prep
+about prep
+round prep
+towards prep
+around prep
+farewell ono
+good-bye ono
+bye ono
+whereas prep
+while prep
+during prep
+for prep
+yes padv
+nine num
+for prep
+per prep
+to prep
+from prep
+by prep
+of prep
+since prep
+five num
+with prep
+through prep
+by prep
+on prep
+thousand num
+both the
+still padv
+yet padv
+too padv
+now padv
+tomorrow padv
+before prep
+through prep
+more padv
+behold padv
+look padv
+there padv
+four num
+by prep
+at prep
+at prep
+beside prep
+with prep
+or conj
+three num
+on prep
+upon prep
+along prep
+by prep
+without prep
+soon padv
+that inter
+say ono
+hey ono
+two num
+eleven num
+twelve num
+thirteen num
+fourteen num
+fivteen num
+sixteen num
+seventeen num
+eighteen num
+nineteen num
+twenty num
+thirty num
+forty num
+fifty num
+sixty num
+seventy num
+eighty num
+ninety num
+hundred num
+thousand num
+which t
+who kor
+what kor
+where padv
+how padv
+whom kor
+whose padv
+there padv
+this t
+ago prep
+    }
+}
+EnTagger instproc initTagVortaro {} {
+    my instvar tagVortaro
+    array set tagVortaro {
+'re {v be}
+'m {v be}
+'d {v would}
+'ve {v have}
+cannot {v can not}
+isn't {v be not}
+aren't {v be not}
+wasn't {v be {not perf}}
+don't {v do not}
+doesn't {v do not}
+didn't {v do {not perf}}
+hasn't {v have not}
+haven't {v have not}
+can't {v can not}
+couldn't {v can {not perf}}
+weren't {v be {not perf}}
+hadn't {v have {not perf}}
+better {a good pli}
+best {a good plej}
+worse {a bad pli}
+worst {a bad plej}
+more {a many pli}
+most {a many plej}
+less {a little pli}
+least {a little plej}
+bigger {a big pli}
+biggest {a big plej}
+fatter {a fat pli}
+fattest {a fat plej}
+thinner {a thin pli}
+thinnest {a thin plej}
+men {n man pl}
+women {n woman pl}
+children {n child pl}
+these {t this pl}
+died {v die perf}
+need {v need {}}
+feed {v feed {}}
+many {a many pl}
+others {n other pl}
+loss {n loss}
+    }
+}
+EnTagger instproc initTagVortoj {} {
+    my instvar tagArr
+    array set tagArr {
+am be
+is be
+are be
+'s be
+'re be
+'m be
+'ve have
+been {be perf}
+was {be perf}
+were {be perf}
+has have
+had {have perf}
+did {do perf}
+done {do perf}
+does {do}
+putting put
+getting get
+swimming swim
+could {can perf}
+    }
+}
+EnTagger instproc metuTipoKajTag {elemento vorto tvorto} {
+    my instvar vortetojArr tagVortaro
+
+    if {$tvorto eq "?"} {
+        my metuTipoKajTagDeNekonata $elemento $vorto
+        return
+    }
+
+    set lvorto [string tolower $vorto]
+    if {[regexp {^[0-9\.,]+$} $vorto]} {
+        $elemento class En::Numeralo
+        $elemento set veraNombro $vorto
+        return
+    }
+    set tipo [lindex [split $tvorto .] 1]
+    set tags [list]
+    $elemento set tags $tags
+    if {$tipo eq ""} {
+        if {![catch {set vortetojArr($lvorto)} ntipo]} {
+            set klaso [my prenuKlasonPorTipo $ntipo]
+            if {$klaso ne ""} {
+                $elemento class $klaso
+            }
+        } else {
+            if {[my testuTagVortaro $elemento $lvorto]} {
+                return
+            }
+        }
+    } else {
+        # ofte "p" ne estas person pronomo sed prepozicio
+        # vidu frazo: Sometimes it takes many years for diseases to be found.
+        if {$tipo eq "p" && $lvorto ne "that"} {
+            if {![catch {set vortetojArr($lvorto)} ntipo]} {
+                set klaso [my prenuKlasonPorTipo $ntipo]
+                if {$klaso ne ""} {
+                    $elemento class $klaso
+                }
+                return
+            }
+            # I have read it 2 days ago.
+            if {[$elemento havasSimbolonLive ND]} {
+                set tipo n
+            }
+        }
+        set klaso [my prenuKlasonPorTipo $tipo]
+        if {$klaso ne ""} {
+            $elemento class $klaso
+        }
+        if {![my testuTagVortaro $elemento $lvorto]} {
+            if {$tipo eq "v" || $tipo eq "g"} {
+                set radiko [my trovuBazanFormonVerbo $lvorto tags]
+                $elemento set radiko $radiko
+            } elseif {$tipo eq "n"} {
+                set radiko [my trovuBazanFormonSubstantvo $lvorto tags]
+                $elemento set radiko $radiko
+            } elseif {$tipo eq "a"} {
+                set radiko [my trovuBazanFormonAdjektivo $lvorto tags]
+                $elemento set radiko $radiko
+            }
+        } else {
+            return
+        }
+    }
+    $elemento set tags $tags
+}
+EnTagger instproc metuTipoKajTagDeNekonata {elemento vorto} {
+    my instvar vortetojArr tagArr
+
+    set lvorto [string tolower $vorto]
+    if {![my testuTagVortaro $elemento $lvorto]} {
+        if {![catch {set vortetojArr($lvorto)} tipo]} {
+            set klaso [my prenuKlasonPorTipo $tipo]
+            if {$klaso ne ""} {
+                $elemento class $klaso
+            }
+        } else {
+            if {![catch {set tagArr($vorto)} radiko]} {
+                $elemento class [my prenuKlasonPorTipo v]
+                $elemento set tags [lrange $radiko 1 end]
+                $elemento set radiko [lindex $radiko 0]
+            } else {
+                set radiko [my trovuBazanFormonSubstantvo $lvorto tags]
+                if {$radiko ne $lvorto} {
+                    $elemento set radiko $radiko
+                } else {
+                    set radiko [my trovuBazanFormonVerbo $lvorto tags]
+                    $elemento set radiko $radiko
+                }
+            }
+        }
+    }
+}
+EnTagger instproc prenuKlasonPorTipo tipo {
+    my instvar tipoArr
+    if {![catch {set tipoArr($tipo)} klaso]} {
+        return $klaso
+    }
+    return
+}
+EnTagger instproc prenuRadikojn vorto {
+    if {[llength [my info children @elem]]==0} {
+        Object create [self]::@elem
+    }
+    my @elem set radiko ""
+    my metuTipoKajTagDeNekonata [my @elem] $vorto
+    if {[my @elem set radiko] ne ""} {
+        return [list [my @elem set radiko]]
+    } else {
+        return [list $vorto]
+    }
+}
+EnTagger instproc testuTagVortaro {elemento lvorto} {
+    my instvar tagVortaro
+
+    if {![catch {set tagVortaro($lvorto)} tipo]} {
+        set klaso [my prenuKlasonPorTipo [lindex $tipo 0]]
+        if {$klaso ne ""} {
+            $elemento class $klaso
+        }
+        $elemento set radiko [lindex $tipo 1]
+        $elemento set tags [lindex $tipo 2]
+        return 1
+    }
+    return 0
+}
+EnTagger instproc trovuBazanFormonAdjektivo {vorto tags_ref} {
+    my instvar tagArr radikilo eAdjVortoj
+    upvar $tags_ref tags
+
+
+    if {[string match *ier $vorto]} {
+        # happier -> happy
+        lappend tags pli
+        return [string range $vorto 0 end-3]y
+    } elseif {[string match *iest $vorto]} {
+        # looked -> look
+        lappend tags plej
+        return [string range $vorto 0 end-4]y
+    } elseif {[string match *er $vorto]} {
+        lappend tags pli
+        if {[lsearch -sorted $eAdjVortoj [set r [string range $vorto 0 end-1]]]>=0} {
+            return $r
+        }
+        return [string range $vorto 0 end-2]
+    } elseif {[string match *est $vorto]} {
+        lappend tags plej
+        if {[lsearch -sorted $eAdjVortoj [set r [string range $vorto 0 end-2]]]>=0} {
+            return $r
+        }
+        return [string range $vorto 0 end-3]
+    }
+    return $vorto
+}
+EnTagger instproc trovuBazanFormonSubstantvo {vorto tags_ref} {
+    upvar $tags_ref tags
+    my instvar sVortoj
+   if {[string match *ies $vorto]} {
+        # centries -> centry
+        lappend tags pl
+        return [string range $vorto 0 end-3]y
+   } elseif {[string match *s $vorto]} {
+        # bools -> book
+        # esceptoj: status
+        if {[lsearch -sorted $sVortoj $vorto]<0} {
+            lappend tags pl
+            return [string range $vorto 0 end-1]
+        }
+   }
+   return $vorto
+}
+EnTagger instproc trovuBazanFormonVerbo {vorto tags_ref} {
+    my instvar tagArr radikilo eVortoj
+    upvar $tags_ref tags
+
+    if {![catch {set tagArr($vorto)} desc]} {
+        if {[set tag [lindex $desc 1]] ne ""} {
+            lappend tags $tag
+        }
+        return [lindex $desc 0]
+    }
+
+    # tre malbona desegno !!!
+    $radikilo instvar radArr
+    if {![catch {set radArr($vorto)} desc]} {
+        lappend tags perf
+        return $desc
+    }
+
+    if {[string match *ied $vorto]} {
+        # worried -> worry
+        lappend tags perf
+        return [string range $vorto 0 end-3]y
+    } elseif {[string match *ed $vorto]} {
+        # looked -> look
+        lappend tags perf
+        if {[lsearch -sorted $eVortoj [set r [string range $vorto 0 end-1]]]>=0} {
+            return $r
+        }
+        return [string range $vorto 0 end-2]
+    } elseif {[string match *s $vorto]} {
+        return [string range $vorto 0 end-1]
+    } elseif {[string match *ing $vorto]} {
+        # working -> work
+        if {[lsearch -sorted $eVortoj [set r [string range $vorto 0 end-3]e]]>=0} {
+            return $r
+        }
+        return [string range $vorto 0 end-3]
+    }
+    return $vorto
+}
+EnTagger proc kreuPrimitavaVortoj {} {
+    set vortaro [DBVortaro prenuDepVortaron]
+    array set map {Nekonata ??? Konjunkcio conj Interjekcio inter Numeralo num Onomatopeo ono Prepozicio prep Subjunkcio sjun PersonPronomo p PosesivPronomo por PrimitivaAdjektivo padj PrimitivaAdverbo padv Difinilo the}
+    set rez ""
+    foreach p [Pronomo cxiojPronomoj] {
+        set tipo [$p prenuTypo]
+        set vorto [$p prenuRadiko]
+        foreach t [$vortaro sxercxuRezListo $vorto en] {
+            append rez "[list [dict get $t traduko]] $map($tipo)\n"
+        }
+    }
+    return $rez
+}
+EnTagger proc prenuTagger {} {
+    my instvar tagger
+    if {![info exists tagger] || ![Object isobject $tagger]} {
+        set tagger [EnTagger new]
+    }
+    return $tagger
+}
+Object EnFabriko
+@ ::EnFabriko idemeta component EspEnSintaksaAnalizo
+EnFabriko proc kreuFrazTraduko {name {type normal}} {
+    if {$type eq "-childof"} {
+        EnFrazTraduko new -childof $name
+    } else {
+        EnFrazTraduko create $name
+    }
+}
+EnFabriko proc kreuFrazo {name {type normal}} {
+    if {$type eq "-childof"} {
+        En::Frazo new -childof $name
+    } else {
+        En::Frazo create $name
+    }
+}
+EnFabriko proc kreuFrazoLegilo {name {type normal}} {
+    if {$type eq "-childof"} {
+        FrazoLegilo new -childof $name -mixin EnFrazoLegilo
+    } else {
+        FrazoLegilo create $name -mixin EnFrazoLegilo
+    }
+}
+EnFabriko proc kreuSintaksAnalizilo {name {type normal}} {
+    if {$type eq "-childof"} {
+        EnSintaksaAnalizo new -childof $name
+    } else {
+        EnSintaksaAnalizo create $name
+    }
+}
+EnFabriko proc prenuCelanLingvon {} {
+    return eo
+}
+EnFabriko proc prenuFontanLingvon {} {
+    return en
+}
+EnFabriko proc prenuTagger {} {
+    EnTagger prenuTagger
+}
+Object EnSkriptoObjekto
+@ ::EnSkriptoObjekto idemeta component EspEnSintaksaAnalizo
+EnSkriptoObjekto proc kreuListoDeMultTradukoj {} {
+    set out [open "eneo_mtradukoj.txt" w]
+    set vortaro [DBVortaro prenuDepVortaron]
+
+    set vortoj [list]
+    mk::loop c revodb.tradukojen {
+         set v [mk::get $c traduko]
+         if {[llength $v]>1} {
+             set derivo [mk::get revodb.derivoj![mk::get $c derivoid] vorto]
+             puts $out [list $v $derivo]
+         }
+    }
+    close $out
+}
+EnSkriptoObjekto proc prenuEVortoj {} {
+    set sql "select distinct t.traduko from traduko_en t,derivo d where t.derivoid=d.id and d.typo='verbo' and t.traduko like '%e' and t.traduko not like '% %' order by 1"
+
+    set connection [SQLDBVortaro getVortaroConnection]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+    set rez [list]
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por substantivoj}]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        update
+        lappend rez [lindex $row 0]
+        incr i
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$i/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+    }
+    $query destroy
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+   }
+    return $rez
+}
+EnSkriptoObjekto proc prenuSVortoj {} {
+    set sql "select distinct t.traduko from traduko_en t,derivo d where t.derivoid=d.id and d.typo='substantivo' and t.traduko like '%s' and t.traduko not like '% %' order by 1"
+
+    set connection [SQLDBVortaro getVortaroConnection]
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+    set rez [list]
+    set progreso [ProgresoMontrilo startProgress {sercxi fgrupoj por substantivoj}]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        update
+        lappend rez [lindex $row 0]
+        incr i
+        if {$progreso ne ""} {
+           $progreso setProgress [expr {round(100.0*$i/$rows)}]
+           if {[$progreso isStopped]} {
+               break
+           }
+        }
+    }
+    $query destroy
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+   }
+    return $rez
+}
+En initializeAfterLoad
+

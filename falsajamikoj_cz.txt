@@ -1,0 +1,25 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+absolvovat 	finstudi 	absolvi 	odpustit
+aféra 	skandalo 	afero 	záležitost
+ano 	jes 	ano 	člen
+kemp 	kampadejo 	kampo 	pole
+kur 	koko 	kuro 	běh
+levá 	maldekstra 	leva 	zdvihací
+meta 	celo 	meti 	umístit
+my 	ni 	mi 	já
+nacismus 	naziismo 	naciismo 	nacionalismus
+oni 	ili 	oni 	člověk, verbo + se
+pas 	pasporto 	paso 	plynutí
+patro 	etaĝo 	patro 	otec
+penzista 	pensiulo 	pensisto 	mudrlant
+pro 	por 	pro 	kvůli
+sen 	sonĝo 	sen 	bez
+starý 	maljuna, malnova 	stari 	stát
+tempo 	rapido, ritmo 	tempo 	čas
+trafika 	tabakvendejo 	trafiko 	doprava
+vir(us) 	viruso 	viro 	muž

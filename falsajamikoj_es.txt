@@ -1,0 +1,46 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+ano 	anuso 	ano 	miembro
+año 	jaro 	ano 	miembro
+billete 	monbileto 	bileto 	boleto
+carta 	letero 	(poŝt-) karto 	tarjeta (postal)
+dato 	datumo, dateno (informaĵo, fakto) 	dato 	fecha
+demandar 	postuli 	demandi 	preguntar
+cara 	vizaĝo 	kara 	querido
+cajero 	kasisto 	kajero 	cuaderno
+contento/a 	ĝoja 	kontenta 	satisfecho/a
+culo 	pugo, anuso 	kulo 	zancudo
+culpar 	kulpigi 	kulpi 	ser culpable
+churro 	benjeto 	ĉuro 	esperma
+enviar 	sendi 	envii 	envidiar
+falo 	peniso 	falo 	caída
+fecha 	dato 	feĉo 	heces, sedimento
+flaco 	maldikegulo 	flako 	charco
+gasto 	elspezo 	gasto 	huesped
+hombre 	homo, viro 	ombro 	sombra
+lado 	flanko 	lado 	lámina
+largo 	longa 	larĝa 	ancho
+liberar 	liberigi 	liberi 	ser libre
+logo 	emblemo, identiga bildo 	logo 	atractivo
+mirar 	rigardi 	miri 	extrañarse
+necesitar 	bezoni 	necesi 	ser necesario
+oveja 	ŝafo 	ovo 	huevo
+pena 	bedaŭro 	peno 	esfuerzo
+pene 	peniso 	peno 	esfuerzo
+postular 	kandidati 	postuli 	demandar
+presionar 	premi 	presi 	imprimir
+puta 	putino 	puto 	pozo
+rato 	tempo, dumo 	rato 	rata
+ratón 	muso 	rato 	rata
+reclamar 	plendi 	reklami 	anunciar, propagandear
+rostro 	vizaĝo 	rostro 	trompa
+saco (Sudameriko - Hispanio: chaqueta) 	jako 	sako 	costal (en Hispanio: saco)
+sed 	soifo 	sed 	pero
+sentir (lamentar) 	bedaŭri 	senti 	lamentar
+subir 	levi, leviĝi, supreniri 	subiri 	bajar
+tornillo 	ŝraŭbo 	tornistro 	mochila
+virus 	viruso 	viro 	hombre

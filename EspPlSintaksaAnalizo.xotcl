@@ -1,0 +1,4177 @@
+# automatically generated from XOTclIDE
+# script require component {EspBazaLingvo EspTradukilo}
+@ Component EspPlSintaksaAnalizo {
+description {Modulo por analizo de pola lingvo kaj tradukado al epseranta lingvo.
+La modulo dependas de '''fsatcl''', kiu estas programita en C.}
+}
+package provide EspPlSintaksaAnalizo 0.993
+package require EspBazaLingvo
+package require EspTradukilo
+Class PLTagger
+@ ::PLTagger idemeta component EspPlSintaksaAnalizo
+PLTagger instproc destroy {} {
+     my instvar fsa
+    catch { fsa::close $fsa}
+    next
+}
+PLTagger instproc init {} {
+    my instvar gramMap trans fsa
+    array set gramMap {subst Substantivo verb Verbo adj Adjektivo adv Adverbo num Numeralo adja Adjektivo adjp Adjektivo depr Substantivo ppron3 PersonPronomo ppron12 PersonPronomo ppas Adjektivo pact Adjektivo pant Adverbo pcon Adverbo qub PrimitivaAdverbo prep Prepozicio indecl PrimitivaAdverbo conj Interjekcio pred Predikativo}
+    array set trans {ze z we w ode od beze bez przede przed}
+
+    package require fsatcl 2.00
+    #fsa::init [file native [file join [EsperantoConf prenuVortaroDosierujo] polish.08.05.2007.dict]] iso8859-2
+    set fsa [fsa::init [file native [file join [EsperantoConf prenuVortaroDosierujo] pl.dict]] iso8859-2]
+}
+PLTagger instproc prenuGramElemento {vorto parenco} {
+    my instvar trans
+    set tvorto [string tolower $vorto]
+    # ze -> z
+    if {![catch {set trans($tvorto)} r]} {
+       set vorto $r
+    }
+    set tag [my prenuTag $vorto]
+    if {[lindex $tag 1] eq "" && $tvorto ne $vorto} {
+        set tag [my prenuTag $tvorto]
+    }
+    if {[llength $tag]==2} {
+        set radiko [lindex $tag 0]
+        if {![catch {set trans($radiko)} r]} {
+            set radiko $r
+        }
+        set tags [split [lindex $tag 1] :]
+        lassign $tags gram g1 g2 g3 g4
+        if {$gram eq "refl verb"} {
+            set gram verb
+        }
+        set klaso [my prenuKlasonPorTag $gram]
+        set obj [$klaso new -childof $parenco -vorto $vorto -radiko $radiko]
+        $obj rekonuGramatikon [lindex $tag 1]
+        return $obj
+    } elseif {[llength $tag]>1} {
+        set obj [Pl::NeCerta new -childof $parenco -vorto $vorto]
+        $obj set fulltag $tag
+        return $obj
+    } else {
+        Pl::Nekonata new -childof $parenco -vorto $vorto
+    }
+}
+PLTagger instproc prenuKlasonPorTag tipotag {
+    my instvar gramMap
+    if {[catch {set nom $gramMap($tipotag)}]} {
+        set nom Nekonata
+    }
+    return Pl::$nom
+}
+PLTagger instproc prenuRadikojn vorto {
+    my instvar fsa
+    set ret [list]
+    foreach l [fsa::morph $fsa $vorto] {
+        set er [split $l +]
+        lappend ret [lindex $er 0]
+    }
+    return $ret
+}
+PLTagger instproc prenuTag vorto {
+     my instvar fsa
+    set ret [list]
+    foreach l [fsa::morph $fsa $vorto] {
+        set er [split $l +]
+        lappend ret [lindex $er 0] [lrange $er 1 end]
+    }
+    return $ret
+}
+PLTagger proc konvertTagsToDict fulltag {
+    set dtag [list]
+    foreach t $fulltag {
+        set d [dict create]
+        set tl [split $t :]
+        set tipo [lindex $tl 0]
+        if {$tipo eq "adj" || $tipo eq "subst" || $tipo eq "ppron3" || $tipo eq "ppron12"} {
+            dict set d tipo $tipo
+            if {[lindex $tl 1] eq "ger"} {
+                foreach {tipo ger nombro kazo genro persono neg} $tl break
+                dict set d stipo ger
+            } else {
+                foreach {tipo nombro kazo genro persono neg} $tl break
+            }
+            dict set d nombro $nombro
+            if {$tipo eq "adj"} {
+                dict set d neg $neg
+            }
+            foreach k [split $kazo .] {
+                dict lappend d kazo $k
+            }
+            # por adjektivoj
+            foreach k [split $genro .] {
+                dict lappend d genro $k
+            }
+            if {$persono ne ""} {
+                if {$tipo eq "subst"} {
+                    dict set d persono $persono
+                } else {
+                    dict set d stupo $persono
+                }
+            }
+        } elseif {$tipo eq "verb"} {
+            foreach {tipo tempo nombro persono genro aspekto} $tl {
+                dict set d tipo $tipo
+                dict set d tempo $tempo
+                dict set d nombro $nombro
+                dict set d persono $persono
+                if {$tempo eq "impt"} {
+                    dict set d aspekto $genro
+                } else {
+                    foreach k [split $genro .] {
+                        dict lappend d genro $k
+                    }
+                    dict set d aspekto $aspekto
+                }
+                break
+            }
+        } elseif {$tipo eq "prep"} {
+            dict set d tipo $tipo
+            set vl [split [lindex $tl 1] .]
+            if {[llength $vl]==1} {
+                set vl [lindex $tl 1]
+            }
+            dict set d kazo $vl
+        } elseif {$tipo eq "num"} {
+            foreach {tipo nombro kazo genro} $tl {
+                dict set d tipo $tipo
+                dict set d nombro $nombro
+                foreach k [split $kazo .] {
+                    dict lappend d kazo $k
+                }
+                # por adjektivoj
+                foreach k [split $genro .] {
+                    dict lappend d genro $k
+                }
+                break
+            }
+        } else {
+            dict set d tipo $tipo
+            set num 1
+            foreach v [lrange $tl 1 end] {
+                set vl [split $v .]
+                if {[llength $vl]==1} {
+                    dict set d v$num $v
+                } else {
+                    dict set d v$num $vl
+                }
+                incr num
+            }
+        }
+        lappend dtag $d
+    }
+    return $dtag
+}
+PLTagger proc prenuTagger {} {
+    my instvar tagger
+    if {![info exists tagger] || ![Object isobject $tagger]} {
+        set tagger [PLTagger new]
+    }
+    return $tagger
+}
+Object Pl
+@ ::Pl idemeta component EspPlSintaksaAnalizo
+Pl proc initializeAfterLoad {} {
+    if {$::tcl_version == 8.4} {
+        package require dict
+    }
+}
+Class Pl::Elemento -superclass ::NaciaElemento
+@ ::Pl::Elemento idemeta component EspPlSintaksaAnalizo
+Pl::Elemento instproc disambigui {} {
+}
+Pl::Elemento instproc disambiguiTagojn {pre post radiko} {
+}
+Pl::Elemento instproc distinguDifinilon frazo {
+    next
+}
+Pl::Elemento instproc distinguGramatikon frazo {
+    next
+}
+Pl::Elemento instproc estasPluralo {} {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d nombro] && [dict get $d nombro] eq "pl"} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::Elemento instproc estasRadikoj vortoj {
+    my instvar radiko
+    expr {[lsearch -exact $vortoj $radiko]>=0}
+}
+Pl::Elemento instproc estasSingularo {} {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d nombro] && [dict get $d nombro] eq "sg"} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::Elemento instproc estasUnuaGrandSkribita {} {
+    my instvar vorto
+    expr {[string is alpha [string index $vorto 0]] && [string is upper [string index $vorto 0]] && [string is lower [string range $vorto 1 end]]}
+}
+Pl::Elemento instproc filterTags ftag {
+    my instvar dtag
+    if {![info exists dtag]} {
+        return
+    }
+    set mdtag [list]
+    set tagnomoj [dict keys $ftag]
+    foreach d $dtag {
+        if {[dict exists [set u [iloj::unifyDict $d $ftag $tagnomoj]] [lindex $tagnomoj 0]]} {
+            dict for {k v} $u {
+                dict set d $k $v
+            }
+            lappend mdtag $d
+        }
+    }
+    if {[llength $mdtag]>0} {
+        set dtag $mdtag
+    }
+}
+Pl::Elemento instproc havasAktivanTradukon {} {
+    my instvar traduko
+    expr {[$traduko parenco] ne ""}
+}
+Pl::Elemento instproc havasKazon kazo {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d kazo] && [lsearch [dict get $d kazo] $kazo]>=0} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::Elemento instproc havasTipojn tipoj {
+    return 0
+}
+Pl::Elemento instproc havasTipon tipo {
+    my instvar dtag
+    foreach t $dtag {
+        if {[dict get $t tipo] eq $tipo} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::Elemento instproc havasUnuDeTipon tipoj {
+    foreach t $tipoj {
+        if {[my havasTipon $t]} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::Elemento instproc prenuLingvon {} {
+    return pl
+}
+Pl::Elemento instproc prenuNombron {} {
+    if {[my estasPluralo]} {
+        return pluralo
+    }
+    return singularo
+}
+Pl::Elemento instproc puriguDTag {} {
+    my instvar dtag
+    dict for {id key} $dtag {
+        if {[llength $key]>1} {
+            dict set dtag $id [lsort -unique $key]
+        }
+    }
+}
+Pl::Elemento instproc rekonuGramatikon ttag {
+    my instvar tag dtag
+    set tag $ttag
+    set dtag [PLTagger konvertTagsToDict $ttag]
+    next
+}
+Pl::Elemento instproc trovuMainAston {} {
+    my trovuUnuanPerenconKiu par {[$par hasclass PlSAsto::main]}
+}
+Pl::Elemento proc unifyElementojTags {elem1 elem2 tagnomoj} {
+    set mdtag [list]
+    set adtag [list]
+    if {![$elem2 exists dtag]} {
+        return
+    }
+    foreach d [$elem1 set dtag] {
+        foreach ad [$elem2 set dtag] {
+            set dc $d
+            if {[dict exists [set u [iloj::unifyDict $d $ad $tagnomoj]] [lindex $tagnomoj 0]]} {
+                dict for {k v} $u {
+                    dict set dc $k $v
+                    dict set ad $k $v
+                }
+                if {[lsearch $mdtag $dc]<0} {
+                    lappend mdtag $dc
+                }
+                if {[lsearch $adtag $ad]<0} {
+                    lappend adtag $ad
+                }
+            }
+        }
+    }
+    if {[llength $mdtag]>0} {
+        $elem1 set dtag $mdtag
+        $elem2 set dtag $adtag
+    }
+}
+Class Pl::NombroKazoGenro -parameter {nombro kazo genro}
+@ ::Pl::NombroKazoGenro idemeta component EspPlSintaksaAnalizo
+Pl::NombroKazoGenro instproc distinguDifinilon frazo {
+    my instvar nombro kazo tag polaKazo dtag
+
+    set nombro ""
+    set kazo ""
+    set polaKazo ""
+
+    # tie nur senduba kazo
+    if {[my havasKazon acc] && ![my havasKazon nom]} {
+        set kazo n
+    } elseif {[my havasKazon inst]} {
+        # instrumentalo -> per ...
+        set polaKazo N
+    } elseif {[my havasKazon dat]} {
+        # dativo -> al ...
+        set polaKazo D
+    }
+    if {[my estasPluralo]} {
+        set nombro j
+    }
+}
+Pl::NombroKazoGenro instproc distinguGramatikon frazo {
+    my instvar tag traduko kazo parenco nombro
+    if {[my havasKazon dat]} {
+        # dativo - komu? czemu?
+        set ae [my prenuAntauxElemento]
+        my aliguMerkmalon dativo
+        if {$ae eq "" || (![$ae havasMerkmalon dativo] && ![$ae istype Pl::Prepozicio])} {
+            set p [my info parent]
+            set al [GP::Prepozicio new -childof $p -vorto al -radiko Radiko::al -funkcio parto -mixin EspTradukoMix]
+            [$traduko parenco] tausxuAstojMultaj $traduko [list $al $traduko]
+        }
+    } elseif {[my havasKazon inst] && ![my istype Pl::PersonPronomo]} {
+        # instrumentalo - kim? czym?
+        set ae [my prenuAntauxElemento]
+        my aliguMerkmalon instrumentalo
+        if {$ae eq "" || (![$ae havasMerkmalon instrumentalo] && ![$ae istype Pl::Prepozicio])} {
+            # ja jestem programistą
+            set rad [$parenco prenuRadiko]
+            if {$rad ne "" && [$rad istype Pl::Verbo] && [$rad estasRadikoj {być zostać}]} {
+                return
+            }
+            set p [my info parent]
+            set al [GP::Prepozicio new -childof $p -vorto per -radiko Radiko::per -funkcio parto -mixin EspTradukoMix]
+            [$traduko parenco] tausxuAstojMultaj $traduko [list $al $traduko]
+        }
+    } elseif {[my havasKazon gen] && ![my istype Pl::PersonPronomo]} {
+        # dativo - kogo? czego?
+        # pensu pri "Ja nie widze komputera"
+        # Ja nie mam żadnego samochodu.
+        # Ja nie mam dobrego samochodu.
+        set ae [my prenuAntauxElemento]
+        set kazo ""
+        if {$ae ne "" && [$ae istype Pl::Substantivo] && ![$ae istype Pl::PersonPronomo] && ![$ae havasMerkmalon genetivo]} {
+            # ... kot ojca
+            my aliguMerkmalon genetivo
+            set p [my info parent]
+            set al [GP::Prepozicio new -childof $p -vorto de -radiko Radiko::de -funkcio parto -mixin EspTradukoMix]
+            [$traduko parenco] tausxuAstojMultaj $traduko [list $al $traduko]
+        } elseif {$ae ne "" && [$ae istype Pl::Prepozicio]} {
+            #set kazo n
+            #my aliguMerkmalon prepakuz
+        } elseif {$ae ne "" && [$ae havasMerkmalon prepakuz]} {
+            set kazo n
+            my aliguMerkmalon prepakuz
+        } elseif {$ae ne "" && [$ae havasMerkmalon numacc]} {
+            set kazo n
+            my aliguMerkmalon numacc
+        } elseif {$ae ne "" && [$ae havasMerkmalon numnom]} {
+            my filterTags {kazo gen}
+            my aliguMerkmalon numnom
+        } elseif {$ae ne "" && [$ae havasMerkmalon genetivo]} {
+            my filterTags {kazo gen}
+            my aliguMerkmalon genetivo
+        } else {
+            # my aliguMerkmalon genetivo
+            # Ja nie mam żadnego samochodu.
+            set rad [[my trovuMainAston] prenuRadiko]
+            if {$rad ne "" && [$rad havasMerkmalon neg]} {
+                my filterTags {kazo gen}
+                set kazo n
+            } elseif {[my havasKazon acc] && [my istype Pl::Substantivo]} {
+                # Studenci czytają książki
+                my filterTags {kazo acc}
+                set kazo n
+                #my halt
+            }
+            
+        }
+        if {$kazo eq ""} {
+            my filterTags {kazo gen}
+        }
+    } elseif {[my havasKazon acc] && ![my havasKazon nom]} {
+        set ae [my prenuAntauxElemento]
+        if {$ae ne "" && ([$ae istype Pl::Prepozicio] || [$ae havasMerkmalon noacc])} {
+            # On wierzy w Boga , On wierzy w wszechmogacego Boga.
+            my aliguMerkmalon noacc
+            set kazo ""
+        } else {
+            set kazo n
+        }
+    }
+    if {[my estasPluralo]} {
+        set nombro j
+    } else {
+        set nombro ""
+    }
+}
+Pl::NombroKazoGenro instproc faruAkuzativo {} {
+    my instvar traduko nombro kazo
+    set kazo n
+    if {[$traduko exists vorto] && [string index [$traduko vorto] end] ne "n"} {
+        $traduko vorto [$traduko vorto]n
+    }
+    set se [my prenuSekvaElemento]
+    if {$se ne "" && [$se istype Pl::NombroKazoGenro]} {
+        $se faruAkuzativo
+    }
+}
+Pl::NombroKazoGenro instproc rekonuGramatikon ttag {
+    my instvar nombro kazo tag polaKazo dtag radiko
+
+    set nombro ""
+    set kazo ""
+    set polaKazo ""
+
+    # tie nur senduba kazo
+    if {[string first :acc: $ttag]>=0} {
+        set kazo n
+    } elseif {[string first :inst: $ttag]>=0} {
+        # instrumentalo -> per ...
+        set polaKazo N
+    } elseif {[string first :dat: $ttag]>=0} {
+        # dativo -> al ...
+        set polaKazo D
+    }
+}
+Pl::NombroKazoGenro instproc traduku vortaro {
+    my tradukuFinilon
+}
+Pl::NombroKazoGenro instproc tradukuFinilon {} {
+    my instvar traduko nombro kazo
+    if {![$traduko cxuSenTraduko]} {
+        set bazaTraduko [$traduko set bazaTraduko]
+        # wiele -> multajn
+        if {[string index $bazaTraduko end] eq "j"} {
+            set nombro ""
+        }
+        $traduko vorto ${bazaTraduko}${nombro}${kazo}
+    }
+}
+Class Pl::Adjektivo -superclass {::Pl::Elemento ::Pl::NombroKazoGenro}
+@ ::Pl::Adjektivo idemeta component EspPlSintaksaAnalizo
+Pl::Adjektivo instproc disambiguiTagojn {pre post radiko} {
+    # książka jest interesująca
+    if {[my havasKazon nom] &&
+        ($pre eq "" || ![$pre istype Pl::Substantivo]) &&
+        ($post eq "" || ![$post istype Pl::Substantivo])} {
+            if {$radiko ne "" && [$radiko estasRadikoj być] && [$radiko exists subj]} {
+                Pl::Elemento unifyElementojTags [self] [$radiko set subj] {nombro kazo}
+            }
+    }
+}
+Pl::Adjektivo instproc distinguDifinilon frazo {
+    my instvar traduko radiko
+    if {[my estasKomperativo]} {
+        set p [my info parent]
+        set al [GP::PrimitivaAdverbo new -childof $p -vorto pli -radiko Radiko::pli -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $al $traduko]
+        set radiko [PolaFleksio prenuBasanAdjDeComp $radiko]
+        my aliguMerkmalon komperativo
+    } elseif {[my estasSuperlativo]} {
+        set p [my info parent]
+        set al1 [GP::Difinilo new -childof $p -vorto la -radiko Radiko::la -funkcio parto -mixin EspTradukoMix]
+        set al2 [GP::PrimitivaAdverbo new -childof $p -vorto plej -radiko Radiko::plej -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $al1 $al2 $traduko]
+        if {[string range $radiko 0 2] eq "naj"} {
+            set radiko [PolaFleksio prenuBasanAdjDeComp [string range $radiko 3 end]]
+        }
+        my aliguMerkmalon superlativo
+    }
+    next
+}
+Pl::Adjektivo instproc distinguGramatikon frazo {
+    my instvar vorto traduko radiko
+    if {$radiko eq "który" && [my havasKazon gen]} {
+        set se [my prenuSekvaElemento]
+        if {$se ne "" && [$se istype Pl::Substantivo] && ![$se havasKazon gen]} {
+            my aliguMerkmalon kies
+            my filterTags {kazo gen}
+            return
+        }
+    }
+    next
+}
+Pl::Adjektivo instproc estasKomperativo {} {
+    my instvar tag
+    expr {[string first comp $tag]>=0}
+}
+Pl::Adjektivo instproc estasSuperlativo {} {
+    my instvar tag
+    expr {[string first sup $tag]>=0}
+}
+Pl::Adjektivo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    if {$vtipo ne "a"} {
+        set espvortaro [Vortaro prenuVortaron]
+        if {![$espvortaro estasVorteto $traduko]} {
+            set rordo 101
+        }
+    }
+    return $rordo
+}
+Pl::Adjektivo instproc rekonuGramatikon ttag {
+    next
+    my instvar tag
+    if {[string first pact: $tag]>=0} {
+        # im. czynny
+        my mixin add Pl::Participo
+        my tempo anta
+    } elseif {[string first ppas: $tag]>=0} {
+        # im. bierny
+        my mixin add Pl::Participo
+        my tempo ata
+    }
+}
+Pl::Adjektivo instproc traduku vortaro {
+    my instvar traduko radiko
+    if {$radiko eq "jeden" && ![$traduko exists bazaTraduko]} {
+        $traduko set vorto unu
+    } elseif {[my havasMerkmalon kies] && ![$traduko exists bazaTraduko]} {
+        $traduko set vorto kies
+    } else {
+        next
+    }
+}
+Class Pl::Adverbo -superclass ::Pl::Elemento
+@ ::Pl::Adverbo idemeta component EspPlSintaksaAnalizo
+Pl::Adverbo instproc distinguDifinilon frazo {
+    my instvar traduko radiko
+    if {[my estasKomperativo]} {
+        set p [my info parent]
+        set al [GP::PrimitivaAdverbo new -childof $p -vorto pli -radiko Radiko::pli -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $al $traduko]
+        set radiko [PolaFleksio prenuBasanAdjDeComp $radiko]
+        my aliguMerkmalon komperativo
+    } elseif {[my estasSuperlativo]} {
+        set p [my info parent]
+        set al1 [GP::Difinilo new -childof $p -vorto la -radiko Radiko::la -funkcio parto -mixin EspTradukoMix]
+        set al2 [GP::PrimitivaAdverbo new -childof $p -vorto plej -radiko Radiko::plej -funkcio parto -mixin EspTradukoMix]
+        [$traduko parenco] tausxuAstojMultaj $traduko [list $al1 $al2 $traduko]
+        if {[string range $radiko 0 2] eq "naj"} {
+            set radiko [PolaFleksio prenuBasanAdjDeComp [string range $radiko 3 end]]
+        }
+        my aliguMerkmalon superlativo
+    }
+}
+Pl::Adverbo instproc estasKomperativo {} {
+    my instvar tag
+    expr {[string first comp $tag]>=0}
+}
+Pl::Adverbo instproc estasSuperlativo {} {
+    my instvar tag
+    expr {[string first sup $tag]>=0}
+}
+Pl::Adverbo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    if {$vtipo ne "e"} {
+        set rordo 101
+    }
+    return $rordo
+}
+Pl::Adverbo instproc procName args {
+    next
+    my instvar tag
+    if {[string first pant: $tag]>=0} {
+        # im. czynny
+        my mixin add Pl::Participo
+        my tempo ante
+    } elseif {[string first pcon: $tag]>=0} {
+        # im. bierny
+        my mixin add Pl::Participo
+        my tempo inte
+    }
+}
+Pl::Adverbo instproc traduku vortaro {
+    my instvar traduko radiko vorto
+    next
+    set t [$traduko set vorto]
+    if {[string index $t end] eq "a"} {
+        $traduko vorto [string range $t 0 end-1]e
+    }
+    # niedobrze
+    if {[string range $vorto 0 2] eq "nie" && [string range $radiko 0 2] ne "nie"} {
+        set t [$traduko set vorto]
+        $traduko vorto "ne $t"
+    }
+}
+Class Pl::PrimitivaElemento -superclass ::Pl::Elemento
+@ ::Pl::PrimitivaElemento idemeta component EspPlSintaksaAnalizo
+Pl::PrimitivaElemento instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    set espvortaro [Vortaro prenuVortaron]
+    if {![$espvortaro estasVorteto $traduko]} {
+        set rordo 101
+    }
+    return $rordo
+}
+Class Pl::Difinilo -superclass ::Pl::PrimitivaElemento
+@ ::Pl::Difinilo idemeta component EspPlSintaksaAnalizo
+Class Pl::Frazo -parameter {elementoj sintaksoarbo}
+@ ::Pl::Frazo idemeta component EspPlSintaksaAnalizo
+Pl::Frazo instproc aliguKonstanto {vorto {arto konstanto} {komenco 0} {fino 0}} {
+    my lappend elementoj [Pl::Konstanto new -childof [self] [list -vorto $vorto] [list -arto konstanto] [list -komenco $komenco] [list -fino $fino]]
+}
+Pl::Frazo instproc aliguNekonatan {tvorto komenco fino} {
+    my instvar elementoj havasNekonataj
+    set havasNekonataj 1
+    my aliguTypo Nekonata $tvorto $komenco $fino
+}
+Pl::Frazo instproc aliguTestuVorto {vortaro tvorto {komenco 0} {fino 0}} {
+    my instvar elementoj havasNekonataj tagger
+    set vorto [string tolower $tvorto]
+    if {[string is punct $vorto]} {
+        my aliguTypo Simbolo $tvorto $komenco $fino
+        set rez 4
+    } elseif {[string index $vorto end] eq "."} {
+        my aliguKonstanto $vorto mallongigo $komenco $fino
+        set rez 4
+    } elseif {[llength $tvorto]>1} {
+        # aux - speciala du elementa vorto {nomo Artur}
+        my aliguKonstanto [lrange $tvorto 1 end] [lindex $tvorto 0] $komenco $fino
+        set rez 4
+    } elseif {[string length $tvorto]<=4 && [string length $tvorto]>1 && [string toupper $tvorto] eq $tvorto && ![string is digit $tvorto]} {
+        # ebla akronimo - ILEI, UEA, KD, ...
+        my aliguKonstanto $tvorto akronimo $komenco $fino
+        set rez 4
+    } elseif {[string is double $tvorto]} {
+        set obj [my aliguTypo Numeralo $vorto $komenco $fino]
+        $obj set veraNombro $tvorto
+        set rez 4
+    } else {
+        set elem [$tagger prenuGramElemento $tvorto [self]]
+        $elem komenco $komenco
+        $elem fino $fino
+        lappend elementoj $elem
+        set rez 2
+    }
+    return $rez
+}
+Pl::Frazo instproc aliguTypo {typo vorto {komenco 0} {fino 0}} {
+    set typo [Pl::$typo new -childof [self] [list -vorto $vorto] [list -komenco $komenco] [list -fino $fino]]
+    my lappend elementoj $typo
+    return $typo
+}
+Pl::Frazo instproc aliguVorto {vorto rez vortaro} {
+    my instvar elementoj
+    if {[string length $vorto]==1 && [string is punct $vorto]} {
+        lappend elementoj [Pl::Simbolo new -childof [self] [list -vorto $vorto]]
+    } else {
+        if {$rez==2} {
+            lappend elementoj [$vortaro prenuGramElemento [self] $vorto]
+        } else {
+            lappend elementoj [::Pl::Nekonata new -childof [self] [list -vorto $vorto]]
+        }
+    }
+}
+Pl::Frazo instproc asDOM doc {
+    set elem [$doc createElement frazo]
+    if {[my exists sintaksoarbo]} {
+        set tekstoNode [$doc createElement teksto]
+        $tekstoNode appendChild [$doc createTextNode [my prenuTeksto]]
+        $elem appendChild $tekstoNode
+        set sintakso [$doc createElement sintakso]
+        $elem appendChild $sintakso
+        foreach e [my sintaksoarbo] {
+            $sintakso appendChild [$e asDOM $doc]
+        }
+    } else {
+        foreach e [my elementoj] {
+            $elem appendChild [$e asDOM $doc]
+        }
+    }
+    return $elem
+}
+Pl::Frazo instproc asXML {} {
+    set docu [dom createDocument frazoj]
+    set elem [my asDOM $docu]
+    [$docu documentElement] appendChild $elem
+    set text [$elem asXML]
+    $docu delete
+    return $text
+}
+Pl::Frazo instproc drawGraph {} {
+    [my set sintaksoarbo] drawGraph
+}
+Pl::Frazo instproc havasNekonataj {} {
+    my instvar havasNekonataj
+    expr {[info exists havasNekonataj] && $havasNekonataj}
+}
+Pl::Frazo instproc init args {
+    next
+    my instvar tagger
+    set tagger [PLTagger prenuTagger]
+}
+Pl::Frazo instproc leguFrazon {vortaro frazo} {
+    set elem [list]
+    set i 0
+    foreach vorto $frazo {
+        my aliguTestuVorto "" $vorto $i $i
+        incr i
+    }
+}
+Pl::Frazo instproc leguFrazonPerLegilo frazo {
+    set legilo [FrazoLegilo newOn $frazo]
+    $legilo komencuFrazon
+    for {set vorto [$legilo prenuSVorton]} {$vorto ne ""} {set vorto [$legilo prenuSVorton]} {
+        set komenco [[$legilo signoLegilo] vortkomenco]
+        set fino [[$legilo signoLegilo] kursoro]
+        my aliguTestuVorto "" $vorto $komenco $fino
+
+    }
+    $legilo destroy
+}
+Pl::Frazo instproc prenuListon {} {
+    if {[my exists sintaksoarbo]} {
+        [my sintaksoarbo] prenuListon
+    } else {
+        return
+    }
+}
+Pl::Frazo instproc prenuSimboloj {} {
+    set ret [list]
+    foreach e [my elementoj] {
+        lappend ret [$e prenuSimbolo]
+    }
+    return $ret
+}
+Pl::Frazo instproc prenuTeksto {} {
+    set teksto ""
+    if {[my exists elementoj]} {
+        foreach e [my elementoj] {
+            set vorto [$e vorto]
+            append teksto [esp::prenuSeparatilon $vorto]
+            append teksto $vorto
+        }
+    }
+    return $teksto
+}
+Pl::Frazo instproc traduku {} {
+    my instvar sintaksoarbo frazTraduko
+    set frazTraduko [PlFrazTraduko new -childof [self] -sintaksradiko $sintaksoarbo]
+    $frazTraduko traduku
+    $frazTraduko set tradukasto
+}
+Pl::Frazo instproc transVorto vorto {
+    my instvar transArr
+    if {[info exists transArr([string tolower $vorto])]} {
+        if {[string tolower $vorto] eq $vorto} {
+            return $transArr($vorto)
+        } else {
+            return [esp::grandskribi $transArr([string tolower $vorto])]
+        }
+    } else {
+        return $vorto
+    }
+}
+Class Pl::Partikolo -superclass ::Pl::PrimitivaElemento
+@ ::Pl::Partikolo idemeta component EspPlSintaksaAnalizo
+Class Pl::Konjunkcio -superclass ::Pl::Partikolo
+@ ::Pl::Konjunkcio idemeta component EspPlSintaksaAnalizo
+Class Pl::Interjekcio -superclass ::Pl::Konjunkcio
+@ ::Pl::Interjekcio idemeta component EspPlSintaksaAnalizo
+Pl::Interjekcio instproc disambiguiTagojn {pre post rad} {
+   my instvar radiko
+   if {$radiko eq "niż" && $post ne ""} {
+        $post filterTags {kazo nom}
+   }
+}
+Class Pl::Konstanto -superclass ::Pl::Elemento -parameter arto
+@ ::Pl::Konstanto idemeta component EspPlSintaksaAnalizo
+Class Pl::NeCerta -superclass ::Pl::Elemento
+@ ::Pl::NeCerta idemeta component EspPlSintaksaAnalizo
+Pl::NeCerta instproc certigu {} {
+    my instvar fulltag
+    foreach {radiko tag} $fulltag {
+        if {[Pl::NeCerta estasStandardRadiko $radiko]} {
+            my certiguTag [list $radiko $tag]
+            return
+        }
+    }
+    # trovu konatajn tradukojn
+    if {[llength $fulltag]>2} {
+        set vortaro [DBVortaro prenuDepVortaron]
+        foreach {radiko tag} $fulltag {
+            set rez [$vortaro sxercxuRezListoPorTraduko $radiko pl]
+            if {[llength $rez]>0} {
+                my certiguTag [list $radiko $tag]
+                return
+            }
+        }
+    }
+    my certiguTag [lrange $fulltag 0 1]
+}
+Pl::NeCerta instproc certiguTag tags {
+    my instvar radiko
+    set radiko [lindex $tags 0]
+    set tags [lindex $tags 1]
+    foreach {gram g1 g2 g3 g4} [split $tags :] break
+    my class [[PLTagger prenuTagger] prenuKlasonPorTag $gram]
+    my rekonuGramatikon $tags
+}
+Pl::NeCerta instproc disambigui {} {
+    my instvar vorto fulltag
+    set stipo [Pl::NeCerta prenuStandartSenco $vorto]
+    if {$stipo ne "" && [my havasTipon $stipo]} {
+        my certiguTag [my prenuUnuanKunTipo $stipo]
+        return
+    }
+    # samtempe adjektivo kaj substantivo
+    # kocie domy są wielkie. on mówił o kocie.
+    # adjektivo bezonas najbaran substantivon.
+    if {[my havasTipojn {subst adj}] || [my havasTipojn {adj ppron3}]} {
+        set ae [my prenuAntauxElemento]
+        set se [my prenuSekvaElemento]
+        if {($ae ne "" && [$ae istype Pl::Substantivo]) || ($se ne "" && ([$se istype Pl::Substantivo] || [$se istype Pl::Adjektivo] || ([$se istype Pl::NeCerta] && [$se havasUnuDeTipon {subst adj}])))} {
+            # ! fulltag ne enhavas nun orginajn markilojn
+            set fulltag [my prenuKunTipo adj]
+        } else {
+            if {[my havasTipon subst]} {
+                set fulltag [my prenuKunTipo subst]
+            } else {
+                set fulltag [my prenuKunTipo ppron3]
+            }
+        }
+    }
+    # kilka komputerow , kilka dobrych komputerow
+    if {[my havasTipojn {subst num}]} {
+        set se [my prenuSekvaElemento]
+        if {$se ne "" && ([$se istype Pl::Substantivo] || [$se istype Pl::Adjektivo] || ([$se istype Pl::NeCerta] && [$se havasUnuDeTipon {subst adj}]))} {
+            # ! fulltag ne enhavas nun orginajn markilojn
+            set fulltag [my prenuKunTipo num]
+        } else {
+            set fulltag [my prenuKunTipo subst]
+        }
+    }
+    # ona wie wiele
+    if {[my havasTipojn {adv num}]} {
+        set se [my prenuSekvaElemento]
+        if {$se ne "" && ([$se istype Pl::Substantivo] || [$se istype Pl::Adjektivo] || ([$se istype Pl::NeCerta] && [$se havasUnuDeTipon {subst adj}]))} {
+            # ! fulltag ne enhavas nun orginajn markilojn
+            set fulltag [my prenuKunTipo num]
+        } else {
+            set fulltag [my prenuKunTipo adv]
+        }
+    }
+    # on musi to robić
+    if {[my havasTipojn {verb adj}]} {
+        # !!! to do
+        set fulltag [my prenuKunTipo verb]
+    }
+    # list - radiko estas list aux lista.
+    # ten list
+    if {[llength $fulltag]>2 && [my havasNurTipon subst]} {
+        set ae [my prenuAntauxElemento]
+        if {$ae ne "" && [$ae istype Pl::Adjektivo]} {
+            set mtags [list]
+            set dtags [$ae set dtag]
+            foreach {rad tag} $fulltag {
+                set mdj [PLTagger konvertTagsToDict $tag]
+                foreach d $dtags {
+                    foreach md $mdj {
+                        if {[iloj::estasDictKonvenaj $md $d {kazo genro nombro}]} {
+                            lappend mtags $rad $tag
+                        }
+                    }
+                }
+            }
+            if {[llength $mtags]>0} {
+                set fulltag $mtags
+            }
+        }
+    }
+    my certigu
+}
+Pl::NeCerta instproc havasNurTipon tipo {
+    my instvar fulltag
+    foreach {rad tag} $fulltag {
+        set mtipo [lindex [split $tag :] 0]
+        if {$mtipo ne $tipo} {
+            return 0
+        }
+    }
+    return 1
+}
+Pl::NeCerta instproc havasTipojn tipoj {
+    foreach t $tipoj {
+        if {![my havasTipon $t]} {
+            return 0
+        }
+    }
+    return 1
+}
+Pl::NeCerta instproc havasTipon tipo {
+    my instvar fulltag
+    foreach {rad tag} $fulltag {
+        set mtipo [lindex [split $tag :] 0]
+        if {$mtipo eq $tipo} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::NeCerta instproc havasUnuDeTipon tipoj {
+    foreach t $tipoj {
+        if {[my havasTipon $t]} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::NeCerta instproc prenuKunTipo tipo {
+    my instvar fulltag
+    set rez [list]
+    foreach {rad tag} $fulltag {
+        set mtipo [lindex [split $tag :] 0]
+        if {$mtipo eq $tipo} {
+            lappend rez $rad $tag
+        }
+    }
+    return $rez
+}
+Pl::NeCerta instproc prenuUnuanKunTipo tipo {
+    my instvar fulltag
+    foreach {rad tag} $fulltag {
+        set mtipo [lindex [split $tag :] 0]
+        if {$mtipo eq $tipo} {
+            return [list $rad $tag]
+        }
+    }
+    return
+}
+Pl::NeCerta proc estasStandardRadiko vorto {
+    expr {[lsearch {jaki kot miasto działać cel nie pić} $vorto]>=0}
+}
+Pl::NeCerta proc initializeAfterLoad {} {
+    my instvar standartSenco
+    array set standartSenco {bez prep nie indecl czy conj niż conj od prep przez prep mnie ppron12 tam indecl można pred warto pred wolno pred należy pred lecz conj albo conj zbyt qub}
+}
+Pl::NeCerta proc prenuStandartSenco vorto {
+    my instvar standartSenco
+    if {[catch {set standartSenco([string tolower $vorto])} rez]} {
+        return
+    }
+    return $rez
+}
+Class Pl::Nekonata -superclass ::Pl::Elemento
+@ ::Pl::Nekonata idemeta component EspPlSintaksaAnalizo
+Class Pl::Numeralo -superclass ::Pl::Partikolo
+@ ::Pl::Numeralo idemeta component EspPlSintaksaAnalizo
+Pl::Numeralo instproc disambiguiTagojn {pre post aradiko} {
+    my instvar dtag radiko
+
+    # testu cxu kazo estas nominativo, do cxu tio estas kongrua kun verbo
+    if {$aradiko ne "" && [$aradiko istype Pl::Verbo] && [info exists dtag]} {
+        set mdtag [list]
+        set estasNom 0
+        foreach d $dtag {
+            set td $d
+            if {[dict exists $d kazo] && [lsearch [dict get $d kazo] nom]>=0} {
+                dict set td persono ter
+                foreach ad [$aradiko set dtag] {
+                    if {(![$aradiko havasMerkmalon subj] && [dict exists [set u [iloj::unifyDict $ad [dict create nombro sg persono ter] {nombro persono}]] nombro]) || $estasNom} {
+                        $aradiko aliguMerkmalon subj
+                        $aradiko set subj [self]
+                        set estasNom 1
+                        dict set td kazo nom
+                        lappend mdtag $td
+                        my aliguMerkmalon numnom
+                    } else {
+                        if {[llength [set kazoj [dict get $d kazo]]]>1} {
+                            ide::lremove kazoj nom
+                            dict set td kazo $kazoj
+                            lappend mdtag $td
+                        }
+                        if {[lsearch $kazoj acc]>=0} {
+                            my aliguMerkmalon numacc
+                        }
+                    }
+                    break
+                }
+            } elseif {!$estasNom} {
+                lappend mdtag $td
+            }
+        }
+        if {[llength $mdtag]>0} {
+            set dtag $mdtag
+        }
+    }
+
+    if {[info exists radiko] && ($radiko eq "wiele" || $radiko eq "kilka" || $radiko eq "dużo")} {
+        my class Pl::Adjektivo
+        my aliguMerkmalon adjnum
+        if {[my havasKazon acc]} {
+            my aliguMerkmalon numacc
+        }
+    }
+}
+Pl::Numeralo instproc traduku vortaro {
+    my instvar veraNombro traduko radiko
+    if {[info exists veraNombro] && $veraNombro ne ""} {
+        $traduko vorto $veraNombro
+    } else {
+        next
+        if {[$traduko cxuSenTraduko]} {
+            set trad {jedenaście dwanaście trzynaście czternaście piętnaście szesnaście siedemnaście osiemnaście dziewiętnaście dwadzieścia dwadzieścia trzydzieści czterdzieści pięćdziesiąt sześćdziesiąt siedemdziesiąt osiemdziesiąt dziewięćdziesiąt sto dwieście trzysta czterysta pięćset sześćset siedemset osiemset dziewięćset tysiąc}
+            if {[set num [lsearch $trad $radiko]]>=0} {
+                set tradt {{dek unu} {dek du} {dek tri} {dek kvar} {dek kvin}
+                           {dek ses} {dek sep} {dek ok} {dek naŭ}
+                           dudek tridek kvardek kvindek sesdek sepdek okdek naŭdek
+                           cent ducent tricent kvarcent kvindek sesdek sepdek okdek naŭdek mil}
+                set t [lindex $tradt $num]
+                $traduko set bazaTraduko $t
+                $traduko set vorto $t
+                $traduko set senTraduko 0
+            }
+        }
+    }
+}
+Class Pl::Onomatopeo -superclass ::Pl::Partikolo
+@ ::Pl::Onomatopeo idemeta component EspPlSintaksaAnalizo
+Class Pl::Participo -parameter tempo
+@ ::Pl::Participo idemeta component EspPlSintaksaAnalizo
+Pl::Participo instproc prenuSimbolo {} {
+    return "[next]-PARTZ"
+}
+Pl::Participo instproc traduku vortaro {
+    my instvar traduko tempo gramatiko
+    if {[my bazaTraduko $vortaro]} {
+        set bazaTraduko [$traduko vorto]
+        $traduko set bazaTraduko $bazaTraduko
+        # Kot został znaleziony
+        if {[lsearch $gramatiko dk]>=0} {
+            set tempo i[string range $tempo 1 end]
+        }
+        $traduko vorto [string range $bazaTraduko 0 end-1]$tempo
+        if {[my hasclass Pl::NombroKazoGenro]} {
+            my instvar kazo nombro
+            set v [$traduko vorto]
+            append v $kazo$nombro
+            $traduko vorto $v
+        }
+    }
+}
+Class Pl::Substantivo -superclass {::Pl::Elemento ::Pl::NombroKazoGenro}
+@ ::Pl::Substantivo idemeta component EspPlSintaksaAnalizo
+Pl::Substantivo instproc bazaTraduko vortaro {
+    my instvar tag traduko
+    set rez [next]
+    if {$rez && [my estasVerbDevena]} {
+        $traduko set bazaTraduko [string range [$traduko set bazaTraduko] 0 end-1]o
+    }
+    return $rez
+}
+Pl::Substantivo instproc disambiguiTagojn {pre post radiko} {
+    my instvar dtag
+    if {[llength $dtag]==0} return
+    if {$pre ne "" && [$pre istype Pl::Adjektivo]} {
+        set a $pre
+    } elseif {$post ne "" && [$post istype Pl::Adjektivo]} {
+        set a $post
+    } else {
+        set a ""
+    }
+    # Stol jest wyzszy niz wysokie krzeslo
+
+    if {$a ne ""} {
+        Pl::Elemento unifyElementojTags [self] $a {nombro kazo genro}
+        set aa [$a prenuAntauxElemento]
+        if {$aa ne "" && [$aa istype Pl::Adjektivo]} {
+            Pl::Elemento unifyElementojTags [self] $aa {nombro kazo genro}
+
+        }
+    }
+    # testu cxu kazo estas nominativo, do cxu tio estas kongrua kun verbo
+    if {$radiko ne "" && [$radiko istype Pl::Verbo]} {
+        set mdtag [list]
+        set estasNom 0
+        foreach dd $dtag {
+            if {[dict exists $dd kazo] && [lsearch [dict get $dd kazo] nom]>=0} {
+                set d $dd
+                set td $d
+                dict set td persono [my prenuPersonon]
+                foreach ad [$radiko set dtag] {
+                    if {(![$radiko havasMerkmalon subj] && [iloj::estasDictKonvenaj $td $ad {nombro persono}]) || $estasNom} {
+                        $radiko aliguMerkmalon subj
+                        $radiko set subj [self]
+                        set estasNom 1
+                        dict set d kazo nom
+                        lappend mdtag $d
+                    } else {
+                        # To jest młotek.
+                        if {[$radiko radiko] eq "być"} {
+                            dict set d kazo nom
+                            lappend mdtag $d
+                        } else {
+                             if {[llength [set kazoj [dict get $d kazo]]]>1} {
+                                ide::lremove kazoj nom
+                                dict set d kazo $kazoj
+                                lappend mdtag $d
+                            } else {
+                                #lappend mdtag $d
+                            }
+                        }
+                    }
+                    break
+                }
+            } elseif {!$estasNom} {
+                lappend mdtag $dd
+            }
+        }
+        if {[llength $mdtag]>0} {
+            set dtag $mdtag
+        }
+    }
+    # tagoj de najbara adjektivo devus esti kongruaj al tagoj de substativo
+    if {$a ne ""} {
+        Pl::Elemento unifyElementojTags [self] $a {nombro kazo genro}
+        set aa [$a prenuAntauxElemento]
+        if {$aa ne "" && [$aa istype Pl::Adjektivo]} {
+            Pl::Elemento unifyElementojTags [self] $aa {nombro kazo genro}
+        }
+    }
+}
+Pl::Substantivo instproc distinguDifinilon frazo {
+    my instvar radiko
+    if {[lsearch {ten} $radiko]>=0} {
+        my class Pl::SubstTabloVorto
+    }
+    next
+}
+Pl::Substantivo instproc estasVerbDevena {} {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d stipo] && [dict get $d stipo] eq "ger"} {
+            return 1
+        }
+    }
+    return 0
+}
+Pl::Substantivo instproc prenuBazanFormon {} {
+    my instvar radiko traduko vorto
+    if {[info exists radiko]} {
+        if {[my havasMerkmalon igxi]} {
+            set trad "$radiko się"
+        } else {
+            set trad $radiko
+        }
+    } else {
+        set trad $vorto
+    }
+    return $trad
+}
+Pl::Substantivo instproc prenuPersonon {} {
+    return ter
+}
+Pl::Substantivo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    set rordo $ordo
+    if {[my havasMerkmalon speak]} {
+        if {$vtipo ne "a"} {
+            set rordo 101
+        }
+    } elseif {$vtipo ne "o" && $vtipo ne "oj"} {
+        set rordo 101
+    }
+
+    return $rordo
+}
+Pl::Substantivo instproc rekonuGramatikon ttag {
+    my instvar nombro kazo tag polaKazo dtag radiko vorto
+
+    next
+
+    # fall back bacause morfologik has to many errors
+
+    if 0 {
+    set dtag [PLSkriptoObjekto kreuTagsPorSubstantivo $radiko [string tolower $vorto]]
+    if {[llength $dtag]==0} {
+        foreach t $tag {
+            set d [dict create]
+            foreach {typo nombro kazo genro persono} [split $t :] {
+                dict set d typo $typo
+                dict set d nombro $nombro
+                foreach k [split $kazo .] {
+                    dict lappend d kazo $k
+                }
+                # por adjektivoj
+                foreach k [split $genro .] {
+                    dict lappend d genro $k
+                }
+                if {$persono ne ""} {
+                    dict set d persono $persono
+                }
+                break
+            }
+            lappend dtag $d
+        }
+    }
+    }
+
+    set nombro ""
+    set kazo ""
+    set polaKazo ""
+
+    # tie nur senduba kazo
+    if {[my havasKazon acc]} {
+        set kazo n
+    }
+    if {[my estasPluralo]} {
+        set nombro j
+    }
+}
+Class Pl::PersonPronomo -superclass ::Pl::Substantivo
+@ ::Pl::PersonPronomo idemeta component EspPlSintaksaAnalizo
+Pl::PersonPronomo instproc prenuPersonon {} {
+    my instvar dtag
+    foreach d $dtag {
+        if {[dict exists $d persono]} {
+            return [dict get $d persono]
+        }
+    }
+    return ter
+}
+Pl::PersonPronomo instproc prenuROrdo {traduko ordo} {
+    return $ordo
+}
+Pl::PersonPronomo instproc traduku vortaro {
+    my instvar traduko kazo dtag radiko
+    set tag [lindex $dtag 0]
+    if {[dict exists $tag tipo] && [dict get $tag tipo] eq "ppron3"} {
+        if {[dict get $tag nombro] eq "pl"} {
+            set bazaTraduko ili
+        } else {
+            if {[dict get $tag genro] eq "f"} {
+                set bazaTraduko ŝi
+            } elseif {[dict get $tag genro] eq "n"} {
+                set bazaTraduko ĝi
+            } else {
+                if {$radiko eq "się"} {
+                    set bazaTraduko si
+                } else {
+                    set bazaTraduko li
+                }
+            }
+        }
+        $traduko set bazaTraduko $bazaTraduko
+        $traduko vorto ${bazaTraduko}${kazo}
+    } elseif {[my bazaTraduko $vortaro]} {
+        set bazaTraduko [$traduko vorto]
+        $traduko set bazaTraduko $bazaTraduko
+        $traduko vorto ${bazaTraduko}${kazo}
+    }
+}
+Class Pl::Pronomo -superclass ::Pl::PrimitivaElemento
+@ ::Pl::Pronomo idemeta component EspPlSintaksaAnalizo
+Class Pl::PosesivPronomo -superclass {::Pl::Pronomo ::Pl::NombroKazoGenro}
+@ ::Pl::PosesivPronomo idemeta component EspPlSintaksaAnalizo
+Pl::PosesivPronomo instproc traduku vortaro {
+    my instvar traduko kazo
+    if {[my bazaTraduko $vortaro]} {
+        set bazaTraduko [$traduko set bazaTraduko]
+        $traduko vorto ${bazaTraduko}${kazo}
+    }
+}
+@ Class Pl::Predikativo {
+description {pola predikativo estas speciala verbo sen fleksio: trzeba, należy, można, wolno, warto}
+}
+Class Pl::Predikativo -superclass ::Pl::Elemento
+@ ::Pl::Predikativo idemeta component EspPlSintaksaAnalizo
+Pl::Predikativo instproc distinguDifinilon frazo {
+   my instvar tempo
+   set ae [my prenuSekvaElemento]
+   set tempo as
+   if {$ae ne "" && [$ae istype Pl::Verbo]} {
+       if {[$ae estasVorto było]} {
+           set tempo is
+           [$ae set traduko] foriguDeParenco
+       } elseif {[$ae estasVorto będzie]} {
+           set tempo os
+           [$ae set traduko] foriguDeParenco
+       }
+   }
+}
+Pl::Predikativo instproc traduku vortaro {
+    my instvar vorto traduko tempo
+
+    switch -- [string tolower $vorto] {
+        można {
+            $traduko set vorto "oni pov$tempo"
+        }
+        trzeba {
+            $traduko set vorto "oni dev$tempo"
+        }
+        default {
+            next
+        }
+    }
+}
+Class Pl::Prepozicio -superclass ::Pl::Partikolo
+@ ::Pl::Prepozicio idemeta component EspPlSintaksaAnalizo
+Pl::Prepozicio instproc bazaTraduko vortaro {
+    my instvar radiko traduko dtag
+    if {$radiko eq "z" && ![$traduko exists bazaTraduko]} {
+        if {[lsearch [dict get [lindex $dtag 0] kazo] inst]>=0} {
+            $traduko set vorto kun
+        } else {
+            $traduko set vorto el
+        }
+        return 1
+    } elseif {$radiko eq "za" && ![$traduko exists bazaTraduko]} {
+        if {[lsearch [dict get [lindex $dtag 0] kazo] inst]>=0} {
+            # Garaż jest za domem.
+            $traduko set vorto malantaŭ
+        } else {
+            set se [my prenuSekvaElemento]
+            # Program jest za drogi.
+            if {$se ne "" && ([$se istype Pl::Adjektivo] || [$se istype Pl::Adverbo])} {
+                $traduko set vorto tro
+            } else {
+                $traduko set vorto por
+            }
+        }
+        return 1
+    } else {
+        next
+    }
+}
+Pl::Prepozicio instproc disambiguiTagojn {pre post radiko} {
+    if {$post ne ""} {
+        Pl::Elemento unifyElementojTags [self] $post kazo
+    }
+}
+Pl::Prepozicio instproc distinguGramatikon frazo {
+    my instvar radiko traduko
+    if {$radiko eq "od"} {
+        # szybszy od wiatru -> pli rapida ol vintro
+        set a [my prenuAntauxElemento]
+        if {$a ne "" && ([$a istype Pl::Adjektivo] || [$a istype Pl::Adverbo]) && [$a estasKomperativo]} {
+            $traduko set bazaTraduko ol
+            return
+        }
+    }
+    next
+}
+Pl::Prepozicio instproc rekonuGramatikon ttag {
+    my instvar tag dtag
+    next
+    set dtag [PLTagger konvertTagsToDict $tag]
+}
+Class Pl::PrimitivaAdverbo -superclass ::Pl::PrimitivaElemento
+@ ::Pl::PrimitivaAdverbo idemeta component EspPlSintaksaAnalizo
+Pl::PrimitivaAdverbo instproc distinguDifinilon frazo {
+    my instvar vorto traduko parenco
+    if {[string tolower $vorto] eq "się"} {
+        set ae [my prenuAntauxElemento]
+        if {$ae ne "" && [$ae istype Pl::Verbo]} {
+            $ae aliguMerkmalon igxi
+            $traduko foriguDeParenco
+        } else {
+            set se [my prenuSekvaElemento]
+            if {$se ne "" && [$se istype Pl::Verbo]} {
+                $se aliguMerkmalon igxi
+                $traduko foriguDeParenco
+            } elseif {$ae ne "" && [$ae istype Pl::Substantivo] && [$ae estasVerbDevena]} {
+                $ae aliguMerkmalon igxi
+                $traduko foriguDeParenco
+            }
+        }
+    } elseif {[string tolower $vorto] eq "nie"} {
+        set se [my prenuSekvaElemento]
+        if {$se ne ""} {
+            $se aliguMerkmalon neg
+        }
+        if {[$se istype Pl::Verbo] && [$se funkcio] eq "radiko"} {
+            set listo {żaden nigdy nigdzie nic donikąd ani}
+            # forigu duopan nenigon
+            foreach e [$parenco astoj] {
+                if {[lsearch $listo [$e prenuBazanFormon]]>=0} {
+                    $traduko foriguDeParenco
+                    break
+                }
+            }
+        }
+    }
+}
+Class Pl::Simbolo -superclass ::Pl::Elemento
+@ ::Pl::Simbolo idemeta component EspPlSintaksaAnalizo
+Pl::Simbolo instproc traduku vortaro {
+    my instvar traduko vorto
+    $traduko vorto $vorto
+}
+Class Pl::Subjunkcio -superclass ::Pl::Partikolo
+@ ::Pl::Subjunkcio idemeta component EspPlSintaksaAnalizo
+Class Pl::SubstTabloVorto -superclass ::Pl::Substantivo
+@ ::Pl::SubstTabloVorto idemeta component EspPlSintaksaAnalizo
+Pl::SubstTabloVorto instproc bazaTraduko vortaro {
+    my instvar tag traduko dtag radiko
+    if {$radiko eq "ten"} {
+        if {[dict get [lindex $dtag 0] genro] eq "n"} {
+            $traduko vorto tio
+            return 1
+        } else {
+            next
+        }
+    } else {
+        next
+    }
+}
+Class Pl::TabloVorto -superclass ::Pl::PrimitivaElemento
+@ ::Pl::TabloVorto idemeta component EspPlSintaksaAnalizo
+Class Pl::Verbo -superclass ::Pl::Elemento -parameter {tempo persono genro aspekto}
+@ ::Pl::Verbo idemeta component EspPlSintaksaAnalizo
+Pl::Verbo instproc bazaTraduko vortaro {
+    my instvar radiko traduko gramatiko fgrupo
+    if {$radiko eq "zostać"} {
+        set selem [my prenuSekvaElemento]
+        if {$selem ne "" && [$selem hasclass Pl::Participo]} {
+            $traduko set vorto esti
+            $traduko set bazaTraduko esti
+            set gramatiko ""
+            set fgrupo ""
+            return 1
+        }
+    }
+    next
+}
+Pl::Verbo instproc distinguDifinilon frazo {
+    my instvar tag traduko parenco tempo
+    set nombro [my prenuNombron]
+    set persono [my prenuPersonon]
+    # aligu personpronomon (subjekton) se gxi ne ekzistas cxe verboj: jestem, jestes, jestescie
+    if {($persono==1 || $persono==2 && $tempo ne "u") || $tempo eq "oniis"} {
+        if {$persono==1 && $nombro eq "singularo"} {
+            set v mi
+        } elseif {$persono==1 && $nombro eq "pluralo"} {
+            set v ni
+        } elseif {$persono==2} {
+            set v vi
+        } elseif {$tempo eq "oniis"} {
+            set v oni
+        }
+        # eble la personpronomo ekzistas - ekz: Ja jestem dobry.
+        set trovita 0
+        if {$tempo ne "oniis"} {
+            foreach a [$parenco astoj] {
+                if {[$a istype Pl::PersonPronomo] && [$a prenuNombron] eq $nombro && [$a havasKazon nom]} {
+                    set trovita 1
+                    break
+                }
+            }
+        }
+        if {!$trovita} {
+            set p [my info parent]
+            set al [GP::Pronomo new -childof $p -vorto $v -radiko Radiko::$v -funkcio parto -mixin EspTradukoMix]
+            set ae [my prenuAntauxElemento]
+            if {$ae ne "" && [$ae estasVorto nie] && [$ae havasAktivanTradukon]} {
+               set aet [$ae set traduko]
+               [$traduko parenco] tausxuAstojMultaj $aet [list $al $aet]
+            } else {
+               [$traduko parenco] tausxuAstojMultaj $traduko [list $al $traduko]
+            }
+
+        }
+    }
+    # venonta tempo - bedzie
+    if {$tempo eq "i" || $tempo eq "is"} {
+        set ae [my prenuAntauxElemento]
+        if {$ae ne "" && [$ae istype Pl::Verbo] && [string first :bedzie: [$ae set tag]]>=0} {
+            set tempo os
+            [$ae set traduko] foriguDeParenco
+        }
+    }
+}
+Pl::Verbo instproc konvertuPrepoziciojn disk {
+    my instvar parenco
+    set pola [lindex $disk 1 0]
+    set esp [lindex $disk 0]
+    if {$esp eq "A"} {
+        set esp ""
+    }
+    # TODO ne cxiuj prepozicioj povus esti gravaj por tio
+    foreach p [$parenco astoj] {
+        if {[$p istype Pl::Prepozicio] && [$p radiko] eq $pola && ![$p havasMerkmalon mvtraduko]} {
+            if {$esp eq ""} {
+                [$p traduko] set vorto $esp
+                [$p traduko] foriguDeParenco
+                if {[lindex $disk 0] eq "A"} {
+                    set se [$p prenuSekvaElemento]
+                    if {$se ne "" && [$se istype Pl::NombroKazoGenro]} {
+                        $se faruAkuzativo
+                    }
+                }
+                break
+            } else {
+                [$p traduko] set vorto $esp
+                $p mixin add ETFiksaMix
+                break
+            }
+        }
+    }
+}
+Pl::Verbo instproc prenuBazanFormon {} {
+    set rez [next]
+    if {[my havasMerkmalon igxi]} {
+        append rez " się"
+    }
+    return $rez
+}
+Pl::Verbo instproc prenuPersonon {} {
+    my instvar tag
+    if {[string first pri $tag]>=0} {
+        return 1
+    } elseif {[string first sec $tag]>=0} {
+        return 2
+    }
+    return 3
+}
+Pl::Verbo instproc prenuROrdo {traduko ordo} {
+    set vtipo [string index $traduko end]
+
+    if {$vtipo ne "i"} {
+        set rordo 101
+    } else {
+        set rordo $ordo
+    }
+
+    return $rordo
+}
+Pl::Verbo instproc rekonuGramatikon ttag {
+    my instvar tempo tag dtag
+    next
+    set tempo as
+    if {[string first :bedzie: $tag]>=0} {
+        set tempo os
+    } elseif {[string first :fin: $tag]>=0} {
+        set tempo as
+    } elseif {[string first :impt: $tag]>=0} {
+        set tempo u
+    } elseif {[string first :inf: $tag]>=0} {
+        set tempo i
+    } elseif {[string first :aglt: $tag]>=0} {
+        set tempo us
+    } elseif {[string first :praet: $tag]>=0} {
+        set tempo is
+    } elseif {[string first :imps $tag]>=0} {
+        set tempo oniis
+    }
+    if {[string first imperf $tag]>=0} {
+        my aliguMerkmalon imperf
+    }
+}
+Pl::Verbo instproc traduku vortaro {
+    next
+    my tradukuFinilon
+}
+Pl::Verbo instproc tradukuFinilon {} {
+    my instvar traduko tempo radiko fgrupo gramatiko
+    if {![$traduko cxuSenTraduko]} {
+        if {![my havasMerkmalon imperf] && $tempo eq "as" && [lsearch $gramatiko dk]>=0} {
+            set etempo os
+        } else {
+            set etempo $tempo
+        }
+        if {$tempo eq "oniis"} {
+            set etempo is
+        }
+        set bazaTraduko [$traduko set bazaTraduko]
+        $traduko vorto [string range $bazaTraduko 0 end-1]$etempo
+    } elseif {[my havasMerkmalon igxi]} {
+        # kun "się" estis ne trovita, provu sen "się" kaj aldoni auxtomate "igx"
+        set vortaro [DBVortaro prenuDepVortaron]
+        set rez [$vortaro sxercxuRezListoPorTraduko $radiko pl]
+        # !!! problemo kun filtrado kaj ordigo de rezultoj: vidu bazaTraduko
+        if {[llength $rez]>0} {
+            foreach r $rez {
+                array set attrArr $r
+                $traduko vorto $attrArr(vorto)
+                set gramatiko $attrArr(gramatiko)
+                set fgrupo $attrArr(fgrupo)
+                if {![my havasMerkmalon imperf] && $tempo eq "as" && [lsearch $gramatiko dk]>=0} {
+                    set etempo os
+                } else {
+                    set etempo $tempo
+                }
+                if {$tempo eq "oniis"} {
+                    set etempo is
+                }
+                set bazaTraduko [$traduko vorto]
+                $traduko set bazaTraduko $bazaTraduko
+                $traduko vorto [string range $bazaTraduko 0 end-1]iĝ$etempo
+            }
+        }
+    }
+    if {![$traduko cxuSenTraduko] && $gramatiko ne ""} {
+        foreach g $gramatiko {
+            if {[llength $g]==2} {
+                my konvertuPrepoziciojn $g
+            }
+        }
+    }
+}
+Class PlFrazTraduko -parameter {sintaksradiko elementoj lingvo}
+@ ::PlFrazTraduko idemeta component EspPlSintaksaAnalizo
+PlFrazTraduko instproc drawGraph {} {
+    my instvar tradukasto
+    SintaksCanvasGraf drawTradukGraph $tradukasto [[my sintaksradiko] prenuVortoj]
+}
+PlFrazTraduko instproc init args {
+    my instvar vortaro
+    DBVortaro prenuDepVortaron
+    set vortaro [VortarojAro]
+}
+PlFrazTraduko instproc konstruuVortoGrupoj tradukilo {
+    my instvar sintaksradiko
+    # la metodo grupigas vortoj je orignala elemento
+    # la grupo estas la sekvo de vortoj, kiujn ne estas speciale dispartigita
+    # ekzemple por html: La <i>unua libro</i> estas grava.
+    # rezultas tri grupoj {La} {unua libro} {estas grava .}
+    # tiu helpas konstrui tradukmemorojn aux ebligas duone auxtomatan tradukon.
+    # la strukturo estas listo kun komenco, fino de grupo, orignaj elementoj, tradukal elementoj, tradukaj vortoj
+    # list $komenco $fino $orignajElementoj $tradukElementoj $tradukVortoj
+    if {[my exists vortoGrupoj]} {
+        # interaktiva traduko povas cxangxi tion
+        # ekzemple : mana traduko (normale oni ne uzu la variablon kaj memoro)
+        return [my set vortoGrupoj]
+    }
+    set segNombro 0
+    set vortoGrupoj [list]
+    set origina [list]
+    set oElementoj [list]
+    set tradukoj [list]
+    set tradukojElementoj [list]
+    set gKomenco ""
+    set gFino ""
+    set vortoGrupoj [my konstruuVortoGrupojOrgina $tradukilo]
+    set segNombro [expr {[llength $vortoGrupoj]/5}]
+
+    # nur unu grupo, do tio estas facxila tasko
+    if {$segNombro==1} {
+        set tradukoj [list]
+        set tradukElementoj [list]
+        foreach e [my prenuFoliojn] {
+            lappend tradukoj [$e prenuTradukon]
+            lappend tradukojElementoj $e
+        }
+        lset vortoGrupoj 3 $tradukojElementoj
+        lset vortoGrupoj 4 $tradukoj
+        return $vortoGrupoj
+    }
+    set indeksoj [list]
+    set tradukoj [list]
+    set tradukojElementoj [list]
+    set oElementoj [list]
+    foreach e [my prenuFoliojn] {
+        set oElemento [$e prenuOriginanElementon]
+        if {$oElemento ne ""} {
+            lappend oElementoj $oElemento
+        } else {
+            lappend origina {}
+        }
+        lappend tradukoj [$e prenuTradukon]
+        lappend tradukojElementoj $e
+        if {$oElemento eq ""} {
+            lappend indeksoj ""
+        }
+        set id 0
+        # trovu grupo por vorto
+        foreach {gKomenco gFino origina _tradukojElementoj _tradukoj} $vortoGrupoj {
+            if {[lsearch $origina $oElemento]>=0} {
+                lappend indeksoj $id
+            }
+            incr id
+        }
+    }
+    set seg 0
+    set ttradukoj [list]
+    set ttradukojElementoj [list]
+    foreach id $indeksoj traduko $tradukoj tradukElemento $tradukojElementoj {
+        if {$id==$seg+1} {
+            lset vortoGrupoj [expr {$seg*5+3}] $ttradukojElementoj
+            lset vortoGrupoj [expr {$seg*5+4}] $ttradukoj
+            set ttradukoj [list]
+            set ttradukojElementoj [list]
+            incr seg
+        }
+        lappend ttradukoj $traduko
+        lappend ttradukojElementoj $tradukElemento
+    }
+    if {[llength $ttradukoj]>0} {
+        lset vortoGrupoj [expr {$seg*5+3}] $ttradukojElementoj
+        lset vortoGrupoj [expr {$seg*5+4}] $ttradukoj
+    }
+    puts "vortogrupoj PL : $vortoGrupoj"
+    return $vortoGrupoj
+}
+PlFrazTraduko instproc konstruuVortoGrupojOrgina tradukilo {
+    my instvar sintaksradiko orginaVortoGrupoj
+    # vidu konstruuVortoGrupoj
+    # oni devas konstrui grupoj antaux ol tradukado
+    # cxar tradukado povus reordigi aux rekonstrui vortoj, de
+    # la grupoj povus ne kongrui
+
+
+    # la metodo grupigas vortoj je orignala elemento
+    # la grupo estas la sekvo de vortoj, kiujn ne estas speciale dispartigita
+    # ekzemple por html: La <i>unua libro</i> estas grava.
+    # rezultas tri grupoj {La} {unua libro} {estas grava .}
+    # tiu helpas konstrui tradukmemorojn aux ebligas duone auxtomatan tradukon.
+    # la strukturo estas listo kun komenco, fino de grupo, orignaj elementoj, tradukal elementoj, tradukaj vortoj
+    # list $komenco $fino $orignajElementoj $tradukElementoj $tradukVortoj
+    if {[info exists orginaVortoGrupoj]} {
+        # interaktiva traduko povas cxangxi tion
+        # ekzemple : mana traduko (normale oni ne uzu la variablon kaj memoro)
+        return $orginaVortoGrupoj
+    }
+    set segNombro 0
+    set vortoGrupoj [list]
+    set origina [list]
+    set oElementoj [list]
+    set tradukoj [list]
+    set tradukojElementoj [list]
+    set gKomenco ""
+    set gFino ""
+    foreach oElemento [$sintaksradiko prenuFoliojn] {
+        if {[llength $oElementoj]>0} {
+            set fino [$oElemento set komenco]
+            if {$fino ne "0" && $gFino ne "0" && ![$tradukilo estasKutimaSeparatilo $gFino $fino]} {
+                lappend vortoGrupoj $gKomenco $gFino $origina $tradukojElementoj $tradukoj
+                incr segNombro
+                #puts "grupo $gKomenco $gFino [join $tradukoj]"
+                set gKomenco ""
+                set origina [list]
+                set tradukoj [list]
+                set tradukojElementoj [list]
+            }
+        }
+        if {$gKomenco eq ""} {
+            set gKomenco [$oElemento set komenco]
+        }
+        set gFino [$oElemento set fino]
+        lappend origina $oElemento
+        lappend oElementoj $oElemento
+    }
+    if {[llength $origina]>0 || [llength $tradukoj]>0} {
+        lappend vortoGrupoj $gKomenco $gFino $origina $tradukojElementoj $tradukoj
+        incr segNombro
+    }
+    set orginaVortoGrupoj $vortoGrupoj
+}
+PlFrazTraduko instproc kreuTradElementojn {} {
+    my instvar tradukasto
+    set cl [PlSAsto klasoPorAsto [my sintaksradiko]]
+    set tradukasto [$cl new -childof [self] -parenco {} -mixin EspTradukoMix -elemento [my sintaksradiko]]
+    $tradukasto kreuArbon [self]
+}
+PlFrazTraduko instproc kreuTradElementojnSenTraduko {} {
+    my instvar tradukasto lingvo
+    set tradukasto [[TradukAsto klasoPorAsto [my sintaksradiko] $lingvo] new -childof [self] -parenco {} -elemento [my sintaksradiko]]
+    $tradukasto kreuArbonSentraduko [self]
+}
+PlFrazTraduko instproc lasuOriginan {} {
+    # !TODO vi forgesis astojn
+    foreach e [my prenuFoliojn] {
+        $e destroy
+    }
+    my set elementoj [list]
+    my kreuTradElementojnSenTraduko
+    my tradukuElementojn
+}
+PlFrazTraduko instproc metuLingvon lng {
+    my instvar lingvo
+    set lingvo $lng
+}
+PlFrazTraduko instproc pliricxiguGramatikon {} {
+    my instvar sintaksradiko
+    $sintaksradiko distinguDifinilon [self]
+    $sintaksradiko distinguGramatikon [self]
+}
+PlFrazTraduko instproc prenuFoliojn {} {
+    my instvar tradukasto
+    $tradukasto prenuFoliojn
+}
+PlFrazTraduko instproc prenuTradukVortoj {} {
+    set tradukVortoj {}
+    foreach e [my prenuFoliojn] {
+        lappend tradukVortoj [$e prenuTradukon]
+    }
+    return $tradukVortoj
+}
+PlFrazTraduko instproc prenuVortaron {} {
+    my set vortaro
+}
+PlFrazTraduko instproc prenuVortojn {} {
+    esp::joinFrazo [my prenuTradukVortoj]
+}
+PlFrazTraduko instproc pretiguTradukon {} {
+    my instvar tradukasto sintaksradiko
+    set tradukElementoj [my prenuFoliojn]
+    # La grandeco cxu unua vorto ne havas signifon de grandskribo
+    # sed komenco de frazo
+    set unua [$sintaksradiko prenuUnuan]
+    foreach te $tradukElementoj {
+        $te korektuLitergrandeco [expr {[$te exists elemento] && [$te set elemento] eq $unua}]
+    }
+    set tradukVortoj [my prenuTradukVortoj]
+    # La libro estas interesa -> "Ksiazka jest interesujaca"
+    if {[string is upper [string index [[$sintaksradiko prenuUnuan] set vorto] 0]]} {
+        foreach t $tradukElementoj {
+            if {[$t vorto] ne ""} {
+                $t vorto [esp::grandskribi [$t vorto]]
+                break
+            }
+        }
+    }
+}
+PlFrazTraduko instproc pritradktuPosttraduko args {
+    my instvar tradukasto
+    set folioj [$tradukasto prenuFoliojn]
+    for {set i 0} {$i<[llength $folioj]} {incr i} {
+        [lindex $folioj $i] posttradukaPlibonigo $i $folioj
+    }
+}
+PlFrazTraduko instproc reordigu {} {
+    my instvar tradukasto
+    $tradukasto reordigu
+}
+PlFrazTraduko instproc retraduku {} {
+    # !TODO vi forgesis astojn
+    foreach e [my prenuFoliojn] {
+        $e destroy
+    }
+    my set elementoj [list]
+    my traduku
+}
+PlFrazTraduko instproc traduku {} {
+    my instvar sintaksradiko
+    my kreuTradElementojn
+    $sintaksradiko multvorteTraduku [DBVortaro prenuDepVortaron]
+    my pliricxiguGramatikon
+    my tradukuElementojn
+    #my reordigu
+    #my pritradktuPosttraduko
+    my pretiguTradukon
+}
+PlFrazTraduko instproc tradukuElementojn {} {
+    my instvar vortaro sintaksradiko
+    $sintaksradiko traduku [DBVortaro prenuDepVortaron]
+}
+PlFrazTraduko proc testuLingvon lingvo {
+    my instvar informo
+    if {![info exists informo] && [lsearch {pl de en sv ru} $lingvo]<0} {
+        EsperantoBrowser message "Atentu ke, Esperantilo povas nun traduki sur ŝtupo de sintaksa analizo nur al pola kaj germana lingvoj. Aliaj lingvoj estas tradukataj primitive je unu vorto laŭ vortaro. Tiu liveras tre malaltan kvaliton de rezulta teksto."
+        set informo 1
+    }
+}
+Class PlFrazoLegilo
+@ ::PlFrazoLegilo idemeta component EspPlSintaksaAnalizo
+PlFrazoLegilo instproc estasMallongigo mallong {
+    if {[lsearch {np s} $mallong]>=0} {
+        return $mallong
+    }
+    return
+}
+PlFrazoLegilo instproc prilaboruApostroph {ret_ref sig} {
+    return
+}
+Class PlMultVortTradukado
+@ ::PlMultVortTradukado idemeta component EspPlSintaksaAnalizo
+PlMultVortTradukado instproc leguDeDosiero dosiero {
+    my instvar vortojArr
+    if {![file isfile $dosiero]} {
+        puts "dosiero por multvorta pl-eo Vortaro ne trovita $dosiero"
+        return
+    }
+    set dosieroSize [file size $dosiero]
+    set f [open $dosiero r]
+    fconfigure $f -encoding utf-8
+    unset -nocomplain vortojArr
+    set indekso 0
+    set sencoaroj [list]
+    if {[Object isobject ProgresoMontrilo]} {
+        set progreso [ProgresoMontrilo startNurProgress "Atendu! Esperantilo legas sinonimojn"]
+    } else {
+        set progreso ""
+    }
+    set i 0
+
+    while {[gets $f line]>=0} {
+        if {$i%30==0 && $progreso ne ""} {
+            set pos [tell $f]
+            $progreso setProgress [expr {round(100.0*$pos/$dosieroSize)}]
+            $progreso isStopped
+        }
+        incr i
+        set line [string trim $line]
+        if {[string index $line 0] eq "#"} {
+            continue
+        }
+        if {[catch {set unua [lindex $line 0 0]}]} {
+            #my halt
+        }
+        lappend vortojArr($unua) $line
+    }
+    if {$progreso ne ""} {
+        $progreso cleanUpAfterSignal
+        $progreso destroy
+    }
+    close $f
+}
+PlMultVortTradukado instproc relegu {} {
+    my leguDeDosiero [[my class] prenuDosieron]
+}
+PlMultVortTradukado instproc trovuPorUnuaVorto vorto {
+    my instvar vortojArr
+    if {[info exists vortojArr($vorto)]} {
+        return $vortojArr($vorto)
+    }
+    return
+}
+PlMultVortTradukado proc prenuDosieron {} {
+    file join [EsperantoConf prenuVortaroDosierujo] pleo_mtradukoj.txt
+}
+PlMultVortTradukado proc prenuVortaron {} {
+    my instvar vortaro
+    if {![info exists vortaro] || ![Object isobject $vortaro]} {
+        set vortaro [my new]
+        $vortaro relegu
+    }
+    return $vortaro
+}
+Class PlSAsto -superclass {::AstoElemento ::ArboAsto} -parameter {funkcio radiko traduko}
+@ ::PlSAsto idemeta component EspPlSintaksaAnalizo
+PlSAsto instproc aliformuStrukturon {funkcio_p parenco pozicioKomenco pozicioFino postAktiono} {
+    my instvar astoj funkcio
+    set funkcio $funkcio_p
+    set astoj [lrange [$parenco set astoj] $pozicioKomenco $pozicioFino]
+    $parenco set astoj [lreplace [$parenco set astoj] $pozicioKomenco $pozicioFino [self]]
+    my init
+    if {$postAktiono ne ""} {
+        my $postAktiono
+    }
+}
+PlSAsto instproc analizu {} {
+    foreach a [my astoj] {
+        $a analizu
+    }
+}
+PlSAsto instproc asDOM doc {
+    my instvar radiko
+    set elem [$doc createElement [namespace tail [my info class]]]
+    $elem setAttribute funkcio [my funkcio]
+    set astoj [$doc createElement astoj]
+    $elem appendChild $astoj
+    foreach e [my astoj] {
+        set domElem [$e asDOM $doc]
+        if {[my exists radiko] && $radiko eq $e} {
+            $domElem setAttribute radiko 1
+        }
+        $astoj appendChild $domElem
+    }
+    return $elem
+}
+PlSAsto instproc asFormatedList {{ident 0}} {
+    set ret ""
+    set identString [string repeat "    " $ident]
+    append ret "$identString\{[my prenuSimbolo]:[my prenuFunkcioNomo]"
+    foreach e [my astoj] {
+        append ret "\n[$e asFormatedList [expr {$ident+1}]]"
+    }
+    append ret "\}"
+    return $ret
+}
+PlSAsto instproc asList {} {
+    set ret [list]
+    if {[my exists funkcio]} {
+        lappend ret [my prenuSimbolo]:[my funkcio]
+    } else {
+        lappend ret [my prenuSimbolo]:parto
+    }
+    foreach e [my astoj] {
+        lappend ret [$e asList]
+    }
+    return $ret
+}
+PlSAsto instproc debugAnalizo {stupo poziciono mustero} {
+    # uzo per mixin (vidu: SintaksAstoDebugMix)
+}
+PlSAsto instproc disambigui {} {
+    my instvar astoj
+    foreach a $astoj {
+        $a disambigui
+    }
+}
+PlSAsto instproc disambiguiTagojn {ae se rad} {
+    my instvar astoj
+    set pre ""
+    set post ""
+    set rad [my prenuRadiko]
+    foreach a $astoj post [lrange $astoj 1 end] {
+        $a disambiguiTagojn $pre $post $rad
+        set pre $a
+    }
+}
+PlSAsto instproc distinguDifinilon frazTraduko {
+    my instvar astoj
+    foreach a $astoj {
+        $a distinguDifinilon $frazTraduko
+    }
+}
+PlSAsto instproc distinguGramatikon frazTraduko {
+    my instvar astoj
+    foreach a $astoj {
+        $a distinguGramatikon $frazTraduko
+    }
+}
+PlSAsto instproc drawGraph {} {
+    SintaksCanvasGraf drawGraph [self] [my prenuVortoj]
+}
+PlSAsto instproc estasKuneblaj {elem ligilo} {
+    expr {[my prenuNomo] eq [$elem prenuNomo]}
+}
+PlSAsto instproc estasNombraAkuzativa {} {
+    my instvar astoj radiko
+    expr {[[lindex $astoj 0] prenuRadiko] istype GP::Numeralo] &&
+        [my estasAkuzativo]}
+}
+PlSAsto instproc generuDiskripto rfrazo {
+    set frazo [my info parent]
+    set last [my prenuLastan]
+    set relradiko [my prenuRelFrazoRadiko]
+    set f [SintaksAsto::disk new -childof $frazo -astoj [list $last $rfrazo] -funkcio disk -relradiko $relradiko]
+
+    set index [lsearch [my astoj] $last]
+    if {$index<0} {
+        set p [my sxercxiAsto asto {[lsearch [$asto astoj] $last]>=0}]
+        if {$p eq ""} {
+            error "neniu parenco"
+        }
+        set index [lsearch [$p astoj] $last]
+    } else {
+        set p [self]
+    }
+    $p instvar astoj
+    set alt [lindex $astoj $index]
+    lset astoj $index $f
+    if {[$p exists radiko] && [$p set radiko] eq $alt} {
+        $p set radiko $f
+    }
+    self
+}
+PlSAsto instproc havasFunkcion {} {
+    return 1
+}
+PlSAsto instproc init {} {
+}
+PlSAsto instproc initKunteksto parenco {
+    my instvar funkcio
+    foreach a [my astoj] {
+        $a initKunteksto [self]
+    }
+}
+PlSAsto instproc initParencon parenco {
+    next
+    if {![my exists funkcio]} {
+        my funkcio parto
+    }
+}
+PlSAsto instproc konvenasMusteron mustero {
+    my instvar astoj
+    set sindekso 0
+    set sukceso 1
+    if {[llength $mustero]!=[llength $astoj]} {
+        return 0
+    }
+    foreach e $mustero {
+        set elemento [lindex $astoj $sindekso]
+        regsub %e $e $elemento e
+        if {[string index $e 0] eq ":"} {
+            if {![$elemento testuStrukturo $e]} {
+                set sukceso 0
+                break
+            }
+        } else {
+            if {![$elemento testuSintakso $e]} {
+                set sukceso 0
+                break
+            }
+        }
+        incr sindekso
+    }
+    return $sukceso
+}
+PlSAsto instproc kunliguRilativanFrazonAl {rfrazo lelem} {
+    if {[$lelem istype GP::Elemento]} {
+        set frazo [my info parent]
+        set d [SintaksAsto::disk new -childof $rfrazo -astoj [list $lelem $rfrazo] -funkcio disk]
+        set lastIndex [lsearch [my astoj] $lelem]
+        my instvar astoj
+        lset astoj $lastIndex $d
+    } else {
+        $lelem generuDiskripto $rfrazo
+    }
+}
+PlSAsto instproc match expr {
+    switch -exact -- [lindex $expr 0] {
+        folioj {
+            set elementoj [my prenuFoliojn]
+        }
+        elementoj {
+            set elementoj [my prenuElementoj]
+        }
+        infanoj {
+            set elementoj [my astoj]
+        }
+        brancxoj {
+            set elementoj [my prenuBrancxoj]
+        }
+        default {
+            error "ne konata selektilo [lindex $expr 0]"
+        }
+    }
+    set expr [lindex $expr 1]
+    set startmatch 0
+    set len [expr {[llength $expr]/2}]
+    set wlen [llength $elementoj]
+    set found -1
+    while {$startmatch+$len<=$wlen} {
+        set m 0
+        foreach {tipo evaluo} $expr {
+            set elem [lindex $elementoj [expr {$startmatch+$m}]]
+            if {![$elem matchElem $tipo $evaluo]} {
+                break
+            }
+            incr m
+        }
+        if {$m==$len} {
+            set found $startmatch
+            break
+        }
+        incr startmatch
+    }
+    if {$found>=0} {
+        return [lrange $elementoj $startmatch [expr {$startmatch+$len-1}]]
+    }
+    return
+}
+PlSAsto instproc matchElem {tipo evaluo} {
+    switch -exact -- $tipo {
+        f {
+            set funkcio [my prenuFunkcioNomo]
+            if {$funkcio eq $evaluo} {
+                return 1
+            }
+        }
+        fr {
+            set funkcio [my prenuFunkcioNomo]
+            if {[regexp $evaluo $funkcio]} {
+                return 1
+            }
+        }
+        s {
+            set funkcio [my prenuSimbolo]
+            if {$funkcio eq $evaluo} {
+                return 1
+            }
+        }
+        sr {
+            set funkcio [my prenuSimbolo]
+            if {[regexp $evaluo $funkcio]} {
+                return 1
+            }
+        }
+        AND {
+            foreach {t v} $evaluo {
+                if {![my matchElem $t $v]} {
+                    return 0
+                }
+            }
+            return 1
+        }
+        NOT {
+           if {[my matchElem [lindex $evaluo 0] [lindex $evaluo 1]]} {
+               return 0
+           } else {
+               return 1
+           }
+        }
+        OR {
+            foreach {t v} $evaluo {
+                if {[my matchElem $t $v]} {
+                    return 1
+                }
+            }
+            return 0
+        }
+        match {
+            if {[llength [my match $evaluo]]>0} {
+                return 1
+            }
+        }
+        radiko {
+            return [[my miAuxRadikaElemento] matchElem [lindex $evaluo 0] [lindex $evaluo 1]]
+        }
+        parenco {
+            if {[my parenco] ne ""} {
+                return [[my parenco] matchElem [lindex $evaluo 0] [lindex $evaluo 1]]
+            }
+        }
+    }
+    return 0
+}
+PlSAsto instproc miAuxRadikaElemento {} {
+    my instvar funkcio parenco
+    if {$parenco eq "" || ![info exists funkcio] || ($funkcio ne "radiko" && $funkcio ne "disk")} {
+       self
+    } else {
+       $parenco miAuxRadikaElemento
+    }
+}
+PlSAsto instproc multvorteTraduku vortaro {
+    my instvar astoj
+    set mvortaro [PlMultVortTradukado prenuVortaron]
+    set len [llength $astoj]
+    set forigelementoj [list]
+
+    # Traduku en unua pasxo nur per multvorta vortaro
+    for {set x 0} {$x<$len} {incr x} {
+        set e [lindex $astoj $x]
+        if {$e eq ""} continue
+        if {![$e istype Pl::Elemento]} {
+            $e multvorteTraduku $vortaro
+            continue
+        }
+        set vlisto [$mvortaro trovuPorUnuaVorto [$e prenuBazanFormon]]
+        set estasTrovita 0
+        set maxlen 0
+        set trovitaMaxElemento ""
+        foreach t $vlisto {
+            set pllist [lindex $t 0]
+            set plen [llength $pllist]
+            set eovorto [lindex $t 1]
+            if {$x+$plen>$len} continue
+            set estasTrovita 1
+            for {set i 1} {$i<$plen} {incr i} {
+                set plvorto [lindex $pllist $i]
+                set pelem [lindex $astoj [expr {$x+$i}]]
+                set plfonto [$pelem prenuBazanFormon]
+                if {$plfonto ne $plvorto} {
+                    set plfonto [string tolower [$pelem vorto]]
+                    if {$plfonto ne $plvorto} {
+                        set estasTrovita 0
+                        break
+                    }
+                }
+            }
+            if {$estasTrovita} {
+                if {$plen>$maxlen} {
+                    set maxlen $plen
+                    set trovitaMaxElemento $t
+                }
+            }
+        }
+        if {$trovitaMaxElemento ne ""} {
+            set pllist [lindex $trovitaMaxElemento 0]
+            set plen [llength $pllist]
+            set eovorto [lindex $trovitaMaxElemento 1]
+            [$e set traduko] set bazaTraduko $eovorto
+            $e aliguMerkmalon mvtraduko
+            # problemo de kie preni tiujn datojn
+            $e set gramatiko [lindex $trovitaMaxElemento 2]
+            $e set fgrupo [lindex $trovitaMaxElemento 3]
+            for {set i 1} {$i<$plen} {incr i} {
+                set felem [lindex $astoj [expr {$x+$i}]]
+                [$felem set traduko] foriguDeParenco
+                lappend forigelementoj $felem
+            }
+            incr x [expr {$plen-1}]
+            continue
+        }
+        set olen $len
+        set len [llength $astoj]
+        if {$olen!=$len && $e ne [lindex $astoj $x]} {
+            incr x [expr {$len-$olen}]
+        }
+    }
+    foreach e $forigelementoj {
+        $e foriguDeParenco
+    }
+}
+PlSAsto instproc prenuCxefRadiko {} {
+    self
+}
+PlSAsto instproc prenuCxefajElementoj {} {
+    set elementoj [list]
+    foreach a [my astoj] {
+        if {[$a istype SintaksAsto]} {
+            foreach e [$a prenuCxefajElementoj] {
+                lappend elementoj $e
+            }
+        } else {
+            lappend elementoj $a
+        }
+    }
+    return $elementoj
+}
+PlSAsto instproc prenuCxefajVortoj {} {
+    set vortoj [list]
+    foreach a [my prenuCxefajElementoj] {
+        lappend vortoj [$a vorto]
+    }
+    return $vortoj
+}
+PlSAsto instproc prenuFinon {} {
+    [lindex [my astoj] end] prenuFinon
+}
+PlSAsto instproc prenuFunkcioNomo {} {
+    if {[my exists funkcio]} {
+        my funkcio
+    } else {
+        return "nekonata"
+    }
+}
+PlSAsto instproc prenuKazon {} {
+    foreach e [my astoj] {
+        if {[$e istype ::GP::NombroKazo]} {
+            return [$e kazo]
+        }
+    }
+    return
+}
+PlSAsto instproc prenuKomencon {} {
+    [lindex [my astoj] 0] prenuKomencon
+}
+PlSAsto instproc prenuListon {} {
+    set ret [list]
+    foreach e [my astoj] {
+        lappend ret [$e prenuListon]
+    }
+    list [my prenuSimbolo]:[my prenuFunkcioNomo] $ret
+}
+PlSAsto instproc prenuNombron {} {
+    [my radiko] prenuNombron
+}
+PlSAsto instproc prenuNomo {} {
+    namespace tail [my info class]
+}
+PlSAsto instproc prenuRadiko {} {
+    if {[my exists radiko] && [my radiko] ne ""} {
+        [my radiko] prenuRadiko
+    } else {
+        return
+    }
+}
+PlSAsto instproc prenuRelFrazoRadiko {} {
+    [lindex [my astoj] end] prenuRelFrazoRadiko
+}
+PlSAsto instproc prenuSimbolo {} {
+    namespace tail [my info class]
+}
+PlSAsto instproc prenuVerbRadiko {} {
+    my prenuRadiko
+}
+PlSAsto instproc prenuVortoj {} {
+    set vortoj [list]
+    foreach a [my prenuFoliojn] {
+        lappend vortoj [$a vorto]
+    }
+    return $vortoj
+}
+PlSAsto instproc printString {} {
+    return "[my prenuFunkcioNomo] [my prenuSimbolo]: [my prenuVortoj]"
+}
+PlSAsto instproc sxercxiErarojn kolektilo {
+    foreach e [my astoj] {
+        $e sxercxiErarojn $kolektilo
+    }
+}
+PlSAsto instproc sxercxiFrazokapon {} {
+    foreach a [my astoj] {
+        $a sxercxiFrazokapon
+    }
+}
+PlSAsto instproc sxercxiKompleksajSubjektivanSuplementon {} {
+}
+PlSAsto instproc testuSintakso elem {
+    [my prenuRadiko] testuSintakso $elem
+}
+PlSAsto instproc testuStrukturo elem {
+    set cname [namespace tail [my info class]]
+    #puts "testuStrukturo [self] $elem"
+    if {[string range [lindex $elem 0] 1 end] ne $cname} {
+        return 0
+    }
+    if {[llength $elem]>1} {
+        return [eval [self] [lrange $elem 1 end]]
+    }
+    return 1
+}
+PlSAsto instproc traduku vortaro {
+    my instvar astoj
+    foreach e $astoj {
+        $e traduku $vortaro
+    }
+}
+PlSAsto instproc trovuKunFunkcio funkcio {
+    my instvar astoj
+    foreach a $astoj  {
+        if {[$a exists funkcio] && [$a set funkcio] eq $funkcio} {
+            return $a
+        }
+    }
+    return
+}
+PlSAsto proc klasoPorAsto asto {
+    set cl SintaksAsto
+    set name [namespace tail [$asto info class]]
+    if {[Object isclass SintaksAsto::$name]} {
+            set cl SintaksAsto::$name
+    }
+    return $cl
+}
+Class PlSAsto::SintaksAsto -superclass ::PlSAsto
+@ ::PlSAsto::SintaksAsto idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::adjp -superclass ::PlSAsto
+@ ::PlSAsto::adjp idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::adjsup -superclass ::PlSAsto
+@ ::PlSAsto::adjsup idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::advp -superclass ::PlSAsto
+@ ::PlSAsto::advp idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::advsup -superclass ::PlSAsto
+@ ::PlSAsto::advsup idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::amain -superclass ::PlSAsto
+@ ::PlSAsto::amain idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::disk -superclass ::PlSAsto
+@ ::PlSAsto::disk idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::frazj -superclass ::PlSAsto
+@ ::PlSAsto::frazj idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::grupo -superclass ::PlSAsto
+@ ::PlSAsto::grupo idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::ident -superclass ::PlSAsto
+@ ::PlSAsto::ident idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::ignor -superclass ::PlSAsto
+@ ::PlSAsto::ignor idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::kadv -superclass ::PlSAsto
+@ ::PlSAsto::kadv idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::konj -superclass ::PlSAsto
+@ ::PlSAsto::konj idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::main -superclass ::PlSAsto::amain
+@ ::PlSAsto::main idemeta component EspPlSintaksaAnalizo
+PlSAsto::main instproc sxercxiCxefrazoj {} {
+    my instvar astoj
+    set grupoj [list]
+    set grupo [list]
+    # distrancxi je komoj (vere primitive)
+    foreach a $astoj {
+        lappend grupo $a
+        if {[$a istype Pl::Simbolo] && [$a estasVorto ,] && [llength $grupo]>1} {
+            lappend grupoj $grupo
+            set grupo [list]
+        }
+    }
+    lappend grupoj $grupo
+    if {[llength $grupoj]>1} {
+        set parenco [my info parent]
+        set astoj [list]
+        foreach g $grupoj {
+            lappend astoj [PlSAsto::main new -childof $parenco -funkcio smain -parenco [self] -astoj $g]
+        }
+        my class PlSAsto::mainc
+    }
+}
+PlSAsto::main instproc sxercxiFrazokapon {} {
+    my instvar radiko astoj
+    foreach a $astoj {
+        if {[$a istype Pl::Verbo] && [$a set tempo] ne "i"} {
+            set radiko $a
+            $a funkcio radiko
+            break
+        }
+    }
+    next
+}
+Class PlSAsto::mainc -superclass ::PlSAsto
+@ ::PlSAsto::mainc idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::ne -superclass ::PlSAsto
+@ ::PlSAsto::ne idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::nfvp -superclass ::PlSAsto
+@ ::PlSAsto::nfvp idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::nomo -superclass ::PlSAsto
+@ ::PlSAsto::nomo idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::np -superclass ::PlSAsto
+@ ::PlSAsto::np idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::npmain -superclass ::PlSAsto::amain
+@ ::PlSAsto::npmain idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::num -superclass ::PlSAsto
+@ ::PlSAsto::num idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::padj -superclass ::PlSAsto
+@ ::PlSAsto::padj idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::padv -superclass ::PlSAsto
+@ ::PlSAsto::padv idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::pp -superclass ::PlSAsto
+@ ::PlSAsto::pp idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::ppinf -superclass ::PlSAsto
+@ ::PlSAsto::ppinf idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::smain -superclass ::PlSAsto::main
+@ ::PlSAsto::smain idemeta component EspPlSintaksaAnalizo
+Class PlSAsto::subsup -superclass ::PlSAsto
+@ ::PlSAsto::subsup idemeta component EspPlSintaksaAnalizo
+Class PlSintaksaAnalizo -parameter frazo
+@ ::PlSintaksaAnalizo idemeta component EspPlSintaksaAnalizo
+PlSintaksaAnalizo instproc analizu {} {
+    my instvar frazo
+
+    set radiko [PlSAsto::main new -childof $frazo -astoj [$frazo elementoj] -funkcio baza]
+    $frazo sintaksoarbo $radiko
+    #$radiko sxercxiDialogoPriskribo
+    #$radiko sxercxiIgnorPartoj
+    #por divigi ; simboloj
+    #$radiko sxercxiPlenajFrazoj
+    $radiko sxercxiCxefrazoj
+    $radiko initParencon {}
+    $radiko disambigui
+    $radiko sxercxiFrazokapon
+    $radiko disambiguiTagojn "" "" ""
+    #$radiko analizu
+
+}
+PlSintaksaAnalizo instproc appendMesagxo mes {
+    my lappend mesagxoj $mes
+}
+Object PLSkriptoObjekto
+@ ::PLSkriptoObjekto idemeta categoriesMethodsProcs {{prepMorph filterMorfologikFilePerAspell compressLists prenuMorfologikDosierejo buildMorfologik filtruAspekto generuAdjektivojn generuSubstantivojn filterMorfologikFile} {createDic puriguMorfologikAlKonataj generuDeVortaro generuCxion}}
+@ ::PLSkriptoObjekto idemeta categoriesProcs {morfologik genero}
+@ ::PLSkriptoObjekto idemeta component EspPlSintaksaAnalizo
+PLSkriptoObjekto proc buildMorfologik {in out} {
+    cd [my prenuMorfologikDosierejo]
+    encoding system iso8859-2
+    exec fsa_ubuild -A + -i $in -o $out
+    encoding system utf-8
+
+    # cd $xotclidedir; cd ../.. ; pwd
+}
+PLSkriptoObjekto proc compressLists {tags {i 0}} {
+    set lastfirst ""
+    set l [list]
+    set rez [list]
+    if {[llength $tags]==1} {
+        return $tags
+    }
+    if {[llength [lindex $tags 0]]==1} {
+        foreach t $tags {
+            lappend rez [lindex $t 0]
+        }
+        return [list [list [lsort $rez]]]
+    }
+    foreach e [lsort -index 0 $tags] {
+        set first [lindex $e 0]
+        if {$first ne $lastfirst && $lastfirst ne ""} {
+            foreach c [my compressLists $l] {
+                lappend rez [linsert $c 0 $lastfirst]
+            }
+            set l [list]
+        }
+        lappend l [lrange $e 1 end]
+        set lastfirst $first
+    }
+    if {$lastfirst ne ""} {
+        foreach c [my compressLists $l] {
+            lappend rez [linsert $c 0 $lastfirst]
+        }
+    }
+    # funktioniert nicht ideal für bsp {{1 1 2} {1 1 3} {2 1 2} {2 1 3}}
+    if {$i==0 && [llength [lindex $rez 0]]==2} {
+        set inv [list]
+        foreach r $rez {
+            lappend inv [list [lindex $r 1] [lindex $r 0]]
+        }
+        set cinv [my compressLists $inv 1]
+        if {[llength $cinv]<[llength $rez]} {
+            set rez [list]
+            foreach r $cinv {
+                lappend rez [list [lindex $r 1] [lindex $r 0]]
+            }
+        }
+    }
+    return $rez
+}
+PLSkriptoObjekto proc createDic {} {
+    set d [pwd]
+    cd [PLSkriptoObjekto prenuMorfologikDosierejo]
+    PLTagger prenuTagger
+    my filterMorfologikFile morfologik_pura.txt
+    my filtruAspekto morfologik_pura_f.txt
+    my prepMorph morfologik_pura_f.txt
+    PLSkriptoObjekto buildMorfologik morfologik_pura_f.prp pl.dict
+    cd $d
+    fsa::close
+    file copy -force [file join [PLSkriptoObjekto prenuMorfologikDosierejo] pl.dict] [EsperantoConf prenuVortaroDosierujo]
+    fsa::init [file native [file join [EsperantoConf prenuVortaroDosierujo] pl.dict]] iso8859-2
+}
+PLSkriptoObjekto proc ekstraktuAspektoVerbo {} {
+    set out [open "aspekto-verbo.txt" w]
+    fconfigure $out -encoding iso8859-2
+
+    foreach tid [mk::select revodb.tradukojpl -sort traduko] {
+        array set tradArr [mk::get revodb.tradukojpl!$tid]
+        if {$tradArr(fgrupo) eq ""} continue
+        set vorto [mk::get revodb.derivoj!$tradArr(derivoid) vorto]
+        if {[string index $vorto end] eq "i"} {
+            if {[string first " " $tradArr(traduko)]<0 && $tradArr(gramatiko) ne ""} {
+                if {$tradArr(traduko) eq "łonaczyć" || $tradArr(traduko) eq "złonaczyć"} continue
+                if {[lsearch $tradArr(gramatiko) dk]>=0} {
+                    puts $out "$tradArr(traduko)\tdk"
+                } elseif {[lsearch $tradArr(gramatiko) ndk]>=0} {
+                    puts $out "$tradArr(traduko)\tndk"
+                }
+            }
+        }
+    }
+    close $out
+}
+PLSkriptoObjekto proc ekstraktuSubGenro {} {
+    set i 0
+    set outm1 [open "subst-m1.txt" w]
+    fconfigure $outm1 -encoding iso8859-2
+    set outm2 [open "subst-m2.txt" w]
+    fconfigure $outm2 -encoding iso8859-2
+    set outm3 [open "subst-m3.txt" w]
+    fconfigure $outm3 -encoding iso8859-2
+
+    array set garr {ms m1 mz m2 mn m3}
+
+    foreach tid [mk::select revodb.tradukojpl -sort traduko] {
+        array set tradArr [mk::get revodb.tradukojpl!$tid]
+        if {$tradArr(fgrupo) eq ""} continue
+        set vorto [mk::get revodb.derivoj!$tradArr(derivoid) vorto]
+        if {[string index $vorto end] eq "o"} {
+            if {[string first " " $tradArr(traduko)]<0 && $tradArr(fgrupo) ne ""} {
+                set genro [PolaFleksio prenuArtoDeTipo $tradArr(fgrupo)]
+                if {[catch {set genro $garr($genro)}]} {
+                    continue
+                }
+                puts [set out$genro] "$tradArr(traduko)\t$genro"
+            }
+        }
+    }
+
+    close $outm1
+    close $outm2
+    close $outm3
+}
+PLSkriptoObjekto proc ekstraktuVerboTag tag {
+    set rez [list]
+    # widział - verb:praet:sg:ter:m:?perf
+    # wykraje - wykrajać verb:fin:sg:pri:?perf
+    # widzę - verb:sg:pri:?perf
+    #       - verb:pl:sec:?perf
+
+    set tlist [split $tag :]
+    if {[lindex $tlist 0] ne "verb"} return
+    set dtag [dict create]
+    if {[lindex $tlist 1] eq "praet"} {
+        set i 2
+        dict set dtag tempo preat
+    } elseif {[lindex $tlist 1] eq "fin"} {
+        dict set dtag tempo fin
+        set i 2
+    } elseif {[lindex $tlist 1] eq "impt"} {
+        dict set dtag tempo impt
+        set i 2
+    } elseif {[lindex $tlist 1] eq "irreg"} {
+        dict set dtag tempo irreg
+        return $dtag
+    } else {
+        dict set dtag tempo ???
+        set i 1
+    }
+    dict set dtag nombro [lindex $tlist $i]
+    incr i
+    dict set dtag persono [lindex $tlist $i]
+    incr i
+    set g [lindex $tlist $i]
+    if {[lsearch {m n f} $g]>=0} {
+        dict set dtag genro $g
+    }
+    return $dtag
+}
+PLSkriptoObjekto proc filterMorfologikFile {{tf {}}} {
+   if {$tf eq ""} {
+       set f [IDE::Dialog getOpenFile]
+   } else {
+       set f $tf
+   }
+   if {$f eq ""} return
+
+   set d [file join [Esperantilozentro prenuFontoDosieron] morfologik]
+   set filtroj {gen-posprono.txt gen-prono.txt morfologik_verb_irreg_diff.txt gen-adj.txt gen-adv.txt gen-subst.txt gen-numeraloj.txt manaj.txt}
+
+   set nefiltru {od przez bez jak jaki lecz o tam w z nad do po pita}
+   set nefiltru [lsort -unique $nefiltru]
+
+   set in [open $f r]
+   fconfigure $in -encoding iso8859-2
+   set out [open [file rootname $f]_f.txt w]
+   fconfigure $out -encoding iso8859-2
+
+   foreach f $filtroj {
+        set fin [open [file join $d $f]]
+        fconfigure $fin -encoding iso8859-2
+        while {[gets $fin line]>=0} {
+            if {$line eq "" || [string index $line 0] eq "#"} continue
+            foreach {fleks baza tag} [split $line \t] break
+            if {![catch {set varr($fleks)} tags]} {
+                if {[lsearch $tags $line]<0} {
+                    lappend varr($fleks) $line
+                }
+            } else {
+                lappend varr($fleks) $line
+            }
+        }
+        close $fin
+   }
+
+   set konatajn [list]
+   while {[gets $in line]>=0} {
+       if {$line eq "" || [string index $line 0] eq "#"} continue
+       foreach {fleks baza tag} [split $line \t] break
+       if {[catch {set varr($fleks)} tags] || [lsearch -sorted $nefiltru $fleks]>=0} {
+           puts $out $line
+       } else {
+           if {[string first verb $tag]>=0} {
+               if {[lindex $tags 0] eq "verb"} {
+                   # ignoru verbon
+               } elseif {[llength $tags]==0} {
+                   puts $out $line
+               } else {
+                   set e ""
+                   foreach l $tags {
+                       if {[string first verb $l]>=0} {
+                           set e [list verb]
+                       }
+                       puts $out $l
+                   }
+                   set varr($fleks) $e
+                   if {[lindex $e 0] ne "verb"} {
+                       puts $out $line
+                   }
+               }
+           } else {
+               if {[lindex $tags 0] ne "verb"} {
+                   set e ""
+                   foreach l $tags {
+                       if {[string first verb $l]>=0} {
+                           set e [list verb]
+                       }
+                       puts $out $l
+                   }
+                   set varr($fleks) $e
+               }
+           }
+       }
+   }
+   foreach k [array names varr] {
+       foreach l $varr($k) {
+            #puts "adding $l"
+            if {$l eq "verb"} continue
+            puts $out $l
+       }
+   }
+
+   close $in
+   close $out
+}
+PLSkriptoObjekto proc filterMorfologikFilePerAspell {} {
+   set f [IDE::Dialog getOpenFile]
+   if {$f eq ""} return
+   set aspell [HunspellTestilo prenuInstancoPorLingvo pl]
+
+   set in [open $f r]
+   fconfigure $in -encoding iso8859-2
+   set out [open [file rootname $f]_f.txt w]
+   fconfigure $out -encoding iso8859-2
+
+   while {[gets $in line]>=0} {
+       if {$line eq "" || [string index $line 0] eq "#"} continue
+       foreach {fleks baza tag} [split $line \t] break
+       if {[$aspell estasVorto $baza]==2} {
+          puts $out $line
+       }
+   }
+
+   close $in
+   close $out
+}
+PLSkriptoObjekto proc filtruAspekto {{tf {}}} {
+   if {$tf eq ""} {
+       set f [IDE::Dialog getOpenFile]
+   } else {
+       set f $tf
+   }
+   if {$f eq ""} return
+
+   set in [open $f r]
+   fconfigure $in -encoding iso8859-2
+   set out [open tmp.txt w]
+   fconfigure $out -encoding iso8859-2
+
+    set ndk [list]
+    set dk [list]
+
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set connection [$dbvortaro set connection]
+
+    set sql "select derivo,traduko,t.gramatiko,rordo from derivo,traduko_pl t where derivo.id=derivoid and derivo like '%i'"
+
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    set listo [list]
+    while {[llength [set row [$query fetch]]]>0} {
+        foreach {vorto traduko gramatiko} $row break
+        if {[string first " " $traduko]<0 && $gramatiko ne ""} {
+            if {$traduko eq "łonaczyć" || $traduko eq "złonaczyć"} continue
+            if {[lsearch $gramatiko dk]>=0} {
+                lappend dk $traduko
+            } elseif {[lsearch $gramatiko ndk]>=0} {
+                lappend ndk $traduko
+            }
+        }
+
+    }
+    set dk [lsort -unique $dk]
+    set ndk [lsort -unique $ndk]
+    $query destroy
+
+    while {[gets $in line]>=0} {
+       if {$line eq "" || [string index $line 0] eq "#"} continue
+       foreach {fleks baza tag} [split $line \t] break
+       if {[string first verb: $tag]>=0} {
+           if {[lsearch -sorted $dk $baza]>=0} {
+               regsub -all {:(\?perf|imperf)} $tag  \:perf tag
+               puts $out "$fleks\t$baza\t$tag"
+           } elseif {[lsearch -sorted $ndk $baza]>=0} {
+               regsub -all {:(\?perf|perf)} $tag  \:imperf tag
+               puts $out "$fleks\t$baza\t$tag"
+           } else {
+               puts $out $line
+           }
+       } else {
+           puts $out $line
+       }
+   }
+
+   close $in
+   close $out
+   file delete $f
+   file rename tmp.txt $f
+}
+PLSkriptoObjekto proc generuAdjektivo adjektivo {
+  set rez [list]
+  # wielki  wielki  adj:sg:nom.acc:m3:pos+adj:sg:nom.voc:m1.m2:pos
+  # wielki  wielki  adj:sg:nom.acc:m3:pos:aff+adj:sg:nom.voc:m1.m2:pos:aff
+  # wielkich        wielki  adj:pl:acc.gen.loc:m1:pos+adj:pl:gen.loc:f.n.m2.m3:pos
+  # wielkich        wielki  adj:pl:acc.gen.loc:m1:pos:aff+adj:pl:gen.loc:f.n.m2.m3:pos:aff
+  # wielkie wielki  adj:sg:nom.acc.voc:n:pos:aff+adj:pl:nom.acc.voc:f.n.m2.m3:pos:aff
+  # wielkiego       wielki  adj:sg:acc.gen:m1:pos+adj:sg:acc:m2.m3.n:pos
+  # wielkiego       wielki  adj:sg:acc.gen:m1:pos:aff+adj:sg:acc:m2.m3.n:pos:aff
+  # wielkiej        wielki  adj:sg:gen.dat.loc:f:pos:aff
+  # wielkiemu       wielki  adj:sg:dat:m.n:pos
+  # wielkiemu       wielki  adj:sg:dat:m.n:pos:aff
+  # wielkim wielki  adj:sg:inst.loc:m.n:pos+adj:pl:dat:f.m.n:pos
+  # wielkim wielki  adj:sg:inst.loc:m.n:pos:aff+adj:pl:dat:f.m.n:pos:aff
+  # wielkimi        wielki  adj:pl:inst:f.m.n:pos
+  # wielkimi        wielki  adj:pl:inst:f.m.n:pos:aff
+
+  foreach kazo {M D C B N Ms W} pkazo {nom gen dat acc inst loc voc} {
+       foreach nombro {singularo pluralo} pnombro {sg pl} {
+           foreach genro {ms mz mn ni ze} pgenro {m1 m2 m3 n f} {
+               lappend rez [PolaFleksio prenuAdjektivon $adjektivo $genro $kazo $nombro] [dict create nombro $pnombro kazo $pkazo genro $pgenro]
+               }
+       }
+   }
+   return $rez
+}
+PLSkriptoObjekto proc generuAdjektivojn {} {
+    set i 0
+    set out [open [file join [my prenuMorfologikDosierejo] "gen-adj.txt"] w]
+    set vortaro [Vortaro prenuVortaron]
+    fconfigure $out -encoding iso8859-2
+    
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set connection [$dbvortaro set connection]
+
+    set sql "select derivo,traduko,t.fgrupo from derivo,traduko_pl t where derivo.id=derivoid and derivo like '%a'"
+
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+    
+    while {[llength [set row [$query fetch]]]>0} {
+        foreach {vorto traduko fgrupo} $row break
+        if {[lsearch {kilku kilka wiele wielu} $traduko]>=0} continue
+        if {[string index $vorto end] eq "a" && ![$vortaro estasVorteto $vorto]} {
+            if {[string first " " $traduko)]<0 && ![info exists konArr($traduko)]} {
+                set konArr($traduko) 1
+                unset -nocomplain varr
+                foreach {fleks tag} [my generuAdjektivo $traduko] {
+                    lappend varr($fleks) $tag
+                }
+                foreach k [array names varr] {
+                    puts $out "$k\t$traduko\t[my kreuFSA2AdjektivoTag $varr($k)]"
+                }
+                if {[lindex $fgrupo 0 0] eq "komp"} {
+                    set traduko [lindex $fgrupo 0 1]
+                    unset -nocomplain varr
+                    foreach {fleks tag} [my generuAdjektivo $traduko] {
+                        lappend varr($fleks) $tag
+                    }
+                    foreach k [array names varr] {
+                        puts $out "$k\t$traduko\t[my kreuFSA2AdjektivoTag $varr($k) comp]"
+                    }
+                }
+            }
+        }
+        #if {$i>120} break
+        incr i
+    }
+    $query destroy
+    close $out
+}
+PLSkriptoObjekto proc generuAdverbojn {} {
+    set i 0
+    set out [open [file join [my prenuMorfologikDosierejo] "gen-adv.txt"] w]
+    set vortaro [Vortaro prenuVortaron]
+    fconfigure $out -encoding iso8859-2
+
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set connection [$dbvortaro set connection]
+
+    set sql "select derivo,traduko,t.fgrupo from derivo,traduko_pl t where derivo.id=derivoid and derivo like '%e'"
+
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    set listo [list]
+    while {[llength [set row [$query fetch]]]>0} {
+        foreach {vorto traduko fgrupo} $row break
+        if {[string first " " $traduko]>=0} continue
+        if {[$vortaro estasVorteto $vorto]} continue
+        if {[info exists konArr($traduko)]} continue
+        if {[lsearch {kilka} $traduko]>=0} continue
+        puts $out "$traduko\t$traduko\tadv:aff"
+        if {[lindex $fgrupo 0 0] eq "komp"} {
+            puts $out "[lindex $fgrupo 0 1]\t$traduko\tadv:comp"
+        }
+        set konArr($traduko) 1
+    }
+    $query destroy
+
+    close $out
+}
+PLSkriptoObjekto proc generuCxion {} {
+    my puriguMorfologikAlKonataj
+    my generuDeVortaro
+    my createDic
+}
+@ PLSkriptoObjekto proc generuDeVortaro {} {
+description {Generu formoj de vortaro}
+}
+PLSkriptoObjekto proc generuDeVortaro {} {
+    my generuAdjektivojn
+    my generuSubstantivojn
+    my generuAdverbojn
+    my puriguVerbIrreg
+}
+PLSkriptoObjekto proc generuNumeralojn {} {
+    set out [open [file join [my prenuMorfologikDosierejo] gen-numeraloj.txt] w]
+    fconfigure $out -encoding iso8859-2
+    
+    set plist {multe wiele kelka kilka kiom ile tiom tyle}
+
+    foreach {p bvorto} $plist {
+        unset -nocomplain varr
+        foreach kazo {M D C B N Ms W} pkazo {nom gen dat acc inst loc voc} {
+            foreach genro {ms mz mn ni ze} pgenro {m1 m2 m3 n f} {
+                lappend varr([PolaFleksio prenuPersonPronomon $p $genro $kazo pluralo]) [dict create nombro pl kazo $pkazo genro $pgenro]
+            }
+        }
+        foreach k [lsort [array names varr]] {
+            puts $out "$k\t$bvorto\t[my kreuFSANumTag $varr($k)]"
+        }
+    }
+    close $out
+}
+PLSkriptoObjekto proc generuPosPronomo formo {
+  set rez [list]
+  foreach kazo {M D C B N Ms W} pkazo {nom gen dat acc inst loc voc} {
+       foreach nombro {singularo pluralo} pnombro {sg pl} {
+           foreach genro {ms mz mn ni ze} pgenro {m1 m2 m3 n f} {
+               lappend rez [PolaFleksio prenuPosesivPronomon $formo $genro $kazo $nombro] [dict create nombro $pnombro kazo $pkazo genro $pgenro]
+               }
+       }
+   }
+   return $rez
+}
+PLSkriptoObjekto proc generuPosPronomojn {} {
+    set out [open gen-posprono.txt w]
+    fconfigure $out -encoding iso8859-2
+    
+    set plist {mia via lia ŝia sia ĝia nia viaj ilia kia nenia ia tia kies ies kiu tiu iu ĉiu}
+
+    foreach p $plist {
+        set bazaVorto [PolaFleksio prenuPosesivPronomon $p ms M singularo]
+        unset -nocomplain varr
+        foreach {bvorto tag} [my generuPosPronomo $p] {
+            dict set tag tipo adj
+            lappend varr($bvorto) $tag
+        }
+        foreach k [lsort [array names varr]] {
+            puts $out "$k\t$bazaVorto\t[my kreuFSA2AdjektivoTag $varr($k)]"
+        }
+    }
+    close $out
+}
+PLSkriptoObjekto proc generuPronomo {formo {genro ni} {kunPluralo 0}} {
+  set rez [list]
+  foreach kazo {M D C B N Ms W} pkazo {nom gen dat acc inst loc voc} {
+       if {$formo eq "si" && $kazo eq "M" || $kazo eq "W"} continue
+       foreach nombro {singularo pluralo} pnombro {sg pl} {
+               if {$pnombro eq "pl" && !$kunPluralo} continue
+               set f [PolaFleksio prenuPersonPronomon  $formo $genro $kazo $nombro 0]
+               set fp [PolaFleksio prenuPersonPronomon  $formo $genro $kazo $nombro 1]
+               lappend rez $f [dict create nombro $pnombro kazo $pkazo]
+               if {$f ne $fp} {
+                   lappend rez $fp [dict create nombro $pnombro kazo $pkazo]
+               }
+       }
+   }
+   return $rez
+}
+PLSkriptoObjekto proc generuPronomojn {} {
+    set out [open [file join [my prenuMorfologikDosierejo] gen-prono.txt] w]
+    fconfigure $out -encoding iso8859-2
+ 
+
+    set plist {mi ja 0 ms
+          vi ty 1 ms
+          ŝi ona 0 ze
+          li on 0 ms
+          ĝi ono 0 ni
+          ni my 0 ms
+          ili oni 0 {ms ze}
+          kiu kto 0 ms
+          kio co 0 ni
+          neniu nikt 0 ms
+          nenio nic 0 ni
+          iu ktoś 1 ms
+          ĉiu każdy 1 {ms mz mn ze ni}
+          io coś 0 ni
+          tio to 0 ni
+          ĉio wszystko 0 ni
+          tiu ten 1 {ms mz mn ze ni}
+          kelka kilka 0 {ms ze}
+          multe wiele 0 {ms}
+          si się 0 ms
+    }
+          
+    set ppron12 {mi vi ni}
+    array set ppron3 {li m ŝi f ĝi n ili m si m}
+
+    foreach {p bazaVorto kp genroj} $plist {
+        unset -nocomplain varr
+        foreach g $genroj {
+            foreach {bvorto tag} [my generuPronomo $p $g $kp] {
+                if {[lsearch $ppron12 $p]>=0} {
+                    dict set tag tipo ppron12
+                    dict set tag genro [list m1 f n]
+                    if {$p eq "mi" || $p eq "ni"} {
+                        dict set tag persono pri
+                    } else {
+                        dict set tag persono sec
+                    }
+                } elseif {[info exists ppron3($p)]} {
+                    dict set tag tipo ppron3
+                    dict set tag genro $ppron3($p)
+                    dict set tag persono ter
+                } else {
+                    dict set tag tipo subst
+                    set tg [string map [list ms m1 mz m2 mn m3 ni n ze f] $g]
+                    dict set tag genro $tg
+                }
+                if {[lsearch {kelka ili multe} $p]>=0} {
+                    dict set tag nombro pl
+                }
+                lappend varr($bvorto) $tag
+            }
+        }
+        foreach k [lsort [array names varr]] {
+            puts $out "$k\t$bazaVorto\t[my kreuFSAPronomoTag $varr($k)]"
+        }
+    }
+    
+    close $out
+}
+PLSkriptoObjekto proc generuSubjekto {subjekto fgrupo gramatiko} {
+  set rez [list]
+  foreach kazo {M D C B N Ms W} pkazo {nom gen dat acc inst loc voc} {
+       foreach nombro {singularo pluralo} pnombro {sg pl} {
+           if {[lsearch $gramatiko blp]>=0 && $nombro eq "singularo"} continue
+           if {[lsearch $gramatiko blm]>=0 && $nombro eq "pluralo"} continue
+           set genro [string map [list ms m1 mz m2 mn m3 ni n ze f] [PolaFleksio prenuArtoDeTipo $fgrupo]]
+           lappend rez [PolaFleksio prenuSubstantivonLauxTipo $subjekto $fgrupo $kazo $nombro] [dict create nombro $pnombro kazo $pkazo genro $genro]
+       }
+   }
+   return $rez
+}
+PLSkriptoObjekto proc generuSubstantivojn {} {
+    set i 0
+    set out [open [file join [my prenuMorfologikDosierejo] "gen-subst.txt"] w]
+    fconfigure $out -encoding iso8859-2
+    
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set connection [$dbvortaro set connection]
+
+    set sql "select derivo,traduko,t.fgrupo,t.gramatiko from derivo,traduko_pl t where derivo.id=derivoid and derivo like '%o'"
+
+    set query [$connection query $sql]
+    
+    while {[llength [set row [$query fetch]]]>0} {
+        foreach {vorto traduko fgrupo gramatiko} $row break
+        if {$traduko in {"ho"}} continue
+        if {$fgrupo eq ""} continue
+        if {[string first " " $traduko]<0 && $fgrupo ne "" && ![info exists konArr($traduko)]} {
+            set konArr($traduko) 1
+            unset -nocomplain varr
+            foreach {fleks tag} [my generuSubjekto $traduko $fgrupo $gramatiko] {
+                lappend varr($fleks) $tag
+            }
+            set genro [string map [list ms m1 mz m2 mn m3 ni n ze f] [PolaFleksio prenuArtoDeTipo $fgrupo]]
+            foreach k [array names varr] {
+                puts $out "$k\t$traduko\t[my kreuFSASubjektoTag $varr($k) $genro]"
+            }
+        }
+    }
+    close $out
+}
+PLSkriptoObjekto proc generuVerbo {verbo fgrupo gramatiko} {
+  set rez [list]
+  # PLSkriptoObjekto generuVerbo podpalać I ndk
+  # widział - verb:praet:sg:ter:m:?perf
+  # widzę - verb:sg:pri:?perf
+  foreach tempo {is as} ptempo {preat fin} {
+       foreach nombro {singularo pluralo} pnombro {sg pl} {
+           foreach persono {1 2 3} ppersono {pri sec ter} {
+               foreach genro {ms ze ni} pgenro {m f n} {
+                   if {[catch {lappend rez [PolaFleksio prenuVerbon $verbo $fgrupo $persono $genro $nombro $tempo] [dict create nombro $pnombro genro $pgenro persono $ppersono tempo $ptempo]}]} {
+                   }
+               }
+           }
+       }
+   }
+   lappend rez [PolaFleksio prenuVerbon $verbo $fgrupo 2 ms singularo u] [dict create nombro sg persono sec tempo impt]
+   lappend rez [PolaFleksio prenuVerbon $verbo $fgrupo 2 ms pluralo u] [dict create nombro pl persono sec tempo impt]
+   return $rez
+}
+PLSkriptoObjekto proc getCompresed {vorto bvorto} {
+   if {$vorto eq $bvorto} {
+       return AAA
+   }
+   set lbv [string length $bvorto]
+   set lv [string length $vorto]
+   # prefix niezrobiona - zrobiony
+   set pdiff 0
+   set comm 0
+   for {set i 0} {$i<$lv} {incr i} {
+       if {[string index $vorto $i] eq [string index $bvorto 0] && $i>0 && $comm<0} {
+           set pdiff $i
+           if {[string index $vorto [expr {$i+1}]] eq [string index $bvorto 1]} {
+               break
+           } else {
+               set pdiff 0
+           }
+       }
+       if {[string index $vorto $i] eq [string index $bvorto $i] && $comm>=0} {
+           incr comm
+           if {$comm>2} {
+               set pdiff 0
+               break
+           }
+       } else {
+           set comm -1
+       }
+   }
+   for {set i 0} {$i<$lbv && $i<$lv-$pdiff} {incr i} {
+       if {[string index $vorto [expr {$i+$pdiff}]] ne [string index $bvorto $i]} {
+           break
+       }
+   }
+   set diff [expr {$lv-$i-$pdiff}]
+   return A[format %c [expr {65+$pdiff}]][format %c [expr {65+$diff}]][string range $bvorto $i end]
+}
+PLSkriptoObjekto proc kreuFSA2AdjektivoTag {atags {komp aff}} {
+    set d [dict create]
+    set tags [list]
+    foreach t $atags {
+        set nombro [dict get $t nombro]
+        set kazo [dict get $t kazo]
+        set genro [dict get $t genro]
+        lappend tags [list $nombro $kazo $genro]
+    }
+    set rez [list]
+    foreach t [my compressLists $tags] {
+        foreach {nombro kazo genro} $t break
+        lappend rez adj:[join $nombro .]:[join $kazo .]:[join $genro .]:pos:$komp
+    }
+    join $rez +
+}
+PLSkriptoObjekto proc kreuFSAAdjektivoTag atags {
+    set plj [list]
+    set sgj [list]
+    foreach t $atags {
+        if {[dict get $t nombro] eq "pl"} {
+            lappend plj $t
+        } else {
+            lappend sgj $t
+        }
+    }
+    set rez [list]
+    if {[llength $plj]>0} {
+        set kazoj [list]
+        set genroj [list]
+        foreach t $plj {
+            lappend kazoj [dict get $t kazo]
+            lappend genroj [dict get $t genro]
+        }
+        set kazoj [lsort -unique $kazoj]
+        set genroj [lsort -unique $genroj]
+        lappend rez [dict get [lindex $atags 0] tipo]:pl:[join $kazoj .]:[join $genroj .]:pos:aff
+    }
+    if {[llength $sgj]>0} {
+        set kazoj [list]
+        set genroj [list]
+        foreach t $sgj {
+            lappend kazoj [dict get $t kazo]
+            lappend genroj [dict get $t genro]
+        }
+        set kazoj [lsort -unique $kazoj]
+        set genroj [lsort -unique $genroj]
+        lappend rez [dict get [lindex $atags 0] tipo]:sg:[join $kazoj .]:[join $genroj .]:pos:aff
+    }
+    join $rez +
+}
+PLSkriptoObjekto proc kreuFSANumTag atags {
+    set d [dict create]
+    set tags [list]
+    foreach t $atags {
+        set nombro [dict get $t nombro]
+        set kazo [dict get $t kazo]
+        set genro [dict get $t genro]
+        lappend tags [list $nombro $kazo $genro]
+    }
+    set rez [list]
+    foreach t [my compressLists $tags] {
+        foreach {nombro kazo genro} $t break
+        lappend rez num:[join $nombro .]:[join $kazo .]:[join $genro .]
+    }
+    join $rez +
+}
+PLSkriptoObjekto proc kreuFSAPronomoTag atags {
+    set d [dict create]
+    set tags [list]
+    set tipo [dict get [lindex $atags 0] tipo]
+    foreach t $atags {
+        set nombro [dict get $t nombro]
+        set kazo [dict get $t kazo]
+        set genro [dict get $t genro]
+        lappend tags [list $nombro $kazo $genro]
+    }
+    set rez [list]
+    foreach t [my compressLists $tags] {
+        foreach {nombro kazo genro} $t break
+        if {[dict exists [lindex $atags 0] persono]} {
+            lappend rez ${tipo}:[join $nombro .]:[join $kazo .]:[join $genro .]:[dict get [lindex $atags 0] persono]
+        } else {
+            lappend rez ${tipo}:[join $nombro .]:[join $kazo .]:[join $genro .]
+        }
+    }
+    join  $rez +
+}
+PLSkriptoObjekto proc kreuFSASubjektoTag {atags genro} {
+    set plj [list]
+    set sgj [list]
+    foreach t $atags {
+        if {[dict get $t nombro] eq "pl"} {
+            lappend plj $t
+        } else {
+            lappend sgj $t
+        }
+    }
+    set rez [list]
+    if {[llength $plj]>0} {
+        set kazoj [list]
+        foreach t $plj {
+            lappend kazoj [dict get $t kazo]
+        }
+        set kazoj [lsort -unique $kazoj]
+        lappend rez subst:pl:[join $kazoj .]:$genro
+    }
+    if {[llength $sgj]>0} {
+        set kazoj [list]
+        foreach t $sgj {
+            lappend kazoj [dict get $t kazo]
+        }
+        set kazoj [lsort -unique $kazoj]
+        lappend rez subst:sg:[join $kazoj .]:$genro
+    }
+    join $rez +
+}
+PLSkriptoObjekto proc kreuFSAVerboTag {atags gramatiko} {
+    set genroj [list]
+    set nombroj [list]
+    set personoj [list]
+    set tempoj [list]
+    foreach t $atags {
+        if {[dict exists $t genro]} {
+            lappend genroj [dict get $t genro]
+        }
+        if {[dict exists $t nombro]} {
+            lappend nombroj [dict get $t nombro]
+        }
+        if {[dict exists $t persono]} {
+            lappend personoj [dict get $t persono]
+        }
+        if {[dict exists $t tempo] && [dict get $t tempo] ne ""} {
+            lappend tempoj [dict get $t tempo]
+        }
+    }
+    set genroj [lsort -unique $genroj]
+    set nombroj [lsort -unique $nombroj]
+    set personoj [lsort -unique $personoj]
+    set tempoj [lsort -unique $tempoj]
+    if {[lsearch $gramatiko ndk]>=0} {
+        set ndkdk imperf
+    } elseif {[lsearch $gramatiko dk]>=0} {
+        set ndkdk perf
+    } else {
+        set ndkdk ?perf
+    }
+    if {[lsearch $tempoj praet]>0} {
+        set tempo preat
+    } elseif {[llength $tempoj]>0} {
+        set tempo [lindex $tempoj 0]
+    } else {
+        set tempo fin
+    }
+
+    return verb:${tempo}:[join $nombroj .]:[join $personoj .]:$ndkdk
+}
+PLSkriptoObjekto proc kreuListoDeMultTradukoj {} {
+    set out [open "pleo_mtradukoj.txt" w]
+    set vortaro [DBVortaro prenuDepVortaron]
+
+    set vortoj [list]
+    mk::loop c revodb.tradukojpl {
+         set v [mk::get $c traduko]
+         if {[llength $v]>1} {
+             if {[llength $v]==2 && [lindex $v 1] eq "się"} continue
+             set derivo [mk::get revodb.derivoj![mk::get $c derivoid] vorto]
+             puts $out [list $v $derivo]
+         }
+    }
+    close $out
+}
+PLSkriptoObjekto proc kreuTagsPorSubstantivo {bazaFormo fleksFormo} {
+    set vortaro [DBVortaro prenuDepVortaron]
+    set rez [$vortaro sxercxuRezListoPorTraduko $bazaFormo pl]
+    set tags [list]
+    if {[llength $rez] == 0} {
+        return $tags
+    } else {
+        foreach r $rez {
+            array set attrArr $r
+            set fgrupo $attrArr(fgrupo)
+            if {$fgrupo eq ""} continue
+            set gramatiko $attrArr(gramatiko)
+            set vtipo [string index $attrArr(vorto) end]
+            if {$vtipo eq "o"} {
+                set genro [string map [list ms m1 mz m2 mn m3 ni n ze f] [PolaFleksio prenuArtoDeTipo $fgrupo]]
+                foreach nombro {singularo pluralo} pnombro {sg pl} {
+                    if {[lsearch $gramatiko blp]>=0 && $nombro eq "singularo"} continue
+                    if {[lsearch $gramatiko blm]>=0 && $nombro eq "pluralo"} continue
+                    set tag [dict create tipo subj genro $genro nombro $pnombro]
+                    set kazoj [list]
+                    foreach kazo {M D C B N Ms W} pkazo {nom gen dat acc inst loc voc} {
+                        set fleks [PolaFleksio prenuSubstantivonLauxTipo $bazaFormo $fgrupo $kazo $nombro]
+                        if {$fleks eq $fleksFormo} {
+                            lappend kazoj $pkazo
+                        }
+                    }
+                    if {[llength $kazoj]>0} {
+                        dict set tag kazo $kazoj
+                        lappend tags $tag
+                    }
+                }
+                break
+            }
+        }
+    }
+    return $tags
+}
+PLSkriptoObjekto proc metuROrdoPorSinonimojVortaro {} {
+    # metas rordon en eo->pl vortaro laux ofteco de esperantaj vortoj
+    # ekzemple
+    # powoli -> malrapide, lante
+    set connection [SQLDBVortaro getVortaroConnection]
+    set dbvortaro [SQLDBVortaro getSQLDBVortaron]
+    set lingvo pl
+    set sql "select t1.traduko from traduko_$lingvo t1, traduko_$lingvo t2 where t1.traduko=t2.traduko and t1.derivoid<>t2.derivoid and t1.id<t2.id"
+    set query [$connection query $sql]
+
+    set oftecoIlo [FrekvencoListo prenuFrekveno]
+
+    set ktradukoj [list]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        set traduko [lindex $row 0]
+        if {$traduko in $ktradukoj} continue
+        lappend ktradukoj $traduko
+        set tradukoj [list]
+        set plejGrandaRordo 0
+        set neniaRordo 0
+        puts "vorto $traduko"
+        foreach r [$connection queryList "select t.id,d.id,d.derivo,t.rordo from traduko_$lingvo t,derivo d where t.derivoid=d.id and t.traduko='$traduko' order by rordo"] {
+            lappend tradukoj $r
+            set rordo [lindex $r 3]
+            if {$rordo ne "" && ($plejGrandaRordo eq "" || $rordo>$plejGrandaRordo)} {
+                set plejGrandaRordo $rordo
+            }
+            if {$rordo eq ""} {
+                set neniaRordo 1
+            }
+        }
+        if {$neniaRordo} {
+            set ntradukoj [list]
+            foreach t $tradukoj {
+                lassign $t tid did derivo rordo
+                if {$rordo eq ""} {
+                    set ofteco [$oftecoIlo prenuFrekvencon $derivo]
+                    if {$ofteco<0} {
+                        set ofteco 100
+                    }
+                    lappend ntradukoj [list $tid $ofteco $derivo]
+                }
+            }
+            incr plejGrandaRordo
+            foreach t [lsort -index 1 -integer $ntradukoj] {
+                lassign $t tid ofteco derivo
+                set rordo $plejGrandaRordo
+                if {$ofteco==100} {
+                    incr rordo 100
+                }
+                puts "$traduko - $derivo ofteco=$ofteco rordo=$rordo"
+                $dbvortaro modifuTradukon $tid $derivo $traduko [list rordo $rordo] pl
+                incr plejGrandaRordo
+            }
+        }
+    }
+    $query destroy
+}
+PLSkriptoObjekto proc prenuMorfologikDosierejo {} {
+    file join [Esperantilozentro prenuFontoDosieron] morfologik
+}
+PLSkriptoObjekto proc prenuRandDeListo {listo number} {
+    set len [llength $listo]
+    if {$len<=$number} {
+        return $listo
+    }
+    set rez [list]
+    set l 0
+    set c 0
+
+    while {$l<$number && $c<$number*3} {
+        incr c
+        set i [expr (round(rand()*($len-1)))]
+        set elem [lindex $listo $i]
+        if {[lsearch $rez $elem]>=0} {
+            continue
+        }
+        lappend rez $elem
+        incr l
+    }
+    return $rez
+}
+PLSkriptoObjekto proc prenuSpecialajnKompAdj {} {
+    set vortaro [DBVortaro prenuDepVortaron]
+
+    set vortoj [list]
+    mk::loop c revodb.tradukojpl {
+         foreach {v fgrupo} [mk::get $c traduko fgrupo] {
+             if {[string first [string index $v end] iy]>=0} {
+                 foreach f $fgrupo {
+                     if {[lindex $f 0] eq "komp"} {
+                         set komp [lindex $f 1]
+                         if {[PolaFleksio prenuBasanAdjDeComp $komp] ne $v} {
+                             lappend vortoj $komp $v
+                         }
+                     }
+                 }
+             }
+         }
+    }
+    return $vortoj
+}
+PLSkriptoObjekto proc prepMorph {{tf {}}} {
+   if {$tf eq ""} {
+       set f [IDE::Dialog getOpenFile]
+   } else {
+       set f $tf
+   }
+
+   if {$f eq ""} return
+   set in [open $f r]
+   fconfigure $in -encoding iso8859-2
+   set out [open [file rootname $f].prp w]
+   fconfigure $out -encoding iso8859-2 -translation lf
+   while {[gets $in line]>=0} {
+       if {$line eq ""} continue
+       foreach {vorto bvorto tag} [split $line \t] break
+       set mark [my getCompresed $vorto $bvorto]
+       puts $out $vorto+$mark+$tag
+   }
+
+   close $in
+   close $out
+   # kiel fari la vortaron
+   # ./fsaubuild.exe  -A + -i morfologik_test.prp -o morfologik_test.dict
+}
+@ PLSkriptoObjekto proc puriguMorfologikAlKonataj {} {
+description {Tiu skripto kreas pl.dic de morfologik.
+La skripto purigas la morfologik kun informoj de esperantila fortaro.
+Nur vortoj, kiu estas konataj al esperantilo estas en fina pl.dic
+
+Vidu: genero "category" por cxefaj skripoj}
+}
+PLSkriptoObjekto proc puriguMorfologikAlKonataj {} {
+    set i 0
+    set in [open [file join [my prenuMorfologikDosierejo] morfologik.txt] r]
+    set out [open [file join [my prenuMorfologikDosierejo] morfologik_pura.txt] w]
+    fconfigure $in -encoding iso8859-2
+    fconfigure $out -encoding iso8859-2
+    set vortaro [DBVortaro prenuDepVortaron]
+
+    set vortoj [list]
+
+    set dbvortaro [DBVortaro prenuDepVortaron]
+    set connection [$dbvortaro set connection]
+
+    set sql "select traduko,fgrupo from traduko_pl"
+
+
+    set query [$connection query $sql]
+    set i 0
+    set rows [$query rows]
+
+    while {[llength [set row [$query fetch]]]>0} {
+        foreach {traduko fgrupo} $row break
+        foreach f $fgrupo {
+            if {[lindex $f 0] eq "komp"} {
+                lappend vortoj [lindex $f 1]
+                lappend vortoj naj[lindex $f 1]
+            }
+        }
+        foreach v $traduko {
+            lappend vortoj $v
+        }
+    }
+    $query destroy
+
+    for {set n 1} {$n<=10} {incr n} {
+        lappend vortoj [PolaFleksio prenuNumero $n ordo]
+        lappend vortoj [PolaFleksio prenuNumero [expr {$n*10}] ordo]
+        lappend vortoj [PolaFleksio prenuNumero [expr {$n+10}] ordo]
+        lappend vortoj [PolaFleksio prenuNumero [expr {$n*100}] ordo]
+    }
+
+    set vortoj [lsort -unique $vortoj]
+
+    while {[gets $in line]>=0} {
+        if {$line eq "" || [string index $line 0] eq "#"} continue
+        foreach {infleks bazaformo tag} [split $line \t] break
+        if {[string first num: $tag]>=0} {
+            puts $out $line
+        } elseif {[lsearch -sorted $vortoj $bazaformo]>=0} {
+            puts $out $line
+        }
+    }
+
+    close $out
+    close $in
+}
+PLSkriptoObjekto proc puriguSubstIrreg {} {
+    set i 0
+    set in [open "morfologik_subst_irreg.txt" r]
+    set out [open "morfologik_subst_irreg_diff.txt" w]
+    fconfigure $in -encoding iso8859-2
+    fconfigure $out -encoding iso8859-2
+    set vortaro [DBVortaro prenuDepVortaron]
+
+    while {[gets $in line]>=0} {
+        if {$line eq "" || [string index $line 0] eq "#"} continue
+        foreach {infleks bazaformo tag} [split $line \t] break
+        foreach tra [$vortaro sxercxuRezListoPorTraduko $bazaformo pl] {
+            array set tradArr $tra
+            if {$tradArr(fgrupo) eq ""} continue
+            if {[string index $tradArr(vorto) end] ne "o"} continue
+            set atags [list]
+            foreach {fleks tdic} [my generuSubjekto $bazaformo $tradArr(fgrupo) $tradArr(gramatiko)] {
+                if {$fleks ne $infleks} continue
+                lappend atags $tdic
+            }
+            set genro [string map [list ms m1 mz m2 mn m3 ni n ze f] [PolaFleksio prenuArtoDeTipo $tradArr(fgrupo)]]
+            if {[llength $atags]>0} {
+                puts $out "# $line"
+                puts $out "$infleks\t$bazaformo\t[my kreuFSASubjektoTag $atags $genro]"
+            }
+
+            break
+        }
+    }
+
+    close $out
+    close $in
+}
+PLSkriptoObjekto proc puriguVerbIrreg {} {
+    set i 0
+    set d [file join [Esperantilozentro prenuFontoDosieron] morfologik]
+    # grep verb:irreg morfologik.txt > morfologik_verb_irreg.txt
+    set in [open [file join $d "morfologik_verb_irreg.txt"] r]
+    set out [open [file join $d "morfologik_verb_irreg_diff.txt"] w]
+    fconfigure $in -encoding iso8859-2
+    fconfigure $out -encoding iso8859-2
+    set vortaro [DBVortaro prenuDepVortaron]
+
+    while {[gets $in line]>=0} {
+        if {$line eq "" || [string index $line 0] eq "#"} continue
+        foreach {infleks bazaformo tag} [split $line \t] break
+        foreach tra [$vortaro sxercxuRezListoPorTraduko $bazaformo pl] {
+            array set tradArr $tra
+            if {$tradArr(fgrupo) eq ""} continue
+            if {[string index $tradArr(vorto) end] ne "i"} continue
+            set atags [list]
+            foreach {fleks tdic} [my generuVerbo $bazaformo $tradArr(fgrupo) $tradArr(gramatiko)] {
+                if {$fleks ne $infleks} continue
+                lappend atags $tdic
+            }
+            if {[llength $atags]>0} {
+                puts $out "# $line"
+                puts $out "$infleks\t$bazaformo\t[my kreuFSAVerboTag $atags $tradArr(gramatiko)]"
+            } else {
+                set adjektivo [PolaFleksio prenuVerbon $bazaformo $tradArr(fgrupo) 1 ms singularo ata]
+                set atags [list]
+                foreach {fleks tdic} [my generuAdjektivo $adjektivo] {
+                    if {$fleks ne $infleks} continue
+                    dict set tdic tipo ppas
+                    lappend atags $tdic
+                }
+                if {[llength $atags]>0} {
+                    puts $out "# $line"
+                    puts $out "$infleks\t$bazaformo\t[my kreuFSAAdjektivoTag $atags]"
+                }
+            }
+
+            break
+        }
+    }
+
+    close $out
+    close $in
+}
+PLSkriptoObjekto proc testSplitMorf file {
+    cd [my prenuMorfologikDosierejo]
+    set in [open $file r]
+    fconfigure $in -encoding iso8859-2
+    set out1 [open out1.prp w]
+    fconfigure $out1 -encoding iso8859-2 -translation lf
+    set out2 [open out2.prp w]
+    fconfigure $out2 -encoding iso8859-2 -translation lf
+    set vortoj1 [list]
+    set vortoj2 [list]
+
+    set isout1 1
+    while {[gets $in line]>=0} {
+        set vorto [lindex [split $line +] 0]
+        if {$isout1} {
+            puts $out1 $line
+            lappend vortoj1 $vorto
+            set isout1 0
+        } else {
+            puts $out2 $line
+            lappend vortoj2 $vorto
+            set isout1 1
+        }
+    }
+    close $in
+    close $out1
+    close $out2
+    if {[llength $vortoj1]<10} {
+        puts "listo estas  jam mallonga [llength $vortoj1]"
+        return
+    }
+
+    puts "Teste mit [llength $vortoj1]"
+    update
+
+    my buildMorfologik out1.prp out1.dict
+    set vortoj1 [my prenuRandDeListo $vortoj1 20]
+    if {[my testuMorfologik out1.dict $vortoj1]} {
+        my buildMorfologik out2.prp out2.dict
+        set vortoj2 [my prenuRandDeListo $vortoj2 20]
+        if {[my testuMorfologik out2.dict $vortoj2]} {
+            puts "Kein Fehler gefunden"
+            return
+        } else {
+            file rename -force out2.prp $file
+            my testSplitMorf $file
+        }
+    } else {
+        file rename -force out1.prp $file
+        my testSplitMorf $file
+    }
+
+}
+PLSkriptoObjekto proc testuAdjektivo {adjektivo out {tipo adj}} {
+   # PLSkriptoObjekto testuAdjektivo dobry stdout
+   set tager [PLTagger prenuTagger]
+   foreach {formo edtag} [my generuAdjektivo $adjektivo] {
+       set found 0
+       set err ""
+       foreach {bvorto tag} [$tager prenuTag $formo] {
+           if {$bvorto ne $adjektivo} continue
+           set found 1
+           set tagok 0
+           foreach t $tag {
+               set dtag [dict create]
+               set tagl [split $t :]
+               if {[llength $tagl]==0} {
+                   continue
+               }
+               foreach {tipo nombro kazo genro} $tagl {
+                   dict set dtag tipo $tipo
+                   dict set dtag nombro $nombro
+                   foreach k [split $kazo .] {
+                       dict lappend dtag kazo $k
+                   }
+                   foreach k [split $genro .] {
+                       dict lappend dtag genro $k
+                   }
+                   break
+               }
+               if {[dict get $edtag nombro] ne [dict get $dtag nombro]} {
+                   set err "nombro - $adjektivo $formo $edtag - $dtag "
+                   continue
+               }
+               if {[lsearch [dict get $dtag kazo] [dict get $edtag kazo]]<0} {
+                   set err "kazo - $adjektivo $formo $edtag - (fsa) $dtag "
+                   continue
+               }
+               if {[lsearch [dict get $dtag genro] [dict get $edtag genro]]<0} {
+                   if {[string index [dict get $edtag genro] 0] ne "m" || [lsearch [dict get $dtag genro] m]<0} {
+                       set err "genro - $adjektivo $formo $edtag - (fsa) $dtag "
+                       continue
+                   }
+               }
+               set err ""
+               set tagok 1
+               break
+           }
+           if {$tagok} break
+       }
+       if {$err ne ""} {
+           puts $out $err
+       }
+       if {!$found} {
+           puts $out "nf - $adjektivo $formo $edtag"
+       }
+   }
+}
+PLSkriptoObjekto proc testuDeMkkit {} {
+    set i 0
+    set out [open "fleks-test.txt" w]
+    foreach tid [mk::select revodb.tradukojpl] {
+        array set tradArr [mk::get revodb.tradukojpl!$tid]
+        if {$tradArr(fgrupo) eq ""} continue
+        set vorto [mk::get revodb.derivoj!$tradArr(derivoid) vorto]
+        if {[string index $vorto end] eq "o"} {
+            if {[string first " " $tradArr(traduko)]<0} {
+                my testuSubjekto $tradArr(traduko) $tradArr(fgrupo) $tradArr(gramatiko) $out
+            }
+        }
+        #if {$i>120} break
+        incr i
+    }
+    close $out
+}
+PLSkriptoObjekto proc testuMorfologik {dosiero vortoj} {
+    cd [my prenuMorfologikDosierejo]
+    set w [open test.txt w]
+    fconfigure $w -encoding iso8859-2 -translation lf
+    foreach v $vortoj {
+        puts $w $v
+    }
+    close $w
+    set rez [exec fsamorph.exe -I -P -d $dosiero -i test.txt]
+    if {[string first "not found" $rez]>=0} {
+        return 0
+    }
+    return 1
+}
+PLSkriptoObjekto proc testuPosPronomojn {} {
+    set plist {mia via lia ŝia sia ĝia nia viaj ilia kia nenia ia tia kies ies kiu tiu iu ĉiu}
+    foreach p $plist {
+        my testuPosPronomon $p stdout
+    }
+}
+PLSkriptoObjekto proc testuPosPronomon {ppronomo out} {
+   # PLSkriptoObjekto testuAdjektivo dobry stdout
+   set tager [PLTagger prenuTagger]
+   set bazaVorto [PolaFleksio prenuPosesivPronomon $ppronomo ms M singularo]
+   foreach {formo edtag} [my generuPosPronomo $ppronomo] {
+       set found 0
+       set err ""
+       foreach {bvorto tag} [$tager prenuTag $formo] {
+           if {$bvorto ne $bazaVorto} continue
+           set found 1
+           set tagok 0
+           foreach t $tag {
+               set dtag [dict create]
+               set tagl [split $t :]
+               if {[llength $tagl]==0} {
+                   continue
+               }
+               foreach {tipo nombro kazo genro} $tagl {
+                   dict set dtag tipo $tipo
+                   dict set dtag nombro $nombro
+                   foreach k [split $kazo .] {
+                       dict lappend dtag kazo $k
+                   }
+                   foreach k [split $genro .] {
+                       dict lappend dtag genro $k
+                   }
+                   break
+               }
+               if {[dict get $edtag nombro] ne [dict get $dtag nombro]} {
+                   set err "nombro - $ppronomo $formo $edtag - $dtag "
+                   continue
+               }
+               if {[lsearch [dict get $dtag kazo] [dict get $edtag kazo]]<0} {
+                   set err "kazo - $ppronomo $formo $edtag - (fsa) $dtag "
+                   continue
+               }
+               if {[lsearch [dict get $dtag genro] [dict get $edtag genro]]<0} {
+                   if {[string index [dict get $edtag genro] 0] ne "m" || [lsearch [dict get $dtag genro] m]<0} {
+                       set err "genro - $ppronomo $formo $edtag - (fsa) $dtag "
+                       continue
+                   }
+               }
+               set err ""
+               set tagok 1
+               break
+           }
+           if {$tagok} break
+       }
+       if {$err ne ""} {
+           puts $out $err
+       }
+       if {!$found} {
+           puts $out "nf - $ppronomo $formo $edtag"
+       }
+   }
+}
+PLSkriptoObjekto proc testuPronomojn {} {
+    set plist {mi ja 0 ms
+          vi ty 1 ms
+          ŝi ona 0 ze
+          li on 0 ms
+          ĝi ono 0 ni
+          ni my 0 ms
+          ili oni 0 {ms ze}
+          kiu kto 0 ms
+          kio co 0 ms
+          neniu nikt 0 ms
+          nenio nic 0 ms
+          iu ktoś 1 ms
+          ĉiu każdy 1 {ms mz mn ze ni}
+          io coś 0 ms
+          tio to 0 ms
+          ĉio wszystko 0 ms
+          tiu ten 1 {ms mz mn ze ni}
+          kelka kilka 0 {mn ze}
+    }
+    foreach {p bv kp genroj} $plist {
+        foreach g $genroj {
+            my testuPronomon $p $bv stdout $g $kp
+        }
+    }
+}
+PLSkriptoObjekto proc testuPronomon {ppronomo bazaVorto out {genro ni} {kunPluralo 0}} {
+   # PLSkriptoObjekto testuAdjektivo dobry stdout
+   set tager [PLTagger prenuTagger]
+   foreach {formo edtag} [my generuPronomo $ppronomo $genro $kunPluralo] {
+       set found 0
+       set err ""
+       foreach {bvorto tag} [$tager prenuTag $formo] {
+           if {$bvorto ne $bazaVorto} continue
+           set found 1
+           set tagok 0
+           foreach t $tag {
+               set dtag [dict create]
+               set tagl [split $t :]
+               if {[llength $tagl]==0} {
+                   continue
+               }
+               foreach {tipo nombro kazo genro} $tagl {
+                   dict set dtag tipo $tipo
+                   dict set dtag nombro $nombro
+                   foreach k [split $kazo .] {
+                       dict lappend dtag kazo $k
+                   }
+                   foreach k [split $genro .] {
+                       dict lappend dtag genro $k
+                   }
+                   break
+               }
+               if {[dict get $edtag nombro] ne [dict get $dtag nombro]} {
+                   set err "nombro - $bazaVorto $formo $edtag - $dtag "
+                   continue
+               }
+               if {[lsearch [dict get $dtag kazo] [dict get $edtag kazo]]<0} {
+                   set err "kazo - $bazaVorto $formo $edtag - (fsa) $dtag "
+                   continue
+               }
+               set err ""
+               set tagok 1
+               break
+           }
+           if {$tagok} break
+       }
+       if {$err ne ""} {
+           puts $out $err
+       }
+       if {!$found} {
+           puts $out "nf - $bazaVorto $formo $edtag"
+       }
+   }
+}
+PLSkriptoObjekto proc testuSubjekto {subjekto fgrupo gramatiko out} {
+   # PLSkriptoObjekto testuSubjekto ojca {21* {fb ojc}} ""
+   set tager [PLTagger prenuTagger]
+   foreach {formo edtag} [my generuSubjekto $subjekto $fgrupo $gramatiko] {
+       set found 0
+       set err ""
+       foreach {bvorto tag} [$tager prenuTag $formo] {
+           unset -nocomplain dtag
+           if {$bvorto ne $subjekto} continue
+           set found 1
+           foreach t $tag {
+               set tagl [split $t :]
+               if {[llength $tagl]==0} {
+                   continue
+               }
+               foreach {tipo nombro kazo genro} $tagl {
+                   dict lappend dtag tipo $tipo
+                   dict lappend dtag nombro $nombro
+                   foreach k [split $kazo .] {
+                       dict lappend dtag kazo $k
+                   }
+                   dict lappend dtag genro $genro
+                   break
+               }
+           }
+           dict for {id key} $dtag {
+               if {[llength $key]>1} {
+                   dict set dtag $id [lsort -unique $key]
+               }
+           }
+           if {[dict get $edtag nombro] ne [dict get $dtag nombro]} {
+               set err "nombro - $subjekto $formo $edtag - $dtag "
+               continue
+           }
+           if {[lsearch [dict get $dtag kazo] [dict get $edtag kazo]]<0} {
+               # acc estas gen
+               if {[dict get $edtag kazo] ne "acc" || [lsearch [dict get $dtag kazo] gen]<0} {
+                   set err "kazo - $subjekto $formo $edtag - (fsa) $dtag "
+               }
+               continue
+           }
+           if {[lsearch [dict get $edtag genro] [dict get $dtag genro]]<0} {
+               if {[string index [dict get $edtag genro] 0] ne "m" || ([lsearch [dict get $dtag genro] m]<0 && [string index [dict get $dtag genro] 0] ne "m")} {
+                   set err "genro - $subjekto $formo $edtag - (fsa) $dtag "
+                   continue
+               }
+           }
+           set err ""
+           break
+       }
+       if {$err ne ""} {
+           puts $out $err
+       }
+       if {!$found} {
+           puts $out "nf - $subjekto $formo $etag"
+       }
+   }
+}
+PLSkriptoObjekto proc testuVerbo {verbo fgrupo gramatiko out} {
+   # PLSkriptoObjekto testuSubjekto ojca {21* {fb ojc}} ""
+   set tager [PLTagger prenuTagger]
+   foreach {formo edtag} [my generuVerbo $verbo $fgrupo $gramatiko] {
+       set found 0
+       foreach {bvorto tag} [$tager prenuTag $formo] {
+           if {$bvorto ne $verbo} continue
+           set found 1
+           foreach t $tag {
+               set dtag [my ekstraktuVerboTag $t]
+           }
+           if {[dict exists $dtag tempo] && [dict get $dtag tempo] eq "irreg"} {
+               puts $out "irreg - $verbo $formo $edtag - $dtag "
+               continue
+           }
+           if {![dict exists $dtag nombro] || [dict get $edtag nombro] ne [dict get $dtag nombro]} {
+               puts $out "nombro - $verbo $formo $edtag - $dtag "
+               continue
+           }
+           if {[dict get $edtag persono] ne [dict get $dtag persono]} {
+               #puts $out "# $formo\t${verbo}\t$tag"
+               #puts $out "$formo\t${verbo}\t[my kreuFSAVerboTag [list $edtag] $gramatiko]"
+               puts $out "persono - $verbo $formo $edtag - $dtag "
+               continue
+           }
+           if {[dict get $edtag tempo] ne "" && (![dict exists $dtag tempo] || [dict get $edtag tempo] ne [dict get $dtag tempo])} {
+               puts $out "tempo - $verbo $formo $edtag - $dtag "
+               continue
+           }
+           if {0 && [dict exists $dtag genro] && [dict get $edtag genro] ne [dict get $dtag genro]} {
+               puts $out "genro - $verbo $formo $edtag - $dtag "
+               continue
+           }
+       }
+       if {!$found} {
+           #puts $out "nf - $verbo $formo $edtag"
+       }
+   }
+}
+PLSkriptoObjekto proc testuVerbojDeMetakit {} {
+    set i 0
+    set out [open "fleks-test-verboj.txt" w]
+    #fconfigure $out -encoding iso8859-2
+    foreach tid [mk::select revodb.tradukojpl] {
+        array set tradArr [mk::get revodb.tradukojpl!$tid]
+        if {$tradArr(fgrupo) eq ""} continue
+        set vorto [mk::get revodb.derivoj!$tradArr(derivoid) vorto]
+        if {[string index $vorto end] eq "i"} {
+            if {[string first " " $tradArr(traduko)]<0} {
+                my testuVerbo $tradArr(traduko) $tradArr(fgrupo) $tradArr(gramatiko) $out
+            }
+        }
+        #if {$i>120} break
+        incr i
+    }
+    close $out
+}
+PLSkriptoObjekto proc testuVortetojn {} {
+    set tagger [PLTagger prenuTagger]
+    set vortaro [DBVortaro prenuDepVortaron]
+    set rez ""
+    foreach p [[Vortaro prenuVortaron] set pronomoj] {
+        set trovita 0
+        foreach t [$vortaro sxercxuRezListo $p pl] {
+            array set tArr $t
+            set trovita 1
+            append rez "$tArr(traduko) [$tagger prenuTag $tArr(traduko)]\n"
+        }
+        if {$trovita==0} {
+            append rez "# $p\n"
+        }
+    }
+    EsperantoBrowser redaktoTekston $rez
+}
+Object PlFabriko
+@ ::PlFabriko idemeta component EspPlSintaksaAnalizo
+PlFabriko proc kreuFrazTraduko {name {type normal}} {
+    if {$type eq "-childof"} {
+        PlFrazTraduko new -childof $name
+    } else {
+        PlFrazTraduko create $name
+    }
+}
+PlFabriko proc kreuFrazo {name {type normal}} {
+    if {$type eq "-childof"} {
+        Pl::Frazo new -childof $name
+    } else {
+        Pl::Frazo create $name
+    }
+}
+PlFabriko proc kreuFrazoLegilo {name {type normal}} {
+    if {$type eq "-childof"} {
+        FrazoLegilo new -childof $name -mixin PlFrazoLegilo
+    } else {
+        FrazoLegilo create $name -mixin PlFrazoLegilo
+    }
+}
+PlFabriko proc kreuSintaksAnalizilo {name {type normal}} {
+    if {$type eq "-childof"} {
+        PlSintaksaAnalizo new -childof $name
+    } else {
+        PlSintaksaAnalizo create $name
+    }
+}
+PlFabriko proc prenuCelanLingvon {} {
+    return eo
+}
+PlFabriko proc prenuFontanLingvon {} {
+    return pl
+}
+PlFabriko proc prenuTagger {} {
+    PLTagger prenuTagger
+}
+Pl initializeAfterLoad
+Pl::NeCerta initializeAfterLoad
+

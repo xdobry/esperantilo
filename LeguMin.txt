@@ -1,0 +1,49 @@
+Bonvenon ĉe Esperantilo SDK (Programa Medio por Esperantilo)
+
+   http://www.esperantilo.org
+
+Autoro: Artur Trzewik
+Permesilo (Licenco): GPL (legu pli en dosiero LICENSE.txt)
+
+Kuras sur:
+ Linux (Inter x86)
+ Vindozo (Windows)
+
+Lanĉado:
+
+Vidozo:
+ startSDK.bat
+Linukso (x86)
+ startSDK.sh
+
+En la fenestro "Component Browser" vi povas rigardi la programan fonton de Esperantilo.
+En la fensesto "Esperantilozentro" vi povas lanĉu funkcioj de Esperantilo
+
+Priskribo:
+
+Tiu dosiero enhavas kompletan programon Esperantilo kun la programa medio
+XOTcl (http://www.xdobry.de/xotclIDE) preta por programado de Esperantilo.
+
+==Vi povas==
+
+ * Uzi Esperantilon
+ * Uzi aldonajn funkciojn de Esperantilo, kiuj ne estas atingeblaj en nomala modo
+ * Rigardi komforte la programan kodon de Esperantilo
+ * Ŝanĝi la programadon kaj plivastigi la Programadon
+ * Testi la programon per aldonaj testaj dosierojn (vidu dosierujo "esperanto")
+
+==Bazaj informoj pri programada medio==
+
+XOTclIDE estas tn. interaktiva programada medio.
+Tio signifas, ke vi povas modifi programon, kiu samtempe rulas.
+Ĉiuj ŝanĝoj estas konservitaj senprokraste en bazo de kodo. (version repository)
+
+==Kiel programi==
+
+ * Lernu la programn lingvo Tcl (http://www.tcl.tk)
+ * Lernu pri la objektema modulo XOTcl (http://www.xotcl.org)
+ * Lernu por la programado medio XOTclIDE (http://www.xdobry.de/xotclIDE)
+ * Lernu pri komputila lingvistiko
+ * Lernu la lingvon Esperanto
+ * Lernu Lernu Lernu Lernu
+ 

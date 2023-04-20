@@ -1,0 +1,298 @@
+package provide IDETixInspector 0.1
+Class NodeShell -parameter {parent text title}
+::NodeShell metadata component IDETixInspector
+NodeShell instproc init args {
+  [self] instvar parent text title
+  [self] next
+   if {![winfo exists $parent.info]} {
+	toplevel $parent.info -class Dialog
+	tixScrolledText $parent.info.text
+	pack $parent.info.text -expand yes -fill both
+    }
+    $parent.info.text subwidget text delete 1.0 end
+    $parent.info.text subwidget text insert 1.0 $text
+}
+Class InspectorShell
+::InspectorShell metadata categories printing
+::InspectorShell metadata categoriesMethods {{procCb objectCb objContent objectNodeInfo procContent instprocContent instprocCb classCb varCb}}
+::InspectorShell metadata component IDETixInspector
+InspectorShell instproc insertInstanceArc {from to} {
+    # $from is the class, $to is the instance
+    #showCall
+    [self] instvar S nodes instances
+    if {!$instances} return
+    #   if {[info exists nodes($from)]} {
+    #     #sV $nodes($from)*$from background yellow
+    #   } else {
+    #     set nodes($from) [[self] classNode $from yellow]
+    #   }
+    if {$from==""} {
+	# Ein Wurzelelement
+	$S.mtree subwidget hlist add $to -itemtype imagetext  -text $to -image [tix getimage file]
+	set nodes($to) $to 
+	[self] objectNodeInfo $to $to 
+	return
+    }
+    if {![info exists nodes($to)]} {
+	set name "[set nodes($from)].$to"
+	$S.mtree subwidget hlist add $name -itemtype imagetext  -text $to -image [tix getimage file] 
+	set nodes($to) $name
+	[self] objectNodeInfo $to $name 
+    }
+}
+InspectorShell instproc show {} {
+    [self] instvar S
+    $S.mtree autosetmode  
+}
+InspectorShell instproc objectNodeInfo {o name} {
+    [self] instvar S procs
+    if {$procs} {
+	foreach x [lsort [$o info procs]] {
+	    $S.mtree subwidget hlist add $name.$x -itemtype imagetext  -text $x -image [tix getimage srcfile]
+	}
+     }
+}
+InspectorShell instproc insertArc {from to} {
+    #showCall
+    [self] instvar S nodes
+#     foreach node [list $from $to] {
+# 	if {![info exists nodes($node)]} {
+# 	    set nodes($node) [[self] classNode $node pink]
+# 	}
+#     }
+    #puts "from $from $to"
+    if {![info exists nodes($from)]} {
+	# Dieses Teil wird nur beim Wurzel Aufgerufen
+	$S.mtree subwidget hlist add $from -itemtype imagetext  -text $from -image [tix getimage folder]
+	set nodes($from) $from 
+    }
+    if {![info exists nodes($to)]} {
+	set name "[set nodes($from)].$to"
+	$S.mtree subwidget hlist add $name -itemtype imagetext  -text $to -image [tix getimage folder]
+	set nodes($to) $name
+	[self] classNode $to $name 
+    } else {
+	# Merhfachvererbung
+    }
+}
+InspectorShell instproc classNode {cl name} {
+  #puts stderr "creating ClassNode $cl $color"
+  [self] instvar S instproc
+  if {$instproc} {
+      foreach m [lsort [$cl info instprocs]] { 
+	  $S.mtree subwidget hlist add $name.$m -itemtype imagetext  -text $m -image [tix getimage textfile]
+      }
+  }
+  [self] objectNodeInfo $cl $name
+}
+InspectorShell instproc init {} {
+    [self] instvar S
+    set S [toplevel .[Object autoname inspectorShell] -width 400 -height 400]
+    frame $S.bframe
+    checkbutton $S.bframe.instances -text instances -variable [self]::instances
+    checkbutton $S.bframe.subobjects -text subobjects -variable [self]::subobjects
+    checkbutton $S.bframe.instprocs -text instprocs -variable [self]::instproc
+    checkbutton $S.bframe.procs -text procs -variable [self]::procs
+#    checkbutton $S.bframe.variables -text variables
+    button $S.bframe.drawGraph -command [list [self]::inspector draw]  -text "Class Graph"
+    #button $S.bframe.drawGraphObj -command "set instaces 1; [self]::inspector drawObj"  -text "Object Graph"
+    tixTree $S.mtree -command [list [self] mselect] -options {
+	hlist.separator "."
+	hlist.width 35
+	hlist.height 25
+    }
+    pack $S.bframe.instances $S.bframe.subobjects $S.bframe.instprocs  $S.bframe.procs $S.bframe.drawGraph -side top -anchor n
+
+    pack $S.bframe $S.mtree -side right -expand yes -fill both
+    Inspector [self]::inspector -graphShellObject [self]
+    wm protocol $S WM_DELETE_WINDOW "destroy $S; [self] destroy"
+}
+InspectorShell instproc objectCb o {
+  [self] instvar S
+  set title "Contents of object $o (class [$o info class]):"
+  NodeShell ns -parent $S -text [[self] objContent $o] -title $title
+}
+InspectorShell instproc objContent o {
+  set msg ""
+    set objname [namespace tail $o]
+  foreach method [$o info procs] {
+    append msg [[self] procContent $o $method]
+  }
+  append msg "#------------------------------- Variables ----\n"
+  foreach a [lsort [$o info vars]] {
+    set value ""
+    set var ${o}::$a
+    if {[array exists $var]} {
+      foreach i [array names $var] {
+	lappend value $i [set ${var}($i)]
+      }
+      append msg "$objname array set $a "
+    } elseif {[info exists $var]} {
+      append msg "$objname set $a "
+      set value [set $var]
+    } else {
+      append msg "# $objname set $a "
+      set value UNKNOWN
+    }
+    if {[string length $value]>1024} {
+      set value [string range $value 0 1024]...
+    }
+    append msg [list $value] \n
+  }
+  return $msg
+}
+InspectorShell instproc insertSubObject {parent to} {
+    [self] instvar S
+    set text "$to ([${parent}::$to info class])"
+    if {$parent!=""} {
+	regsub -all :: $parent . parent
+	set name [string range $parent.$to 1 end]
+    } else {
+	set name $to
+    }
+    $S.mtree subwidget hlist add $name -itemtype imagetext  -text $text -image [tix getimage file]
+}
+InspectorShell instproc instprocCb {cl m} {
+  [self] instvar S
+  set title "Instproc $m of $cl"
+  NodeShell ns -parent $S -text [[self] instprocContent $cl $m] -title $title
+}
+InspectorShell instproc procCb {o m} {
+  [self] instvar S
+  set title "Proc $m of $o"
+  NodeShell ns -parent $S -text [[self] procContent $o $m] -title $title
+}
+InspectorShell instproc clearGraph {} {
+  [self] instvar S nodes arcs
+  $S.mtree subwidget hlist delete all
+  foreach table {nodes arcs} {
+    if {[info exists $table]} {unset $table}
+  }
+}
+InspectorShell instproc classCb cl { 
+    [self] instvar S
+    set msg ""
+    append msg "parent Class [$cl info superclass]\n"
+    foreach method [$cl info instprocs] {
+        append msg [[self] instprocContent $cl $method]
+    }
+    append msg [[self] objContent $cl]
+    NodeShell ns -parent $S -text $msg -title "Class $cl"
+}
+InspectorShell instproc mselect selection {
+    [self] instvar S subobjects
+    set image [$S.mtree subwidget hlist entrycget $selection -image]
+    set name [lindex [split $selection .] end]
+    if {$image==[tix getimage file]} then {
+	if {$subobjects} {
+	    [self] objectCb [join [split $selection .] ::]
+	} else {
+	    [self] objectCb $name
+	}
+    } elseif {$image==[tix getimage folder]} {
+	[self] classCb $name
+    } elseif {$image==[tix getimage textfile]} {
+	set path [split $selection .]
+	[self] instprocCb [lindex $path [expr [llength $path] -2]] $name
+    } elseif {$image==[tix getimage srcfile]} {
+	set path [split $selection .]
+	[self] procCb [lindex $path [expr [llength $path] -2]] $name
+    }
+}
+InspectorShell instproc instprocContent {o method} {
+  return "$o instproc $method {[$o info instargs $method]} { [$o info instbody $method]}\n\n"
+}
+InspectorShell instproc varCb {obj var} {
+  [self] instvar S
+  set msg ""
+  set fullVarName ${obj}::$var
+  if {[$obj array exists $var]} {
+    foreach k [lsort [$obj array names $var]] {
+      append msg "   $obj->${var}($k) = '[$obj set ${var}($k)]'" \n
+    }
+  } elsif {[info exists $fullVarName]} {
+    append msg "   $obj->$var = '[$obj set $var]'" \n
+  } else {
+    append msg "   $obj->$var = UNKNOWN" \n
+  }
+  NodeShell ns -parent $S -text $msg -title "Variable $var of $obj"
+}
+InspectorShell instproc procContent {o method} {
+    return "[namespace tail $o] proc $method {[$o info args $method]} { [$o info body $method]}\n\n"
+}
+InspectorShell proc newBrowser {} {
+    package require Tix
+    global tix_version
+    if {![info exist tix_version]} {
+        IDE::Dialog message {you need tix to run this Browser}
+        return
+    }
+    return [[self] create [Object autoname browser]]
+}
+Class Inspector -parameter {graphShellObject}
+::Inspector metadata component IDETixInspector
+Inspector instproc report c {
+  [self] instvar graphShellObject ignoreClasses
+
+  #puts stderr "subclass of $c = <[$c info subclass]>"
+  foreach subclass [lsort [$c info subclass]] {
+      if {[info exists ignoreClasses($subclass)]} continue
+      # {[concat [$subclass info subclass] [$subclass info instances]] != ""} 
+      $graphShellObject insertArc $c $subclass
+  }
+  foreach subclass [lsort [$c info subclass]] {
+    if {[info exists ignoreClasses($subclass)]} continue
+    # {[concat [$subclass info subclass] [$subclass info instances]] != ""} 
+    if {1} {
+      [self] report $subclass
+    }
+  }
+  foreach instance [lsort [$c info instances]] {
+    $graphShellObject insertInstanceArc $c $instance
+  }
+}
+Inspector instproc init args {
+  [self] instvar ignoreClasses
+  array set ignoreClasses {
+    ::Inspector 1 ::InspectorShell 1 
+    ::NodeShell 1 ::Class 1}
+  [self] next
+  [self] draw
+}
+Inspector instproc reportSubObject obj {
+    [self] instvar graphShellObject
+    foreach subobj [$obj info children] {
+	$graphShellObject insertSubObject $obj [namespace tail $subobj]
+	[self] reportSubObject $subobj
+    }
+}
+Inspector instproc drawObj {} {
+  [self] instvar graphShellObject
+  $graphShellObject clearGraph
+  [self] reportObj
+  $graphShellObject show
+}
+Inspector instproc draw {} {
+    [self] instvar graphShellObject 
+    if {[$graphShellObject set subobjects]} {
+	[self] drawObj
+	return
+    }
+    $graphShellObject clearGraph
+    #addTimeOut 100 [list [self] report ::Object]
+    [self] report ::Object
+    $graphShellObject show
+}
+Inspector instproc reportObj {} {
+  [self] instvar graphShellObject ignoreClasses
+  foreach class [lsort [::Class info instances]] {
+      if {[info exists ignoreClasses($class)]} continue
+      foreach instance [$class info instances] {
+	  if {[$instance info parent]=="::"} {
+	      $graphShellObject insertSubObject "" [namespace tail $instance]
+	      [self] reportSubObject $instance
+	  }
+      }
+  }
+}
+

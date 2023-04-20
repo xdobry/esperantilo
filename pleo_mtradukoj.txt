@@ -1,0 +1,3361 @@
+# Tiu dosiero estas publikigita laŭ GPL Permesilo
+# legu: http://www.gnu.org
+#
+# This file is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+{arcus cosinus} arkkosinuso
+{arcus cosinus} arkokosinuso
+{cosinus hiperboliczny} hiperbolakosinuso
+{iloczyn kartezjański} karteziaproduto
+{iloczyn skalarny} skalaraproduto
+{iloczyn wektorowy} vektoraproduto
+{przedział zbieżności} konverĝintervalo
+{funkcja wykładnicza} eksponencialo
+{współczynnik kierunkowy} angulakoeficiento
+{arcus sinus} arksinuso
+{sinus hiperboliczny} hiperbolasinuso
+{jednostajnie ciągły} kontinuega
+{wielomian charakterystyczny} karakterizapolinomo
+{wielomian zerowy} nulpolinomo
+{wielomian zerowy} polinoma
+{wielomian jednostkowy} unuopolinomo
+{prosta afiniczna} afinarekto
+{prosta Eulera} eŭlerarekto
+{jednowymiarowa przestrzeń wektorowa} vektorarekto
+{wrona siwa} korniko
+{pierwiastek n-tego stopnia} aradiko
+{czyn bohaterski} heroaĵo
+{dążyć do nieskończoności} infinitiĝi
+{wartość własna} ajgeno
+{wektor własny} ajgenvektoro
+{podprzestrzeń własna} ajgensubspaco
+{podprzestrzeń własna} ajgenspaco
+{macierz przestawiona} transponaĵo
+{chrabąszcz majowy} majskarabo
+{zmienna losowa} hazardavariablo
+{zmienna losowa} lotecavariablo
+{zmienna losowa} stokastavariablo
+{kwas azotowy} nitrata
+{logika matematyczna} logistiko
+{przestrzeń afiniczna} afinaspaco
+{podprzestrzeń afiniczna} subspaco
+{przestrzeń Banacha} banaĥaspaco
+{przestrzeń euklidesowa} eŭklidaspaco
+{przestrzeń unitarna} hermitaspaco
+{przestrzeń Hilberta} hilbertaspaco
+{przestrzeń metryczna} metrikaspaco
+{przestrzeń z miarą} mezurhavaspaco
+{przestrzeń unormowana} normohavaspaco
+{przestrzeń unormowana} normitaspaco
+{przestrzeń probabilistyczna} probablospaco
+{przestrzeń wektorowa} vektoraspaco
+{przestrzeń topologiczna} topologiaspaco
+{n-tego stopnia} grada
+{stopień wyjściowy} duongrado
+{struktura algebraiczna} algebrastrukturo
+{struktura topologiczna} topologiastrukturo
+{gałka muszkatołowa} muskato
+{no to cześć} adiaŭ
+{aparat fotograficzny} fotografilo
+{wartość oczekiwana} ekspekto
+{rachunek różniczkowy} diferencialakalkulo
+{rachunek całkowy} integralakalkulo
+{rachunek prawdopodobieństwa} probablokalkulo
+{epicykloida wydłużona} longigitaepicikloido
+{epicykloida skrócona} mallongigitaepicikloido
+{liczba zespolona} imaginaro
+{zmiana znaku} signoŝanĝo
+{cykloida wydłużona} longigitacikloido
+{cykloida skrócona} mallongigitacikloido
+{krzywa Gaussa} gaŭsakurbo
+{krzywa Gaussa} kloŝformakurbo
+{grzebień Diraca} dirakakombilo
+{liczba wymierna} racionalo
+{liczba niewymierna} neracionalo
+{warunek konieczny} necesakondiĉo
+{warunek dostateczny} sufiĉakondiĉo
+{liść Kartezjusza} karteziafolio
+{Wielki Wybuch} praeksplodo
+{kombinacja liniowa} linearakombinaĵo
+{funkcja odwracalna} bijekcio
+{Wielka Brytania} britujo
+{płyta CD} lumdisko
+{warstwa kuli} sferdisko
+{mnożenie macierzy} matricamultipliko
+{mnożenie wielomianów} polinomamultipliko
+{liczba naturalna} naturanombro
+{odległość kątowa} anguladistanco
+{promień wodzący} polusadistanco
+{promień wodzący} polusdistanco
+{okrąg wielki} ĉefcirklo
+{okrąg wielki} cirklego
+{okrąg Feuerbacha} eŭleracirklo
+{koło zbieżności} konverĝocirklo
+{koło krzywiznowe} kurbecocirklo
+{koło trygonometryczne} trigonometriacirklo
+{ciąg arytmetyczny} aritmetikaprogresio
+{ciąg geometryczny} geometriaprogresio
+{ciąg harmoniczny} harmonaprogresio
+{silnie spójny} koneksega
+{spójna łukowo} vojkoneksa
+{efekt szklarniowy} forceja
+{ciało ułamków} frakcikorpo
+{ciało skończone} galezakorpo
+{ciało niezmienników} invariantokorpo
+{funkcja elementarna} elementafunkcio
+{funkcja Heaviside'a} hevisidafunkcio
+{funkcja hiperboliczna} hiperbolafunkcio
+{funkcja trygonometryczna odwrotna} trigonometriafunkcio
+{funkcja charakterystyczna} karakterizafunkcio
+{funkcja n zmiennych} argumentafunkcio
+{funkcja wielomianowa} polinomafunkcio
+{funkcja wielowartościowa} plursencafunkcio
+{funkcja wymierna} racionalafunkcio
+{funkcja prosta} simplafunkcio
+{funkcja schodkowa} ŝtuparafunkcio
+{funkcja próbna} testafunkcio
+{funkcja próbna} testofunkcio
+{funkcja jednowartościowa} unusencafunkcio
+{prawa Keplera} keplerajleĝoj
+{forma różniczkowa} diferencialaformo
+{forma hermitowska} hermitaformo
+{n-ta potęga} apotenco
+{działanie wewnętrzne} internaoperacio
+{działanie wewnętrzne} enaoperacio
+{spójnik logiczny} logikaoperacio
+{element przeciwny} kontraŭegalo
+{logika matematyczna} matematikalogiko
+{składowa spójna} koneksakomponanto
+{arcus secans} arksekanto
+{arcus cosecans} arkkosekanto
+{arcus cosecans} arkokosekanto
+{złoty podział} dispartigo
+{część ułamkowa} frakciaparto
+{część urojona} imaginaraparto
+{część rzeczywista} reelaparto
+{geometria analityczna} analitikageometrio
+{macierz n×p} matrico
+{macierz zerowa} nulmatrico
+{macierz zerowa} matrica
+{macierz jednostkowa} unuomatrico
+{macierz Jacobiego} jakobiamatrico
+{algorytm Euklidesa} eŭklidaalgoritmo
+{teoria grafów} grafeiko
+{dzielenie z resztą} divido
+{dzielenie z resztą} eŭklidadivido
+{grupa alternująca} alternagrupo
+{grupa podstawowa} fundamentagrupo
+{grupa Galois} galezagrupo
+{grupa ilorazowa} kvocientagrupo
+{grupa symetryczna} simetriagrupo
+{zorza poranna} matenruĝo
+{fasola szparagowa} fazeolo
+{teoria zbiorów} arteorio
+{teoria zbiorów} aroteorio
+{teoria zbiorów} laaroj
+{zbiór pusty} malplenaaro
+{arcus cotangens} arkkotangento
+{arcus cotangens} arkokotangento
+{cotangens hiperboliczny} hiperbolakotangento
+{prawdopodobieństwo warunkowe} kondiĉaprobablo
+{środek krzywizny} kurbecocentro
+{środek obrotu} rotaciacentro
+{środek symetrii} simetricentro
+{suma częściowa} partasumo
+{pochodna logarytmiczna} logaritmaderivaĵo
+{pochodna cząstkowa} partaderivaĵo
+{punkt stały} fiksapunkto
+{wstydliwa rzecz} hontindaĵo
+{teoria grafów} grafeteorio
+{graf zorientowany} orientitagrafeo
+{graf niezorientowany} neorientitagrafeo
+{graf prosty} simplagrafeo
+{prosta prostopadła} perpendikularo
+{owal Kartezjusza} karteziaovalo
+{rozkład prawdopodobieństwa} probablodistribuo
+{hiperpłaszczyzna afiniczna} afinahiperebeno
+{funkcja podcałkowa} integralato
+{znak całki} integralsigno
+{całka oznaczona} difinitaintegralo
+{całka Lebesgue'a} lebegaintegralo
+{całka nieoznaczona} nedifinitaintegralo
+{całka Riemanna} rimanaintegralo
+{figura geometryczna} geometriafiguro
+{element neutralny} neŭtra
+{element neutralny} neŭtraĵo
+{ślimak Pascala} paskalalimako
+{z jednoznacznością rozkładu} faktoreca
+{dystrybucja Diraca} dirakadistribucio
+{czarna dziura} nigratruo
+{gołąb skalny} rokkolombo
+{liczba całkowita} entjero
+{liczba Gaussa} gaŭsaentjero
+{liczba naturalna} naturaentjero
+{drzewo cynamonowe} cinamujo
+{wartość logiczna} vervaloro
+{wartość absolutna} absolutavaloro
+{najmniejsza współna wielokrotność} komunaoblo
+{potencjał wektorowy} vektorapotencialo
+{duża litera} grandalitero
+{dzielić na połowy} dusekci
+{gęstość prawdopodobieństwa} probablodenso
+{być stycznym} tanĝi
+{prosta styczna} tanĝanto
+{tylko jeśli} nurse
+{wtedy i tylko wtedy gdy} sekaj
+{wtedy i tylko wtedy gdy} se
+{klasa abstrakcji} klaso
+{klasa abstrakcji} ekvivalentklaso
+{warstwa prawostronna} dekstraklaso
+{warstwa lewostronna} maldekstraklaso
+{klasa reszt modulo n} restoklaso
+{przekazywać w spadku} heredigi
+{pierścień reszt} ringo
+{pierścień euklidesowy} eŭklidaringo
+{pierścień ilorazowy} kvocientaringo
+{pierścień wielomianów} polinomringo
+{z jedynką} unuhava
+{jedność urojona} imaginaraunuo
+{jednostka miary} mezurunuo
+{rzut środkowy} centraprojekcio
+{rzut równoległy} oblikvaprojekcio
+{rzut prostokątny} ortaprojekcio
+{rzut równoległy} paralelaprojekcio
+{rzut równoległy} paralelprojekcio
+{moment rzędu n} amomanto
+{uścisk dłoni} manpremo
+{płaszczyzna symetrii} simetriebeno
+{płaszczyzna afiniczna} afinaebeno
+{dwuwymiarowa przestrzeń wektorowa} vektoraebeno
+{kąt środkowy} centraangulo
+{kąt wpisany} cirkonferencaangulo
+{kąt płaski} ebenaangulo
+{kąt bryłowy} solidaangulo
+{babeczka ponczowa} babao
+{numer telefonu} telefonnumero
+{być heretykiem} herezi
+{układ współrzędnych} koordinatsistemo
+{współrzędna walcowa} cilindrakoordinato
+{współrzędna kartezjańska} karteziakoordinato
+{współrzędna barycentryczna} pezocentrakoordinato
+{współrzędna biegunowa} polusakoordinato
+{współrzędna sferyczna} sferakoordinato
+{być rozbieżnym} malkonverĝi
+{bezwględnie zbieżny} absolutekonverĝa
+{zbieżny według dystrybuant} konverĝa
+{słabo zbieżny} malfortekonverĝa
+{zbieżny z prawdopodobieństwem 1} certekonverĝa
+{zwyczajnie zbieżny} simplekonverĝa
+{jednostajnie zbieżny} unuformekonverĝa
+{oś obrotu} rotaciaakso
+{oś symetrii} simetriakso
+{półoś wielka} duonakso
+{oś układu współrzędnych} koordinataakso
+{oś układu współrzędnych} koordinatakso
+{oś biegunowa} polusaakso
+{element ograniczający z dołu} subabaro
+{element ograniczający z góry} superabaro
+{ciąg arytmetyczny} aritmetikavico
+{ciąg skończony} finiavico
+{ciąg skończony} finilongavico
+{ciąg geometryczny} geometriavico
+{ciąg harmoniczny} harmonavico
+{ciąg Cauchy'ego} koŝiavico
+{ciąg Cauchy'ego} vico
+{ciąg funkcyjny} funkcivico
+{układ równań} ekvaciaro
+{równanie różniczkowe} diferencialaekvacio
+{równanie całkowe} integralaekvacio
+{baza dualna} dualabazo
+{baza naturalna} kanonabazo
+{odchylenie standardowe} variancadevio
+{szereg potęgowy} potencoserio
+{szereg funkcyjny} serio
+{szereg funkcyjny} funkciserio
+{szereg formalny} formalaserio
+{Morze Ochockie} oĥocka
+{drugi składnik dodawania} adiciato
+{dodawanie macierzy} matricaadicio
+{dodawanie wielomianów} polinomaadicio
+{nieskończenie mały} infinitezimo
+{wektor zaczepiony} punktoparo
+{wspólny wszystkim ludziom} komunhoma
+{wspólny wszystkim ludziom} komunehoma
+{góra lodowa} glaciinsulo
+{góra lodowa} glacimonto
+{hipocykloida wydłużona} longigitahipocikloido
+{hypocykloida skrócona} mallongigitahipocikloido
+{przestrzeń bidualna} dudualo
+{przestrzeń bidualna} duobladualo
+{kurka wodna} galinulo
+{być podzielnikiem} divizori
+{dzielnik zera} nuldivizoro
+{dzielnik własny} propradivizoro
+{największy współny dzielnik} komunadivizoro
+{znak sterujący} stirsigno
+{dobry porządek} bonaordo
+{spirala Archimedesa} arĥimedaspiralo
+{spirala hiperboliczna} hiperbolaspiralo
+{spirala logarytmiczna} logaritmaspiralo
+{algebra Banacha} banaĥaalgebro
+{ciało zdarzeń} okazalgebro
+{guzki krwawnicze} hemoroidoj
+{kąt prosty} orto
+{prosta prostopadła} ortanto
+{funkcja różnowartościowa} enjekcio
+{sójka pospolita} garolo
+{wielobok o n bokach} latero
+{ułamek algebraiczny} algebrafrakcio
+{ułamek łańcuchowy} ĉenafrakcio
+{ułamek łańcuchowy} ĉenfrakcio
+{ułamek zwykły} kvocientafrakcio
+{tabela logiczna} vertabelo
+{automorfizm wewnętrzny} internaaŭtomorfio
+{funkcja różnowartościowa} disĵeto
+{funkcja odwracalna} dissurĵeto
+{przekrój Dedekinda} dedekindatranĉo
+{logarytm naturalny} naturalogaritmo
+{logarytm Nepera} neperalogaritmo
+{logarytm dziesiętny} ordinaralogaritmo
+{arcus tangens} arktangento
+{arcus tangens} arkotangento
+{tangens hiperboliczny} hiperbolatangento
+{liniowo zależny} dependa
+{liniowo niezależny} nedependa
+{liniowo niezależny} sendependa
+{miara Diraca} dirakamezuro
+{miara Lebesgue'a} lebegamezuro
+{wektor zerowy} nulvektoro
+{wektor wodzący} radiusvektoro
+{punkt ekstremalny} ekstremumiganto
+{co było do okazania} estispruvota
+{warstwa kuli} globtavolo
+{zdarzenie elementarne} elementaokazo
+{relacja w zbiorze} internarilato
+{relacja odwrotna} inversarilato
+{relacja n-argumentowa} argumentarilato
+{kres dolny} infimo
+{granica dolna} limesinfimo
+{kwas azotowy} azotacido
+{promień zbieżności} radiuso
+{Duch Święty} sanktaspirito
+{przytomność umysłu} spiritĉeesto
+{przytomność umysłu} spiritpreteco
+{dopełnienie algebraiczne} kofaktoro
+{funkcja identycznościowa} bildigo
+{funkcja częściowa} subbildigo
+{funkcja odwrotna} inversabildigo
+{kres górny} supremo
+{granica górna} limesosupremo
+{drzewko boże} abrotano
+{być abstynentem} abstini
+{książka adresowa} adresaro
+{uprawa roli} agrikulturo
+{rodzaj nijaki} aĵgenro
+{innymi słowy} alivorte
+{co najmniej} almenaŭ
+{przybijać do lądu} alteriĝi
+{zmieniać się kolejno} alterni
+{wyż barometryczny} alto
+{wysoko postawiony} altranga
+{tlenek glinu} alumino
+{pamięci utrata} amnezio
+{pożądać seks} amori
+{orzech nerkowca} anakardio
+{optycznie ostry} anastigmata
+{klątwa kościelna} anatemo
+{stawu nieruchomość} ankilozo
+{wyrostek robaczkowy} apendicito
+{miotła zbożowa} apero
+{bić brawo} aplaŭdi
+{orzech ziemny} arakido
+{robić roszadę} aroki
+{stawów zapalenie} artrito
+{konferencja generalna} asembleo
+{kość skokowa} astragalo
+{robić zamach} atenci
+{mieć czelność} aŭdaci
+{sala wykładowa} aŭlo
+{serca przedsionek} aŭriklo
+{palenie na stosie} aŭtodafeo
+{na dobre} avantaĝe
+{orzech laskowy} avelo
+{lodowa ławica} bankizo
+{ojciec chrzestny} baptopatro
+{bić kijem} bastoni
+{stawać dęba} baŭmi
+{majątek ziemski} bieno
+{papier wartościowy} bilo
+{blenda cynkowa} blendo
+{na oślep} blinde
+{mącznik główkowaty} blito
+{blond koloru} blonda
+{dęty instrument} blovinstrumento
+{kołowy zestaw} boĝio
+{pachoł cumowy} bolardo
+{bon ton} bontono
+{być mile widzianym} bonveni
+{dom publiczny} bordelo
+{węgiel drzewny} braĝo
+{zwijać żagle} brajli
+{Braille'a alfabet} brajlo
+{hodowla zwierząt} bredado
+{handlować starzyzną} brokanti
+{jelito ślepe} cekumo
+{język docelowy} cellingvo
+{tkanki łącznej zapalenie} celulito
+{trybula ogrodowa} cerefolio
+{z pewnością} certe
+{poza tym} cetere
+{pasta do obuwia} ciro
+{wątroby zapalenie} cirozo
+{chmura pierzasta} ciruso
+{róg myśliwski} ĉaskorno
+{skoczek szachowy} ĉevalo
+{partykuła bliskości} ĉi
+{dla każdej przyczyny} ĉial
+{na wszelki sposób} ĉiel
+{ilość każda} ĉiom
+{baza danych} datumbazo
+{dziesięcioro przykazań} dekalogo
+{od dawna} delonge
+{znak zapytania} demandosigno
+{zaimek wskazujący} demonstrativo
+{spółgłoska zębowa} dentalo
+{koło zębate} dentrado
+{wyraz pochodny} derivaĵo
+{skóry choroba} dermatozo
+{skóry zapalenie} dermito
+{zrządzenie losu} destino
+{serca rozkurcz} diastolo
+{wyraz zdrobniały} diminutivo
+{przedstawiać dysertację} diserti
+{powodować dysocjację} disocii
+{lista dystrybucyjna} dissendolisto
+{dwuwartościowy metal} divalento
+{Diesela silnik} dizelo
+{apteczny materiał} drogo
+{lina sterowa} droso
+{na razie} dume
+{zapalenie dwunastnicy} duodenito
+{brat przyrodni} duonfrato
+{opona twarda mózgu} duramatro
+{kość słoniowa} eburo
+{podagrycznik posp.} egopodio
+{płazy bezogonowe} ekaŭdatoj
+{ekonomia polityczna} ekonomiko
+{naskórka zdarcie} ekskoriacio
+{na zewnątrz} ekster
+{dokonywać egzekucji} ekzekuti
+{na przykład} ekzemple
+{wstać z łóżka} ellitiĝi
+{pobierać plik} elŝuti
+{wywozu zakaz} embargo
+{skrzep krwi} embolo
+{okienna wnęka} embrazuro
+{osobistość wybitna} eminentulo
+{mózgu zapalenie} encefalito
+{wsierdzia zapalenie} endokardito
+{położyć się do łóżka} enlitiĝi
+{jelita cienkiego zapalenie} enterito
+{pasożyty wew.} entozooj
+{w całości} entute
+{ependymy zapalenie} ependimito
+{Trzech Króli święto} epifanio
+{owocu skórka} epikarpo
+{krąg szyjny drugi} epistrofo
+{nagrobkowy napis} epitafo
+{erbu tlenek} erbino
+{kość sitowa} etmoido
+{atmosfera duchowa} etoso
+{świnia afrykańska} fakoĉero
+{gwiazda spadająca} falstelo
+{oddawać kał} feki
+{kropidło wodne} felandrio
+{krata kominkowa} fendro
+{drzwi oszklone} fenestropordo
+{koper włoski} fenkolo
+{zwijać żagle} ferli
+{spełznąć na niczym} fiaski
+{aktor filmowy} filmaktoro
+{pieniężne środki} financo
+{ozdoba arch.} finialo
+{sklepienie niebieskie} firmamento
+{dachu grzbiet} firsto
+{twarzy wyraz} fizionomio
+{wyrzut zapalny} flikteno
+{dworzec lotniczy} flughaveno
+{kuna domowa} foino
+{język źródłowy} fontolingvo
+{pióro wieczne} fontoplumo
+{część zdania} frazparto
+{głoska szczelinowa} frikativo
+{korona cesarska} fritilario
+{na czele} fronte
+{kość czołowa} fruntalo
+{gruźlica płuc} ftizo
+{zamek błyskawiczny} fulmofermilo
+{mieć wzięcie} furori
+{puszczać wiatry} furzi
+{czas przyszły} futuro
+{kadłub samolotu} fuzelaĝo
+{uprzejmy wyszukanie} galanta
+{taśma ozdobna} galono
+{kończyna dolna} gambo
+{nerwowy zwój} ganglio
+{limfatyczny gruczoł} gangliono
+{palnik gazowy} gasbeko
+{żelatyna z alg} gelozo
+{kamień drogi} gemo
+{rzeczownik odsłowny} gerundio
+{z połyskiem} glacea
+{szklana tafla} glaco
+{szkuner dwumasztowy} goeleto
+{do cna} ĝisfunde
+{w porę} ĝustatempe
+{ton harmoniczny} harmono
+{ognisko domowe} hejmo
+{ślimak winniczek} heliko
+{uszny obrąbek} helikso
+{osioł dziki} hemiono
+{szczelnie zamknięty} hermetika
+{krata spuszczana} herso
+{postępować obłudnie} hipokriti
+{rozkład jazdy} horaro
+{kość ramieniowa} humero
+{z jakiegoś powodu} ial
+{pismo pojęciowe} ideografio
+{narzecze prowincjonalne} idiomo
+{ziemniak japoński} ignamo
+{jelito kręte} ileo
+{kość biodrowa} iliumo
+{oporność pozorna} impedanco
+{nakaz moralny} imperativo
+{czas przeszły niedokonany} imperfekto
+{łamać w kolumny} impozi
+{wywierać wrażenie} impresi
+{tryb oznajmujący} indikativo
+{licznik kontrolny} indikatoro
+{wywierać wpływ} influi
+{rodzaj żeński} ingenro
+{nocna zmora} inkubo
+{mieć zamiar} intenci
+{znak przestankowy} interpunkcio
+{w tym czasie} intertempe
+{na opak} inverse
+{nawadnianie sztuczne} irigacio
+{drwina ukryta} ironio
+{kość kulszowa} iskio
+{orzech włoski} juglando
+{kamień szlachetny} juvelo
+{ława przysięgłych} ĵurio
+{dopiero co} ĵus
+{telewizja kablowa} kablatelevido
+{wołek zbożowy} kalandro
+{aster chiński} kalistefo
+{kość piętowa} kalkaneo
+{bielić wapnem} kalki
+{chlorek rtęciowy} kalomelo
+{pieśń nabożna} kantiko
+{pieprz turecki} kapsiko
+{zawrót głowy} kapturniĝo
+{toczyć koniem} karakoli
+{żołądka wpust} kardio
+{karczoch hiszpański} kardono
+{okrętu spód} kareno
+{Wielki Post} karesmo
+{chleb świętojański} karobo
+{gra karciana} kartludo
+{zabawa w chowanego} kaŝludo
+{okład ciepły} kataplasmo
+{lak ogrodowy} keiranto
+{aparat filmowy projekcyjny} kinematografo
+{zegar wodny} klepsidro
+{wyrażenie banalne} kliŝaĵo
+{robić kliszę} kliŝi
+{zawiązać koalicję} koalicii
+{świnka morska} kobajo
+{kość ogonowa} kokcigo
+{zaimek upowszechniający} kolektivo
+{brzucha ból} koliko
+{lek do oczu} kolirio
+{ogórek ośli} kolokinto
+{porozumienie tajne} koluzio
+{stopień wyższy} komparativo
+{obóz koncentracyjny} koncentrejo
+{zajść w ciążę} koncipi
+{tryb warunkowy} kondicionalo
+{wyrażać współczucie} kondolenci
+{połączenie telefoniczne} konektilo
+{robić konfitury} konfiti
+{drzewa iglaste lub szpilkowe} koniferoj
+{spojówki zapalenie} konjunktivito
+{być świadomym} konscii
+{tonów zgodność} konsonanco
+{powodować zatwardzenie} konstipi
+{gotówką płatny} kontanta
+{numerek do szatni} kontramarko
+{tak jak należy} konvene
+{płacić składkę} kotizi
+{wieszać na haku} kroĉi
+{robić szydełkiem} kroĉtriki
+{prócz tego} krome
+{następca tronu} kronprinco
+{zegar z kukułką} kukolhorloĝo
+{chmury kłębiaste} kumuluso
+{odbywać posiedzenie} kunsidi
+{mieć zwyczaj} kutimi
+{brat cioteczny} kuzo
+{wolny od długów} kvita
+{przedimek określony} la
+{spółgłoska wargowa} labialo
+{brat mleczny} laktofrato
+{robaczek świętojański} lampiro
+{krtani nieżyt} laringito
+{szerokość geograficzna} latitudo
+{według możliwości} laŭeble
+{po kolei} laŭvice
+{strąkowe rośliny} legumenacoj
+{skrzynka pocztowa} leterkesto
+{białe ciałko krwi} leŭkocito
+{jura dolna} liaso
+{być dozwolonym} lici
+{spółgłoska płynna} likvido
+{naczyń limfatycznych zapaleni} limfangito
+{dokonywać samosądu} linĉi
+{olej lniany} linoleo
+{włoska waluta} liro
+{tlenek litu} litino
+{gołąb skalny} livio
+{lampa wisząca} lucerno
+{rok świetlny} lumjaro
+{latarnia morska} lumturo
+{Matka Boska} madono
+{miejski zarząd} magistrato
+{młotek drewniany} maleo
+{w oddali} malproksime
+{ponosić klęskę} malvenki
+{karmić piersią} mamnutri
+{szczęka dolna} mandiblo
+{fizyczna praca} manlaboro
+{przegub ręki} manradiko
+{cieśnina morska} markolo
+{kasztan jadalny} marono
+{jeść śniadanie} matenmanĝi
+{lista członków} matrikulo
+{miód pitny} medo
+{chrabąszcz majowy} melolonto
+{opon mózgowych zapalenie} meningito
+{opona mózgowa} meningo
+{gaz błotny} metano
+{złudzenie optyczne} miraĝo
+{dziecko cudowne} mirinfano
+{jagoda czarna} mirtelo
+{rdzeń kręgowy} mjelo
+{postać czasownika} modalo
+{ząb trzonowy} molaro
+{palec wskazujący} montrofingro
+{zaprawa murarska} mortero
+{frezarka do wpustów} mortezomaŝino
+{statek motorowy} motorŝipo
+{klej nukleinowy} mucilago
+{błona śluzowa} mukozo
+{mezon mi} muono
+{muchomór czerwony} muŝfungo
+{ropa naftowa} nafto
+{muszla klozetowa} necesseĝo
+{muszla klozetowa} necesujo
+{zaimek przeczący} negativo
+{sekcja zwłok} nekropsio
+{bez żadnego powodu} nenial
+{w żaden sposób} neniel
+{żadna ilość} neniom
+{chmura deszczowa} nimbuso
+{panna młoda} novedzino
+{pan młody} novedzo
+{jądro komórkowe} nukleo
+{brat mleczny} nutrofrato
+{mieć miejsce} okazi
+{kość potyliczna} okcipitalo
+{gałka oczna} okulglobo
+{na oko} okulmezure
+{zaimek nieosobowy} oni
+{tryb życzący} optativo
+{orbita planety} orbo
+{święcenia kapłańskie} ordinacio
+{sąd skorupkowy} ostracismo
+{wodne koło} padelrado
+{spółgłoska podniebienna} palatalo
+{awaria chwilowa} paneo
+{niedorzeczność pozorna} paradokso
+{kość ciemieniowa} parietalo
+{pamięć na} parkere
+{część mowy} parolelemento
+{brać udział} partopreni
+{strona bierna} pasivo
+{obraz pastelowy} paŝtelo
+{pieśń pochwalna} peano
+{Zielone Świątki} pentekosto
+{za pomocą} per
+{czas przeszły dokonany} perfekto
+{błona brzuszna} peritoneo
+{perłowa masa} perlamoto
+{jeździć "autostopem"} petveturi
+{opona miękka} piamatro
+{ziele angielskie} pimento
+{sosna włoska} pinio
+{rozbójnik morski} pirato
+{oddawać mocz} pisi
+{broń krótka} pistolo
+{bananowe drzewo} pizango
+{opłucnej zapalenie} pleŭrito
+{spółgłoska zwarta} plosivo
+{w dalszym ciągu} plu
+{liczba mnoga} pluralo
+{płuc zapalenie} pneŭmonio
+{utwór poetycki} poeziaĵo
+{podkolanowy dół} poplito
+{zegarek kieszonkowy} poŝhorloĝo
+{kartka pocztowa} poŝtkarto
+{skrytka pocztowa} poŝtkesto
+{stawać dęba} pranci
+{mieć słuszność} pravi
+{przede wszystkim} precipe
+{wygłaszać kazanie} prediki
+{czas przeszły} preterito
+{czas teraźniejszy} prezenco
+{pierwszego stopnia} primara
+{małpa człekokształtna} primato
+{liczba pierwsza} primo
+{w zasadzie} principe
+{z powodu} pro
+{robić postępy} progresi
+{zamyślać projekt} projekti
+{w pobliżu} proksime
+{stawiać wniosek} proponi
+{skazywać na banicję} proskribi
+{mieć powodzenie} prosperi
+{gruczoł krokowy} prostato
+{okres próbny} provotempo
+{skromny fałszywie} pruda
+{śliwka tarniny} prunelo
+{kość łonowa} pubosto
+{koło pasowe} pulio
+{obóz pracy} punlaborejo
+{jechać wierzchem} rajdi
+{piłować tarnikiem} raspi
+{edytor tekstu} redaktilo
+{surdut wizytowy} redingoto
+{zaimek zwrotny} refleksivo
+{skrót żagla} refo
+{zarząd państwowy} regio
+{prąd stały} rektakurento
+{msza żałobna} rekviemo
+{dochód z kapitału} rento
+{krasomówstwa sztuka} retoriko
+{poczta internetowa} retpoŝto
+{spoglądający wstecz} retrospektiva
+{z powrotem} returne
+{stawiać opór} rezisti
+{zamykać na rygiel} rigli
+{wyrzuty sumienia} rimorso
+{palec serdeczny} ringofingro
+{ryżowe pole} rizkampo
+{poemat liryczny} romanco
+{blok ruchomy} rulbloko
+{gnieść wałkiem} rulpremi
+{wałek do ciasta} rulpremilo
+{kość krzyżowa} sakro
+{krwawnica pospolita} salikario
+{sól kamienna} salŝtono
+{taki samy} sama
+{namaszczać świętymi olejami} sanktolei
+{kapusta kiszona} saŭrkraŭto
+{klapa bezpieczeństwa} savklapo
+{żądny wiedzy} scivola
+{lek uspokajający} sedativo
+{wycinek koła} segmento
+{dokonywać sekcji} sekci
+{bez żartów} senŝerce
+{mieć znaczenie} signifi
+{liczba pojedyncza} singularo
+{skurcz serca} sistolo
+{ławnik miejski} skabeno
+{nacinać skórę} skarifiki
+{łupek krystaliczny} skisto
+{maszyna do pisania} skribmaŝino
+{wciągać nosem} snufi
+{ledwie słyszalny} softa
+{błąd składni} solecismo
+{przesilenie dnia z nocą} solstico
+{iskra elektryczna} sparko
+{nasienie męskie} spermo
+{obrót pieniężny} spezo
+{stać w bezruchu} stagni
+{grzebać nogą} stampfi
+{maszyna do szycia} stebilo
+{mieć zeza} strabi
+{czyścić zgrzebłem} strigli
+{ozdabiać sztukaterią} stuki
+{pod spodem} sube
+{tryb łączący} subjunktivo
+{bielizna osobista} subvesto
+{mieć powodzenie} sukcesi
+{trzcina cukrowa} sukerkano
+{porażenie słoneczne} sunfrapo
+{zegar słoneczny} sunhorloĝo
+{wschód słońca} sunleviĝo
+{rok przestępny} superjaro
+{u góry} supre
+{skóra groszkowana} ŝagrino
+{na pozór} ŝajne
+{ropa naftowa} ŝtonoleo
+{gniazdko elektryczne} ŝtopilingo
+{burza morska} ŝtormo
+{łyżka do butów} ŝukorno
+{jeść obiad} tagmanĝi
+{porządek dzienny} tagordo
+{pisać na maszynie} tajpi
+{daktyl indyjski} tamarindo
+{tańczyć tango} tangi
+{pilot tv} teleregilo
+{kość skroniowa} temporalo
+{pistacja terpentynowa} terebintarbo
+{podatek gruntowy} terimposto
+{orzech ziemny} ternukso
+{trzęsienie ziemi} terskuo
+{trzęsienie ziemi} tertremo
+{jądro męskie} testiko
+{taki to} tiela
+{w taki sposób} tiele
+{wrażliwy na łaskotki} tikliĝema
+{skurcz nerwowy} tiko
+{miarka drukarska} tipometro
+{napar z ziół} tizano
+{tona rejestrowa} tonelo
+{żagiel gniezdny} topvelo
+{klatka piersiowa} torako
+{na wskroś} trae
+{linia tramwajowa} tramvojo
+{nawa boczna} transepto
+{w poprzek} transverse
+{weksel trasowany} trato
+{burta prawa} tribordo
+{trąba morska} trombo
+{oddział wojska} trupo
+{kawałek tkaniny} tuko
+{kość łokciowa} ulno
+{baldach złożony} umbelo
+{morela japońska} umeo
+{po pierwsze} unue
+{cewka moczowa} uretro
+{pęcherz moczowy} urinveziko
+{języczek podniebienny} uvulo
+{prawo własności} uzukapo
+{wartość użytkowa} uzvaloro
+{być warto} valori
+{na próżno} vane
+{kocioł parowy} vaporkaldrono
+{parowa maszyna} vapormaŝino
+{statek parowy} vaporŝipo
+{zmywarka do naczyń} vazlavilo
+{zmywarka do naczyń} vazlavmaŝino
+{tłuszcz roślinny} vegetalino
+{belka wagowa} vekto
+{śniedź miedziana} verdigro
+{makaron włoski} vermiĉelo
+{środek przeciwczerwiowy} vermifugo
+{wino ziołowe} vermuto
+{jeść kolację} vespermanĝi
+{na wyścigi} vete
+{prawo weta} vetoo
+{punkt widzenia} vidpunkto
+{winda kotwiczna} vindaso
+{stół do przewijania} vindotablo
+{rodzaj męski} virgenro
+{ściereczka do wycierania} viŝtuko
+{okno wystawowe} vitrino
+{zdolny do życia} vivipova
+{struna głosowa} voĉkordo
+{punkt wierzchołkowy} zenito
+{zwierzyniec niebieski} zodiako
+{funkcja surjektywna} surjekcio
+{współrzędna y} ordinato
+{area cosinus hiperboliczny} hiperbolakosinuso
+{funkcja eksponencjalna} eksponencialo
+{area sinus hiperboliczny} hiperbolasinuso
+{wielomian jednostkowy} polinoma
+{jaskółcze ziele} verukherbo
+{znak pierwiastka} radikilo
+{n-ty pierwiastek} aradiko
+{znak pierwiastka} radiksigno
+{pierwiastek charakterystyczny} ajgeno
+{macierz transponowana} transponaĵo
+{przestrzeń liniowa} vektoraspaco
+{podprzestrzeń liniowa} subspaco
+{podprzestrzeń topologiczna} subspaco
+{stopień wejściowy} duongrado
+{teoria prawdopodobieństwa} probablokalkulo
+{cykloida zwykła} cikloido
+{krzywa dzwonowa} gaŭsakurbo
+{krzywa dzwonowa} kloŝformakurbo
+{kąt dwuścienny} duedro
+{wielościan o n ścianach} edro
+{współrzędna x} absciso
+{warunek wystarczający} sufiĉakondiĉo
+{funkcja wzajemnie jednoznaczna} bijekcio
+{wzajemnie jednoznaczny} bijekcia
+{trzeciego stopnia} kuba
+{okrąg dziewięciu punktów} eŭleracirklo
+{postęp arytmetyczny} aritmetikaprogresio
+{postęp geometryczny} geometriaprogresio
+{postęp harmoniczny} harmonaprogresio
+{rozszerzenie Galois} superkorpo
+{funkcja uogólniona} ĝeneraligitafunkcio
+{funkcja hiperboliczna odwrotna} hiperbolafunkcio
+{funkcja polowa} hiperbolafunkcio
+{funkcja kołowa} trigonometriafunkcio
+{funkcja cyklometryczna} trigonometriafunkcio
+{funkcja trygonometryczna} trigonometriafunkcio
+{operator Laplace'a} laplacaoperatoro
+{operator Laplace'a} laplacoperatoro
+{liczba złota} dispartigo
+{część całkowita} entjeraparto
+{macierz jednostkowa} matrica
+{macierz jakobianowa} jakobiamatrico
+{macierz odwzorowania liniowego} matrico
+{osadnik zalążkowy} hilumo
+{grupa fundamentalna} fundamentagrupo
+{fasolka szparagowa} fazeolo
+{teoria mnogości} arteorio
+{teoria mnogości} aroteorio
+{teoria mnogości} laaroj
+{przestrzeń ilorazowa} kvocientaaro
+{area cotangens hiperboliczny} hiperbolakotangento
+{analiza matematyczna} analitiko
+{graf skierowany} orientitagrafeo
+{graf nieskierowany} neorientitagrafeo
+{funkcja pierwotna} nedifinitaintegralo
+{funkcja uogólniona} distribucio
+{funkcja Diraca} dirakadistribucio
+{delta Diraca} dirakadistribucio
+{Ocean Indyjski} hinda
+{wartość bezwględna} absolutavaloro
+{pod warunkiem, że} nurse
+{otrzymać w spadku} heredi
+{jednostka urojona} imaginaraunuo
+{n-ty moment} amomanto
+{kąt obwodowy} cirkonferencaangulo
+{trójkąt Pascala} triangulo
+{telefon komórkowy} poŝtelefono
+{wygłaszać poglądy heretyckie} herezi
+{zbieżny według miary} konverĝa
+{zbieżny według prawdopodobieństwa} konverĝa
+{półoś mała} duonakso
+{ciąg częściowy} subvico
+{ciąg funkcyjny} vico
+{baza kanoniczna} kanonabazo
+{szereg formalny} potencoserio
+{wektor związany} punktoparo
+{para punktów} punktoparo
+{pełen ludzi} homplena
+{pełen ludzi} multhoma
+{przestrzeń podwójnie dualna} dudualo
+{przestrzeń podwójnie dualna} duobladualo
+{przekrój stożka} koniko
+{ciało przeliczalnie addytywne} algebro
+{ciało borelowskie zbiorów} algebro
+{teoria liczb} aritmetiko
+{ułamek ciągły} ĉenafrakcio
+{ułamek ciągły} ĉenfrakcio
+{tabela prawy} vertabelo
+{tabela logiczna} tabelo
+{tabela prawy} tabelo
+{funkcja wzajemnie jednoznaczna} dissurĵeto
+{wzajemnie jednoznaczny} dissurĵeta
+{funkcja surjektywna} surĵeto
+{logarytm Briggsa} ordinaralogaritmo
+{area tangens hiperboliczny} hiperbolatangento
+{dowód istnienia} pruvo
+{dowód indukcyjny} pruvo
+{dowód nie wprost} pruvo
+{co było do udowodnienia} estispruvota
+{relacja przeciwna} inversarilato
+{relacja n-członowa} argumentarilato
+{limes inferior} limesinfimo
+{promień krzywizny} radiuso
+{Frankfurt nad Menem} frankfurto
+{Frankfurt nad Odrą} frankfurto
+{przekształcenie tożsamościowe} bildigo
+{limes superior} limesosupremo
+{mieć wstręt} abomeni
+{boże drzewko} abrotano
+{adresowa książka} adresaro
+{balon sterowy} aerostato
+{opłacać porto} afranki
+{boczna część} alo
+{włosów wypadanie} alopecio
+{kochać zmysłowo} amori
+{wino dzikie} ampelopso
+{arcydzięgiel litwor} angeliko
+{lwia paszcza} antirino
+{wyrostek robaczkowy} apendico
+{mieć śmiałość} aŭdaci
+{sala wykładowa} aŭditorio
+{zapora ogniowa} barilo
+{jagoda wilcza} beladono
+{literatura piękna} beletristiko
+{gospodarstwo rol.} bieno
+{okrętu spód} bilĝo
+{wydawać zwierzęcy głos} bleki
+{wosk mineralny} cerezino
+{na pewno} certe
+{uszna woskowina} cerumeno
+{woskowina uszna} cerumeno
+{oprócz tego} cetere
+{piersiowa brodawka} cico
+{konik polny} cikado
+{fiołek alpejski} ciklameno
+{obwód koła} cirkonferenco
+{pasta do butów} ciro
+{z każdego powodu} ĉial
+{walka obronna} defensivo
+{del credere} delkredero
+{od urodzenia} denaska
+{świadka zeznanie} depozicio
+{rozbieżność wektora pola} diverĝenco
+{silnik wysokoprężny} dizelo
+{silnik Diesla} dizelo
+{nimfa leśna} driado
+{liczba podwójna} dualo
+{podczas gdy} dum
+{puchlina wodna} edemo
+{na dobre} efektive
+{jaśnie wielmożny} ekscelenco
+{ferment migdałowy} emulsino
+{łuska nasienna} endokarpo
+{składać do grobu} entombigi
+{w zupełności} entute
+{przydawka przymiotna} epiteto
+{książki streszczenie} epitomo
+{ruda kopalna} erco
+{mieć nadzieję} esperi
+{sakrament ołtarza} eŭkaristio
+{pośrednik handl.} faktoro
+{strupień woszczynowy} favo
+{darzyć sympatią} favori
+{szpat polny} feldspato
+{emancypacja kobiet} feminismo
+{wiatr halny} feno
+{łowić ryby} fiŝkapti
+{w dal} for
+{kleszcze położnicze} forcepso
+{puszczać bąka} furzi
+{piłka nożna} futbalo
+{galanterii pełen} galanta
+{skalne ciasto} gango
+{wlepiać wzrok} gapi
+{wypłukać gardło} gargari
+{licznik gazowy} gasometro
+{chłopiec hotelowy} grumo
+{płacić przelewem} ĝiri
+{aż do} ĝis
+{być warto dodać} aldonendi
+{we właściwym czasie} ĝustatempe
+{w sam raz} ĝuste
+{żelaziak czerwony} hematito
+{otrzymać spadek} heredi
+{brama zwodzona} herso
+{ślaz drzewny} hibisko
+{błona dziewicza} himeno
+{taniec św. Wita} ĥoreo
+{z jakiejś przyczyny} ial
+{gwara lokalna} idiomo
+{jakimś sposobem} iel
+{bulwa pochrzynu} ignamo
+{klej rybi} iĥtiokolo
+{liczba urojona} imaginaro
+{tryb rozkazujący} imperativo
+{mały nieskończenie} infinitezima
+{robić zastrzyk} injekti
+{robić zasadzkę} insidi
+{czyhać na} insidi
+{dokonywać inspekcji} inspekti
+{ulegać przerwom} intermiti
+{na wspak} inverse
+{wkładać kapitał} investi
+{rozwój wsteczny} involucio
+{szyderstwo lekkie} ironio
+{tak jest} jes
+{radość głośna} jubilo
+{tylko co} ĵus
+{kielich zewnętrzny} kaliklo
+{przewód kominowy} kamentubo
+{cukier krystaliczny} kando
+{pieprznik jadalny} kantarelo
+{mucha hiszpańska} kantarido
+{glinka kaolinowa} kaolino
+{lelek kozodój} kaprimulgo
+{podróż zbiorowa} karavano
+{wycieczka zbiorowa} karavano
+{nabój armatni} kartoĉego
+{po kryjomu} kaŝe
+{ziele jaskółcze} kelidonio
+{chinowe drzewo} kinkono
+{świątynia chrześcijańska} kirko
+{płciowy stosunek} koito
+{boża krówka} kokcinelo
+{orzech kokosowy} kokoso
+{subiekt sklepowy} komizo
+{liczba zespolona} komplekso
+{warunkowy tryb} kondicionalo
+{składać kondolencje} kondolenci
+{poufne zwierzenie} konfidenco
+{smażyć owoce} konfiti
+{uświadamiać sobie} konscii
+{mięśni przykurcz} kontrakturo
+{być odpowiednim} konveni
+{powodować korozję} korodi
+{twierdzenie dowiedzione} korolario
+{ulica spacerowa} korso
+{wysiadywać jaja} kovi
+{rukiew wodna} kreso
+{ciasteczko kruche} kringo
+{fotografia barwna} kromofotografio
+{wąż grzechotnik} krotalo
+{karabinu zamek} kulaso
+{armaty nasada} kulaso
+{osiągać szczyt} kulmini
+{spodnie krótkie} kuloto
+{wlec ze sobą} kuntreni
+{opiekun prawny} kuratoro
+{być przyzwyczajonym} kutimi
+{rzeczy istota} kvintesenco
+{cukier mleczny} laktozo
+{sałata siewna} laktuko
+{puszczać w obieg} lanĉi
+{pies podwórzowy} laniario
+{ustęp publiczny} latrino
+{o ile to możliwe} laŭeble
+{nieba błękit} lazuro
+{sernik roślinny} legumino
+{złocień właściwy} lekanto
+{liściowa blaszka} limbo
+{ołowiawy tlenek} litargiro
+{szkło powiększające} lupeo
+{litera duża} majusklo
+{ciasteczka migdałowe} makarono
+{z rzadka} malofte
+{spełznąć na niczym} malsukcesi
+{z niechęcią} malvolonte
+{olej ciężki} mazuto
+{wielkości mania} megalomanio
+{mania wielkości} megalomanio
+{syrop brunatny} melaso
+{śpiew z deklamacją} melopeo
+{dynia turbanowa} melopepo
+{ciała część} membro
+{przywodzić na myśl} memorigi
+{tracz nurogęś} merĝo
+{dusz wędrówka} metempsikozo
+{śruba mikrometryczna} mikrometro
+{tlenek ołowiu} minio
+{sekretarz stanu} ministro
+{litera mała} minusklo
+{znak ujemny} minuso
+{piżmowy ogonek} miogalo
+{borówka czernica} mirtelo
+{wprowadzć w błąd} mistifiki
+{technika zapamiętywania} mnemotekniko
+{otwór czopowy} mortezo
+{muszkatołowa gałka} muskato
+{ma się rozumieć} nature
+{samogłoska nosowa} nazalo
+{chusteczka do nosa} naztuko
+{strój domowy} negliĝo
+{bez przyczyny} nenial
+{obrócić wniwecz} neniigi
+{drapacz chmur} nubskrapaĵo
+{jądro atomowe} nukleo
+{być posłusznym} obei
+{oka zapalenie} oftalmito
+{wyraz dźwiękonaśladowczy} onomatopeo
+{brzeg zawinięty} orlo
+{trójkąta wysokość} ortanto
+{motoru zepsucie się} paneo
+{podpisu skrót} parafo
+{funkcji współczynnik} parametro
+{ścianka wewnętrzna} pario
+{na pamięć} parkere
+{zwrot językowy} parolturno
+{Męka Pańska} pasiono
+{kredka barwna} paŝtelo
+{znak próbny} patrico
+{przy pomocy} per
+{za pośrednictwem} per
+{punkt przyziemny} perigeo
+{punkt przysłoneczny} perihelio
+{obwód wielokąta} perimetro
+{perłowa macica} perlamoto
+{galeria obrazów} pinakoteko
+{orzech pistacjowy} pistako
+{prócz tego} plie
+{brać w palce} pluki
+{czas zaprzeszły} pluskvamperfekto
+{poezji teoria} poetiko
+{zmaza nocna} polucio
+{dół podkolanowy} poplito
+{gniazdo wejściowe} pordo
+{zaimek dzierżawczy} posesivo
+{chusteczka do nosa} poŝtuko
+{tył okrętu} poŭpo
+{mieć rację} pravi
+{bez mała} preskaŭ
+{przechodzić obok} preteriri
+{przechodzić obok} preterpasi
+{co się tyczy} pri
+{w odniesieniu do} pri
+{pierwszego rzędu} primara
+{z uwagi na} pro
+{ze względu na} pro
+{czynić kroki} procedi
+{tryb postępowania} proceduro
+{rozprawa sądowa} proceso
+{przebieg zjawiska} procezo
+{prosić za kimś} propeti
+{stręczyć do nierządu} prostitui
+{iloczas zgłosek} prozodio
+{fałda wzdęta} pufo
+{kość promieniowa} radiuso
+{szpada szermiercza} rapiro
+{zdawać sprawę} raporti
+{linia prosta} rekto
+{adres internetowy} retadreso
+{działający wstecz} retroaktiva
+{inspektor starszy} revizoro
+{skała podwodna} rifo
+{szukać schronienia} rifuĝi
+{robić wyrzuty} riproĉi
+{pieczeń wołowa} rostbefo
+{pokój gościnny} salono
+{bez dziki} sambuko
+{dziki bez} sambuko
+{drzewo sandałowe} santalo
+{środek uspokajający} sedativo
+{po kryjomu} sekrete
+{bez wątpienia} sendube
+{zedrzeć skórę} senfeligi
+{bez trudu} senpene
+{na serio} senŝerce
+{barwnik ciemnobrunatny} sepio
+{zastawa stołowa} servico
+{pora roku} sezono
+{być cicho} silenti
+{związek zawodowy} sindikato
+{uprawiać szermierkę} skermi
+{białko oka} sklero
+{roboty ręczne} slojdo
+{sam jeden} sola
+{orkisz pszenny} spelto
+{przyprawa kuchenna} spico
+{na przekór} spite
+{wykazywać stagnację} stagni
+{skład główny} staplo
+{ruszać z miejsca} starti
+{kamień pamiątkowy} steleo
+{chmura warstwowa} stratuso
+{pokrywać stiukiem} stuki
+{stracić równowagę} stumbli
+{na dole} sube
+{stopień najwyższy} superlativo
+{na wierzchu} supre
+{na górze} supre
+{robić niespodziankę} surprizi
+{na oko} ŝajne
+{z pozoru} ŝajne
+{włączać prąd} ŝalti
+{być dłużnym} ŝuldi
+{tenis stołowy} tabloteniso
+{zrównanie dnia z nocą} tagnoktegaleco
+{blok złożony} takelo
+{waga opakowania} taro
+{być zdatny} taŭgi
+{mieć treść} teksti
+{rozmawiać przez telefon} telefoni
+{aparat telewizyjny} televidilo
+{kula ziemska} terglobo
+{dlatego że} tialke
+{kość goleniowa} tibio
+{nerwowy kurcz twarzy} tiko
+{błona bębenkowa} timpano
+{maszt gniezdny} topmasto
+{na wylot} trae
+{z tamtej strony} trans
+{przesunięcie równoległe} translacio
+{na poprzek} transverse
+{na przełaj} transverse
+{wystawca weksla} tratanto
+{rower trzykołowy} triciklo
+{rower trójkołowy} triciklo
+{robić na drutach} triki
+{guz nowotworowy} tumoro
+{w zupełności} tute
+{prezydent miasta} urbestro
+{nie cierpiący zwłoki} urĝa
+{być pilnym} urĝi
+{mieć wartość} valori
+{wykazywać zmienność} varii
+{dźwignia dwuramienna} vekto
+{zielen miedziana} verdigro
+{kość pacierzowa} vertebro
+{szczyt głowy} verto
+{stawiać na} veti
+{robić zakład} veti
+{woreczek veziko} veziko
+{dom jednorodzinny} vilao
+{wierzba wiciowa} vimeno
+{teoretycznie możliwy} virtuala
+{wystawa sklepowa} vitrino
+{siarkowy kwas stężony} vitriolo
+{bilet wizytowy} vizitkarto
+{przyrzeczenie uroczyste} voto
+{srom kobiecy} vulvo
+{plan działania} agadplano
+{czynności rodzaj} agospeco
+{gdzie indziej} aliloke
+{kiedy indziej} alitempe
+{na przemian} alterne
+{etykietka zapałczana} alumetetikedo
+{Anioł Pański} anĝeluso
+{z góry} anticipe
+{Zwiastowanie NMP} anunciacio
+{z osobna} aparte
+{w pobliżu} apude
+{historia sztuki} arthistorio
+{średnia arytmetyczna} averaĝo
+{piecyk kąpielowy} banhejtilo
+{kostium kąpielowy} bankostumo
+{płaszcz kąpielowy} banmantelo
+{szkoła podstawowa} bazlernejo
+{powietrza bańka} bobelo
+{szczęśliwy traf} bonŝanco
+{chleb razowy} branpano
+{chleb z masłem} buterpano
+{pamięć główna} ĉefmemoro
+{kwatera główna} ĉefstabejo
+{co tydzień} ĉiusemajne
+{w prawo} dekstren
+{od nowa} denove
+{na nowo} denove
+{szczoteczka do zębów} dentobroso
+{ból zęba} dentodoloro
+{Matka Boska} dipatrino
+{obszar dysku} diskospaco
+{zwierzę domowe} dombesto
+{wszystko jedno} egale
+{zdawać egzamin} ekzameniĝi
+{palec mały} etfingro
+{wyjść na jaw} evidentiĝi
+{strona domowa} frontpaĝo
+{w lot} fulmrapide
+{piecyk gazowy} gasfornelo
+{łożysko kulkowe} globlagro
+{w ogóle} ĝenerale
+{scena rodzajowa} ĝenro
+{obraz rodzajowy} ĝenro
+{do syta} ĝissate
+{orzeł morski} haliaeto
+{kraj rodzinny} hejmlando
+{strona domowa} hejmpaĝo
+{strefa czasu} horzono
+{ido odmiana esperanto} ido
+{wózek dziecięcy} infanĉareto
+{związek wzajemny} interligiteco
+{sądowa sprawa} juĝafero
+{medycyna sądowa} jurmedicino
+{kopalnia węgla} karbominejo
+{w jaki sposób} kiamaniere
+{wąż okularnik} kobro
+{z kretesem} komplete
+{do cna} komplete
+{prawo jazdy} konduklicenco
+{wyrzuty sumienia} konsciencriproĉo
+{serca bicie} korbatado
+{straż przyboczna} korpogvardio
+{kukurydza prażona} krevmaizo
+{Boże Narodzenie} kristnasko
+{robić szydełkiem} kroĉeti
+{koronka zęba} kronaĵo
+{na krzyż} kruce
+{na krzyż} krucforme
+{nabój śrutowy} kugletaĵo
+{uprawa roślin} kulturado
+{zakład pracy} laborejo
+{grupa pracy} laborgrupo
+{plan pracy} laborplano
+{dzień roboczy} labortago
+{środek rozwalniający} laksigilo
+{z wolna} lante
+{po raz ostatni} lastfoje
+{ostatnim razem} lastfoje
+{proszek do prania} lavpulvoro
+{rok szkolny} lernojaro
+{most zwodzony} levponto
+{robić listę} listigi
+{wagon sypialny} litvagono
+{kostka do gry} ludkubo
+{smuga światła} lumfasko
+{guma do żucia} maĉgumo
+{na jawie} maldorme
+{na opak} malkorekte
+{wyjść na jaw} malkovriĝi
+{po cichu} mallaŭte
+{z wolna} malrapide
+{od niechcenia} malzorge
+{pracownik fizyczny} manlaboristo
+{mila morska} marmejlo
+{bryła marmuru} marmorbloko
+{bal maskowy} maskobalo
+{Morze Śródziemne} mediteraneo
+{szkoła średnia} mezlernejo
+{wzrok krótki} miopeco
+{karabin maszynowy} mitralo
+{podróż dookoła świata} mondvojaĝo
+{szczyt górski} montpinto
+{kara śmierci} mortopuno
+{bez liku} multege
+{bardzo dużo} multege
+{pułapka na myszy} muskaptilo
+{mówić przez nos} nazali
+{bez liku} nemezureble
+{nie do odroczenia} neprokrastebla
+{nagroda Nobla} nobelpremio
+{stolik nocny} noktotablo
+{Nowy Jork} novjorko
+{Nowa Funlandia} novlando
+{na bakier} oblikve
+{błędna interpretacja} misinterpreto
+{oliwa z oliwek} olivoleo
+{bryła złota} orbulo
+{balkon kryty} orielo
+{skorupka jajka} ovoŝelo
+{Ocean Spokojny} pacifiko
+{bochenek chleba} panbulo
+{chleba bochenek} panbulo
+{chleba kromka} pantranĉo
+{pojemnik na chleb} panujo
+{wzięcie udziału} partopreno
+{w ubiegłym roku} pasintjare
+{zegar wiszący} pendolhorloĝo
+{palec u nogi} piedfingro
+{piłka nożna} piedpilko
+{wierzba płacząca} plorsaliko
+{paraliż dziecięcy} poliomjelito
+{choroba Heine-Medina} poliomjelito
+{znaczek pocztowy} poŝtmarko
+{urząd pocztowy} poŝtoficejo
+{stopień równy} pozitivo
+{brat babki lub dziadka} praonklo
+{czasy zamierzchłe} pratempo
+{organ prasowy} presorgano
+{białko proste} proteino
+{na razie} provizore
+{utwór prozą} prozaĵo
+{wypożyczać komuś} pruntedoni
+{wypożyczać od kogoś} pruntepreni
+{nazwisko przybrane} pseŭdonomo
+{program ogólnodostępny} publikaĵo
+{aparat radiowy} radioricevilo
+{ślad kół} radspuro
+{sala jadalna} refektorio
+{roszczenie zwrotne} regreso
+{brać do wojska} rekrutigi
+{na wprost} rekte
+{dzień odpoczynku} ripoztago
+{w ten sam sposób} sammaniere
+{bańka mydlana} sapveziko
+{płciowo dojrzały} seksmatura
+{na pewno} sekure
+{bez liku} sennombre
+{łapu capu} senorde
+{bez przygotowania} senprepare
+{na oślep} senpripense
+{na próżno} senutile
+{dziurka od klucza} serurtruo
+{po prostu} simple
+{być położonym} situi
+{z grubsza} skize
+{wojskowa służba} soldatservo
+{taśma magnetofonowa} sonbendo
+{Związek Radziecki} sovetunio
+{z rzadka} sporade
+{róg ulicy} stratangulo
+{skrzyżowanie ulic} stratkruciĝo
+{pieczeń duszona} stufaĵo
+{z nagła} subite
+{spójnik podrzędny} subjunkcio
+{zdanie podrzędne} subpropozicio
+{zachód słońca} sunsubiro
+{z grubsza} supraĵe
+{do góry} supren
+{w górę} supren
+{na górę} supren
+{na wznak} surdorse
+{guma piankowa} ŝaŭmplasto
+{skakać przez skakankę} ŝnursalti
+{granica państwa} ŝtatlimo
+{w południe} tagmeze
+{maszynistka biurowa} tajpistino
+{kołysanie wzdłużne} tangado
+{upływ czasu} tempopaso
+{bryła ziemi} terbulo
+{o tyle} tiome
+{środek komunikacji} trafikilo
+{tor kolejowy} trako
+{woda do picia} trinkakvo
+{za pierwszym razem} unuafoje
+{po raz pierwszy} unuafoje
+{na pierwszy rzut oka} unuavide
+{pewnego razu} unufoje
+{w pojedynkę} unuope
+{jednym tchem} unuspire
+{zarząd miasta} urbestraro
+{Stany Zjednoczone} usono
+{błędny ognik} vaglumo
+{sprzedawca wędrowny} vagvendisto
+{bić po twarzy} vangofrapi
+{obrócić wniwecz} vanigi
+{spełznąć na niczym} vaniĝi
+{pójść na marne} vaniĝi
+{ospa wietrzna} varicelo
+{na sprzedaż} vendebla
+{do sprzedania} vendebla
+{prawdę mówiąc} verdire
+{zawrót głowy} vertiĝo
+{głowy zawrót} vertiĝo
+{szafa ubraniowa} vestoŝranko
+{wyścig zbrojeń} vetarmado
+{mięsne danie} viandaĵo
+{huta szkła} vitrofarejo
+{stopa życiowa} vivnivelo
+{biuro podróży} vojaĝoficejo
+{szyk wyrazów} vortordo
+{merdać ogonem} vostumi
+{przewód żółciowy} koledoko
+{kort tenisowy} tenisejo
+{wbić do głowy} encerbigi
+{osobnik bezmyślny} sencerbulo
+{szpik kostny} ostocerbo
+{kość potyliczna} okcipitosto
+{używać sieci} retumi
+{sieć rybacka} fiŝreto
+{sieć dróg} vojreto
+{handel sieciowy} retkomerco
+{list elektroniczny} retletero
+{sieć komputerowa} komputilareto
+{sieć lokalna} lokareto
+{sieć globalna} mallokareto
+{gruczoł limfatyczny} gangliono
+{stanąć w gardle} engorĝiĝi
+{pełnym głosem} plengorĝe
+{przepłukać gardło} lagorĝon
+{przedsionek serca} aŭriklo
+{obrąbek uszny} helikso
+{granica państwa} landlimo
+{kamień graniczny} limŝtono
+{dział wodny} akvodislimo
+{liczba mnoga} multenombro
+{liczba pojedyncza} ununombro
+{ssać pierś} mamsuĉi
+{odstawić od piersi} demamigi
+{pod ręką} ĉemane
+{ręka w rękę} manen
+{prosić o rękę} iesmanon
+{przegub ręki} manartiko
+{wierzch dłoni} mandorso
+{praca fizyczna} manlaboro
+{wierzch dłoni} mansupro
+{obsługiwać ręcznie} manuzi
+{funkcja Heavisidea} hevisidafunkcio
+{pozycja 69} kapopiede
+{operator Laplacea} laplacaoperatoro
+{operator Laplacea} laplacoperatoro
+{palec środkowy} mezfingro
+{palec środkowy} longafingro
+{palec mały} malgrandafingro
+{palec obrączkowy} ringofingro
+{spleść ręce} interfingrigi
+{położyć z tyłu} postmeti
+{w środku} meze
+{w środku} lamezo
+{w końcu} fine
+{przynosić z powrotem} reporti
+{nosić na sobie} subporti
+{środek transportu} transportilo
+{transport lotniczy} aertransporto
+{cewka moczowa} uretero
+{udać się do tyłu} posteniĝi
+{pozostać w tyle} postiĝi
+{zaznaczać żyłę} vejni
+{woreczek żółciowy} galveziko
+{całka Lebesguea} lebegaintegralo
+{iść naprzód} antaŭeniri
+{droga wyjściowa} elirvojo
+{iść bokiem} flankeniri
+{iść razem} kuniri
+{iść wzdłuż} laŭiri
+{iść pieszo} piediri
+{iść w górę} supreniri
+{płynąć statkiem} ŝipiri
+{gołąb pocztowy} leterkolombo
+{komórka jajowa} ovoĉelo
+{zwój nerwowy} ganglio
+{kręg szyjny długi} epistrofo
+{kość ciemieniowa} parietosto
+{oddawać mocz} urini
+{oddawanie moczu} urinado
+{Wielka Niedźwiedzica} grandaursino
+{sok pokarmowy} ĥilo
+{ciąg Cauchyego} koŝiavico
+{ciąg Cauchyego} vico
+{tablica rejestracyjna} licencplato
+{daszek czapki} ĉapobeko
+{pełnym głosem} plenvoĉe
+{dotyczący narządu} organa
+{słowo z tabeli korelatywnej} tabelvorto
+{tabela prawdy} vertabelo
+{tabela prawdy} tabelo
+{logarytm dziesiętny} dekumalogaritmo
+{logarytm Briggsa} dekumalogaritmo
+{rok próbny} provjaro
+{drzewo iglaste} konifero
+{miara Lebesguea} lebegamezuro
+{miejsce artykulacji} artikiga
+{kość czołowa} fruntosto
+{naczynie limfatyczne} limfa
+{wpust żołądka} kardio
+{bębenek uszny} oreltamburo
+{Dalaj Lama} dalajlamao
+{oglądać telewizję} televidi
+{jeździć na rowerze} bicikli
+{po cichu} kviete
+{po cichu} softe
+{na czczo} vante
+{po bożemu} die
+{w każdym razie} ĉiaokaze
+{na zewnątrz} ekstere
+{na zewnątrz} eksteren
+{aż do tego miejsca} tien
+{godny współczucia} kompatinda
+{niecierpiacy zwłoki} urĝa
+{mieć skłonność} emi
+{mieć zaufanie} fidi
+{sprawować obowiązki} funkcii
+{wprawiać w zakłopotanie} ĝeni
+{mieć pragnienie} soifi
+{zaciekawiać kogoś} interesi
+{mieć prawo} rajti
+{prowadzić auto} ŝofori
+{z tyłu} malantaŭ
+{zasłona okienna} fenestrokovrilo
+{poczucie humoru} humuro
+{budzić ze snu} veki
+{zamykać na klucz} ŝlosi
+{następowanie po sobie} sinsekve
+{paskudny fizycznie} aĉa
+{dobrego serca} bonkora
+{koniec końców} finfine
+{zegarek na rękę} brakhorloĝo
+{w domu} hejme
+{do domu} hejmen
+{być głodnym} malsati
+{powodować mijanie} pasigi
+{składać raport} raporti
+{mile widziany} bonvena
+{teka na papiery} paperujo
+{groch włoski} kikero
+{Wielka Brytania} britio
+{Wyspy Marshalla} marŝaloj
+{Wyspy Salomona} salomonoj
+{Wyspa Bouveta} buvetinsulo
+{Wyspa Bożego Narodzenia} kristnaskinsulo
+{Wyspa Norfolk} norfolkinsulo
+{sztuka teatralna} teatraĵo
+{być obecnym} ĉeesti
+{być użyteczny} taŭgi
+{gra w karty} kartludo
+{kolor karciany} emblemo
+{być tematem} temi
+{mieć dochód} enspezi
+{nie do uwierzenia} nekredeble
+{po diabelsku} diable
+{po południu} posttagmeze
+{w ostatnim czasie} lastatempe
+{pewnego razu} foje
+{mieć odwagę} kuraĝi
+{telefon kieszonkowy} poŝtelefono
+{tak samo} same
+{w każdym przypadku} ĉiukaze
+{kłaść się do łóżka} enlitiĝi
+{zobaczyć ponownie} revidi
+{zaimek bezosobowy} oni
+{jak gdyby} kvazaŭ
+{mieć związek} rilati
+{mieć czkawkę} singulti
+{uprawiać seks} fiki
+{mrugać powiekami} palpebrumi
+{puścić bąka} furzi
+{pić alkohol} drinki
+{z dala} for
+{w trakcie} dum
+{w kierunku} direkte
+{poddawać próbie} provi
+{wysokość trójkąta} ortanto
+{wspólne cechy} komunaĵo
+{wspólne związki} kunaĵo
+{wartość funkcji} bildigo
+{liczba rzeczywista} reelo
+{wyrażenie podpierwiastkowe} radikigato
+{szereg geometryczny} geometriaserio
+{rodzaj słowa} vortospeco
+{mieć wpływ} influi
+{wyobrażać sobie} imagi
+{rodzajnik określony} la
+{być gotowym} preti
+{w ten sposób} tiel
+{w jaki sposób} kiel
+{po wegetariańsku} vegetare
+{odnieść sukces} sukcesi
+{zdążyć na} trafi
+{w praktyce} praktike
+{masa na ciasto} pastaĵo
+{strona internetowa} retpaĝo
+{poczta elektroniczna} retpoŝto
+{pobrać z sieci} elŝuti
+{załadować do sieci} alŝuti
+{środki masowego przekazu} amaskomunikiloj
+{po drugiej stronie} trans
+{z drugiej strony} trans
+{na wskroś} tra
+{tak bardzo} tiom
+{tej osoby} ties
+{wszelkimi sposobami} ĉiel
+{każdą ilość} ĉiom
+{z każdego powdodu} ĉial
+{każdej osoby} ĉies
+{żadnego rodzaju} nenia
+{żadną ilość} neniom
+{mimo że} kvankam
+{Ameryka Północna} nordameriko
+{Ameryka Południowa} sudameriko
+{piłka ręczna} manpilko
+{hokej na lodzie} glacihokeo
+{kolega z klasy} samklasano
+{coś do pisania} skribilo
+{dyrektor szkoły} lernejestro
+{gumka do ścierania} viŝilo
+{praca domowa} hejmtasko
+{ponieść porażkę} malsukcesi
+{obronić dyplom} diplomiĝi
+{szkoła wyższa} altlernejo
+{system operacyjny} mastrumsistemo
+{dysk twardy} durdisko
+{fizyczne komponenty komputera} hardvaro
+{płyta kompaktowa} kompaktdisko
+{płyta kompaktowa} lumdisko
+{odzyskiwanie danych} formorekono
+{korzystać z internetu} retumi
+{dyrygent chóru} ĥorestro
+{instrument muzyczny} muzikinstrumento
+{instrument dęty} blovinstrumento
+{instrument strunowy} kordinstrumento
+{instrument perkusyjny} frapinstrumento
+{grać na harfie} harpi
+{być może} eble
+{w rzeczywistości} fakte
+{w ciągu całego życia} tutvive
+{w odpowiedzi} responde
+{mała nieokreślona ilość} iomete
+{być ważnym} gravi
+{tutaj blisko} ĉitie
+{to tutaj} ĉitio
+{pojęcie oderwane} abstrakto
+{do zobaczenia} adiaŭ
+{coś lub ktoś nieokreślony} ajn
+{gdzie indziej} alie
+{z drugiej strony} aliflanke
+{innym razem} alifoje
+{w innym miejscu} aliloke
+{w inny sposób} alimaniere
+{wysokiej rangi} altranga
+{wysokiej wartości} altvalora
+{szpital polowy} ambulanco
+{list miłosny} amletero
+{z przodu} antaŭe
+{na przodzie} antaŭe
+{bardzo stary} antikva
+{antykwa font} antikva
+{zapalenie wyrostka} apendicito
+{uznawać za dobre} aprobi
+{delikatny zapach} aromo
+{przyjemny zapach} aromo
+{mieć wygląd} aspekti
+{dążyć do celu} aspiri
+{pragnąć czegoś} aspiri
+{mieć aspiracje} aspiri
+{ciało niebieskie} astro
+{dokonać zamachu} atenci
+{zwracać uwagę} atenti
+{opaska papierowa} banderolo
+{dyrektor banku} bankestro
+{ozdobny węzeł} banto
+{pieśniarz ludowy} bardo
+{stawiać przeszkodę} bari
+{okładać kijem} bastoni
+{pole bitwy} batalejo
+{pole bitwy} batalkampo
+{dom towarowy} bazaro
+{hala targowa} bazaro
+{brać za podstawę} bazi
+{rusznica przeciwpancerna} bazuko
+{literatura piękna} beletro
+{niezwykle pracowity} benediktano
+{zwierzę ogrodowe} bestoĝardeno
+{krawędź skośnie ścięta} bevelo
+{wanienka nasiadowa} bideo
+{gospodarstwo rolne} bieno
+{mający szczęście} bonŝanca
+{bomba zapalająca} brulbombo
+{jedna setna} centono
+{wyrób z ceramiki} ceramikaĵo
+{obwód elektryczny} cirkvito
+{daszek czapki} viziero
+{owoc wiśni} ĉerizo
+{drzewo wiśniowe} ĉerizujo
+{z każdej przyczyny} ĉial
+{w każdy sposób} ĉiel
+{własność wszystkich} ĉies
+{wszelka ilość} ĉiom
+{każda ilość} ĉiom
+{dom handlowy} ĉiovendejo
+{każdego ranka} ĉiumatene
+{w dziesięcioro} dekope
+{po prawej stronie} dekstre
+{na prawo} dekstre
+{następca tronu} delfeno
+{ból zęba} dentdoloro
+{wypełnić ząb plombą} dentumi
+{mieć obowiązek} devi
+{zasada postępowania} devizo
+{życzyć sobie} deziri
+{usypiać kogoś} dormigi
+{iść na dno} droni
+{po drugie} due
+{dwa razy} dufoje
+{jedna druga} duono
+{we dwóch} duope
+{we dwoje} duope
+{we dwójkę} duope
+{wydać za mąż} edzinigi
+{wyjść za mąż} edziniĝi
+{uświadomić sobie} ekkonscii
+{były minister} eksministro
+{za granicą} eksterlande
+{wychodzić z łóżka} ellitiĝi
+{być skłonnym} emi
+{wprowadzać do środka} enigi
+{wejście do środka} enveno
+{mający nadzieję} esperanto
+{drzewo figowe} figujo
+{łowić ryby na wędkę} fiŝhoki
+{wstrętna baba} fivirino
+{z boku} flanke
+{na stronie} flanke
+{swoją drogą} flanke
+{pewnego razu} fojo
+{gdzieś daleko} fore
+{być nieobecnym} foresti
+{układać włosy} frizi
+{wcześnie rano} frumatene
+{pochwa na miecz} glavingo
+{jeździć na łyżwach} glitkuri
+{żuraw pospolity} gruo
+{do widzenia} ĝisrevido
+{na czas} ĝustatempe
+{łowić na wędkę} hoki
+{w jakiś sposób} iel
+{robić wrażenie} impresi
+{być wartym} indi
+{wiek dziecięcy} infanaĝo
+{płeć żeńska} ino
+{mieć natchnienie} inspiri
+{dawać natchnienie} inspiri
+{zobaczyć się z kimś} intervidiĝi
+{przed chwilą} ĵus
+{człowiek łysy} kalvulo
+{ból głowy} kapdoloro
+{kilka razy} kelkfoje
+{czyja własność} kies
+{sztuka filmowa} kino
+{w jakim celu} kiucele
+{członek klubu} klubano
+{wilk amerykański} kojoto
+{kura domowa} koko
+{skłonny do gniewu} kolerema
+{wyświadczyć przysługę} komplezi
+{ma się rozumieć} kompreneble
+{sala koncertowa} koncertejo
+{mieć świadomość} konscii
+{wziąć pod uwagę} konsideri
+{oprócz tego} krome
+{sztuka kucharska} kuirarto
+{zabrać ze sobą} kunpreni
+{być w zwyczaju} kutimi
+{we czworo} kvarope
+{środek przeczyszczający} laksigilo
+{godny pochwały} laŭdinda
+{o ile możliwe} laŭeble
+{szafa na książki} libroŝranko
+{duży sklep} magazeno
+{po lewej} maldekstre
+{możliwy do zjedzenia} manĝebla
+{nakrycie stołowe} manĝilaro
+{godny pamięci} memorinda
+{wyraz twarzy} mieno
+{jedna tysięczna} milono
+{mała litera} minusklo
+{rozumieć źle} miskompreni
+{utwór muzyczny} muzikaĵo
+{z żadnego powodu} nenial
+{bez powodu} nenial
+{niczyja własność} nenies
+{rzecz nowa} novaĵo
+{pozbawiać balastu} senbalastigi
+{słuchać kogoś} obei
+{na ukos} oblikve
+{z kosa} oblikve
+{wydawać zapach} odori
+{czynić oficjalnym} oficialigi
+{nadać moc urzędową} oficialigi
+{z okazji} okaze
+{system operacyjny} operaciumo
+{system operacyjny} mastruma
+{na wschód} oriente
+{po omacku} palpe
+{za pośrednictwem} pere
+{mieć ciężar} pezi
+{oglądać telewizję} plate
+{człowiek dorosły} plenaĝulo
+{w pełni} plene
+{w zamian za} por
+{w zamian} por
+{puszcza dziewicza} praarbaro
+{mający rację} prava
+{błąd drukarski} preseraro
+{przeczytać ponownie} relegi
+{wielka rzeka} riverego
+{krzak róży} rozarbusto
+{krzak róży} rozujo
+{być chytrym} ruzi
+{to samo} samo
+{pas ratunkowy} savzono
+{o ile} se
+{pozbawić balastu} senbalastigi
+{uwolnić od balastu} senbalastigi
+{skłonny do milczenia} silentema
+{jeździć na nartach} skii
+{być spragnionym} soifi
+{budowa ciała} staturo
+{szyć na maszynie} stebi
+{w paski} striita
+{na spodzie} sube
+{nagrać na taśmę} surbendigi
+{po drodze} survoje
+{w drodze} survoje
+{stado owiec} ŝafaro
+{flet pasterski} ŝalmo
+{członek załogi okrętu} ŝipano
+{kapitan okrętu} ŝipestro
+{zamknąć na klucz} ŝlosi
+{w dzień} tage
+{książka telefoniczna} telefonlibro
+{brak czasu} tempomanko
+{bulwa ziemniaczana} terpomo
+{w ten sposób} tiamaniere
+{w taki sposób} tiel
+{w tamtym kierunku} tien
+{własność tego} ties
+{ten ta to} tiu
+{zmienić miejsce} transloki
+{na drugą stronę} trans
+{po tamtej stronie} trans
+{po trzecie} trie
+{trzy razy} trifoje
+{jedna trzecia} triono
+{we troje} triope
+{możliwy do znalezienia} trovebla
+{jakiś człowiek} ulo
+{centrum miasta} urbocentro
+{para wodna} vaporo
+{dom towarowy} vardomo
+{centralne ogrzewanie} varmo
+{ten który przyjdzie} venonta
+{potrawa z mięsa} viandaĵo
+{miejsce godne zobaczenia} vidindaĵo
+{po męsku} vire
+{rozwidlenie dróg} vojforko
+{rozkosz zmysłowa} volupto
+{pasy na jezdni} zebro
+{zamek błyskawiczny} zipo
+{przetwornik analogowo cyfrowy} ciferecigilo
+{zejście z drogi} devio
+{zejście z drogi} devojiĝo
+{nieobecny członek zespołu} forestanto
+{oderwany od rzeczywistości} abstrakta
+{zły uczynek} insultado
+{zły uczynek} insulto
+{zły uczynek} malbonaĵo
+{zły uczynek} misuzo
+{akademia muzyczna} konservatorio
+{zwiększać prędkość} akceli
+{zwiększać prędkość} akceliĝi
+{zwiększać prędkość} plifruigi
+{zwiększać prędkość} plirapidiĝi
+{zwiększać prędkość} plirapidigi
+{zwiększać prędkość} rapidigi
+{pedał gazu} gaspedalo
+{wzmacniać wypowiedź} akcenti
+{wzmacniać wypowiedź} emfazi
+{znak akcentu} supersigno
+{sposób dostępu} atingomaniero
+{metoda dostępu} atingomaniero
+{księga rachunkowa} kaslibro
+{akumulator procesora} akumulejo
+{akumulator elektryczny} akumulatoro
+{precyzja obliczeń} ekzakteco
+{precyzja obliczeń} akurateco
+{szczyt osiągnięć} kulmino
+{kłucie lecznicze} akupunkturo
+{jabłko Adama} gorĝnodo
+{lista adresowa} adresaro
+{spis adresów} adresaro
+{radca prawny} advokato
+{podzielać to samo zdanie} akordi
+{podzielać to samo zdanie} interakordi
+{podzielać to samo zdanie} konsenti
+{ciśnienie powietrza} aerpremo
+{statek powietrzny} aerŝipo
+{zawór powietrzny} aerklapo
+{port lotniczy} aerohaveno
+{port lotniczy} flughaveno
+{sygnał alarmu} pepo
+{symbol zastępczy} kromnomo
+{przetwornik A} ciferecigilo
+{przetwornik C} ciferecigilo
+{wygładzanie linii} glatigo
+{jednostka arytmetyczno logiczna} aritmetikilo
+{jednostka arytmetyczna} aritmetikilo
+{galeria sztuki} artgalerio
+{kod znaków ASCII} askio
+{plik dźwiękowy} sondosiero
+{szkielet sieci} spino
+{kopia bezpieczeństwa} rezervo
+{szerokość pasma} kapacito
+{linia bazowa} eldono
+{kombinacja bitowa} kodvorto
+{znak biały} blankaĵo
+{znak niedrukowalny} blankaĵo
+{znak biały} spaceto
+{znak niedrukowalny} spaceto
+{polecenie przerwania} elirejo
+{pluskwa programowa} eraro
+{duża litera} ĉeflitero
+{przechwytywać obraz} kapti
+{przechwytywać dźwięk} kapti
+{dysk optyczny} lumdisko
+{główny procesor} ĉefprocesoro
+{centralny procesor} ĉefprocesoro
+{kanał transmisyjny} kanalo
+{zestaw znaków} signaro
+{układ scalony} kristalo
+{układ scalony} splito
+{układ scalony} blato
+{płyta obwodu} cirkvitkarto
+{usuwać śmieci} senrubigi
+{takt zegarowy} takto
+{sygnał zegarowy} takto
+{kod maszynowy} kodo
+{kod maszynowy} maŝinlingvo
+{słowo kodowe} kodvorto
+{oprogramowanie biznesowe} komercaĵo
+{system komunikacyjny} komuniksistemo
+{dysk kompaktowy} lumdisko
+{w czasie kompilacji} traduktempa
+{podczas kompilacji} traduktempa
+{maszyna cyfrowa} komputilo
+{polecenie warunkowe} seo
+{rozkaz warunkowy} seo
+{interfejs znakowy} konzolo
+{element sterujący okna} fenestraĵo
+{element sterujący okna} rego
+{znak sterujący} signalo
+{jednostka sterująca} ĉefprocesoro
+{być zbieżnym} konverĝi
+{łamacz kodu} kodrompisto
+{wyciąć do schowka} enpoŝigi
+{proces systemowy} demono
+{proces usługowy} demono
+{usługa systemu} demono
+{proces systemowy} procezo
+{proces usługowy} procezo
+{usługa systemu} procezo
+{bank danych} datumbanko
+{blok danych} bloko
+{nośnik danych} datumportilo
+{zbiór danych} datumaro
+{struktura danych} datumstrukturo
+{typ danych} datumtipo
+{zwalniać pamięć} malokupi
+{zwalniać zasoby} malokupi
+{zwalniać pamięć} detrui
+{zwalniać zasoby} detrui
+{program uruchomieniowy} erarserĉilo
+{wyszukiwanie błędów} ĝustigo
+{odpluskwianie programu} ĝustigo
+{sterownik urządzenia} adaptilo
+{element okna dialogowego} dialogo
+{okno dialogowe} dialogujo
+{przetwornik cyfrowy} ciferecigilo
+{polecenie kompilatora} direktivo
+{blokować działanie} malŝalti
+{blokować działanie} malvalidigi
+{stacja dysków} diskingo
+{napęd dyskowy} diskingo
+{napęd dysków} diskingo
+{stacja dysków} diskturnilo
+{napęd dyskowy} diskturnilo
+{napęd dysków} diskturnilo
+{pobierać z sieci} elŝuti
+{ściągać pliki} elŝuti
+{pobierać z sieci} ŝuti
+{ściągać pliki} ŝuti
+{pobierać z sieci} ŝargi
+{ściągać pliki} ŝargi
+{program kreślarski} desegnilo
+{w obu kierunkach} dupleksa
+{w czasie wykonania} rultempa
+{w czasie wykonania} dinamika
+{handel w sieci} retkomerco
+{handel internetowy} retkomerco
+{w innym razie} alie
+{list elektroniczny} retpoŝto
+{poczta elektroniczna} retletero
+{adres poczty elektronicznej} retadreso
+{sposób kodowania} kodoprezento
+{sposób kodowania} kodo
+{środowisko programowe} medio
+{środowisko programowania} medio
+{diagnostyka błędów} kontrolo
+{lokalizacja esperancka} esperantigo
+{wyłączne lub} disaŭo
+{środowisko uruchomieniowe} medio
+{środowisko pracy programu} medio
+{wykładnik potęgowy} eksponento
+{dziedzina wiedzy} kampo
+{zbiór danych} dosiero
+{zbiór danych} aro
+{katalog plików} dosierujo
+{folder plików} dosierujo
+{rozszerzenie nazwy pliku} sufikso
+{system plików} dosiersistemo
+{oprogramowanie firmowe} firmvaro
+{oprogramowanie firmowe} ladaĵo
+{dysk miękki} disketo
+{schemat blokowy} fluskemo
+{krój pisma} tiparo
+{krój pisma} fasono
+{duże lub małe litery} uskleco
+{wielkość liter} uskleco
+{grupa dyskusyjna} forumo
+{deklaracja wyprzedzająca} anonco
+{bezpłatne oprogramowanie} publikaĵo
+{odpowiedzi na często zadawane pytania} respondaro
+{znak obrazkowy} signobildo
+{instrukcja skoku} salto
+{edytor graficzny} desegnilo
+{siatka pola} krado
+{siatka obrazowa} krado
+{pirat komputerowy} fraŭdulo
+{pirat komputerowy} pirato
+{program obsługi} traktilo
+{wydruk na papierze} firmaĵo
+{wydruk na papierze} printaĵo
+{dysk twardy} diskaparato
+{koncentrator sieciowy} nabo
+{łącznik wyrazowy} streketo
+{łącznik wyrazowy} dividstreko
+{lista nazw} nomlisto
+{polecenie warunkowe IF} seo
+{wprowadzać dane} enigi
+{wejście danych} enigo
+{wprowadzanie danych} enigo
+{źródło danych} enigo
+{wejście danych} fonto
+{wprowadzanie danych} fonto
+{źródło danych} fonto
+{urządzenie wejściowe} enigilo
+{urządzenie wejścia} enigilo
+{program instalacyjny} instalilo
+{tworzyć egzemplarze} generi
+{tryb interaktywny} interagado
+{tryb dialogowy} interagado
+{tryb interaktywny} dialogo
+{tryb dialogowy} dialogo
+{węzeł wewnętrzny} nodo
+{język pośredni} pontolingvo
+{lokalizacja narodowa} internaciigo
+{sieć globalna} interreto
+{adres sieciowy} retadreso
+{część wspólna} komunaĵo
+{zmieniać na przeciwny} inversigi
+{drążek sterowy} stirstango
+{wyrównywać do marginesów} remburi
+{słowo kluczowe} ŝlosilvorto
+{komputer przenośny} tekkomputilo
+{czas życia} vivdaŭro
+{okres życia} vivdaŭro
+{edytor połączeń} bindilo
+{lista połączona} ligillisto
+{program łączący} bindilo
+{program ładujący} ŝargilo
+{nazwa logowania} salutnomo
+{małe litery} etlitero
+{małe litery} minusklo
+{język maszynowy} maŝinlingvo
+{dysk magnetyczny} disko
+{program rozsyłający pocztę} dissendilo
+{program pocztowy} poŝtilo
+{pocztowa lista dyskusyjna} dissendolisto
+{ciało główne} ĉefteksto
+{pamięć podstawowa} ĉefmemoro
+{główny tekst} ĉefteksto
+{główny komputer} komputilego
+{komputer dużej mocy} komputilego
+{pojemność pamięci} memorkapacito
+{łączyć ze sobą} kunfandi
+{scalać razem} kunfandi
+{wykonywać pomiary} nombri
+{mała litera} etlitero
+{serwer lustrzany} spegulo
+{reszta z dzielenia całkowitego} modulo
+{operacja modulo} modulo
+{płyta główna} ĉefkarto
+{pomoc wzajemna} interhelpo
+{funkcja NAND} malkajo
+{puste wskazanie} nul
+{węzeł sieciowy} nodo
+{węzeł sieciowy} vertico
+{system liczbowy} nombrosistemo
+{język pośredni} cellingvo
+{język obiektowy} cellingvo
+{osiem bitów} bajto
+{osiem bitów} bitoko
+{bez połączenia z siecią} senkonekte
+{bez połączenia z siecią} aŭtonome
+{w sieci} konektite
+{przy połączeniu z siecią} konektite
+{sposób działania} operacio
+{sposób działania} funkciado
+{sposób działania} reĝimo
+{symbol operacji} operatoro
+{wartość przeciwna} kontraŭo
+{włókno optyczne} lumfibro
+{włókno szklane} lumfibro
+{w odpowiedniej kolejności} orda
+{wyjście danych} eligo
+{wyjście danych} elirejo
+{stopka strony} paĝotitolo
+{nagłówek strony} paĝotitolo
+{partycjonować dysk} dispartigi
+{dzielić dysk na partycje} dispartigi
+{partycja dysku} subdisko
+{język programowania Pascal} paskalo
+{schowek na wklejanie} poŝo
+{bufor wklejania} poŝo
+{rozpoznawanie kształtów} formorekono
+{oprogramowanie płatne} komercaĵo
+{urządzenie peryferyjne} periferio
+{urządzenie zewnętrzne} periferio
+{urządzenie peryferyjne} periferiaĵo
+{urządzenie zewnętrzne} periferiaĵo
+{urządzenie do wybierania} pikilo
+{urządzenie rysujące} desegnilo
+{komputer kieszonkowy} poŝkomputilo
+{urządzenie wskazujące} pikilo
+{wysyłanie wiadomości} afiŝo
+{administrator poczty} poŝtestro
+{wydruk poawaryjny} nekropsio
+{warunek wstępny} antaŭkondiĉo
+{warunek wejściowy} antaŭkondiĉo
+{przetwarzanie wstępne} antaŭtraktado
+{klucz główny} ĉefŝlosilo
+{klucz podstawowy} ĉefŝlosilo
+{użytkownik uprzywilejowany} privilegiulo
+{tryb postępowania} procedo
+{pisanie programu} programado
+{tworzenie programu} programado
+{tworzenie oprogramowania} programado
+{język programowania} programlingvo
+{testowanie programu} atestado
+{zgłoszenie systemowe} invito
+{zgłoszenie systemowe} instigilo
+{oprogramowanie public domain} publikaĵo
+{menu rozwijane w dół} tirmenuo
+{podstawa systemu liczenia} bazo
+{wagon kolejowy} vagono
+{pamięć RAM} ĉefmemoro
+{pamięć o dostępie swobodym} ĉefmemoro
+{liczba losowa} stokasto
+{liczba swobodna} stokasto
+{zmienna losowa} stokasto
+{zmienna swobodna} stokasto
+{liczba ułamkowa} raciono
+{liczba ułamkowa} racionalo
+{plik informacyjny} legumino
+{wykonać ponownie} refari
+{odwołanie do} referenco
+{odwołanie do} kromnomo
+{rejestr systemu} registrejo
+{wyrażenie regularne} regulesprimo
+{tworzenie obrazu} bildigo
+{wznowić wykonanie} reaktivigi
+{główny użytkownik systemu} radiko
+{komputer trasujący} enkursigilo
+{komputer trasujący} kursilo
+{spełniający założenia} plenumebla
+{zachowywać na dysku} konservi
+{zachowywać na dysku} registri
+{pasek przewijania} rulumskalo
+{obszar wybrany} areo
+{numer seryjny} numero
+{komputer usługowy} servilo
+{kabina z prysznicem} duŝejo
+{rączka od prysznica} duŝilo
+{efekt uboczny} kromefiko
+{lokacja sieciowa} poŝtejo
+{przestać się wykonywać} halteti
+{interwał czasowy} sekco
+{język źródłowy} fontlingvo
+{program źródłowy} fontprogramo
+{znak spacji} spaceto
+{program sprawdzający pisownię} literumilo
+{epoka kamienna} ŝtonepoko
+{epoka kamienia} ŝtonepoko
+{łańcuch znaków} ĉeno
+{łańcuch znaków} signovico
+{arkusz stylu} stilfolio
+{indeks dolny} indico
+{znak zastępczy} anstataŭaĵo
+{element następny} postanto
+{przerzucanie zawartości} permuto
+{system komputerowy} sistemo
+{administrator systemu} sistemestro
+{zasobnik systemowy} taskopleto
+{program docelowy} celprogramo
+{program wynikowy} celprogramo
+{węzeł końcowy} folio
+{procesor tekstu} tekstotraktilo
+{licznik czasu} horloĝo
+{okienko narzędziowe} ilaro
+{domena główna} retregiono
+{kulka sterująca} stirglobo
+{radio tranzystorowe} transistoro
+{program tłumaczący} tradukilo
+{tablica prawdy} vertabelo
+{anulować zmiany} malfari
+{system znaków Unicode} unikodo
+{program odinstalowujący} malinstalilo
+{część wspólna} kunaĵo
+{część wspólna} unio
+{typ unijny} unio
+{przesyłać dane na serwer} alŝuti
+{przyjazny dla użytkownika} afabla
+{nazwa użytkownika} salutnomo
+{oprogramowanie narzędziowe} utilaĵo
+{testowanie oprogramowania} atestado
+{wyświetlacz ekranowy} ekranbloko
+{sieć WWW} teksaĵo
+{waga kroju pisma} pezo
+{strona powitalna} hejmpaĝo
+{strona powitalna} akceptejo
+{strona domowa} akceptejo
+{dobrze uporządkowany} bonorda
+{element okienka} fenestraĵo
+{znak zastępczy} ĵokero
+{znak zastępczy} regulesprimo
+{procesor tekstu} verkilo
+{symbol słowa} ŝlosilvorto
+{zawijanie wierszy} linifaldo
+{na granicy} lime
+{ku pamięci} omaĝe
+{w wykonaniu} fare
+{środowisko esperanckie} esperantujo
+{język obcy} fremdlingvo
+{wyobrazić sobie} imagi
+{mieć źródła} fonti
+{atak serca} koratako
+{pod wodą} subakve
+{w normalnym przypadku} normalokaze
+{tak samo jak} samkiel
+{na pólnoc} norden
+{ponosić porażkę} malsukcesi
+{sposób życia} vivmaniero
+{od serca} elkore
+{po chinsku} ĉine
+{w jakimś sensie} iasence
+{służba zdrowia} sanservo
+{z mojej strony} miaflanke
+{kraj rozwijający się} evolulando
+{czas trwania} tempodaŭro
+{według definicji} laŭdifine
+{w przypdku} kaze
+{według woli} laŭplaĉe
+{myzyka taneczna} dancmuziko
+{po hiszpańsku} hispane
+{na twarzy} survizaĝe
+{na tym terenie} tiukampe
+{złożyć diagnozę} diagnozi
+{składać diagnozę} diagnozi
+{w większej cześci} grandparte
+{tego czasu} tiuperiode
+{jak się chce} laŭvole
+{na ulicy} surstrate
+{z początku} dekomence
+{według mojej opinii} miaopinie
+{problem językowy} lingvoproblemo
+{z jednej strony} unuflanke
+{wspólną pracą} kunlabore
+{grać rolę} roli
+{z angielskiego} angle
+{możliwy do nauki} lernebla
+{z przyczyny} kaŭze
+{w czwartek} ĵaŭde
+{w piątek} vendrede
+{w niedzielę} dimanĉe
+{w sobotę} sabate
+{w środę} merkrede
+{we wtorek} marde
+{w poniedziałek} lunde
+{na zielono} verde
+{na czerwono} ruĝe
+{na podstawie} baze
+{członek rodziny} familiano
+{pojawiać się ponownie} reaperi
+{pojawić się ponownie} reaperi
+{w związku} lige
+{być podobny} simili
+{nie dziwne} nemirinde
+{dno rzeki} riverfundo
+{radykalna prawica} ekstremdekstrulo
+{według potrzeb} laŭbezone
+{w wielu miejscach} plurloke
+{do dzisiaj} ĝisdate
+{bez znaczenia} indiferente
+{na północ} norde
+{według kontraktu} laŭkontrakte
+{bez uprzedzenia} senaverte
+{w przybliżeniu} proksimume
+{wojna światowa} mondmilito
+{w każdym razie} ĉiamaniere
+{po francusku} france
+{W tym czasie} dumtempe
+{krótko mówiąc} unuvorte
+{środek masowego przekazy} amaskomunikilo
+{z jego strony} siaparte
+{w górę} alten
+{w przeciwieństwie} kontraste
+{język symboli} signolingvo
+{w tym sensie} tiusence
+{w swoim czasie} siatempe
+{godne uwagi} notinda
+{bez rezerwy} senrezerve
+{bez protestowania} senproteste
+{zbrodnia wojenna} militkrimo
+{w zrównaniu} kompare
+{bez ruchu} senmove
+{po niemiecku} germane
+{język migowy} gestolingvo
+{wolność wyrazu} esprimlibereco
+{koń mechaniczny} ĉevalpovo
+{z sukcesem} sukcese
+{w języku esperanto} esperante
+{godne uwagi} rimarkinde
+{zwracać uwagę} rimarkigi
+{port żaglowy} jaĥthaveno
+{w tym sensie} tiurilate
+{zdolny do życia} vivkapabla
+{w rezultacie} rezulte
+{miejsce zamieszkania} loĝloko
+{być potrzebny} necesi
+{w różnych miejscach} diversloke
+{tryb myślenia} pensado
+{dyrektor naczelny} ĉefdirektoro
+{z naszej strony} niaflanke
+{program telewizyjny} televidkanalo
+{być odpowiedzialnym} respondeci
+{życie małżeńskie} geedzeco
+{na bazie} surbaze
+{między innymi} interalie
+{być możliwe} ebli
+{za pomocą} helpe
+{czytać na głos} laŭtlegi
+{każdym razem} ĉiufoje
+{miejsce obserwacji} observejo
+{po amatorsku} amatore
+{ze zdziwieniem} mire
+{pół godziny} duonhoro
+{zmieniać miejsce} transloki
+{ambulatorium bezpłatne} dispensario
+{anioł stróż} gardanĝelo
+{bar szybkiej obsługi} manĝetejo
+{bezogoniaste zwierzę} batrako
+{węgiel brunatny} brunkarbo
+{brzmiący jednakowo} analoga
+{błona bębenkowa} miringo
+{chleb chrupki} krakpano
+{ciężarów podnoszenie} halterlevo
+{ciężkości punkt} baricentro
+{deska do krojenia} tranĉtabulo
+{dół podkolanowy} genukavo
+{drozd śpiewak} kantturdo
+{druciana krata} dratreto
+{dzienny rozkład zajęć} tagordo
+{pozbawiać dziewictwa} deflori
+{foremka do piasku} sabloformujo
+{foremka do piasku} sabloformilo
+{forma do ciasta} bakformujo
+{forma do ciasta} bakmuldilo
+{igrzyska olimpijskie} olimpikoj
+{jelito cienkie} entero
+{karty do gry} ludkartaro
+{kasa oszczędności} ŝparkaso
+{kasa oszczędnościowa} ŝparkaso
+{kawa cappuccino} kapuĉino
+{wygłaszać kazanie} prediki
+{oddawać kał} feki
+{koński ogon} harvosto
+{kosz na śmieci} pedalrubujo
+{kosz na śmieci} pedalsitelo
+{koszyk na zakupy} rulsako
+{kość łokciowa} kubito
+{krem kosmetyczny} haŭtkremo
+{krzesło składane} klapseĝo
+{kukurydza prażona} pufmaizo
+{kurka wodna} galinolo
+{kwas węglowy} karbonacido
+{lis stepowy} korsako
+{magnetofon kasetowy} kasedilo
+{maź stawowa} sinovio
+{mleko matki} mamlakto
+{moment bezwładności} inercimomanto
+{muchomór pospolity} muskario
+{na zewnątrz} ele
+{nie obsadzony} vakanta
+{ognisko domowe} penatoj
+{orzech arachidowy} arakido
+{otwieracz do konserw} elladigilo
+{otwieracz do konserw} ladmalfermilo
+{pakować plik} kompaktigi
+{palec wielki} halukso
+{papier toaletowy} necespapero
+{papryka peperoni} kapsiketo
+{papużka falista} papageto
+{pasta do zębów} dentpasto
+{podkładka pod rondel} kaserolsubtenilo
+{podkładka pod rondel} flamreto
+{podnoszenie ciężarów} halterlevo
+{podpaska higieniczna} menstrusorbilo
+{pojemnik na chleb} pankonservujo
+{pokarmowa treść} ĉimo
+{pokarmowy sok} ĉilo
+{przegub ręki} pojno
+{płyn do mycia naczyń} vazlesivo
+{płytka grzejna} kuirplato
+{rękawica kuchenna} fornoganto
+{rękawica kuchenna} izolganto
+{ręki przegub} pojno
+{rewia mody} modparado
+{ropniak opłucnej} empiemo
+{rozpakować plik} malkompaktigi
+{siemie lniane} linsemo
+{silnik spalinowy} dizelo
+{sól ziołowa} herbsalo
+{statecznik kierunkowy} direktalo
+{ster kierunkowy} direkterono
+{stopy podbicie} instepo
+{stół do przewijania} vartotablo
+{osiągać szczyt} kulmini
+{szkło mleczne} laktovitro
+{słonecznik bulwiasty} terpiro
+{taca do pieczenia} bakpleto
+{talerz głęboki} suptelero
+{tampon higieniczny} menstrutampono
+{tańczyć tango} tangi
+{tekst szyfrowany} kriptogramo
+{udzielać transfuzji} transfuzi
+{wańka wstańka} staremulo
+{wałek do ciasta} rulknedilo
+{wieszać pranie} pendsekigi
+{wieszać pranie} pendgutigi
+{obrócić wniwecz} nuligi
+{woda kranowa} kranakvo
+{wróbel domowy} dompasero
+{wykrywacz gazu} gasdetektilo
+{wykrywacz gazu} gasflarilo
+{wypalać znamię} brulstampi
+{wyłącznik automatyczny} memmalŝalto
+{zawiadowca stacji} staciestro
+{zegar wodny} hidroskopo
+{zegar zatrzaskowy} klikhorloĝo
+{zespół aktorski} trupo
+{znosić cierpienia} suferi
+{zupa mleczna} laktosupo
+{łódź ratunkowa} savboato
+{żelazko z nawilżaczem} vaporgladilo
+{być zdolnym} kapabli
+{ruch esperanto} esperantomovado
+{w ramach} kadre
+{członek zarządu} estrarano
+{w pierwszym rzędzie} unuavice
+{w każdym razie} ĉiuokaze
+{miejsce pracy} laborloko
+{być członkiem} membri
+{bomba atomowa} atombombo
+{chodzenie pieszo} piediro
+{grupa docelowa} celgrupo
+{w każdym przypadku} tutcerte
+{drzewko syntaktyczne} sintaksarbo
+{lista słów} vortlisto
+{pamięć tłumaczeń} tradukmemoro
+{lista tłumaczeń} traduklisto
+{źródło pieniędzy} monfonto
+{w nadzieji} esperante
+{na szkodę} malprofite
+{w końcu tygodnia} semajnfine
+{w ostatnim tygodniu} pasintsemajne
+{z początku} komence
+{woda gruntowa} grundakvo
+{odzyskanie niepodległości} resendependiĝo
+{nauczanie językowe} lingvoinstruado
+{kampania informacyjna} informkampanjo
+{od urodzenia} denaske
+{z powodu braku} manke
+{kraj członkowski} membroŝtato
+{pełny życia} vivoplena
+{przez internet} rete
+{z porozumieniem} interkonsente
+{tego roku} nunjare
+{portal internetowy} retejo
+{przykład do naśladowania} imitmodelo
+{prowadzić esej} esei
+{bez obaw} maltime
+{za młodu} junaĝe
+{odbywać służbę wojskową} militservi
+{język fachowy} faklingvo
+{nauka o przyrodzie} naturscienco
+{łańcuch znaków} signoĉeno
+{język stuczny} planlingvo
+{język zaplanowany} planlingvo
+{język pisany} skriblingvo
+{autyzm wczesnodziecięcy} aŭtismo
+{figura retoryczna} vortfiguroj
+{klęska żywiołowa} naturkatastrofo
+{gromada kulista} stelamaso
+{papier wartościowy} valorpapero
+{kalendarz gregoriański} greklando
+{stop metali} alojo
+{energia wodna} akvoenergio
+{barwa zielona} verdo
+{gol samobójczy} memgolo
+{silnik o spalaniu wewnętrznym} eksplodmotoro
+{kamica żółciowa} kolesterino
+{tabela stratygraficzna} ase
+{nowy rok} novjaro
+{ścierwnik biały} matĉestro
+{wojska lotnicze} aerarmeo
+{znak krzyża} krucosigno
+{forum dyskusyjne} retforumo
+{inżynieria genetyczna} gentekniko
+{wielki piec} altforno
+{fantastyka naukowa} sciencfikcio
+{bliski wschód} mezoriento
+{nerw błędny} ŝintoo
+{płyta gramofonowa} gramofondisko
+{orlando di lasso} lunoj
+{kamera filmowa} kamerao
+{pismo ideograficzne} ideogramo
+{flet prosty} bekfluto
+{nastawa ołtarzowa} retablo
+{kaseta magnetofonowa} sonkasedo
+{grupa etniczna} etno
+{karta płatnicza} kreditkarto
+{drut kolczasty} pikdrato
+{skład tekstu} kompostado
+{alfred kinsey} kanadio
+{wędrówki ptaków} birdomigrado
+{filozofia starożytna} gnostikoj
+{barwa czarna} nigro
+{barwa biała} blanko
+{edytor tekstu} tekstredaktilo
+{energetyka słoneczna} sunenergio
+{gaz ziemny} tergaso
+{linie lotnicze} flugkompanio
+{metr sześcienny} kubmetro
+{architektura romańska} romaniko
+{narodowy socjalizm} naziismo
+{karabin maszynowy} maŝinpafilo
+{epoka żelaza} ferepoko
+{aparat fotograficzny} fotilo
+{poziom morza} marnivelo
+{półwysep jutlandzki} jutlando
+{epoka lodowcowa} glaciepoko
+{karta sieciowa} retkarto
+{cieśnina beringa} libeloj
+{jabłko królewskie} regnoglobo
+{karl benz} armenoj
+{noc sylwestrowa} silvestro
+{obwód sachaliński} saĥalino
+{koszmar senny} koŝmaro
+{wydarzenie bieżące} aktualaĵo
+{długość fali} ondolongo
+{kod pocztowy} poŝtkodo
+{czynne prawo wyborcze} balotrajto
+{agawa sizalowa} sisalo
+{straż pożarna} fajrobrigado
+{morze kaspijskie} kaspio
+{pismo klinowe} kojnoskribo
+{linia lotnicza} fluglinio
+{geografia fizyczna} fluoj
+{prawo autorskie} aŭtorrajto
+{przewodnik elektryczny} konduktilo
+{zanieczyszczenie środowiska} poluo
+{cerkiew prawosławna} ortodoksismo
+{wózek inwalidzki} rulseĝo
+{marin mersenne} krucenigmo
+{składowisko odpadów} rubodeponejo
+{okręt podwodny} submarŝipo
+{liczba atomowa} atomnumero
+{aleksander sołżenicyn} akridoj
+{węgiel drzewny} lignokarbo
+{języki irokeskie} olimpiko
+{las iglasty} koniferarbaro
+{erika mann} estonujo
+{prąd zatokowy} miliardulo
+{księga powtórzonego prawa} readmono
+{układ słoneczny} sunsistemo
+{piłka siatkowa} flugpilkado
+{walka klas} klasbatalo
+{izolator elektryczny} izolilo
+{jelonek rogacz} cervoskarabo
+{stacja orbitalna} kosmostacio
+{koło zamachowe} inercirado
+{burkina faso} burkino
+{richard burton} rusujo
+{języki pidżynowe} piĝino
+{fast food} rapidmanĝejo
+{głowa państwa} ŝtatestro
+{kopia bezpieczeństwa} sekurkopio
+{zaskroniec zwyczajny} natrikso
+{barwa czerwona} koloroj
+{czajnik elektryczny} teujo
+{półwysep bałkański} budhistoj
+{plama słoneczna} sunmakulo
+{karty do gry} ludkarto
+{księga kapłańska} levidoj
+{woda mineralna} mineralakvo
+{kwas tłuszczowy} polenero
+{klaus kinski} komikso
+{kara śmierci} mortpuno
+{dog niemiecki} leporhundo
+{wyspy kanaryjskie} kanarioj
+{woda morska} marakvo
+{absolutyzm władzy} absolutismo
+{Buenos Aires} bonaero
+{epoka brązu} bronzepoko
+{opad atmosferyczny} precipitaĵo
+{liczby niewymierne} numeraloj
+{rezerwat przyrody} naturrezervejo
+{elektrodynamika klasyczna} elektromagnetismo
+{prąd morski} marfluo
+{znani matematycy} matematikistoj
+{święte miejsce} sanktejo
+{na zachodzie} okcidente
+{redaktor główny} ĉefredaktoro
+{komisariat policyjny} policejo
+{serwis książkowy} libroservo
+{na miejscu} surloke
+{objekt badań} studobjekto
+{miejsce kongresowe} kongresejo
+{członek akademii} akademiano
+{w innej cześci} aliparte
+{z przemocą} perforta
+{bez wahania} senŝancele
+{być wartym napomnienia} menciindi
+{żyć pośmietnie} pluvivi
+{serwis internetowy} retservo
+{skinąć głową} kapklini
+{coroczne spotkanie} jarkunveno
+{użyć mylnie} misuzi
+{klasa szkolna} klasĉambro
+{związek sowiecki} sovetio
+{człowiek zły} malbonulo
+{stracić iluzję} seniluziiĝo
+{niezmiernie ważny} gravega
+{na spotkaniu} renkonte
+{język roboczy} laborlingvo
+{biorąć pod uwagę} respekte
+{mieć to samo zdanie} samopinii
+{z wahaniem} hezite
+{klinika nowotworowa} kancerkliniko
+{dobry uczynek} bonfaro
+{siła pracy} laborforto
+{komisja do spraw rozwoju} evolukomisiono
+{na miejscu} kampe
+{naczelnik sił zbrojnych} militestro
+{zacząć pracę} eklabori
+{klub taneczny} dancejo
+{na połódniu} sude
+{człowiek bez cnoty} malvirtulo
+{zjazd naukowy} kolokvo
+{człowiek z zachodu} okcidentano
+{przeciwnie do} malkiel
+{współbrataniec po idei} samideano
+{data graniczna} limdato
+{światło słoneczne} sunlumo
+{naczelnik policji} policestro
+{obiekt konkursu} konkursaĵo
+{punkt widzenia} starpunkto
+{życzyć z całej mocy} deziregi
+{o północy} noktomeze
+{dom kultury} kulturdomo
+{dzieło sztuki} artaĵo
+{objekt zabawy} distraĵo
+{nabrać powietrze} enspiri
+{pobratyniec idei} gesamideano
+{nabrać powietrza} ekspiri
+{opaska na oczy} vidbendo
+{ruszyć w podróż} ekveturi
+{rok szkolny} studjaro
+{iść dalej} pluiri
+{każdego gatunku} ĉiuspeca
+{zły uczynek} malbonago
+{na wysokim poziomie} altnivela
+{rzecz próżna} vantaĵo
+{ława spalna} litbenko
+{po drugiej stronie} transe
+{tryb myślenia} pensmaniero
+{w konsekwencji} konsekvence
+{zgodnie z naturą} laŭnature
+{pod przymusem} devige
+{rozmiar wydania} eldonkvanto
+{promień słoneczny} sunradio
+{tym razem} tiufoje
+{błysk słońca} sunbrilo
+{światło dzienne} taglumo
+{uczestnik kongresu} kongresano
+{granica ziemska} terbordo
+{światło księżyca} lunlumo
+{według stopnia} laŭgrade
+{członek komitetu} komitatano
+{krzesło z poręczami} apogseĝo
+{gatunek piwa} bierspeco
+{z powrotem} reen
+{wędrówka piesza} piedirado
+{bilet lotniczy} flugbileto
+{wieża Babel} babelturo
+{forum dyskucyjne} diskutforumo
+{literatura piękna} beletraĵo
+{targ książki} librofoiro
+{okręt flagowy} admiralŝipo
+{zakład wodociągowy} akvodistribuejo
+{zakład wodociągowy} akvotraktadejo
+{pływy morskie} altmaro
+{łyżwiarstwo figurowe} artosketado
+{pewność siebie} memcerteco
+{gitara elektryczna} elektrogitaro
+{rodzaj gramatyczny} familiaro
+{twardy dysk} fiksitadisko
+{linie papilarne} fingropremaĵo
+{znak wolnej burty} floslinio
+{pływy morskie} refluo
+{pływy morskie} malfluso
+{siostra przyrodnia} duonfratino
+{grupy krwi} sangogrupo
+{lingua franca} interlingvo
+{operator filmowy} kameraisto
+{pewność siebie} memkonfido
+{tor wyścigowy} konkursejo
+{prawo autorskie} kopirajto
+{kwas chlebowy} kvaso
+{miejsce zamieszkania} loĝadejo
+{marynarka wojenna} maristaro
+{łódź podwodna} submarino
+{miód pitny} mielakvo
+{liczba mnoga} multnombro
+{broń palna} pafarmilo
+{pakiet telekomunikacyjny} pakedo
+{liczba mnoga} plurnombro
+{spis statystyczny} popolnombrado
+{środek czyszczący} purigisto
+{racjonalizm filozoficzny} raciismo
+{głowa państwa} regnestro
+{pas bezpieczeństwa} sekurzono
+{pierwsza pomoc} sukurado
+{zaćmienie słońca} suneklipso
+{schody ruchome} ŝtuparlifto
+{błąd drukarski} mistajpaĵo
+{podręcznik szkolny} traktaĵo
+{miód pitny} trinkmielo
+{siostra przyrodnia} vicfratino
+{kiszona kapusta} acidabrasiko
+{opłata pocztowa} afrankokostoj
+{akrobacja lotnicza} akrobataĵo
+{znak wodny} akvomarko
+{zakład wodociągowy} akvopreparejo
+{przednia szyba} antaŭaglaco
+{Jezioro Aralskie} aralo
+{Ocean Arktyczny} arktaoceano
+{Lis polarny} arktavulpo
+{Ocean Atlantycki} atlantikaoceano
+{obsłuchać stetoskopem} aŭskultumili
+{pilot automatyczny} aŭtomatapiloto
+{prawo autorskie} aŭtorarajto
+{wale gładkoskóre} balenedoj
+{Morze Bałtyckie} baltamaro
+{rakieta tenisowa} batilo
+{stacja benzynowa} benzinejo
+{stacja benzynowa} benzinstacio
+{stacja benzynowa} benzinvendejo
+{Cieśnina Beringa} beringa
+{strach na wróble} birdotimigilo
+{Zatoka Biskajska} biskajujo
+{niedźwiedź polarny} blankaurso
+{Nil Błękitny} bluanilo
+{barwa niebieska} bluigaĵo
+{samolot bombowy} bombaviadilo
+{Wyspy Brytyjskie} britainsularo
+{Afryka Środkowa} centrafriko
+{pigwa pospolita} cidoniarbo
+{linie papilarne} daktilogramo
+{program nauczania} dekoktaĵo
+{spis statystyczny} denombrado
+{szczoteczka do zębów} dentbroso
+{środek dezynfekujący} desinfektaĵo
+{elektryczny moment dipolowy} dipolo
+{materiał wybuchowy} eksplodaĵo
+{błąd drukarski} eratumo
+{grupa etniczna} etnio
+{geometria euklidesowa} eŭklidageometrio
+{ognisko domowe} fajrejo
+{Ziemia Ognista} fajrolando
+{religie pierwotne} fetiĉismo
+{Huang He} flavarivero
+{kaftan bezpieczeństwa} frenezjako
+{gumka do ścierania} frotgumo
+{komora gazowa} gasĉambro
+{sala gimnastyczna} gimnastikejo
+{suwak logarytmiczny} glitkalkulilo
+{Architektura gotycka} gotikaepoko
+{Stary Testament} hebreabiblio
+{Ocean Indyjski} hindaoceano
+{rozkład jazdy} horlibro
+{moment pędu} impulsmomanto
+{otwarcie szachowe} inaŭgurado
+{rachunek różniczkowy i całkowy} infinitezimakalkulo
+{Międzynarodowa Organizacja Pracy} internacialabor
+{Międzynarodowy Fundusz Walutowy} internaciamona
+{wózek inwalidzki} invalidoseĝo
+{Serbia i Czarnogóra} jugoslavujo
+{Wyspy Kanaryjskie} kanariainsularo
+{kozia bródka} kaprobarbo
+{nakrycie głowy} kapvesto
+{Morze Karskie} karaa
+{sztuczny rozrusznik serca} korstimulilo
+{statek kosmiczny} kosmaŝipo
+{prawo karne} kriminalajuro
+{teoria mnogości} kvantodoktrino
+{szop pracz} lavurso
+{postępowanie upadłościowe} likvidado
+{węzeł chłonny} limfonodo
+{latarnia czarnoksięska} magialanterno
+{latarka elektryczna} magneziofulmo
+{szympans karłowaty} malgrandaĉimpanzo
+{Dolna Saksonia} malsuprasaksujo
+{gruczoł mlekowy} mamaglando
+{Kanał La Manche} manikakanalo
+{torebka damska} mansaketo
+{torebka damska} mansako
+{marynarka wojenna} mararmeo
+{bieg maratoński} maratonakuro
+{Morze Martwe} maromorta
+{rzut młotem} martelĵeto
+{gospodarstwo domowe} mastrumaĵo
+{macierz jednostkowa} matricaunuo
+{Morze Śródziemne} mezamaro
+{Morze Śródziemne} mezmaro
+{łabędź niemy} mutacigno
+{artykuły spożywcze} naturaĵoj
+{Afryka Północna} nordafriko
+{europa północna} nordeŭropa
+{Irlandia Północna} nordirlando
+{Korea Północna} nordkoreujo
+{artykuły spożywcze} nutraĵoj
+{poziom morza} oceannivelo
+{woda kolońska} odekolono
+{Złota Orda} orahordo
+{muzyka pop} popmuziko
+{odrzut broni} repuŝo
+{płazy ogoniaste} salamandredoj
+{camera obscura} senlumakamero
+{trzęsienie ziemi} sismo
+{świeca zapłonowa} sparkilo
+{układ kierowniczy} stirado
+{teoria prawdopodobieństwa} stokasta
+{łódź podwodna} submergebla
+{spin off} subprodukto
+{Republika Południowej Afryki} sudafriko
+{błąd drukarski} tajperaro
+{krosno tkackie} teksmaŝino
+{trzęsienie ziemi} tremego
+{Trzeci Świat} triamondo
+{Zabytki Wenecji} veneco
+{artykuły spożywcze} viktualio
+{artykuły spożywcze} vivrimedoj
+{klatka schodowa} ŝtuparejo
+{drapacz chmur} ĉielskrapanto
+{drapacz chmur} ĉielskrapulo
+{strach na wróble} ĉifonfiguro
+{Morze Czukockie} ĉukĉa
+{knajpa piwna} biertrinkejo
+{na pożyczkę} prunte
+{obsłuchiwać stetoskopem} aŭskultumili
+{pociąg pośpieszny} akceltrajno
+{z drugiej strony} aliaflanke
+{po co} kial
+{z poważaniem} altestime
+{funkcja analityczna} analitikafunkcio
+{wierzchołek drzewa} arbosupro
+{rozbicie atomu} atomfendado
+{rozbicie atomu} atomkrevigo
+{sala wykładowa} aŭskultejo
+{siła nabywcza} aĉetpovo
+{ręcznik kąpielowy} bantuko
+{dobrze uporządkowany} bonorde
+{dobrze uporządkowany} bonordita
+{zorza polarna} borealaaŭroro
+{ogród botaniczny} botanikaĝardeno
+{centralne ogrzewanie} centrahejtado
+{niż baryczny} cikloneo
+{handel cząstkowy} debitejo
+{Związek Socjalistycznych Republik Radzieckich} desovetaj
+{handel cząstkowy} detalado
+{od czasu do czasu} detempo
+{czynić słynnym} disfamigi
+{dozorca domowy} domgardisto
+{dozorca domu} domgardisto
+{dozorca domowy} domzorgisto
+{dozorca domu} domzorgisto
+{ogród botaniczny} eksperimentĝardeno
+{relacja równowazności} ekvivalentrilato
+{racja bytu} ekzistorajto
+{igraszka dziecinna} facilegaĵo
+{duży pokój} familiaĉambro
+{rozbicie atomu} fisiono
+{poza tym} flankede
+{wieczne pióro} fontplumo
+{na przedzie} frontala
+{przedział dla pałących} fumkupeo
+{Dom Towarowy} grandmagazeno
+{płeć żenska} inagenro
+{rodzaj zenski} inagenro
+{schronisko młodzieżowe} junulgastejo
+{kolejka linowa} kablotramo
+{pasażer na gapę} kaŝpasaĝero
+{pasażer na gapę} kaŝvojaĝanto
+{kąt rozwarty} konkavaangulo
+{wyż baryczny} kontraŭciklono
+{promieniowanie kosmiczne} kosmaradiado
+{sonda kosmiczna} kosmasondilo
+{w dług} kredite
+{krytykować podle} kritikaĉi
+{poza tym} {krom tio}
+{metr sześcienny} kubametro
+{towarzysz podróży} kunvojaĝanto
+{metr kwadratowy} kvadratametro
+{Droga Mleczna} laktavojo
+{brać prysznic} lavumi
+{wobec tego} {laŭ tio}
+{dowód osobisty} legitimaĵo
+{sala wykładowa} lekciosalono
+{półka na książki} librobretaro
+{dziennik okrętowy} loglibro
+{czas miejscowy} lokatempo
+{duży pokój} loĝoĉambro
+{mimo woli} meĥanika
+{lep na muchy} muŝpapero
+{liczba nieparzysta} napara
+{sól kuchenna} natrioklorido
+{artykuł spożywczy} naturaĵoj
+{opady śniegowe} neĝado
+{artykuł spożywczy} nutraĵoj
+{na stałe} {por ĉiam}
+{od razu} prompta
+{pociąg pośpieszny} rapidtrajno
+{pociąg pośpieszny} rapidvagonaro
+{administracja przymusowa} sekvestrado
+{ogród botaniczny} studĝardeno
+{wstępować na tron} surtroniĝi
+{budka telefoniczna} telefonbudo
+{skorupa ziemska} terkrusto
+{lina holownicza} trenkablo
+{siec różgą} vergi
+{artykuł spożywczy} viktualio
+{płeć męska} viragenro
+{rodzaj meski} viragenro
+{duży pokój} vivoĉambro
+{artykuł spożywczy} vivrimedoj
+{wyż baryczny} vivuo
+{igraszka słowna} vortludo
+{chłopiec okrętowy} ŝipknabo
+{mąż stanu} ŝtatisto
+{na czele} ĉekape
+{na czas} ĝustatempa
+{pojść na emeryture} emeritiĝi
+{narażać na niebezpieczeństwo} endanĝerigi
+{narazić na niebezpieczeństwo} endanĝerigi
+{maszyna produkcyjna} produktilo
+{wartość wytwórcza} produktovaloro
+{źródło energii} energifonto
+{być wcieleśnieniem} enkorpiĝi
+{przejąć stanowisko} enoficiĝi
+{ptak drapieżny} rabobirdo
+{polityka realna} realpolitiko
+{człowiek religijny} religiulo
+{prierwszej klasy} unuaklasa
+{uczelnia techniczna} faklernejo
+{przepływ wody} akvofluo
+{źródło wody} akvofonto
+{poziom wody} akvonivelo
+{mur miejski} urbomuro
+{powierzchnia wodna} akvosurfaco
+{szlak wodny} akvovojo
+{poczta internetowa} retpoŝtilo
+{zawrzeć sojusz} alianciĝi
+{zawierać sojusz} alianciĝi
+{według innych źródeł} alidire
+{innym razem} alikaze
+{linia kolejowa} fervojlinio
+{dzień świąteczny} festotago
+{miejsce odpoczynku} ripozloko
+{brzeg rzeki} riverbordo
+{ujście rzeczne} riverbuŝo
+{źródło bogactwa} riĉfonto
+{zespół rockowy} rokbando
+{muzyka rockowa} rokmuziko
+{gra fabularna} rolludo
+{religia katolicka} romkatolikismo
+{scenariusz filmowy} filmscenaro
+{mord masowy} amasmurdo
+{kod źródłowy} fontkodo
+{miejsce rozrywki} amuzejo
+{w języku angielskim} anglalingve
+{warunek życia} vivkondiĉo
+{rok życia} vivojaro
+{ciśnienie krwi} sangopremo
+{styl życia} vivstilo
+{atrakcja turystyczna} vizitindaĵo
+{problem zdrowotny} sanproblemo
+{stan zdrowia} sanstato
+{szyk zdania} frazostrukturo
+{uprawiać seks} seksumi
+{śłużba tajna} sekretservo
+{w przyszłym roku} sekvajare
+{dzień tygodnia} semajntago
+{drużyna piłkarska} futbalteamo
+{pies myśliwski} ĉashundo
+{ściana komurkowa} ĉelmuro
+{reakcja łańcuchowa} ĉenreakcio
+{popełnić samobójstwo} sinmortigi
+{wiecznie zielony} ĉiamverda
+{pobrzeże miasta} ĉirkaŭurbo
+{po niemiecku} germanlingve
+{w języku niemieckim} germanlingve
+{miasto partnerskie} ĝemelurbo
+{odbywać służbę wojskową} soldatservi
+{odbyć służbę wojskową} soldatservi
+{wieksza część} grandparto
+{punkt obserwacyjny} gvatejo
+{sztuka piękna} belarto
+{miasto portowe} havenurbo
+{forma ustroju państwa} ŝtatformo
+{urzędnik państwowy} ŝtatoficisto
+{kolor skóry} haŭtkoloro
+{władza państwowa} ŝtatpotenco
+{miasto rodzinne} hejmurbo
+{język pomocniczy} helplingvo
+{tytuł honorowy} honortitolo
+{spędzić czas} travivi
+{list gończy} arestletero
+{rzucający się w oczy} okulfrapa
+{recepta kucharska} kuirrecepto
+{huta szkła} vitrofandejo
+{wyrób ze szkła} vitroelfaraĵo
+{tym razem} ĉifoje
+{chcąc nie chcąc} volenevole
+{być warty} valori
+{w języku polskim} pollingve
+{być bezużyteczny} malutili
+{być potrzeba} necesi
+{łańcuch górski} reference
+{nauka języka} lingvolernado
+{prawo człowieka} homrajto
+{projekt ustawy} leĝpropono
+{czas pracy} labortempo
+{po obliczeniu} finkalkule
+{pracownik techniczny} teĥnikisto
+{w końcu roku} jarfine
+{praca dodatkowa} kromlaboro
+{huta szkła} fandejo
+{zbrodniarz wojenny} militkrimulo
+{miejsce kultu} kultejo
+{według formy} forme
+{dom wariatów} frenezulejo
+{na przywitanie} salute
+{z podziwem} admire
+{u brzegu} borde
+{piskle bociana} cikoniido
+{z flanki} deflanke
+{diabelska sprawa} diablaĵo
+{z ambarasem} embarase
+{rzecz oczywista} evidentaĵo
+{ośrodek wczasowy} feriejo
+{zakład fryzjerski} frizejo
+{w gazecie} gazete
+{rzecz gramatyczna} gramatikaĵo
+{jak we własnym domu} hejmece
+{z impetem} impete
+{ze spiewem} kante
+{specialista od komputerów} komputilisto
+{w zaufaniu} konfide
+{uczestnik konkursu} konkursanto
+{rzecz rozczulająca} kortuŝaĵo
+{cheć twórcza} kreemo
+{w biegu} kure
+{mol książkowy} legemulo
+{miłośnik książek} legemulo
+{człowiek nieuczciwy} malhonestulo
+{schronisko dla biedaków} malriĉulejo
+{z pogardą} malŝate
+{marszałek sejmu} parlamentestro
+{marszałek parlamentu} parlamentestro
+{przywódca partii} partiestro
+{w myślach} pense
+{w większości} plimulte
+{naczelnik prowincji} provincestro
+{człowiek rozsądny} prudentulo
+{z zarzutem} riproĉe
+{w marzeniach} sonĝe
+{ludzie łysi} kalvulo
+{być możliwy} ebli
+{na pół serio} duonŝerce
+{zdanie podrzędne} subfrazo
+{możliwie do przyjęcia} akcepteble
+{wyrób ze srebra} arĝentaĵo
+{na wygląd} aspekte
+{człowiek szlachetny} bonkorulo
+{człowiek dobrotliwy} bonvolulo
+{miejsce centralne} centrejo
+{na wynajm} dunge
+{z początku} eke
+{członek elita} elitulo
+{z nadzieją} esperige
+{pomieszczenie dla palaczy} fumejo
+{kierownik grupy} grupestro
+{w posiadaniu} have
+{zarządca domu} hejmestro
+{łatwy do naśladowania} imitebla
+{pracownik fiskusa} impostisto
+{pomoc szkolna} instruilo
+{z intrygą} intrige
+{w styczniu} januare
+{obliczenia komputerowe} komputilado
+{ośrodek obliczeniowy} komputilejo
+{sala konferencyjna} konferencejo
+{miejsce obrad} kunsidejo
+{materiał szkolniczy} lernaĵo
+{prymus szkolny} lernemulo
+{purysta językowy} lingvemulo
+{korekta ortograficzna} literumado
+{objekt muzealny} muzeaĵo
+{po murzyńsku} negre
+{człowiek powszedni} normalulo
+{przez wykład} prelege
+{pod przymusem} preme
+{w przygotowaniu} prepare
+{pod pretekstem} pretekste
+{siedziba prezydenta} prezidejo
+{nastanie wiosny} printempiĝo
+{miejsce prywatne} privatejo
+{człowiek pruderyjny} prudulo
+{pod pseudonimem} pseŭdonime
+{w związku} reference
+{obchodzenie uroczystości} solenado
+{dom letniskowy} somerejo
+{spędzanie lata} somerumado
+{uprawianie sportu} sportado
+{plac sportowy} sportejo
+{zadanie cierpienia} suferigo
+{narzędzie techniczne} teknikilo
+{pole namiotowe} tendarejo
+{akt teroru} teroraĵo
+{picie herbaty} teumado
+{rzecz techniczna} teĥnikaĵo
+{przez tłumaczenie} traduke
+{w zamieszaniu} tumulte
+{niezmiernie użyteczny} utilega
+{styl działania} agadmaniero
+{uczynić słynnym} disfamigi
+{koszt tłumaczenia} tradukkosto
+
+aby {por ke}
+żeby {por ke}
+by {por ke}
+tu {ĉi tie}
+tutaj {ĉi tie}
+skąd {de kie}
+{po raz kolejny} refoje
+abyś {por ke vi}
+abyśmy {por ke ni}
+abyście {por ke vi}
+{po polsku} pollingve
+{po niemiecku} germanlingve
+{po angielsku} angllingve
+{po czesku} ĉeĥlingve
+{po esperanto} esparantlingve
+{po tym , jak} {, post kiam}
+{po czym} {post tiam}
+{po to , by} {, por ke}
+{i tak dalej} {kaj tiel plu}
+{co dalej} {kion plu}

@@ -1,0 +1,2914 @@
+# automatically generated from XOTclIDE
+# script require component {IDEBaseGUI EspTeknikajIloj}
+@ Component EspRevoMontrilo {
+description {Montrilo por REVO Leksikono.
+Subtenas dudirektan navigadon, Formatigo de teksto
+}
+}
+package provide EspRevoMontrilo 0.993
+package require EspTeknikajIloj
+package require IDEBaseGUI
+@ Class REVOLegilo {
+description {Baza klaso por importado de REVO
+
+Tiu klaso povas esti uzato por unua importado de vortoj de REVO}
+}
+Class REVOLegilo -parameter dosiero
+@ ::REVOLegilo idemeta component EspRevoMontrilo
+REVOLegilo instproc addDerivo {radiko drvNode} {
+    set tdl 0
+    set prefikso {}
+    set sufikso {}
+    # legu derivoj  en formoj
+    # 1 prefikso<tld/>sufikso
+    # 2 ekzemplo: prefikos<tld/>(ad)a
+    # 3 prefikso<tld/>sufikso , prefikso<tld/>sufikso
+    # Ekzistas ankaux
+    # <kap>sam<tld/>ema, <var><kap>sam<tld/>ama</kap></var></kap>
+    set drv [my prenuTekstonDeKapNode $drvNode]
+    set varNodes [$drvNode select var/kap]
+
+    foreach d [split [my aliformiTeksto $drv] ,] {
+        set d [string trim $d]
+        if {$d eq ""} continue
+        set prefikso ""
+        set sufikso ""
+        if {[regexp {([-\w ]*)#([-\w\(\)]*)} $d _ prefikso sufikso]} {
+            if {[regexp {\((\w+)\)(\w+)} $sufikso _ s1 s2]} {
+                my addDerivoPS $radiko $prefikso ${s1}$s2 $drvNode
+                my addDerivoPS $radiko $prefikso $s2 $drvNode
+            } else {
+                set rez [my addDerivoPS $radiko $prefikso $sufikso $drvNode]
+                my addDerivoPSVar $radiko $prefikso $sufikso $drvNode $varNodes $rez
+            }
+        } else {
+            puts "fusxderivo $radiko d='$d' drv='$drv'"
+        }
+    }
+}
+REVOLegilo instproc addDerivoPS {radiko prefikso sufikso drvNode} {
+    set prefikso [my preparuAfikso $prefikso]
+    set sufikso [my preparuAfikso $sufikso]
+    if {[llength $prefikso]>0 || [llength $sufikso]>0} {
+        my addVareDerivo $radiko $prefikso $sufikso
+    }
+
+}
+REVOLegilo instproc addDerivoPSVar {radiko prefikso sufikso drvNode varNodes derivoRef} {
+}
+REVOLegilo instproc addRadiko {radiko estasnomo} {
+    set rad Radiko::$radiko
+    if {![Object isobject $rad]} {
+        my addVareRadikoObj $rad $estasnomo
+    } else {
+        #puts "radiko $radiko jam ekzistas"
+        my instvar radkreado estasNomo
+        set radkreado ""
+        set estasNomo 0
+    }
+    return $rad
+}
+REVOLegilo instproc addVareDerivo {radikoobj prefikso sufikso} {
+    set radnomo [namespace tail $radikoobj]
+    if {[regexp {\W} $prefikso] || [regexp {\W} $sufikso]} {
+        if {$radikoobj ne ""} {
+            puts "fuŝderivo - $radnomo - '$prefikso' - '$sufikso'"
+        } else {
+            puts "fuŝderivo - '$prefikso' - '$sufikso'"
+        }
+    } else {
+        my instvar rezulto vortojFreq estasNomo eblajSufiksoj
+        if {$sufikso eq "oj"} {
+            set sufikso o
+        }
+        if {[string length $radnomo]>=3} {
+            if {$radikoobj ne ""} {
+                set kreu 0
+                if {[Object isobject $radikoobj]} {
+                    if {![$radikoobj ekzistasDerivo $prefikso $sufikso]} {
+                        set kreu 1
+                    }
+                } else {
+                    set kreu 1
+                }
+                set vortaro [Vortaro prenuVortaron]
+                set derivo $prefikso$radnomo$sufikso
+                if {$kreu && [$vortaro estasVorto $derivo]==2} {
+                    append rezulto "# jam konata $derivo - $prefikso $radnomo $sufikso - [$vortaro set radiko]\n"
+                    set kreu 0
+                }
+                if {$kreu && [array exists vortojFreq]} {
+                    if {[catch {set vortojFreq($derivo)} freq]} {
+                        set freq 0
+                    }
+                    if {$freq<5} {
+                        append rezulto "# vorto $derivo nur $freq, ignoru\n"
+                        set kreu 0
+                    }
+                }
+                if {$kreu && $sufikso ni $eblajSufiksoj} {
+                    append rezulto "# sufikso ne eblas $derivo suf='$sufikso'\n"
+                    set kreu 0
+                }
+                if {$kreu} {
+                    my kreuRadikoDeMemoro
+                    append rezulto "\[Radiko pr $radnomo\] addDerivo [list $prefikso] [list $sufikso]\n"
+                    if {$estasNomo && $sufikso eq "o"} {
+                        append rezulto "\[Radiko pr $radnomo\] metuDerivoAttr [list $prefikso] [list $sufikso] pnomo\n"
+                    }
+                }
+            }
+        }
+    }
+}
+REVOLegilo instproc addVareRadikoObj {radobj estasnomo} {
+    my instvar rezulto radkreado estasNomo
+    set radnomo [namespace tail $radobj]
+    set radkreado ""
+    set estasNomo 0
+    if {[string length $radnomo]<3} {
+        append rezulto "# mallonga rad $radnomo\n"
+    } else {
+        if {$estasnomo} {
+            set radkreado "::Radiko kreuRadiko $radobj\n"
+            set estasNomo 1
+        } else {
+            set radkreado "::Radiko kreuRadiko $radobj\n"
+        }
+    }
+}
+REVOLegilo instproc aliformiTeksto teksto {
+   string map {&ccirc; \u0109 &gcirc; \u011d &scirc; \u015d &jcirc; \u0135 &hcirc; \u0125 &Ccirc; \u0108 &Gcirc; \u011c &Scirc; \u015c &Jcirc; \u0134 &Hcirc; \u0124 &ubreve; \u016d &Ubreve; \u016c} $teksto
+}
+REVOLegilo instproc initFrekventecoListo {} {
+    my instvar vortojFreq eblajSufiksoj
+    set dosieroj {
+       liberafolio/liberafolio.freq
+       tekskorpuso/korpuso-frazoj.freq
+       eowiki/teksto-all.freq
+       gutemberg/html_all/html_all.freq
+    }
+    puts "legu frekventecojn"
+    set dosejo [Esperantilozentro prenuFontoDosieron]
+    foreach d $dosieroj {
+        set dfreq [file join $dosejo $d]
+        if {[file exists $dfreq]} {
+            set f [open $dfreq r]
+            while {[gets $f line]>0} {
+                foreach {vorto nombro fgrupo} $line {}
+                set vorto [EORadikilo radikigi [string tolower $vorto]]
+                if {[catch {incr vortojFreq($vorto) $nombro}]} {
+                    set vortojFreq($vorto) $nombro
+                }
+            }
+            close $f
+        }
+    }
+    set eblajSufiksoj [lsort [[Vortaro prenuVortaron] preniEblajnSufiksojn]]
+    puts "legu frekventecojn: fino"
+}
+REVOLegilo instproc kreuRadikoDeMemoro {} {
+    my instvar rezulto radkreado
+    if {$radkreado ne ""} {
+        append rezulto $radkreado
+        set radkreado ""
+    }
+}
+REVOLegilo instproc legiChiuj {} {
+    my instvar dosiero
+    foreach f [glob -directory $dosiero -nocomplain *.xml] {
+        if {[catch {my legiXML $f}]} {
+            puts "problemoj kun $f\n$::errorInfo"
+        }
+    }
+}
+REVOLegilo instproc legiXML dosiero {
+    my instvar document
+    set fileh [open $dosiero r]
+    fconfigure $fileh -encoding utf-8
+    set data [read $fileh]
+    close $fileh
+    set document [dom parse -paramentityparsing never -useForeignDTD 0 [my tradukuFremdan $data]]
+    my parseXML
+    $document delete
+}
+REVOLegilo instproc parseXML {} {
+    set rootElement [[my set document] documentElement]
+    set radNode [lindex [$rootElement selectNodes /vortaro/art/kap/rad] 0]
+    if {[llength $radNode]==0} {
+        error "Radiko ne trovita"
+    }
+    set radiko [my aliformiTeksto [$radNode text]]
+    if {$radiko eq ""} {
+        return
+    }
+    set estasnomo 0
+    if {[string is upper [string index $radiko 0]]} {
+        set estasnomo 1
+        set radiko [string tolower $radiko]
+    }
+    set rad [my addRadiko $radiko $estasnomo]
+    foreach drvNode [$rootElement selectNodes /vortaro/art/drv/kap] {
+        my addDerivo $rad $drvNode
+    }
+    foreach drvNode [$rootElement selectNodes /vortaro/art/subart/drv/kap] {
+        my addDerivo $rad $drvNode
+    }
+}
+REVOLegilo instproc prenuTekstonDeKapNode kapNode {
+    set drv ""
+    set tdl 0
+    foreach childNode [$kapNode childNodes] {
+        if {[$childNode nodeType] eq "TEXT_NODE"} {
+            if {$tdl} {
+                append drv [string trim [$childNode nodeValue] "\n"]
+            } else {
+                append drv [string trim [$childNode nodeValue] "\n"]
+            }
+        } elseif {[$childNode nodeType] eq "ELEMENT_NODE"} {
+            if {[$childNode nodeName] eq "tld"} {
+                append drv #
+            } elseif {[$childNode nodeName] eq "var"} {
+            }
+        }
+    }
+    return $drv
+}
+REVOLegilo instproc preparuAfikso afikso {
+    string tolower $afikso
+}
+REVOLegilo instproc tradukuFremdan trad {
+    string map {&Ccirc; \u0108
+&ccirc; \u0109
+&Gcirc; \u011c
+&gcirc; \u011d
+&Hcirc; \u0124
+&hcirc; \u0125
+&Jcirc; \u0134
+&jcirc; \u0135
+&Scirc; \u015c
+&scirc; \u015d
+&Ubreve; \u016c
+&ubreve; \u016d
+&OElig; \u0152
+&oelig; \u0153
+&Aacute; \u00c1
+&aacute; \u00e1
+&Eacute; \u00c9
+&eacute; \u00e9
+&Iacute; \u00cd
+&iacute; \u00ed
+&Oacute; \u00d3
+&oacute; \u00f3
+&Uacute; \u00da
+&uacute; \u00fa
+&Agrave; \u00c0
+&agrave; \u00e0
+&Egrave; \u00c8
+&egrave; \u00e8
+&Igrave; \u00cc
+&igrave; \u00ec
+&Ograve; \u00d2
+&ograve; \u00f2
+&Ugrave; \u00d9
+&ugrave; \u00f9
+&Acirc; \u00c2
+&acirc; \u00e2
+&Ecirc; \u00ca
+&ecirc; \u00ea
+&Icirc; \u00ce
+&icirc; \u00ee
+&Ocirc; \u00d4
+&ocirc; \u00f4
+&Ucirc; \u00db
+&ucirc; \u00fb
+&szlig; \u00df
+&Auml; \u00c4
+&auml; \u00e4
+&Ouml; \u00d6
+&ouml; \u00f6
+&Uuml; \u00dc
+&uuml; \u00fc
+&Gbreve; \u011e
+&gbreve; \u011f
+&inodot; \u0131
+&Idot; \u0130
+&Scedil; \u015e
+&scedil; \u015f
+&Ccedil; \u00c7
+&ccedil; \u00e7
+&apos; '
+&minute; '
+&quot; "
+&second; "
+&leftquot; \u201e
+&rightquot; \u201c
+&ring; \u00b0
+&deg; \u00b0
+&quadrat; \u00b2
+&cubic; \u00b3
+&para; \u00a7
+&dash; \u2015
+&mdash; \u2015
+&ndash; \u2013
+&nbsp; \u00a0
+&Euml; \u00cb
+&euml; \u00eb
+&Iuml; \u00cf
+&iuml; \u00ef
+&Aring; \u00c5
+&aring; \u00e5
+&AElig; \u00c6
+&aelig; \u00e6
+&Oslash; \u00d8
+&oslash; \u00f8
+&Ntilde; \u00d1
+&ntilde; \u00f1
+&Atilde; \u00c3
+&atilde; \u00e3
+&Otilde; \u00d5
+&otilde; \u00f5
+&middot; \u00b7
+&Alfa; \u0391
+&alfa; \u03b1
+&alfa_acute; \u1f71;
+&Alfa_acute; \u1fbb;
+&alfa_acute_subj; \u1fb4;
+&alfa_breve; \u1fb0;
+&Alfa_breve; \u1fb8;
+&alfa_circ; \u1fb6;
+&alfa_circ_subj; \u1fb7;
+&alfa_densa; \u1f01;
+&Alfa_densa; \u1f09;
+&alfa_densa_acute; \u1f05;
+&Alfa_densa_acute; \u1f0d;
+&alfa_densa_acute_subj; \u1f85;
+&Alfa_densa_acute_Subj; \u1f8d;
+&alfa_densa_circ; \u1f07;
+&Alfa_densa_circ; \u1f0f;
+&alfa_densa_circ_subj; \u1f87;
+&Alfa_densa_circ_Subj; \u1f8f;
+&alfa_densa_grave; \u1f03;
+&Alfa_densa_grave; \u1f0b;
+&alfa_densa_grave_subj; \u1f83;
+&Alfa_densa_grave_Subj; \u1f8b;
+&alfa_densa_subj; \u1f81;
+&Alfa_densa_Subj; \u1f89;
+&alfa_grave; \u1f70;
+&Alfa_grave; \u1fba;
+&alfa_grave_subj; \u1fb2;
+&alfa_makron; \u1fb1;
+&Alfa_makron; \u1fb9;
+&alfa_psili; \u1f00;
+&Alfa_psili; \u1f08;
+&alfa_psili_acute; \u1f04;
+&Alfa_psili_acute; \u1f0c;
+&alfa_psili_acute_subj; \u1f84;
+&Alfa_psili_acute_Subj; \u1f8c;
+&alfa_psili_circ; \u1f06;
+&Alfa_psili_circ; \u1f0e;
+&alfa_psili_circ_subj; \u1f86;
+&Alfa_psili_circ_Subj; \u1f8e;
+&alfa_psili_grave; \u1f02;
+&Alfa_psili_grave; \u1f0a;
+&alfa_psili_grave_subj; \u1f82;
+&Alfa_psili_grave_Subj; \u1f8a;
+&alfa_psili_subj; \u1f80;
+&Alfa_psili_Subj; \u1f88;
+&alfa_subj; \u1fb3;
+&Alfa_Subj; \u1fbc;
+&Alfa_ton; \u0386
+&alfa_ton; \u03ac
+&Beta; \u0392
+&beta; \u03b2
+&Gamma; \u0393
+&gamma; \u03b3
+&Delta; \u0394
+&delta; \u03b4
+&Epsilon; \u0395
+&epsilon; \u03b5
+&epsilon_acute; \u1f73
+&Epsilon_acute; \u1fc9
+&epsilon_densa; \u1f11
+&Epsilon_densa; \u1f19
+&epsilon_densa_acute; \u1f15
+&Epsilon_densa_acute; \u1f1d
+&epsilon_densa_grave; \u1f13
+&Epsilon_densa_grave; \u1f1b
+&epsilon_grave; \u1f72
+&Epsilon_grave; \u1fc8
+&epsilon_psili; \u1f10
+&Epsilon_psili; \u1f18
+&epsilon_psili_acute; \u1f14
+&Epsilon_psili_acute; \u1f1c
+&epsilon_psili_grave; \u1f12
+&Epsilon_psili_grave; \u1f1a
+&Epsilon_ton; \u0388
+&epsilon_ton; \u03ad
+&Zeta; \u0396
+&zeta; \u03b6
+&Eta; \u0397
+&eta; \u03b7
+&eta_acute; \u1f75;
+&Eta_acute; \u1fcb;
+&eta_acute_subj; \u1fc4
+&eta_circ; \u1fc6
+&eta_circ_subj; \u1fc7
+&eta_densa; \u1f21
+&Eta_densa; \u1f29
+&eta_densa_acute; \u1f25
+&Eta_densa_acute; \u1f2d
+&eta_densa_acute_subj; \u1f95
+&Eta_densa_acute_Subj; \u1f9d
+&eta_densa_circ; \u1f27
+&Eta_densa_circ; \u1f2f
+&eta_densa_circ_subj; \u1f97
+&Eta_densa_circ_Subj; \u1f9f
+&eta_densa_grave; \u1f23
+&Eta_densa_grave; \u1f2b
+&eta_densa_grave_subj; \u1f93
+&Eta_densa_grave_Subj; \u1f9b
+&eta_densa_subj; \u1f91
+&Eta_densa_Subj; \u1f99
+&eta_grave; \u1f74
+&Eta_grave; \u1fca
+&eta_grave_subj; \u1fc2
+&eta_psili; \u1f20
+&Eta_psili; \u1f28
+&eta_psili_acute; \u1f24
+&Eta_psili_acute; \u1f2c
+&eta_psili_acute_subj; \u1f94
+&Eta_psili_acute_Subj; \u1f9c
+&eta_psili_circ; \u1f26
+&Eta_psili_circ; \u1f2e
+&eta_psili_circ_subj; \u1f96
+&Eta_psili_circ_Subj; \u1f9e
+&eta_psili_grave; \u1f22
+&Eta_psili_grave; \u1f2a
+&eta_psili_grave_subj; \u1f92
+&Eta_psili_grave_Subj; \u1f9a
+&eta_psili_subj; \u1f90
+&Eta_psili_Subj; \u1f98
+&eta_subj; \u1fc3
+&Eta_Subj; \u1fcc
+&Eta_ton; \u0389
+&eta_ton; \u03ae
+&Theta; \u0398
+&theta; \u03b8
+&Jota; \u0399
+&jota; \u03b9
+&jota_acute; \u1f77
+&Jota_acute; \u1fdb
+&jota_breve; \u1fd0
+&Jota_breve; \u1fd8
+&jota_circ; \u1fd6
+&jota_densa; \u1f31
+&Jota_densa; \u1f39
+&jota_densa_acute; \u1f35
+&Jota_densa_acute; \u1f3d
+&jota_densa_circ; \u1f37
+&Jota_densa_circ; \u1f3f
+&jota_densa_grave; \u1f33
+&Jota_densa_grave; \u1f3b
+&jota_grave; \u1f76
+&Jota_grave; \u1fda
+&jota_makron; \u1fd1
+&Jota_makron; \u1fd9
+&jota_psili; \u1f30
+&Jota_psili; \u1f38
+&jota_psili_acute; \u1f34
+&Jota_psili_acute; \u1f3c
+&jota_psili_circ; \u1f36
+&Jota_psili_circ; \u1f3e
+&jota_psili_grave; \u1f32
+&Jota_psili_grave; \u1f3a
+&Jota_ton; \u038a
+&jota_ton; \u03af
+&Jota_trema; \u03aa
+&jota_trema; \u03ca
+&jota_trema_acute; \u1fd3
+&jota_trema_circ; \u1fd7
+&jota_trema_grave; \u1fd2
+&jota_trema_ton; \u0390
+&Kappa; \u039a
+&kappa; \u03ba
+&Lambda; \u039b
+&lambda; \u03bb
+&My; \u039c
+&my; \u03bc
+&Ny; \u039d
+&ny; \u03bd
+&Xi; \u039e
+&xi; \u03be
+&Omikron; \u039f
+&omikron; \u03bf
+&omikron_acute; \u1f79
+&Omikron_acute; \u1ff9
+&omikron_densa; \u1f41
+&Omikron_densa; \u1f49
+&omikron_densa_acute; \u1f45
+&Omikron_densa_acute; \u1f4d
+&omikron_densa_grave; \u1f43
+&Omikron_densa_grave; \u1f4b
+&omikron_grave; \u1f78
+&Omikron_grave; \u1ff8
+&omikron_psili; \u1f40
+&Omikron_psili; \u1f48
+&omikron_psili_acute; \u1f44
+&Omikron_psili_acute; \u1f4c
+&omikron_psili_grave; \u1f42
+&Omikron_psili_grave; \u1f4a
+&Omikron_ton; \u038c
+&omikron_ton; \u03cc
+&Pi; \u03a0
+&pi; \u03c0
+&Rho; \u03a1
+&rho; \u03c1
+&rho_densa; \u1fe5
+&Rho_densa; \u1fec
+&rho_psili; \u1fe4
+&Sigma; \u03a3
+&sigma; \u03c3
+&sigma_fina; \u03c2
+&Tau; \u03a4
+&tau; \u03c4
+&Ypsilon; \u03a5
+&ypsilon; \u03c5
+&ypsilon_acute; \u1f7b
+&Ypsilon_acute; \u1feb
+&ypsilon_breve; \u1fe0
+&Ypsilon_breve; \u1fe8
+&ypsilon_circ; \u1fe6
+&ypsilon_densa; \u1f51
+&Ypsilon_densa; \u1f59
+&ypsilon_densa_acute; \u1f55
+&Ypsilon_densa_acute; \u1f5d
+&ypsilon_densa_circ; \u1f57
+&Ypsilon_densa_circ; \u1f5f
+&ypsilon_densa_grave; \u1f53
+&Ypsilon_densa_grave; \u1f5b
+&ypsilon_grave; \u1f7a
+&Ypsilon_grave; \u1fea
+&ypsilon_makron; \u1fe1
+&Ypsilon_makron; \u1fe9
+&ypsilon_psili; \u1f50
+&ypsilon_psili_acute; \u1f54
+&ypsilon_psili_circ; \u1f56
+&ypsilon_psili_grave; \u1f52
+&Ypsilon_ton; \u038e
+&ypsilon_ton; \u03cd
+&Ypsilon_trema; \u03ab
+&ypsilon_trema; \u03cb
+&ypsilon_trema_acute; \u1fe3
+&ypsilon_trema_circ; \u1fe7
+&ypsilon_trema_grave; \u1fe2
+&ypsilon_trema_ton; \u03b0
+&Phi; \u03a6
+&phi; \u03c6
+&Chi; \u03a7
+&chi; \u03c7
+&Psi; \u03a8
+&psi; \u03c8
+&Omega; \u3a9
+&omega; \u3c9
+&omega_acute; \u1f7d
+&Omega_acute; \u1ffb
+&omega_acute_subj; \u1ff4
+&omega_circ;  \u1ff6
+&omega_circ_subj;  \u1ff7
+&omega_densa; \u1f61
+&Omega_densa; \u1f69
+&omega_densa_acute;  \u1f65
+&Omega_densa_acute;  \u1f6d
+&omega_densa_acute_subj;  \u1fa5
+&Omega_densa_acute_Subj;  \u1fad
+&omega_densa_circ;  \u1f67
+&Omega_densa_circ;  \u1f6f
+&omega_densa_circ_subj;  \u1fa7
+&Omega_densa_circ_Subj;  \u1faf
+&omega_densa_grave;  \u1f63
+&Omega_densa_grave;  \u1f6b
+&omega_densa_grave_subj;  \u1fa3
+&Omega_densa_grave_Subj;  \u1fab
+&omega_densa_subj; \u1fa1
+&Omega_densa_Subj; \u1fa9
+&omega_grave;  \u1f7c
+&Omega_grave;  \u1ffa
+&omega_grave_subj;  \u1ff2
+&omega_psili; \u1f60
+&Omega_psili; \u1f68
+&omega_psili_acute;  \u1f64
+&Omega_psili_acute;  \u1f6c
+&omega_psili_acute_subj;  \u1fa4
+&Omega_psili_acute_Subj;  \u1fac
+&omega_psili_circ;  \u1f66
+&Omega_psili_circ;  \u1f6e
+&omega_psili_circ_subj;  \u1fa6
+&Omega_psili_circ_Subj;  \u1fae
+&omega_psili_grave;  \u1f62
+&Omega_psili_grave;  \u1f6a
+&omega_psili_grave_subj;  \u1fa2
+&Omega_psili_grave_Subj;  \u1faa
+&omega_psili_subj; \u1fa0
+&Omega_psili_Subj; \u1fa8
+&omega_subj; \u1ff3
+&Omega_Subj; \u1ffc
+&Omega_ton; \u038f
+&omega_ton; \u03ce
+&c_Ju; \u042e
+&c_A; \u0410
+&c_B; \u0411
+&c_C; \u0426
+&c_D; \u0414
+&c_Je; \u0415
+&c_F; \u0424
+&c_G; \u0413
+&c_H; \u0425
+&c_I; \u0418
+&c_J; \u0419
+&c_K; \u041a
+&c_L; \u041b
+&c_M; \u041c
+&c_N; \u041d
+&c_O; \u041e
+&c_P; \u041f
+&c_Ja; \u042f
+&c_R; \u0420
+&c_S; \u0421
+&c_T; \u0422
+&c_U; \u0423
+&c_Zh; \u0416
+&c_V; \u0412
+&c_Mol; \u042c
+&c_Y; \u042b
+&c_Z; \u0417
+&c_Sh; \u0428
+&c_E; \u042d
+&c_Shch; \u0429
+&c_Ch; \u0427
+&c_Jo; \u0401
+&c_W; \u040E
+&c_Ib; \u0406
+&c_Gu; \u0490
+&c_Jeu; \u0404
+&c_Ji; \u0407
+&c_ju; \u044e
+&c_a; \u0430
+&c_b; \u0431
+&c_c; \u0446
+&c_d; \u0434
+&c_je; \u0435
+&c_f; \u0444
+&c_g; \u0433
+&c_h; \u0445
+&c_i; \u0438
+&c_j; \u0439
+&c_k; \u043a
+&c_l; \u043b
+&c_m; \u043c
+&c_n; \u043d
+&c_o; \u043e
+&c_p; \u043f
+&c_ja; \u044f
+&c_r; \u0440
+&c_s; \u0441
+&c_t; \u0442
+&c_u; \u0443
+&c_zh; \u0436
+&c_v; \u0432
+&c_mol; \u044c
+&c_y; \u044b
+&c_z; \u0437
+&c_sh; \u0448
+&c_e; \u044d
+&c_shch; \u0449
+&c_ch; \u0447
+&c_malmol; \u044a
+&c_jo; \u0451
+&c_w; \u045E
+&c_ib; \u0456
+&c_gu; \u0491
+&c_jeu; \u0454
+&c_ji; \u0457
+&Ccaron; \u010c
+&ccaron; \u010d
+&Scaron; \u0160
+&scaron; \u0161
+&Rcaron; \u0158
+&rcaron; \u0159
+&Yacute; \u00dd
+&yacute; \u00fd
+&Zcaron; \u017d
+&zcaron; \u017e
+&Zdot; \u017b
+&zdot; \u017c
+&Ncaron; \u0147
+&ncaron; \u0148
+&Ecaron; \u011a
+&ecaron; \u011b
+&Dcaron; \u010e
+&dcaron; \u010f
+&Tcaron; \u0164
+&tcaron; \u0165
+&Uring; \u016e
+&uring; \u016f
+&Lacute; \u0139
+&lacute; \u013a
+&Lcaron; \u013d
+&lcaron; \u013e
+&Racute; \u0154
+&racute; \u0155
+&Aogonek; \u0104
+&aogonek; \u0105
+&Lstroke; \u0141
+&lstroke; \u0142
+&Eogonek; \u0118
+&eogonek; \u0119
+&Cacute; \u0106
+&cacute; \u0107
+&Nacute; \u0143
+&nacute; \u0144
+&Sacute; \u015a
+&sacute; \u015b
+&Zacute; \u0179
+&zacute; \u017a
+&alef; \u05d0
+&bet; \u05d1
+&gimel; \u05d2
+&dalet; \u05d3
+&he; \u05d4
+&vav; \u05d5
+&zayin; \u05d6
+&het; \u05d7
+&tet; \u05d8
+&yod; \u05d9
+&fkaf; \u05da
+&kaf; \u05db
+&lamed; \u05dc
+&fmem; \u05dd
+&mem; \u05de
+&fnun; \u05df
+&nun; \u05e0
+&samekh; \u05e1
+&ayin; \u05e2
+&fpe; \u05e3
+&pe; \u05e4
+&ftsadi; \u05e5
+&tsadi; \u05e6
+&qof; \u05e7
+&resh; \u05e8
+&shin; \u05e9
+&tav; \u05ea
+&Odacute; \u0150
+&odacute; \u0151
+&Udacute; \u0170
+&udacute; \u0171
+&Odblac; \u0150
+&odblac; \u0151
+&Udblac; \u0170
+&udblac; \u0171
+&amacron \u0101
+&emacron \u0113
+&gcommaaccent \u0123
+&imacron \u012b
+&kcommaaccent \u0137
+&lcommaaccent \u013c
+&ncommaaccent \u0146
+&omacron \u014d
+&rcommaaccent \u0157
+&umacron \u016b
+&Amacron \u0100
+&Emacron \u0112
+&Gcommaaccent \u0122
+&Imacron \u012a
+&Kcommaaccent \u0136
+&Lcommaaccent \u013b
+&Ncommaaccent \u0145
+&Omacron \u014c
+&Rcommaaccent \u0156
+&Umacron \u016a
+&Ycirc; \u0176
+&ycirc; \u0177
+&Wgrave; \u1e80
+&wgrave; \u1e81
+&Wacute; \u1e82
+&wacute; \u1e83
+&Wuml; \u1e84
+&wuml; \u1e85
+&Ygrave; \u1ef2
+&ygrave; \u1ef3
+&Wcirc; \u0174
+&wcirc; \u0175
+&Yuml; \u0178
+&yuml; \u00ff
+&alif; \u0627
+&ba; \u0628
+&ta; \u062A
+&tha; \u062B
+&jim; \u062C
+&Ha; \u062D
+&hha; \u062E
+&dal; \u062F
+&dhal; \u0630
+&ra; \u0631
+&zin; \u0632
+&sin; \u0633
+&shin1; \u0634
+&Sad; \u0635
+&Dad; \u0636
+&Ta; \u0637
+&Za; \u0638
+&ayn; \u0639
+&ghayn; \u063A
+&fa; \u0641
+&qaf; \u0642
+&kaf1; \u0643
+&lam; \u0644
+&mim; \u0645
+&nun1; \u0646
+&ha; \u0647
+&waw; \u0648
+&ya; \u064A
+&fatha; \u064E
+&kasra; \u0650
+&damma; \u064F
+&fatha_alif; \u064E
+&kasra_ya; \u0650
+&damma_waw; \u064F
+&fathatan; \u064B
+&kasratan; \u064D
+&dammatan; \u064C
+&sukun; \u0652
+&shadda; \u0651
+&alif_maqsura; \u0649
+&ta_marbuta; \u0629
+&alif_hamza_sure; \u0623
+&alif_hamza_sube; \u0625
+&alif_madda; \u0622
+&alif_wasla; \u0671
+&ya_hamza; \u0626
+&waw_hamza; \u0624
+&hamza; \u0621
+&ar_komo; \u060C
+&ar_dekumakomo; \u066B
+&ar_punktokomo; \u061B
+&ar_demandopunkto; \u061F
+&ar_0; \u0660
+&ar_1; \u0661
+&ar_2; \u0662
+&ar_3; \u0663
+&ar_4; \u0664
+&ar_5; \u0665
+&ar_6; \u0666
+&ar_7; \u0667
+&ar_8; \u0668
+&ar_9; \u0669} $trad
+
+}
+@ REVOLegilo proc legiDosieron {} {
+description {Tiu metodo estas uzato por unua sxargxo de REVO deatoj
+en la interna esperanta vortaro
+
+Ne uzu tiun metdon por refresxigo de vortprovio de REVO}
+}
+REVOLegilo proc legiDosieron {{dosiero {}}} {
+    package require tdom
+    set dosiero [IDE::Dialog getDir]
+    if {$dosiero eq ""} return
+    Vortaro prenuVortaron
+    set legilo [my new REVOLegilo -dosiero $dosiero]
+    #Radiko clearAll
+    $legilo initFrekventecoListo
+    $legilo legiChiuj
+    #Pronomo sxercxiPronomoj
+    set ret [$legilo set rezulto]
+    $legilo destroy
+    return $ret
+}
+@ Class REVOLegiloDB {
+description {Klaso por importado de tradukoj de REVO}
+}
+Class REVOLegiloDB -superclass ::REVOLegilo
+@ ::REVOLegiloDB idemeta component EspRevoMontrilo
+@ REVOLegiloDB instproc addDerivoPS {} {
+description {Tiu klaso povas esti uzato por importado de tradukoj de REVO
+}
+}
+REVOLegiloDB instproc addDerivoPS {radiko prefikso sufikso drvNode} {
+    my instvar dbvortaro
+
+    set vorto [join [list $prefikso [namespace tail $radiko] $sufikso] ""]
+    foreach trdNode [concat [$drvNode select ../trd] [$drvNode select ../snc/trd]] {
+        if {![$trdNode hasAttribute lng]} {
+            set pnode [$trdNode parentNode]
+            if {[$pnode nodeName] eq "trdgrp" && [$pnode hasAttribute lng]} {
+                set lingvo [$pnode getAttribute lng]
+            } else {
+                puts "lng ne trovita"
+                continue
+            }
+        } else {
+            set lingvo [$trdNode getAttribute lng]
+        }
+        if {[lsearch [REVOLegiloDB subtenatajLingvoj] $lingvo]<0} continue
+        foreach {traduko sento} [my prenuTraduko $trdNode] {}
+        my importuTraduko $lingvo $vorto $traduko $sento
+    }
+    foreach trdGrupoNode [concat [$drvNode select ../trdgrp] [$drvNode select ../snc/trdgrp]] {
+        if {![$trdGrupoNode hasAttribute lng]} {
+            puts "lng ne trovita"
+            continue
+        }
+        set lingvo [$trdGrupoNode getAttribute lng]
+        if {[lsearch [REVOLegiloDB subtenatajLingvoj] $lingvo]<0} continue
+        foreach trdNode [$trdGrupoNode select trd] {
+            foreach {traduko sento} [my prenuTraduko $trdNode] {}
+            my importuTraduko $lingvo $vorto $traduko $sento
+        }
+    }
+}
+REVOLegiloDB instproc destroy {} {
+    next
+    catch {
+        mk::file commit revodb
+        mk::file close revodb
+    }
+}
+REVOLegiloDB instproc getCounter countid {
+    set id [mk::get revodb.control!$countid nextid]
+    mk::set revodb.control!$countid nextid [expr {$id+1}]
+    mk::file commit revodb
+    return $id
+}
+REVOLegiloDB instproc importuTraduko {lingvo vorto traduko sento} {
+   my instvar dbvortaro
+   if {$lingvo eq "pl"} return
+   $dbvortaro importuTraduko $lingvo $vorto $traduko $sento
+}
+REVOLegiloDB instproc init args {
+    my set dbvortaro [DBVortaro prenuDepVortaron]
+    next
+}
+REVOLegiloDB instproc korektuSenton {} {
+    set connection [SQLDBVortaro getVortaroConnection]
+    my instvar dbvortaro
+    foreach {lng ingvo} [$dbvortaro subtenatajLingvoj] {
+        set sql "select id,sento from traduko_$lng where sento is not null and length(sento)>0"
+        set query [$connection query $sql]
+        while {[llength [set row [$query fetch]]]>0} {
+            foreach {id sento} $row {}
+            set tsento [string trim [my tradukuFremdan $sento] "()\t\n "]
+            if {$tsento ne $sento} {
+                $connection execute "update traduko_$lng set sento='$tsento' where id=$id"
+            }
+        }
+        $query destroy
+    }
+}
+REVOLegiloDB instproc prenuTraduko trdNode {
+    set ret ""
+    set sento ""
+    foreach childNode [$trdNode childNodes] {
+       if {[$childNode nodeType] eq "TEXT_NODE"} {
+            append ret [$childNode nodeValue]
+        } elseif {[$childNode nodeType] eq "ELEMENT_NODE" && [$childNode nodeName] eq "ind"} {
+            append ret [$childNode text]
+        } elseif {[$childNode nodeType] eq "ELEMENT_NODE" && [$childNode nodeName] eq "klr"} {
+            set sento [string trim [$childNode text] " ()\n\t"]
+        }
+    }
+    set ret [my tradukuFremdan $ret]
+    set sento [my tradukuFremdan $sento]
+    regsub -all {[\s]{2,}} $ret { } ret
+    regsub -all {[\s]{2,}} $sento { } sento
+    return [list $ret $sento]
+}
+REVOLegiloDB instproc tradukuFremdan trad {
+    string map {&Ccirc; \u0108
+&ccirc; \u0109
+&Gcirc; \u011c
+&gcirc; \u011d
+&Hcirc; \u0124
+&hcirc; \u0125
+&Jcirc; \u0134
+&jcirc; \u0135
+&Scirc; \u015c
+&scirc; \u015d
+&Ubreve; \u016c
+&ubreve; \u016d
+&OElig; \u0152
+&oelig; \u0153
+&Aacute; \u00c1
+&aacute; \u00e1
+&Eacute; \u00c9
+&eacute; \u00e9
+&Iacute; \u00cd
+&iacute; \u00ed
+&Oacute; \u00d3
+&oacute; \u00f3
+&Uacute; \u00da
+&uacute; \u00fa
+&Agrave; \u00c0
+&agrave; \u00e0
+&Egrave; \u00c8
+&egrave; \u00e8
+&Igrave; \u00cc
+&igrave; \u00ec
+&Ograve; \u00d2
+&ograve; \u00f2
+&Ugrave; \u00d9
+&ugrave; \u00f9
+&Acirc; \u00c2
+&acirc; \u00e2
+&Ecirc; \u00ca
+&ecirc; \u00ea
+&Icirc; \u00ce
+&icirc; \u00ee
+&Ocirc; \u00d4
+&ocirc; \u00f4
+&Ucirc; \u00db
+&ucirc; \u00fb
+&szlig; \u00df
+&Auml; \u00c4
+&auml; \u00e4
+&Ouml; \u00d6
+&ouml; \u00f6
+&Uuml; \u00dc
+&uuml; \u00fc
+&Gbreve; \u011e
+&gbreve; \u011f
+&inodot; \u0131
+&Idot; \u0130
+&Scedil; \u015e
+&scedil; \u015f
+&Ccedil; \u00c7
+&ccedil; \u00e7
+&apos; '
+&minute; '
+&quot; "
+&second; "
+&leftquot; \u201e
+&rightquot; \u201c
+&ring; \u00b0
+&deg; \u00b0
+&quadrat; \u00b2
+&cubic; \u00b3
+&para; \u00a7
+&dash; \u2015
+&mdash; \u2015
+&ndash; \u2013
+&nbsp; \u00a0
+&Euml; \u00cb
+&euml; \u00eb
+&Iuml; \u00cf
+&iuml; \u00ef
+&Aring; \u00c5
+&aring; \u00e5
+&AElig; \u00c6
+&aelig; \u00e6
+&Oslash; \u00d8
+&oslash; \u00f8
+&Ntilde; \u00d1
+&ntilde; \u00f1
+&Atilde; \u00c3
+&atilde; \u00e3
+&Otilde; \u00d5
+&otilde; \u00f5
+&middot; \u00b7
+&Alfa; \u0391
+&alfa; \u03b1
+&alfa_acute; \u1f71;
+&Alfa_acute; \u1fbb;
+&alfa_acute_subj; \u1fb4;
+&alfa_breve; \u1fb0;
+&Alfa_breve; \u1fb8;
+&alfa_circ; \u1fb6;
+&alfa_circ_subj; \u1fb7;
+&alfa_densa; \u1f01;
+&Alfa_densa; \u1f09;
+&alfa_densa_acute; \u1f05;
+&Alfa_densa_acute; \u1f0d;
+&alfa_densa_acute_subj; \u1f85;
+&Alfa_densa_acute_Subj; \u1f8d;
+&alfa_densa_circ; \u1f07;
+&Alfa_densa_circ; \u1f0f;
+&alfa_densa_circ_subj; \u1f87;
+&Alfa_densa_circ_Subj; \u1f8f;
+&alfa_densa_grave; \u1f03;
+&Alfa_densa_grave; \u1f0b;
+&alfa_densa_grave_subj; \u1f83;
+&Alfa_densa_grave_Subj; \u1f8b;
+&alfa_densa_subj; \u1f81;
+&Alfa_densa_Subj; \u1f89;
+&alfa_grave; \u1f70;
+&Alfa_grave; \u1fba;
+&alfa_grave_subj; \u1fb2;
+&alfa_makron; \u1fb1;
+&Alfa_makron; \u1fb9;
+&alfa_psili; \u1f00;
+&Alfa_psili; \u1f08;
+&alfa_psili_acute; \u1f04;
+&Alfa_psili_acute; \u1f0c;
+&alfa_psili_acute_subj; \u1f84;
+&Alfa_psili_acute_Subj; \u1f8c;
+&alfa_psili_circ; \u1f06;
+&Alfa_psili_circ; \u1f0e;
+&alfa_psili_circ_subj; \u1f86;
+&Alfa_psili_circ_Subj; \u1f8e;
+&alfa_psili_grave; \u1f02;
+&Alfa_psili_grave; \u1f0a;
+&alfa_psili_grave_subj; \u1f82;
+&Alfa_psili_grave_Subj; \u1f8a;
+&alfa_psili_subj; \u1f80;
+&Alfa_psili_Subj; \u1f88;
+&alfa_subj; \u1fb3;
+&Alfa_Subj; \u1fbc;
+&Alfa_ton; \u0386
+&alfa_ton; \u03ac
+&Beta; \u0392
+&beta; \u03b2
+&Gamma; \u0393
+&gamma; \u03b3
+&Delta; \u0394
+&delta; \u03b4
+&Epsilon; \u0395
+&epsilon; \u03b5
+&epsilon_acute; \u1f73
+&Epsilon_acute; \u1fc9
+&epsilon_densa; \u1f11
+&Epsilon_densa; \u1f19
+&epsilon_densa_acute; \u1f15
+&Epsilon_densa_acute; \u1f1d
+&epsilon_densa_grave; \u1f13
+&Epsilon_densa_grave; \u1f1b
+&epsilon_grave; \u1f72
+&Epsilon_grave; \u1fc8
+&epsilon_psili; \u1f10
+&Epsilon_psili; \u1f18
+&epsilon_psili_acute; \u1f14
+&Epsilon_psili_acute; \u1f1c
+&epsilon_psili_grave; \u1f12
+&Epsilon_psili_grave; \u1f1a
+&Epsilon_ton; \u0388
+&epsilon_ton; \u03ad
+&Zeta; \u0396
+&zeta; \u03b6
+&Eta; \u0397
+&eta; \u03b7
+&eta_acute; \u1f75;
+&Eta_acute; \u1fcb;
+&eta_acute_subj; \u1fc4
+&eta_circ; \u1fc6
+&eta_circ_subj; \u1fc7
+&eta_densa; \u1f21
+&Eta_densa; \u1f29
+&eta_densa_acute; \u1f25
+&Eta_densa_acute; \u1f2d
+&eta_densa_acute_subj; \u1f95
+&Eta_densa_acute_Subj; \u1f9d
+&eta_densa_circ; \u1f27
+&Eta_densa_circ; \u1f2f
+&eta_densa_circ_subj; \u1f97
+&Eta_densa_circ_Subj; \u1f9f
+&eta_densa_grave; \u1f23
+&Eta_densa_grave; \u1f2b
+&eta_densa_grave_subj; \u1f93
+&Eta_densa_grave_Subj; \u1f9b
+&eta_densa_subj; \u1f91
+&Eta_densa_Subj; \u1f99
+&eta_grave; \u1f74
+&Eta_grave; \u1fca
+&eta_grave_subj; \u1fc2
+&eta_psili; \u1f20
+&Eta_psili; \u1f28
+&eta_psili_acute; \u1f24
+&Eta_psili_acute; \u1f2c
+&eta_psili_acute_subj; \u1f94
+&Eta_psili_acute_Subj; \u1f9c
+&eta_psili_circ; \u1f26
+&Eta_psili_circ; \u1f2e
+&eta_psili_circ_subj; \u1f96
+&Eta_psili_circ_Subj; \u1f9e
+&eta_psili_grave; \u1f22
+&Eta_psili_grave; \u1f2a
+&eta_psili_grave_subj; \u1f92
+&Eta_psili_grave_Subj; \u1f9a
+&eta_psili_subj; \u1f90
+&Eta_psili_Subj; \u1f98
+&eta_subj; \u1fc3
+&Eta_Subj; \u1fcc
+&Eta_ton; \u0389
+&eta_ton; \u03ae
+&Theta; \u0398
+&theta; \u03b8
+&Jota; \u0399
+&jota; \u03b9
+&jota_acute; \u1f77
+&Jota_acute; \u1fdb
+&jota_breve; \u1fd0
+&Jota_breve; \u1fd8
+&jota_circ; \u1fd6
+&jota_densa; \u1f31
+&Jota_densa; \u1f39
+&jota_densa_acute; \u1f35
+&Jota_densa_acute; \u1f3d
+&jota_densa_circ; \u1f37
+&Jota_densa_circ; \u1f3f
+&jota_densa_grave; \u1f33
+&Jota_densa_grave; \u1f3b
+&jota_grave; \u1f76
+&Jota_grave; \u1fda
+&jota_makron; \u1fd1
+&Jota_makron; \u1fd9
+&jota_psili; \u1f30
+&Jota_psili; \u1f38
+&jota_psili_acute; \u1f34
+&Jota_psili_acute; \u1f3c
+&jota_psili_circ; \u1f36
+&Jota_psili_circ; \u1f3e
+&jota_psili_grave; \u1f32
+&Jota_psili_grave; \u1f3a
+&Jota_ton; \u038a
+&jota_ton; \u03af
+&Jota_trema; \u03aa
+&jota_trema; \u03ca
+&jota_trema_acute; \u1fd3
+&jota_trema_circ; \u1fd7
+&jota_trema_grave; \u1fd2
+&jota_trema_ton; \u0390
+&Kappa; \u039a
+&kappa; \u03ba
+&Lambda; \u039b
+&lambda; \u03bb
+&My; \u039c
+&my; \u03bc
+&Ny; \u039d
+&ny; \u03bd
+&Xi; \u039e
+&xi; \u03be
+&Omikron; \u039f
+&omikron; \u03bf
+&omikron_acute; \u1f79
+&Omikron_acute; \u1ff9
+&omikron_densa; \u1f41
+&Omikron_densa; \u1f49
+&omikron_densa_acute; \u1f45
+&Omikron_densa_acute; \u1f4d
+&omikron_densa_grave; \u1f43
+&Omikron_densa_grave; \u1f4b
+&omikron_grave; \u1f78
+&Omikron_grave; \u1ff8
+&omikron_psili; \u1f40
+&Omikron_psili; \u1f48
+&omikron_psili_acute; \u1f44
+&Omikron_psili_acute; \u1f4c
+&omikron_psili_grave; \u1f42
+&Omikron_psili_grave; \u1f4a
+&Omikron_ton; \u038c
+&omikron_ton; \u03cc
+&Pi; \u03a0
+&pi; \u03c0
+&Rho; \u03a1
+&rho; \u03c1
+&rho_densa; \u1fe5
+&Rho_densa; \u1fec
+&rho_psili; \u1fe4
+&Sigma; \u03a3
+&sigma; \u03c3
+&sigma_fina; \u03c2
+&Tau; \u03a4
+&tau; \u03c4
+&Ypsilon; \u03a5
+&ypsilon; \u03c5
+&ypsilon_acute; \u1f7b
+&Ypsilon_acute; \u1feb
+&ypsilon_breve; \u1fe0
+&Ypsilon_breve; \u1fe8
+&ypsilon_circ; \u1fe6
+&ypsilon_densa; \u1f51
+&Ypsilon_densa; \u1f59
+&ypsilon_densa_acute; \u1f55
+&Ypsilon_densa_acute; \u1f5d
+&ypsilon_densa_circ; \u1f57
+&Ypsilon_densa_circ; \u1f5f
+&ypsilon_densa_grave; \u1f53
+&Ypsilon_densa_grave; \u1f5b
+&ypsilon_grave; \u1f7a
+&Ypsilon_grave; \u1fea
+&ypsilon_makron; \u1fe1
+&Ypsilon_makron; \u1fe9
+&ypsilon_psili; \u1f50
+&ypsilon_psili_acute; \u1f54
+&ypsilon_psili_circ; \u1f56
+&ypsilon_psili_grave; \u1f52
+&Ypsilon_ton; \u038e
+&ypsilon_ton; \u03cd
+&Ypsilon_trema; \u03ab
+&ypsilon_trema; \u03cb
+&ypsilon_trema_acute; \u1fe3
+&ypsilon_trema_circ; \u1fe7
+&ypsilon_trema_grave; \u1fe2
+&ypsilon_trema_ton; \u03b0
+&Phi; \u03a6
+&phi; \u03c6
+&Chi; \u03a7
+&chi; \u03c7
+&Psi; \u03a8
+&psi; \u03c8
+&Omega; \u3a9
+&omega; \u3c9
+&omega_acute; \u1f7d
+&Omega_acute; \u1ffb
+&omega_acute_subj; \u1ff4
+&omega_circ;  \u1ff6
+&omega_circ_subj;  \u1ff7
+&omega_densa; \u1f61
+&Omega_densa; \u1f69
+&omega_densa_acute;  \u1f65
+&Omega_densa_acute;  \u1f6d
+&omega_densa_acute_subj;  \u1fa5
+&Omega_densa_acute_Subj;  \u1fad
+&omega_densa_circ;  \u1f67
+&Omega_densa_circ;  \u1f6f
+&omega_densa_circ_subj;  \u1fa7
+&Omega_densa_circ_Subj;  \u1faf
+&omega_densa_grave;  \u1f63
+&Omega_densa_grave;  \u1f6b
+&omega_densa_grave_subj;  \u1fa3
+&Omega_densa_grave_Subj;  \u1fab
+&omega_densa_subj; \u1fa1
+&Omega_densa_Subj; \u1fa9
+&omega_grave;  \u1f7c
+&Omega_grave;  \u1ffa
+&omega_grave_subj;  \u1ff2
+&omega_psili; \u1f60
+&Omega_psili; \u1f68
+&omega_psili_acute;  \u1f64
+&Omega_psili_acute;  \u1f6c
+&omega_psili_acute_subj;  \u1fa4
+&Omega_psili_acute_Subj;  \u1fac
+&omega_psili_circ;  \u1f66
+&Omega_psili_circ;  \u1f6e
+&omega_psili_circ_subj;  \u1fa6
+&Omega_psili_circ_Subj;  \u1fae
+&omega_psili_grave;  \u1f62
+&Omega_psili_grave;  \u1f6a
+&omega_psili_grave_subj;  \u1fa2
+&Omega_psili_grave_Subj;  \u1faa
+&omega_psili_subj; \u1fa0
+&Omega_psili_Subj; \u1fa8
+&omega_subj; \u1ff3
+&Omega_Subj; \u1ffc
+&Omega_ton; \u038f
+&omega_ton; \u03ce
+&c_Ju; \u042e
+&c_A; \u0410
+&c_B; \u0411
+&c_C; \u0426
+&c_D; \u0414
+&c_Je; \u0415
+&c_F; \u0424
+&c_G; \u0413
+&c_H; \u0425
+&c_I; \u0418
+&c_J; \u0419
+&c_K; \u041a
+&c_L; \u041b
+&c_M; \u041c
+&c_N; \u041d
+&c_O; \u041e
+&c_P; \u041f
+&c_Ja; \u042f
+&c_R; \u0420
+&c_S; \u0421
+&c_T; \u0422
+&c_U; \u0423
+&c_Zh; \u0416
+&c_V; \u0412
+&c_Mol; \u042c
+&c_Y; \u042b
+&c_Z; \u0417
+&c_Sh; \u0428
+&c_E; \u042d
+&c_Shch; \u0429
+&c_Ch; \u0427
+&c_Jo; \u0401
+&c_W; \u040E
+&c_Ib; \u0406
+&c_Gu; \u0490
+&c_Jeu; \u0404
+&c_Ji; \u0407
+&c_ju; \u044e
+&c_a; \u0430
+&c_b; \u0431
+&c_c; \u0446
+&c_d; \u0434
+&c_je; \u0435
+&c_f; \u0444
+&c_g; \u0433
+&c_h; \u0445
+&c_i; \u0438
+&c_j; \u0439
+&c_k; \u043a
+&c_l; \u043b
+&c_m; \u043c
+&c_n; \u043d
+&c_o; \u043e
+&c_p; \u043f
+&c_ja; \u044f
+&c_r; \u0440
+&c_s; \u0441
+&c_t; \u0442
+&c_u; \u0443
+&c_zh; \u0436
+&c_v; \u0432
+&c_mol; \u044c
+&c_y; \u044b
+&c_z; \u0437
+&c_sh; \u0448
+&c_e; \u044d
+&c_shch; \u0449
+&c_ch; \u0447
+&c_malmol; \u044a
+&c_jo; \u0451
+&c_w; \u045E
+&c_ib; \u0456
+&c_gu; \u0491
+&c_jeu; \u0454
+&c_ji; \u0457
+&Ccaron; \u010c
+&ccaron; \u010d
+&Scaron; \u0160
+&scaron; \u0161
+&Rcaron; \u0158
+&rcaron; \u0159
+&Yacute; \u00dd
+&yacute; \u00fd
+&Zcaron; \u017d
+&zcaron; \u017e
+&Zdot; \u017b
+&zdot; \u017c
+&Ncaron; \u0147
+&ncaron; \u0148
+&Ecaron; \u011a
+&ecaron; \u011b
+&Dcaron; \u010e
+&dcaron; \u010f
+&Tcaron; \u0164
+&tcaron; \u0165
+&Uring; \u016e
+&uring; \u016f
+&Lacute; \u0139
+&lacute; \u013a
+&Lcaron; \u013d
+&lcaron; \u013e
+&Racute; \u0154
+&racute; \u0155
+&Aogonek; \u0104
+&aogonek; \u0105
+&Lstroke; \u0141
+&lstroke; \u0142
+&Eogonek; \u0118
+&eogonek; \u0119
+&Cacute; \u0106
+&cacute; \u0107
+&Nacute; \u0143
+&nacute; \u0144
+&Sacute; \u015a
+&sacute; \u015b
+&Zacute; \u0179
+&zacute; \u017a
+&alef; \u05d0
+&bet; \u05d1
+&gimel; \u05d2
+&dalet; \u05d3
+&he; \u05d4
+&vav; \u05d5
+&zayin; \u05d6
+&het; \u05d7
+&tet; \u05d8
+&yod; \u05d9
+&fkaf; \u05da
+&kaf; \u05db
+&lamed; \u05dc
+&fmem; \u05dd
+&mem; \u05de
+&fnun; \u05df
+&nun; \u05e0
+&samekh; \u05e1
+&ayin; \u05e2
+&fpe; \u05e3
+&pe; \u05e4
+&ftsadi; \u05e5
+&tsadi; \u05e6
+&qof; \u05e7
+&resh; \u05e8
+&shin; \u05e9
+&tav; \u05ea
+&Odacute; \u0150
+&odacute; \u0151
+&Udacute; \u0170
+&udacute; \u0171
+&Odblac; \u0150
+&odblac; \u0151
+&Udblac; \u0170
+&udblac; \u0171
+&amacron \u0101
+&emacron \u0113
+&gcommaaccent \u0123
+&imacron \u012b
+&kcommaaccent \u0137
+&lcommaaccent \u013c
+&ncommaaccent \u0146
+&omacron \u014d
+&rcommaaccent \u0157
+&umacron \u016b
+&Amacron \u0100
+&Emacron \u0112
+&Gcommaaccent \u0122
+&Imacron \u012a
+&Kcommaaccent \u0136
+&Lcommaaccent \u013b
+&Ncommaaccent \u0145
+&Omacron \u014c
+&Rcommaaccent \u0156
+&Umacron \u016a
+&Ycirc; \u0176
+&ycirc; \u0177
+&Wgrave; \u1e80
+&wgrave; \u1e81
+&Wacute; \u1e82
+&wacute; \u1e83
+&Wuml; \u1e84
+&wuml; \u1e85
+&Ygrave; \u1ef2
+&ygrave; \u1ef3
+&Wcirc; \u0174
+&wcirc; \u0175
+&Yuml; \u0178
+&yuml; \u00ff
+&alif; \u0627
+&ba; \u0628
+&ta; \u062A
+&tha; \u062B
+&jim; \u062C
+&Ha; \u062D
+&hha; \u062E
+&dal; \u062F
+&dhal; \u0630
+&ra; \u0631
+&zin; \u0632
+&sin; \u0633
+&shin1; \u0634
+&Sad; \u0635
+&Dad; \u0636
+&Ta; \u0637
+&Za; \u0638
+&ayn; \u0639
+&ghayn; \u063A
+&fa; \u0641
+&qaf; \u0642
+&kaf1; \u0643
+&lam; \u0644
+&mim; \u0645
+&nun1; \u0646
+&ha; \u0647
+&waw; \u0648
+&ya; \u064A
+&fatha; \u064E
+&kasra; \u0650
+&damma; \u064F
+&fatha_alif; \u064E
+&kasra_ya; \u0650
+&damma_waw; \u064F
+&fathatan; \u064B
+&kasratan; \u064D
+&dammatan; \u064C
+&sukun; \u0652
+&shadda; \u0651
+&alif_maqsura; \u0649
+&ta_marbuta; \u0629
+&alif_hamza_sure; \u0623
+&alif_hamza_sube; \u0625
+&alif_madda; \u0622
+&alif_wasla; \u0671
+&ya_hamza; \u0626
+&waw_hamza; \u0624
+&hamza; \u0621
+&ar_komo; \u060C
+&ar_dekumakomo; \u066B
+&ar_punktokomo; \u061B
+&ar_demandopunkto; \u061F
+&ar_0; \u0660
+&ar_1; \u0661
+&ar_2; \u0662
+&ar_3; \u0663
+&ar_4; \u0664
+&ar_5; \u0665
+&ar_6; \u0666
+&ar_7; \u0667
+&ar_8; \u0668
+&ar_9; \u0669} $trad
+
+}
+REVOLegiloDB proc legiDosieron {} {
+    package require tdom
+    set dosiero [IDE::Dialog getDir]
+    if {$dosiero eq ""} return
+    set legilo [my new [list -dosiero $dosiero]]
+    $legilo legiChiuj
+    $legilo destroy
+    return
+}
+REVOLegiloDB proc subtenatajLingvoj {} {
+    list be belorusa de germana en angla fr franca hu hungara nl nederlanda pl pola ru rusa sv sveda pt portugala
+}
+REVOLegiloDB proc subtenatajLingvojML {} {
+    if {![my exists subLingvoj]} {
+        foreach {l lingvo} [my subtenatajLingvoj] {
+            my lappend subLingvoj $l        
+        }
+    }
+    my set subLingvoj
+}
+Class REVOLegiloDBTradEksporto -superclass ::REVOLegiloDB -parameter lingvo
+@ ::REVOLegiloDBTradEksporto idemeta component EspRevoMontrilo
+REVOLegiloDBTradEksporto instproc importuTraduko {tlingvo vorto traduko sento} {
+    my instvar dbvortaro lingvo rezulto
+    if {$tlingvo ne $lingvo} return
+    regsub -all {\s+} $traduko " " traduko
+    # ignoru multvortaj derivoj
+    if {[string first " " $vorto]>0} {
+        return
+    }
+    foreach d [$dbvortaro sxercxuRezListo $vorto $tlingvo] {
+        if {[dict get $d traduko] eq $traduko} {
+            return
+        }
+    }
+    append rezulto "$vorto; $traduko\n"
+}
+REVOLegiloDBTradEksporto instproc init args {
+    next
+    my set rezulto ""
+}
+REVOLegiloDBTradEksporto proc kreuTradListon {{lingvo pl}} {
+    set dir [IDE::Dialog getDir]
+    if {$dir eq ""} return
+    package require tdom
+    Vortaro prenuVortaron
+    set legilo [REVOLegiloDBTradEksporto new -lingvo $lingvo -dosiero $dir]
+    $legilo legiChiuj
+    set rezulto [$legilo set rezulto]
+    $legilo destroy
+    return $rezulto
+}
+@ Class REVOLegiloRefresxigo {
+description {Klaso por refresxigo de interna esperanta vortaro de REVO}
+}
+Class REVOLegiloRefresxigo -superclass ::REVOLegilo -parameter {{nurProtokolo 0}}
+@ ::REVOLegiloRefresxigo idemeta component EspRevoMontrilo
+REVOLegiloRefresxigo instproc addRadiko {radiko estasnomo} {
+    my instvar nurProtokolo espVortaro aktualaRadiko novajRadikoj
+    set aktualaRadiko $radiko
+    if {[$espVortaro estasVorteto $radiko]} {
+        my prot "$radiko estas vorteto"
+        return
+    }
+    if {$nurProtokolo} {
+        set rad Radiko::$radiko
+        if {![Object isobject $rad]} {
+            my prot "nova radiko $radiko $estasnomo"
+            incr novajRadikoj
+            return
+        }
+    }
+    if {![Object isobject $rad]} {
+       incr novajRadikoj
+    }
+    next
+}
+REVOLegiloRefresxigo instproc addVareDerivo {radikoobj prefikso sufikso} {
+    my instvar nurProtokolo espVortaro aktualaRadiko novajDerivoj
+    if {[regexp {\W} $prefikso] || [regexp {\W} $sufikso]} {
+        my prot "fusxderivo $aktualaRadiko - $prefikso $sufikso"
+        return
+    }
+    set vorto ${prefikso}${aktualaRadiko}$sufikso
+    if {$nurProtokolo} {
+        if {$radikoobj eq "" || ![$radikoobj ekzistasDerivo $prefikso $sufikso]} {
+            my prot "$aktualaRadiko add $vorto"
+            incr novajDerivoj
+        }
+        return
+    }
+    if {$radikoobj eq ""} {
+        return
+    }
+    if {[$espVortaro estasVorteto $vorto]} {
+        return
+    }
+    if {![$radikoobj ekzistasDerivo $prefikso $sufikso]} {
+        incr novajDerivoj
+    }
+    next
+}
+REVOLegiloRefresxigo instproc init args {
+    my instvar espVortaro
+    set espVortaro [Vortaro prenuVortaron]
+    next
+}
+REVOLegiloRefresxigo instproc legiChiuj {} {
+    my instvar dosiero novajRadikoj novajDerivoj
+    set novajRadikoj 0
+    set novajDerivoj 0
+    set dosieroj [glob -directory $dosiero -nocomplain *.xml]
+    set progreso [ProgresoMontrilo startProgress "Legu REVO dosierojn"]
+    set i 0
+    set nombro [llength $dosieroj]
+    foreach f $dosieroj {
+        $progreso setProgress [expr {round(100.0*$i/$nombro)}]
+        if {[$progreso isStopped]} {
+            break
+        }
+        if {[catch {my legiXML $f}]} {
+            puts "problemoj kun $f\n$::errorInfo"
+        }
+        incr i
+    }
+    my prot "novaj radikoj: $novajRadikoj novaj derivoj: $novajDerivoj"
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+}
+REVOLegiloRefresxigo instproc prot teksto {
+    puts $teksto
+}
+REVOLegiloRefresxigo proc legiDosieron {{dosiero ~/revo/xml}} {
+    package require tdom
+    RadikoKonservadoMix malsxaltuPrivatanKonservadon
+    set legilo [my new REVOLegiloRefresxigo -dosiero $dosiero]
+    $legilo legiChiuj
+    $legilo destroy
+    RadikoKonservadoMix sxaltuPrivatanKonservadon
+}
+REVOLegiloRefresxigo proc legiDosieronProtokolo {{dosiero ~/revo/xml}} {
+    package require tdom
+    set legilo [my new REVOLegiloRefresxigo -dosiero $dosiero -nurProtokolo 1]
+    $legilo legiChiuj
+    $legilo destroy
+}
+@ Class REVOLeksLegilo {
+description {Klaso por kreado de interna Metakit datumbazo de REVO}
+}
+Class REVOLeksLegilo -superclass ::REVOLegilo -parameter db
+@ ::REVOLeksLegilo idemeta component EspRevoMontrilo
+REVOLeksLegilo instproc addDerivoPS {radiko prefikso sufikso drvNode} {
+    my instvar radikoid db derivo derivomarko reftipo
+    set prefikso [my preparuAfikso $prefikso]
+    set sufikso [my preparuAfikso $sufikso]
+    if {[regexp {[\(\)]} $prefikso] || [regexp {[\(\)]} $sufikso]} {
+        puts "fuŝderivo - $radiko prenuRadiko - $prefikso - $sufikso"
+        return
+    }
+    set derivo $prefikso$radiko$sufikso
+    set drvNode [$drvNode parentNode]
+    set derivomarko [$drvNode getAttribute mrk {}]
+    set reftipo ""
+    puts "al $derivo $derivomarko"
+    set derivoRow [mk::row append $db.derivoj derivo $derivo marko $derivomarko radikoid $radikoid]
+    foreach sncNode [$drvNode selectNodes snc] {
+        my addSenco $derivoRow $sncNode
+    }
+}
+REVOLeksLegilo instproc addRadiko {pradiko pestasnomo} {
+    my instvar radiko estasnomo db radikoid
+    set radiko $pradiko
+    set estasnomo $pestasnomo
+    set c [mk::row append $db.radikoj radiko $radiko]
+    set radikoid [lindex [split $c !] end]
+    return $radiko
+}
+REVOLeksLegilo instproc addSenco {derivoRow sncNode} {
+    my instvar radikoid db radiko sencomarko
+    set difNode [lindex [$sncNode selectNodes dif] 0]
+    if {$difNode eq ""} {
+        set difNode $sncNode
+    }
+    set uzo ""
+    set uzoNode [lindex [$sncNode selectNodes uzo] 0]
+    set sencomarko [$sncNode getAttribute mrk {}]
+    if {$uzoNode ne ""} {
+        set uzo [my nodeTextValue $uzoNode]
+    }
+    set difino [my prenuTekstoDeNode $difNode ""]
+    mk::row append $derivoRow.sencoj difino $difino uzo $uzo marko $sencomarko
+
+}
+REVOLeksLegilo instproc aliguReferencon node {
+    my instvar reftipo db sencomarko derivomarko derivo
+    set tip [$node getAttribute tip ""]
+    if {$tip eq ""} {
+        set tip $reftipo
+    }
+    if {$tip eq ""} {
+        set tip vid
+    }
+    if {$sencomarko eq ""} {
+        set marko $derivomarko
+    } else {
+        set marko $sencomarko
+    }
+    mk::row append $db.referencoj almarko [$node getAttribute cel ""] tipo $tip  elmarko $marko elvorto $derivo
+}
+REVOLeksLegilo instproc destroy {} {
+    my instvar db
+    catch {
+        mk::file commit $db
+        mk::file close $db
+    }
+    next
+}
+REVOLeksLegilo instproc kreiMetakit doziero {
+    my instvar vortoj db
+    package require Mk4tcl
+    file delete $doziero
+    set db [Object autoname revodb]
+    mk::file open $db $doziero
+
+    set v [mk::view layout $db.radikoj {radiko marko}]
+    mk::file commit $v
+
+    set v [mk::view layout $db.derivoj {derivo radikoid:I marko {sencoj {difino uzo marko}}}]
+    mk::file commit $v
+
+    set v [mk::view layout $db.referencoj {elmarko elvorto almarko alvorto tipo}]
+    mk::file commit $v
+
+    mk::file commit $db
+}
+REVOLeksLegilo instproc legiChiuj {} {
+    my instvar dosiero progreso
+    set dosieroj [glob -directory $dosiero -nocomplain *.xml]
+    set progreso [ProgresoMontrilo startProgress "Lego Revo-Dosierojn"]
+    set len [llength $dosieroj]
+    set i 0
+    foreach f $dosieroj {
+        $progreso setProgress [expr {round(100.0*$i/$len)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+    	incr i
+        if {[catch {my legiXML $f}]} {
+            puts "problemoj kun $f\n$::errorInfo"
+        }
+        after 1
+    }
+    my pleniguReferencojn
+    $progreso cleanUpAfterSignal
+    $progreso destroy
+}
+REVOLeksLegilo instproc nodeTextValue node {
+    set schild [$node firstChild]
+    if {$schild ne ""} {
+        return [$schild nodeValue]
+    } else {
+        return ""
+    }
+}
+REVOLeksLegilo instproc pleniguReferencojn {} {
+    my instvar db progreso
+    set ij [mk::select $db.referencoj]
+    $progreso metuMesagxon "Komputas referencojn"
+    set i 0
+    set len [llength $ij]
+    foreach id $ij {
+        $progreso setProgress [expr {round(100.0*$i/$len)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+    	incr i
+        set almarko [mk::get $db.referencoj!$id almarko]
+        set vorto ""
+        set sercxmarkoj [list $almarko]
+    	if {[regexp {^(.+\..+)\..+$} $almarko _ dmarko]} {
+            lappend sercxmarkoj $dmarko
+        }
+        foreach almarko $sercxmarkoj {
+            set trovis 0
+    	    foreach did [mk::select $db.derivoj -exact marko $almarko] {
+                set vorto [mk::get $db.derivoj!$did derivo]
+                set trovis 1
+                break
+            }
+            if {$trovis} {
+                break
+            }
+        }
+        if {$vorto ne ""} {
+            mk::set $db.referencoj!$id alvorto $vorto
+        } else {
+            puts "ne trovis marko por $almarko"
+        }
+    }
+}
+REVOLeksLegilo instproc prenuTekstoDeNode {node tags} {
+    my instvar radiko reftipo
+    set tekstoTag [list]
+    switch -exact -- [$node nodeName] {
+        em {
+            lappend tags em
+        }
+        ekz {
+            lappend tags ekz
+        }
+        tld {
+            return [list $radiko $tags]
+        }
+        fnt -
+        trd -
+        trdgrp -
+        uzo {
+            return
+        }
+        ref {
+            my aliguReferencon $node
+            lappend tags [list ref [$node getAttribute cel ""]]
+        }
+        refgrp {
+            set reftipo [$node getAttribute tip vid]
+        }
+    }
+    set lastaTeksto 1
+    foreach c [$node childNodes] {
+        if {[$c nodeType] eq "TEXT_NODE"} {
+            lappend tekstoTag [string map [list "\n" { }] [$c nodeValue]] $tags
+            set lastaTeksto 1
+        }
+        if {[$c nodeType] eq "ELEMENT_NODE"} {
+            if {!$lastaTeksto} {
+                lappend tekstoTag " " $tags
+            }
+            foreach {teksto tag} [my prenuTekstoDeNode $c $tags] {
+    	        lappend tekstoTag $teksto $tag
+            }
+            set lastaTeksto 0
+        }
+    }
+    set ntekstoTag [list]
+    set lastaTag ""
+    set lteksto ""
+    set first 1
+    set havasSep 0
+    foreach {teksto tag} $tekstoTag {
+    	if {$havasSep} {
+            if {[regexp {^\s+$} $teksto]} {
+                set teksto " "
+            } else {
+                set teksto [string trimleft $teksto]
+            }
+        }
+        set havasSep [string is space [string index $teksto end]]
+        if {$tag ne $lastaTag} {
+    	    if {$first} {
+                set lteksto [string trimleft $lteksto]
+            }
+            set first 0
+            if {$lteksto ne ""} {
+    	        lappend ntekstoTag $lteksto $lastaTag
+            }
+            set lteksto $teksto
+        } else {
+    	    append lteksto $teksto
+        }
+        set lastaTag $tag
+        regsub -all {[\s]{2,}} $lteksto { } lteksto
+    }
+    if {$lteksto ne ""} {
+    	if {$first} {
+            set lteksto [string trimleft $lteksto]
+        }
+        lappend ntekstoTag [string trimright $lteksto] $lastaTag
+    }
+    return $ntekstoTag
+}
+REVOLeksLegilo proc legiDosierojn {} {
+    set dosiero	[IDE::Dialog getDir]
+    if {$dosiero eq ""} {
+        return 0
+    }
+    package require tdom
+    set legilo [my new [list -dosiero $dosiero]]
+    $legilo kreiMetakit revo.db
+    $legilo legiChiuj
+    $legilo destroy
+    return 1
+}
+Class REVOLeksLegiloSQL -superclass ::REVOLeksLegilo
+@ ::REVOLeksLegiloSQL idemeta component EspRevoMontrilo
+REVOLeksLegiloSQL instproc addDerivoPS {radiko prefikso sufikso drvNode} {
+    my instvar radikoid connection derivo derivomarko reftipo
+    set prefikso [my preparuAfikso $prefikso]
+    set sufikso [my preparuAfikso $sufikso]
+    if {[regexp {[\(\)]} $prefikso] || [regexp {[\(\)]} $sufikso]} {
+        puts "fuŝderivo - $radiko prenuRadiko - $prefikso - $sufikso"
+        return
+    }
+    set derivo $prefikso$radiko$sufikso
+    set drvNode [$drvNode parentNode]
+    set derivomarko [$drvNode getAttribute mrk {}]
+    set reftipo ""
+    #puts "al $derivo $derivomarko"
+    set derivoid [$connection insertRowAutoId derivo {derivo marko radikoid} [list $derivo $derivomarko $radikoid]]
+    foreach sncNode [$drvNode selectNodes snc] {
+        my addSenco $derivoid $sncNode
+    }
+    return $derivoid
+}
+REVOLeksLegiloSQL instproc addDerivoPSVar {radiko prefikso sufikso drvNode varNodes derivoRef} {
+    my instvar radikoid connection derivo derivomarko
+    if {[llength $varNodes]==0} return
+    set variacioj [list]
+    foreach v $varNodes {
+        set drv [my prenuTekstonDeKapNode $v]
+        foreach d [split [my aliformiTeksto $drv] ,] {
+            set d [string trim $d]
+            if {$d eq ""} continue
+            set prefikso ""
+            set sufikso ""
+            if {[regexp {([-\w ]*)#([-\w\(\)]*)} $d _ prefikso sufikso]} {
+                if {[regexp {\((\w+)\)(\w+)} $sufikso _ s1 s2]} {
+                    lappend variacioj $prefikso$radiko${s1}$s2
+                    lappend variacioj $prefikso$radiko$s2
+                } else {
+                    lappend variacioj $prefikso$radiko$sufikso
+                }
+            } else {
+                puts "fuŝderivo $radiko d='$d' drv='$drv'"
+            }
+        }
+    }
+    set i 0
+    foreach v $variacioj {
+        set vderivoid [$connection insertRowAutoId derivo {derivo marko radikoid} [list $v ${derivomarko}v$i $radikoid]]
+        set difino [list {vidu } {} $derivo [list [list ref $derivomarko]]]
+        $connection insertRowAutoId senco {derivoid difino uzo marko} [list $vderivoid $difino "" ""]
+        $connection insertRowAutoId referenco {almarko tipo elmarko elvorto} [list $derivomarko var ${derivomarko}v$i $v]
+        incr i
+    }
+
+}
+REVOLeksLegiloSQL instproc addRadiko {pradiko pestasnomo} {
+    my instvar radiko estasnomo connection radikoid
+    set radiko $pradiko
+    set estasnomo $pestasnomo
+    set radikoid [$connection insertRowAutoId radiko {radiko} [list $radiko]]
+    return $radiko
+}
+REVOLeksLegiloSQL instproc addSenco {derivoid sncNode} {
+    my instvar radikoid connection radiko sencomarko
+    set vspec [lindex [$sncNode selectNodes ../gra/vspec] 0]
+    set difino [list]
+    if {$vspec ne ""} {
+        set vspectext [my nodeTextValue $vspec]
+        if {$vspectext ne ""} {
+            lappend difino "$vspectext " em
+        }
+    }
+
+    set difNode [lindex [$sncNode selectNodes dif] 0]
+    if {$difNode eq "" || 1} {
+        set difNode $sncNode
+    }
+    set uzo ""
+    set uzoNode [lindex [$sncNode selectNodes uzo] 0]
+    set sencomarko [$sncNode getAttribute mrk {}]
+    if {$uzoNode ne ""} {
+        set uzo [my nodeTextValue $uzoNode]
+    }
+    lappend difino {*}[my prenuTekstoDeNode $difNode ""]
+    $connection insertRowAutoId senco {derivoid difino uzo marko} [list $derivoid $difino $uzo $sencomarko]
+
+}
+REVOLeksLegiloSQL instproc aliguReferencon node {
+    my instvar reftipo connection sencomarko derivomarko derivo
+    set tip [$node getAttribute tip ""]
+    if {$tip eq ""} {
+        set tip $reftipo
+    }
+    if {$tip eq ""} {
+        set tip vid
+    }
+    if {$sencomarko eq ""} {
+        set marko $derivomarko
+    } else {
+        set marko $sencomarko
+    }
+    $connection insertRowAutoId referenco {almarko tipo elmarko elvorto} [list [$node getAttribute cel ""] $tip $marko $derivo]
+}
+REVOLeksLegiloSQL instproc destroy {} {
+    my instvar connection
+    catch {$connection destroy}
+    next
+}
+REVOLeksLegiloSQL instproc kreiMetakit dosiero {
+    my instvar connection
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set connection [$iclass new -childof [self]]
+    $connection connect [list sqlfile $dosiero noMeta 1]
+
+    $connection execute {
+      CREATE TABLE radiko (
+      radikoid integer primary key AUTOINCREMENT,
+      radiko varchar(200),
+      marko varchar(200))
+    }
+
+    $connection execute {
+      CREATE TABLE derivo (
+      derivoid integer primary key AUTOINCREMENT,
+      radikoid integer,
+      derivo varchar(200),
+      marko varchar(200))
+    }
+    $connection execute {CREATE INDEX derivo_radikoid ON derivo (radikoid)}
+    $connection execute {CREATE INDEX derivo_derivo ON derivo (derivo)}
+    $connection execute {CREATE INDEX derivo_marko ON derivo (marko)}
+
+    $connection execute {
+      CREATE TABLE senco (
+      sencoid integer primary key AUTOINCREMENT,
+      derivoid integer,
+      difino text,
+      uzo varchar(200),
+      marko varchar(200))
+    }
+
+    $connection execute {CREATE INDEX senco_derivoid ON senco (derivoid)}
+    $connection execute {CREATE INDEX senco_marko ON senco (marko)}
+    $connection execute {CREATE INDEX senco_uzo ON senco (uzo)}
+
+    $connection execute {
+      CREATE TABLE referenco (
+      referencoid integer primary key AUTOINCREMENT,
+      elmarko varchar(200),
+      elvorto varchar(200),
+      almarko varchar(200),
+      alvorto varchar(200),
+      tipo varchar(200))
+    }
+
+    $connection execute {CREATE INDEX referenco_elmarko ON referenco (elmarko)}
+    $connection execute {CREATE INDEX referenco_elvorto ON referenco (elvorto)}
+    $connection execute {CREATE INDEX referenco_almarko ON referenco (almarko)}
+    $connection execute {CREATE INDEX referenco_alvorto ON referenco (avorto)}
+
+}
+REVOLeksLegiloSQL instproc legiChiuj {} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    next
+    $connection execute "END TRANSACTION"
+}
+REVOLeksLegiloSQL instproc pleniguReferencojn {} {
+    my instvar connection progreso
+    set ij [$connection queryList {select referencoid,almarko from referenco}]
+    $progreso metuMesagxon "Komputas referencojn"
+    set i 0
+    set len [llength $ij]
+
+    foreach row $ij {
+        $progreso setProgress [expr {round(100.0*$i/$len)}]
+        if {[$progreso isStopped]} {
+           break
+        }
+    	incr i
+        set almarko [lindex $row 1]
+        set vorto ""
+        set sercxmarkoj [list $almarko]
+    	if {[regexp {^(.+\..+)\..+$} $almarko _ dmarko]} {
+            lappend sercxmarkoj $dmarko
+        }
+        foreach almarko $sercxmarkoj {
+            set trovis 0
+            foreach did [$connection queryList "select derivo from derivo where marko='$almarko'"] {
+                set vorto [lindex $did 0]
+                set trovis 1
+                break
+            }
+            if {$trovis} {
+                break
+            }
+        }
+        if {$vorto ne ""} {
+            $connection execute "update referenco set alvorto='$vorto' where referencoid=[lindex $row 0]"
+        } else {
+            puts "ne trovis marko por $almarko"
+        }
+    }
+}
+REVOLeksLegiloSQL proc legiDosierojn {} {
+    set dosiero	[IDE::Dialog getDir]
+    if {$dosiero eq ""} {
+        return 0
+    }
+    package require tdom
+    set rdosiero [REVOdatabazoSQL prenuRevoDosierujo]
+    if {[file exists $rdosiero]} {
+        file delete $rdosiero
+    }
+    set legilo [my new [list -dosiero $dosiero]]
+    $legilo kreiMetakit $rdosiero
+    $legilo legiChiuj
+    $legilo destroy
+    return 1
+}
+@ Class REVOLeksMontrilo {
+description {GUI Elemento por REVO Montrilo}
+}
+Class REVOLeksMontrilo -superclass {::IDE::Browser ::IDE::GUICommands ::NavigadaKronikoMix} -parameter databazo
+@ ::REVOLeksMontrilo idemeta component EspRevoMontrilo
+REVOLeksMontrilo instproc closeWindow {} {
+    my instvar win
+    EsperantoConf set prefGeometryRevo [wm geometry $win]
+    next
+}
+REVOLeksMontrilo instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+REVOLeksMontrilo instproc destroy {} {
+    my instvar databazo
+    catch {
+        if {[info exists databazo]} {
+            $databazo destroy
+        }
+    }
+    next
+}
+REVOLeksMontrilo instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+
+    set mitem [$ms addCommand [mc "Lasta Serĉado"] [list [self] naviguLastan] {} {Alt-Left}]
+    my @toolbar addMenu $mitem undo 1.1
+    set mitem [$ms addCommand [mc "Mallasta Serĉado"] [list [self] naviguMallastan] {} {Alt-Right}]
+    my @toolbar addMenu $mitem redo 1.2
+    set mitem [$ms addCommand [mc "Kroniko de Serĉado"] [list [self] navigadoKroniko]]
+    my @toolbar addMenu $mitem history 1.4
+    $ms addCommand [mc "Purigu kronikon"] [list [self] puriguKronikon]
+    set mitem [$ms addCommand [mc "Montru fakojn"] [list [self] montruFakojn]]
+    my @toolbar addMenu $mitem filter 1.5
+    set e [IDE::MenuStruct new -childof $ms [mc "Litergrandeco"]]
+    $ms addCascadeMenu $e
+    $e addRadioButton "10" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -10
+    $e addRadioButton "12" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -12
+    $e addRadioButton "14" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -14
+    $e addRadioButton "16" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -16
+    $e addRadioButton "18" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -18
+    $e addRadioButton "20" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -20
+    $e addRadioButton "22" EsperantoConf::revoLiterGrandeco [list [self] sxangxiLiterGrandecon] -22
+
+    $ms addSeparator
+    $ms addCommand [mc "Kreu bazon de REVO-fonto"] [list [self] importuREVO]
+
+    my requireNamespace
+}
+REVOLeksMontrilo instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms [mc "Dosiero"] 0
+}
+REVOLeksMontrilo instproc getTitle {} {
+    return [mc "REVO Leksikono"]
+}
+REVOLeksMontrilo instproc importuREVO {} {
+    my instvar databazo
+    $databazo destroy
+    REVOLeksLegiloSQL legiDosierojn
+    set databazo [REVOdatabazoSQL prenuBazon]
+}
+REVOLeksMontrilo instproc montruElemento item {
+    my montruPorVorto $item
+}
+REVOLeksMontrilo instproc montruFakojn {} {
+    my instvar listoModo fakMallong
+    set fakoj [list]
+    set fakMallong [list]
+    foreach {mallong fako} [REVOdatabazo prenuFakojn] {
+    	lappend lfakoj [list $mallong $fako]
+    }
+    foreach elem [lsort -index 1 $lfakoj] {
+        lappend fakoj [lindex $elem 1]
+        lappend fakMallong [lindex $elem 0]
+    }
+    set listoModo fakoj
+    my setList $fakoj ""
+}
+REVOLeksMontrilo instproc montruPorVorto vorto {
+    my instvar win databazo radikilo
+    set ovorto [string tolower $vorto]
+    set vorto [$radikilo radikigi $vorto]
+    set ret [$databazo trovuSencojn $vorto]
+    set odd 0
+    if {$ovorto ne $vorto && [llength [lindex $ret 0]]==0} {
+        set ret [$databazo trovuSencojn $ovorto]
+    }
+    if {[llength [lindex $ret 0]]==0} {
+    	if {[string first * $vorto]>=0} {
+            set ret [$databazo prenuDerivojDeMustero ${vorto}]
+        } else {
+            set ret [$databazo prenuDerivojDeMustero ${vorto}*]
+        }
+        my setList $ret $vorto
+        $win.out configure -state normal
+        $win.out delete 1.0 end
+        $win.out insert 1.0 [mc "vorto '%s' ne estis trovita" $vorto]
+        $win.out configure -state disabled
+        return 0
+    }
+    my montruRezulton $ret $vorto
+    return 1
+}
+REVOLeksMontrilo instproc montruRezulton {ret tvorto} {
+    my instvar win refTags reflisto refreshuListon databazo vorto listoModo
+    set vorto $tvorto
+    $win.out configure -state normal
+    $win.out delete 1.0 end
+    set reflisto [list]
+    set refNumero 0
+    set odd 0
+    foreach elem [lindex $ret 0] {
+       foreach {dif uzo} $elem {}
+       if {$odd} {
+           set odd 0
+           set additem odditem
+       } else {
+           set odd 1
+           set additem ""
+       }
+       if {$uzo ne ""} {
+    	   set bildo [my prenuBildonPorFako $uzo]
+           if {$bildo eq ""} {
+               $win.out insert end "\[$uzo\] "
+           } else {
+    	       $win.out image create end -image $bildo -align baseline
+           }
+       }
+       foreach {teksto tag} $dif {
+    	   set havasRef 0
+           set ntag [list]
+           foreach t $tag {
+               if {[lindex $t 0] eq "ref"} {
+                   set havasRef 1
+                   set refcilo [lindex $t 1]
+               } else {
+                   lappend ntag $t
+               }
+           }
+           if {$havasRef} {
+               if {[llength $refTags]<=$refNumero} {
+                   $win.out tag configure ref$refNumero -foreground blue
+                   $win.out tag bind ref$refNumero <ButtonPress-1> [list [self] referencoKliko $refNumero]
+                   $win.out tag bind ref$refNumero <Enter> [list $win.out tag configure ref$refNumero -font revofontnav]
+                   $win.out tag bind ref$refNumero <Leave> [list $win.out tag configure ref$refNumero -font revofont]
+                   lappend refTags ref$refNumero
+               }
+               lappend reflisto $refcilo
+               $win.out insert end $teksto [concat [lindex $refTags $refNumero] $ntag $additem]
+               incr refNumero
+           } else {
+               $win.out insert end "$teksto" [concat $tag $additem]
+           }
+       }
+       $win.out insert end \n $additem
+    }
+    if {$refreshuListon} {
+    	set listoModo vortoj
+        my setList [lindex $ret 1] $vorto
+    }
+    my setRefList [$databazo trovuCelantajAl [lindex $ret 2]]
+    $win.out configure -state disabled
+}
+REVOLeksMontrilo instproc prenuBildonPorFako fako {
+    set name fk_$fako
+    if {[lsearch [image names] $name]<0} {
+        set file [file join [EsperantoConf prenuFontoDosierujon] fakoj $fako.gif]
+        if {![file exists $file]} return
+        image create photo $name -format gif -file $file
+    }
+    return $name
+}
+REVOLeksMontrilo instproc referencoKliko numero {
+    my instvar reflisto win databazo radikilo
+    set ret [$databazo trovuMarkon [lindex $reflisto $numero]]
+    if {[llength [lindex $ret 1]]==0} {
+        return 0
+    }
+    my montruRezulton [lrange $ret 0 end-1] [lindex $ret end]
+    my aliguElemento [lindex $ret end]
+}
+REVOLeksMontrilo instproc selektuReferencon {} {
+    my instvar win refListo databazo
+    set cur [lindex [$win.reflisto curselection] 0]
+    if {$cur eq ""} return
+    set ret [$databazo trovuMarkon [lindex [lindex $refListo $cur] 1]]
+    if {[llength [lindex $ret 1]]==0} {
+        return 0
+    }
+    my montruRezulton [lrange $ret 0 end-1] [lindex $ret end]
+    my aliguElemento [lindex $ret end]
+}
+REVOLeksMontrilo instproc selektuVorton {} {
+    my instvar win refreshuListon listoModo databazo fakMallong
+    set currsel [lindex [$win.listo curselection] 0]
+    if {$currsel eq ""} return
+    if {$listoModo eq "fakoj"} {
+        my setList [$databazo trovuFakvortojn [lindex $fakMallong $currsel]] ""
+        set listoModo vortoj
+    } else {
+    	set vorto [$win.listo get $currsel]
+    	$win.toolbar.vorto delete 0 end
+        $win.toolbar.vorto insert 0 $vorto
+        set refreshuListon 0
+        my sxercxuVorto
+        set refreshuListon 1
+    }
+}
+REVOLeksMontrilo instproc setList {listItems activeItem} {
+    my instvar win
+    $win.listo delete 0 end
+    $win.listo insert 0 {*}$listItems
+    if {$activeItem ne ""} {
+        set cur [lsearch $listItems $activeItem]
+        $win.listo selection set $cur $cur
+    }
+}
+REVOLeksMontrilo instproc setRefList listItems {
+    my instvar win refListo
+    set refListo $listItems
+    $win.reflisto delete 0 end
+    foreach e $listItems {
+        $win.reflisto insert end "[lindex $e 0] [lindex $e 2]"
+    }
+}
+REVOLeksMontrilo instproc specificInit {} {
+    my instvar win montruOftecon maksRezulto radikilo refTags refreshuListon vorto listoModo
+    set montruOftecon 1
+    my requireNamespace
+    set maksRezulto 100
+    set radikilo [Radikilaro prenuPorLingvo eo]
+    set refTags	[list]
+    set refreshuListon 1
+    set listoModo vortoj
+
+    EsperantoConf prenuRevoFont
+
+    IDE::Toolbar create [self]::@toolbar $win.toolbar
+
+    frame $win.toolbar.t
+    entry $win.toolbar.vorto -textvariable [self]::vorto
+    button $win.toolbar.trovu -width 8 -text [mc "Ek"] -command [list [self] sxercxuVorto]
+    bind $win.toolbar.vorto <Return> [list [self] sxercxuVorto]
+    esp::metuXEvento $win.toolbar.vorto
+
+    pack $win.toolbar.vorto -in $win.toolbar.t -side left -padx 10
+    pack $win.toolbar.trovu -in $win.toolbar.t -side left
+    my @toolbar addWin $win.toolbar.t 0.2
+
+    panedwindow $win.hpanedwin -orient horizontal
+    panedwindow $win.panedwin -orient vertical
+    frame $win.vlisto
+    frame $win.rlisto
+
+    scrollbar $win.scroll -command [list $win.listo yview] -takefocus 0
+    listbox $win.listo -yscroll [list $win.scroll set] -height 6 -width 15
+    bind $win.listo <<ListboxSelect>> [list [self] selektuVorton]
+    pack $win.listo -expand yes -fill both -in $win.vlisto -side left
+    pack $win.scroll -fill y -in $win.vlisto -side left
+
+    scrollbar $win.rscroll -command [list $win.reflisto yview] -takefocus 0
+    listbox $win.reflisto -yscroll [list $win.rscroll set] -height 3 -width 15
+    bind $win.reflisto <<ListboxSelect>> [list [self] selektuReferencon]
+    pack $win.reflisto -expand yes -fill both -in $win.rlisto -side left
+    pack $win.rscroll -fill y -in $win.rlisto -side left
+
+    $win.panedwin add $win.vlisto $win.rlisto
+
+    frame $win.tframe
+    scrollbar $win.tscroll -command [list $win.out yview] -takefocus 0
+    text $win.out -yscroll [list $win.tscroll set] -font revofont -takefocus 0 -wrap word -height 2 -width 10
+    pack $win.out -in $win.tframe -fill both -expand yes -side left
+    pack $win.tscroll -in $win.tframe -fill y -side left
+
+    $win.hpanedwin add $win.panedwin $win.tframe
+
+    $win.out tag configure odditem -background LemonChiffon2
+    $win.out tag configure ekz -foreground SlateGray4
+    $win.out tag configure em -background burlywood1
+    $win.out configure -takefocus 0
+
+    pack $win.toolbar -fill x
+    pack $win.hpanedwin -fill both -expand yes
+
+    focus $win.toolbar.vorto
+
+    set geo [EsperantoConf set prefGeometryRevo]
+    if {$geo ne ""} {
+        wm geometry $win $geo
+    }
+
+}
+REVOLeksMontrilo instproc sxangxiLiterGrandecon {} {
+    EsperantoConf sxangxiLiterGrandecon revoLiterGrandeco revofont
+    EsperantoConf sxangxiLiterGrandecon revoLiterGrandeco revofontnav
+}
+REVOLeksMontrilo instproc sxercxuVorto {{vorto {}}} {
+    my instvar win databazo radikilo
+    if {$vorto eq ""} {
+        set vorto [$win.toolbar.vorto get]
+    }
+    if {$vorto eq ""} return
+    if {[my montruPorVorto $vorto]} {
+        my aliguElemento $vorto
+    }
+}
+REVOLeksMontrilo proc initializeAfterLoad {} {
+    NavigadaKronikoMix initHistory [self]
+}
+@ REVOLeksMontrilo proc newBrowser {} {
+description {Uzula interfaco de REVO Montrilo}
+}
+REVOLeksMontrilo proc newBrowser {{vorto {}}} {
+    EsperantoConf statAktiono RV
+    my instvar instanco
+    if {![info exists instanco] || ![Object isobject $instanco]} {
+    	set frek [REVOdatabazoSQL prenuBazon]
+        if {$frek ne ""} {
+            set instanco [my new [Object autoname .revo] -databazo $frek]
+        } else {
+            return
+        }
+    }
+    if {$vorto ne ""} {
+        $instanco sxercxuVorto $vorto
+    }
+    return $instanco
+}
+Class REVOdatabazo
+@ ::REVOdatabazo idemeta component EspRevoMontrilo
+REVOdatabazo instproc destroy {} {
+    my instvar db
+    catch {
+        if {[info exists db]} {
+            mk::file close $db
+        }
+    }
+    next
+}
+REVOdatabazo instproc malfermuDeDosiero dosiero {
+    package require Mk4tcl
+    my instvar db
+    set db [Object autoname revo]
+    mk::file open $db $dosiero
+}
+REVOdatabazo instproc prenuDerivojDeMustero mustero {
+    my instvar db
+    set ret [list]
+    foreach did [mk::select $db.derivoj -glob derivo $mustero] {
+        lappend ret [mk::get $db.derivoj!$did derivo]
+    }
+    return $ret
+}
+REVOdatabazo instproc prenuRadiko radiko {
+    # enter the body hier
+}
+REVOdatabazo instproc prenuRadikojDeMustero mustero {
+    my instvar db
+    set ret [list]
+    foreach did [mk::select $db.radikoj -glob radiko $mustero] {
+        lappend ret [mk::get $db.radikoj!$did radiko]
+    }
+    return $ret
+}
+REVOdatabazo instproc trovuCelantajAl markoj {
+    my instvar db
+    set ret [list]
+    foreach marko $markoj {
+        foreach id [mk::select $db.referencoj -exact almarko $marko] {
+    	    lappend ret [mk::get $db.referencoj!$id elvorto elmarko tipo]
+        }
+    }
+    return $ret
+}
+REVOdatabazo instproc trovuFakvortojn fako {
+    my instvar db
+    set vortoj [list]
+    mk::loop derivoc $db.derivoj {
+    	if {[llength [mk::select $derivoc.sencoj -exact uzo $fako]]>0} {
+    	    lappend vortoj [mk::get $derivoc derivo]
+        }
+    }
+    return $vortoj
+}
+REVOdatabazo instproc trovuMarkon marko {
+    my instvar db
+    set ret [list]
+    set vorto ""
+    set omarko $marko
+    set dmarko ""
+    set markoj [list]
+    append markoj $marko
+
+    set sercxmarkoj [list]
+    lappend sercxmarkoj $marko ""
+    if {[regexp {^(.+\..+)\..+$} $marko _ dmarko]} {
+        lappend sercxmarkoj $dmarko $dmarko
+    }
+    set trovis 0
+    foreach {marko dmarko} $sercxmarkoj	{
+        #puts "suche $marko"
+        foreach did [mk::select $db.derivoj -exact marko $marko] {
+            mk::loop c $db.derivoj!$did.sencoj {
+                if {$dmarko ne ""} {
+                    set smarko [mk::get $c marko]
+                    if {$smarko eq $omarko || [string first $omarko $smarko]>=0} {
+                        lappend ret [mk::get $c difino uzo]
+                    }
+                } else {
+                    lappend ret [mk::get $c difino uzo]
+                }
+            }
+            set vorto [mk::get $db.derivoj!$did derivo]
+            set marko [mk::get $db.derivoj!$did marko]
+            if {$marko ne "" && [lsearch $markoj $marko]<0} {
+                lappend markoj $marko
+            }
+            set trovis 1
+            break
+        }
+        if {$trovis} {
+            break
+        }
+    }
+    set fratoj [list]
+    if {[llength $ret]>0} {
+        set radikoid [mk::get $db.derivoj!$did radikoid]
+    	foreach did [mk::select $db.derivoj -exact radikoid $radikoid] {
+      	   lappend fratoj [mk::get $db.derivoj!$did derivo]
+        }
+    }
+    list $ret $fratoj $markoj $vorto
+}
+REVOdatabazo instproc trovuSencojn vorto {
+    my instvar db
+    set ret [list]
+    set markoj [list]
+    foreach did [mk::select $db.derivoj -exact derivo $vorto] {
+        mk::loop c $db.derivoj!$did.sencoj {
+            lappend ret [mk::get $c difino uzo]
+    	    set marko [mk::get $c marko]
+            if {$marko ne ""} {
+                lappend markoj $marko
+            }
+        }
+    	set marko [mk::get $db.derivoj!$did marko]
+        if {$marko ne ""} {
+            lappend markoj $marko
+        }
+    }
+    set fratoj [list]
+    if {[llength $ret]>0} {
+        set radikoid [mk::get $db.derivoj!$did radikoid]
+    	foreach did [mk::select $db.derivoj -exact radikoid $radikoid] {
+      	   lappend fratoj [mk::get $db.derivoj!$did derivo]
+        }
+    }
+    list $ret $fratoj $markoj
+}
+REVOdatabazo proc prenuBazon {} {
+    my instvar bazo
+    if {![info exists bazo] || ![Object isobject $bazo]} {
+        set dosiero [file join [EsperantoConf prenuVortaroDosierujo] revo.db]
+        if {![file exists $dosiero]} {
+            IDE::Dialog error "$dosiero ne ekzistas"
+            return
+        }
+        set bazo [my new]
+        $bazo malfermuDeDosiero $dosiero
+    }
+    return $bazo
+}
+REVOdatabazo proc prenuFakojn {} {
+  return {AGR agrokulturo ANA {homa anatomio} ARKE arkeologio ARKI arkitekturo AST astronomio AUT aŭtomobiloj AVI aviado BAK {bakteriologio virusologio} BELA belartoj BELE beletro BIB biblio BIO {biologio biontologio} BOT botaniko BUD budhismo EKON {ekonomiko financo komerco} EKOL ekologio ELE elektro ELET elektrotekniko ESP esperantismo FER fervojoj FIL filozofio FIZL fiziologio FIZ fiziko FON fonetiko FOT {fotografio optiko} GEN genealogio GEOD {geodezio topografio} GEOG geografio GEOL geologio GRA gramatiko HER heraldiko HIS historio HOR {hortikulturo arbokulturo silvikulturo} ISL islamo JUR juro KAL {kalendaro tempomezurado} KAT katolikismo KEM {kemio biokemio} KIN kinoarto KIR kirurgio KOMP komputiko KON konstrutekniko KRI kristanismo KUI kuirarto LIN {lingvistiko filologio} MAR maraferoj MAS {maŝinoj mekaniko} MAT matematiko MAH {materialismo historia} MED {medicino farmacio} MET meteologio MIL militaferoj MIN mineralogio MIT mitologio MUZ muziko NOM nomoj PAL paleontologio PED pedagogio PERS personoj POE {poetiko poezio} POL {politiko sociologio administrado} POSX poŝto PRA prahistorio PSI {psikologio psikiatrio} RAD radiofonio REL religioj SCI sciencoj SPO sporto SHI {ŝipkonstruado navigado} TEA teatro TEK teknikoj TEKS teksindustrio TEL telekomunikoj TIP {presarto libroj} TRA trafiko ZOO zoologio}
+}
+Class REVOdatabazoSQL -superclass ::REVOdatabazo
+@ ::REVOdatabazoSQL idemeta component EspRevoMontrilo
+REVOdatabazoSQL instproc destroy {} {
+    my instvar connection
+    catch {$connection destroy}
+    next
+}
+REVOdatabazoSQL instproc kreuOpenOfficeTh {} {
+    my instvar connection
+    set f [open th_eo.dat w]
+    set lvorto ""
+    puts $f "UTF-8"
+    foreach row [$connection queryList "select elvorto,alvorto from referenco where tipo in ('sin','vid') order by elvorto"] {
+        lassign $row elvorto alvorto
+        if {$alvorto eq "" || $elvorto eq ""} continue
+        if {![esp::enhavasEsparantajLiteroj $elvorto]} continue
+        if {[string first - $elvorto]==0} continue
+        if {[string index $elvorto end] ne [string index $alvorto end]} continue
+        if {$lvorto ne $elvorto} {
+            if {$lvorto eq ""} {
+                puts $f "$elvorto|1"
+            } else {
+                puts $f "\n$elvorto|1"
+            }
+            puts -nonewline $f "-|$alvorto"
+            set lvorto $elvorto
+        } else {
+            puts -nonewline $f "|$alvorto"
+        }
+    }
+    close $f
+    exec ./th_gen_idx.pl <th_eo.dat >th_eo.idx
+}
+REVOdatabazoSQL instproc malfermuDeDosiero dosiero {
+    my instvar connection
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set connection [$iclass new -childof [self]]
+    $connection connect [list sqlfile $dosiero noMeta 1]
+}
+REVOdatabazoSQL instproc prenuCiujnDerivojn {} {
+    my instvar connection
+    set derivoj [list]
+    foreach row [$connection queryList "select derivo from derivo order by derivo"] {
+        lappend derivoj [lrange $row 0 1]
+    }
+    join $derivoj \n
+}
+REVOdatabazoSQL instproc prenuDerivojDeMustero mustero {
+    my instvar connection
+    set mustero [string map [list * % ? _ ' \\'] $mustero]
+    set ret [list]
+    foreach row [$connection queryList "select derivo from derivo where derivo like '$mustero'"] {
+        lappend ret [lindex $row 0]
+    }
+    return $ret
+}
+REVOdatabazoSQL instproc prenuRadikojDeMustero mustero {
+    my instvar connection
+    set mustero [string map [list * % ? _ ' \\'] $mustero]
+    set ret [list]
+    foreach row [$connection queryList "select radiko from radiko where radiko like '$mustero'"] {
+        lappend ret [lindex $row 0]
+    }
+    return $ret
+}
+REVOdatabazoSQL instproc prenuTrNTrListon {} {
+    my instvar connection
+    set ret ""
+    set vortaro [Vortaro prenuVortaron]
+    foreach row [$connection queryList "select derivo,derivoid from derivo where derivo like '%i' order by derivo"] {
+        lassign $row derivo derivoid
+        if {[llength [$connection queryList "select sencoid from senco where derivoid=$derivoid and difino like '%{tr }%'"]]>0} {
+           #append ret "# $derivo tr\n"
+           if {[$vortaro estasVorto $derivo]==2} {
+               if {[lindex [$vortaro set derivolisto] 1] ne "igi" && "trans" ni [lindex [$vortaro set derivolisto] 2]} {
+                   append ret "\[Radiko pr [$vortaro set radiko]\] metuDerivoAttr [list [lindex [$vortaro set derivolisto] 0]] [lindex [$vortaro set derivolisto] 1] [list [concat [lindex [$vortaro set derivolisto] 2] trans]]\n"
+               }
+           } else {
+               append ret "# !!! malkonata $derivo\n"
+           }
+        } elseif {[llength [$connection queryList "select sencoid from senco where derivoid=$derivoid and difino like '%{ntr }%'"]]>0} {
+            #append ret "# $derivo ntr\n"
+            if {[$vortaro estasVorto $derivo]==2} {
+               if {"trans" in [lindex [$vortaro set derivolisto] 2]} {
+                   set mod [lindex [$vortaro set derivolisto] 2]
+                   ide::lremove mod trans
+                   append ret "\[Radiko pr [$vortaro set radiko]\] metuDerivoAttr [list [lindex [$vortaro set derivolisto] 0]] [lindex [$vortaro set derivolisto] 1] [list $mod]\n"
+               }
+           } else {
+               append ret "# !!! malkonata $derivo\n"
+           }
+        }
+    }
+    return $ret
+}
+REVOdatabazoSQL instproc trovuCelantajAl markoj {
+    my instvar connection
+    set ret [list]
+    foreach marko $markoj {
+        foreach row [$connection queryList "select elvorto,elmarko,tipo from referenco where almarko = '$marko'"] {
+            lappend ret $row
+        }
+        if {[regexp {^(.+\..+)\..+$} $marko _ dmarko]} {
+            if {$dmarko ni $markoj} {
+                foreach row [$connection queryList "select elvorto,elmarko,tipo from referenco where almarko = '$dmarko'"] {
+                    lappend ret $row
+                }
+            }
+        }
+    }
+    lsort -index 0 $ret
+}
+REVOdatabazoSQL instproc trovuFakvortojn fako {
+    my instvar connection
+    set vortoj [list]
+    foreach row [$connection queryList "select derivo from derivo d,senco s where s.uzo ='$fako' and s.derivoid=d.derivoid"] {
+        lappend vortoj [lindex $row 0]
+    }
+    return $vortoj
+}
+REVOdatabazoSQL instproc trovuMarkon marko {
+    my instvar connection
+    set ret [list]
+    set vorto ""
+    set omarko $marko
+    set dmarko ""
+    set markoj [list]
+    append markoj $marko
+
+    set sercxmarkoj [list]
+    lappend sercxmarkoj $marko ""
+    if {[regexp {^(.+\..+)\..+$} $marko _ dmarko]} {
+        lappend sercxmarkoj $dmarko $dmarko
+    }
+    set trovis 0
+
+    foreach {marko dmarko} $sercxmarkoj	{
+        #puts "suche $marko"
+        foreach row [$connection queryList "select difino,uzo,d.marko,s.marko,derivo from derivo d, senco s where d.marko='$marko' and d.derivoid=s.derivoid"] {
+            if {$dmarko ne ""} {
+                set smarko [lindex $row 3]
+                if {$smarko eq $omarko || [string first $omarko $smarko]>=0} {
+                     lappend ret [lrange $row 0 1]
+                } else {
+                    continue
+                }
+            } else {
+                lappend ret [lrange $row 0 1]
+            }
+            set vorto [lindex $row 4]
+            set marko [lindex $row 2]
+            if {$marko ne "" && [lsearch $markoj $marko]<0} {
+                lappend markoj $marko
+            }
+            set trovis 1
+            break
+        }
+        if {$trovis} {
+            break
+        }
+    }
+
+    set fratoj [list]
+    if {[llength $ret]>0} {
+        foreach row [$connection queryList "select d2.derivo from radiko r,derivo d1,derivo d2 where r.radikoid=d1.radikoid and r.radikoid=d2.radikoid and d1.derivo = '$vorto' and d1.derivoid<>d2.derivoid and d2.derivo<>d1.derivo" ] {
+            lappend fratoj [lindex $row 0]
+        }
+        if {[llength $fratoj] == 0} {
+            lappend fratoj $vorto
+        }
+    }
+    list $ret $fratoj $markoj $vorto
+}
+REVOdatabazoSQL instproc trovuSencojn vorto {
+    my instvar connection
+    set ret [list]
+    set markoj [list]
+    foreach row [$connection queryList "select difino,uzo,d.marko as m1,s.marko as m2 from derivo d, senco s where d.derivo='$vorto' and d.derivoid=s.derivoid"] {
+        lappend ret [lrange $row 0 1]
+        if {[lindex $row 2] ne ""} {
+            lappend markoj [lindex $row 2]
+        }
+        if {[lindex $row 3] ne ""} {
+            lappend markoj [lindex $row 3]
+        }
+    }
+    set markoj [lsort -unique $markoj]
+    set fratoj [list]
+    if {[llength $ret]>0} {
+        foreach row [$connection queryList "select d2.derivo from radiko r,derivo d1,derivo d2 where r.radikoid=d1.radikoid and r.radikoid=d2.radikoid and d1.derivo = '$vorto'"] {
+            lappend fratoj [lindex $row 0]
+        }
+    }
+    list $ret $fratoj $markoj
+}
+REVOdatabazoSQL proc prenuBazon {} {
+    my instvar bazo
+    if {![info exists bazo] || ![Object isobject $bazo]} {
+        set dosiero [my prenuRevoDosierujo]
+        if {![file exists $dosiero]} {
+            IDE::Dialog error "$dosiero ne ekzistas"
+            return
+        }
+        set bazo [my new]
+        $bazo malfermuDeDosiero $dosiero
+    }
+    return $bazo
+}
+REVOdatabazoSQL proc prenuRevoDosierujo {} {
+    file join [EsperantoConf prenuVortaroDosierujo] revo.sql
+}
+REVOLeksMontrilo initializeAfterLoad
+

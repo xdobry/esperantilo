@@ -1,0 +1,2743 @@
+# automatically generated from XOTclIDE
+# script require component IDEBaseGUI
+@ Component EspTMServilo {
+description {'''TM''' - Traduka Memoro
+Funkcioj por traduko memoro:
+   * Konservado per Metakit
+   * Nur en labora memoro
+   * Importado de TMX, XLIFF
+   * Eksportado al TMX
+   * ''Fuzzy Search''
+   * Subteno de vortbazitaj indeksoj}
+}
+package provide EspTMServilo 0.993
+package require IDEBaseGUI
+namespace eval ::crc {}
+@ tclproc crc::CRC-32 idemeta struct EspTMServilo crc
+proc crc::CRC-32 {s {seed 0xFFFFFFFF}} {
+    variable table
+    if {![info exists table(crc32)]} {
+        variable polynomial
+        set table(crc32) [Crc_table 32 $polynomial(crc32) 1]
+    }
+
+    return [Crc $s 32 [namespace current]::table(crc32) $seed 0xFFFFFFFF 1]
+}
+@ tclproc crc::CRC-CCITT idemeta struct EspTMServilo crc
+proc crc::CRC-CCITT {s {seed 0}} {
+    variable table
+    if {![info exists table(ccitt)]} {
+        variable polynomial
+        set table(ccitt) [Crc_table 16 $polynomial(ccitt) 0]
+    }
+
+    return [Crc $s 16 [namespace current]::table(ccitt) $seed 0 0]
+}
+@ tclproc crc::CRC16 idemeta struct EspTMServilo crc
+proc crc::CRC16 {s {seed 0}} {
+    variable table
+    if {![info exists table(crc16)]} {
+        variable polynomial
+        set table(crc16) [Crc_table 16 $polynomial(crc16) 1]
+    }
+
+    return [Crc $s 16 [namespace current]::table(crc16) $seed 0 1]
+}
+@ tclproc crc::Crc idemeta struct EspTMServilo crc
+proc crc::Crc {s width table {init 0} {xorout 0} {reflected 0}} {
+    upvar $table tbl
+    variable signbit
+    set signmask [expr {~$signbit>>7}]
+
+    if {$width < 32} {
+        set mask   [expr {(1 << $width) - 1}]
+        set rot    [expr {$width - 8}]
+    } else {
+        set mask   0xffffffff
+        set rot    24
+    }
+
+    set crc $init
+    binary scan $s c* data
+    foreach {datum} $data {
+        if {$reflected} {
+            set ndx [expr {($crc ^ $datum) & 0xFF}]
+            set lkp [lindex $tbl $ndx]
+            set crc [expr {($lkp ^ ($crc >> 8 & $signmask)) & $mask}]
+        } else {
+            set ndx [expr {(($crc >> $rot) ^ $datum) & 0xFF}]
+            set lkp [lindex $tbl $ndx]
+            set crc [expr {($lkp ^ ($crc << 8 & $signmask)) & $mask}]
+        }
+    }
+
+    return [expr {$crc ^ $xorout}]
+}
+@ tclproc crc::Crc_table idemeta struct EspTMServilo crc
+proc crc::Crc_table {width poly reflected} {
+    set tbl {}
+    if {$width < 32} {
+        set mask   [expr {(1 << $width) - 1}]
+        set topbit [expr {1 << ($width - 1)}]
+    } else {
+        set mask   0xffffffff
+        set topbit 0x80000000
+    }
+
+    for {set i 0} {$i < 256} {incr i} {
+        if {$reflected} {
+            set r [reflect $i 8]
+        } else {
+            set r $i
+        }
+        set r [expr {$r << ($width - 8)}]
+        for {set k 0} {$k < 8} {incr k} {
+            if {[expr {$r & $topbit}] != 0} {
+                set r [expr {($r << 1) ^ $poly}]
+            } else {
+                set r [expr {$r << 1}]
+            }
+        }
+        if {$reflected} {
+            set r [reflect $r $width]
+        }
+        lappend tbl [expr {$r & $mask}]
+    }
+    return $tbl
+}
+@ tclproc crc::Pop idemeta struct EspTMServilo crc
+proc crc::Pop {varname {nth 0}} {
+    upvar $varname args
+    set r [lindex $args $nth]
+    set args [lreplace $args $nth $nth]
+    return $r
+}
+@ tclproc crc::crc idemeta struct EspTMServilo crc
+proc crc::crc args {
+    array set opts [list filename {} channel {} chunksize 4096  format %u  seed 0  impl [namespace origin CRC16]]
+    
+    while {[string match -* [set option [lindex $args 0]]]} {
+        switch -glob -- $option {
+            -fi*  { set opts(filename) [Pop args 1] }
+            -cha* { set opts(channel) [Pop args 1] }
+            -chu* { set opts(chunksize) [Pop args 1] }
+            -fo*  { set opts(format) [Pop args 1] }
+            -i*   { set opts(impl) [uplevel 1 namespace origin [Pop args 1]] }
+            -s*   { set opts(seed) [Pop args 1] }
+            --    { Pop args ; break }
+            default {
+                set options [join [lsort [array names opts]] ", -"]
+                return -code error "bad option $option: must be one of -$options"
+            }
+        }
+        Pop args
+    }
+
+    if {$opts(filename) != {}} {
+        set opts(channel) [open $opts(filename) r]
+        fconfigure $opts(channel) -translation binary
+    }
+
+    if {$opts(channel) != {}} {
+        set r $opts(seed)
+        set trans [fconfigure $opts(channel) -translation]
+        fconfigure $opts(channel) -translation binary
+        while {![eof $opts(channel)]} {
+            set chunk [read $opts(channel) $opts(chunksize)]
+            set r [$opts(impl) $chunk $r]
+        }
+        fconfigure $opts(channel) -translation $trans
+        if {$opts(filename) != {}} {
+            close $opts(channel)
+        }
+    } else {
+        if {[llength $args] != 1} {
+            return -code error "wrong \# args: should be \"crc16 ?-format string? ?-seed value? ?-impl procname? -file name | data\""
+        }
+        set r [$opts(impl) [lindex $args 0] $opts(seed)]
+    }
+    return [format $opts(format) $r]
+}
+@ tclproc crc::crc-32 idemeta struct EspTMServilo crc
+proc crc::crc-32 args {
+    return [eval [list crc -impl [namespace origin CRC-32] -seed 0xFFFFFFFF] $args]
+}
+@ tclproc crc::crc-ccitt idemeta struct EspTMServilo crc
+proc crc::crc-ccitt args {
+    return [eval [list crc -impl [namespace origin CRC-CCITT] -seed 0xFFFF] $args]
+}
+@ tclproc crc::crc16 idemeta struct EspTMServilo crc
+proc crc::crc16 args {
+    return [eval [list crc -impl [namespace origin CRC16]] $args]
+}
+@ tclproc crc::init idemeta struct EspTMServilo crc
+proc crc::init {} {
+    #namespace export crc16 crc-ccitt crc-32
+
+    variable crc16_version 1.1
+
+
+    # Standard CRC generator polynomials.
+    variable polynomial
+    set polynomial(crc16) [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
+    set polynomial(ccitt) [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
+    set polynomial(crc32) [expr {(1<<32) | (1<<26) | (1<<23) | (1<<22)
+                                 | (1<<16) | (1<<12) | (1<<11) | (1<<10)
+                                 | (1<<8) | (1<<7) | (1<<5) | (1<<4)
+                                 | (1<<2) | (1<<1) | 1}]
+
+    # Array to hold the generated tables
+    variable table
+    if {![info exists table]} { array set table {}}
+
+    # calculate the sign bit for the current platform.
+    variable signbit
+    if {![info exists signbit]} {
+        variable v
+        for {set v 1} {int($v) != 0} {set signbit $v; set v [expr {$v<<1}]} {}
+        unset v
+    }
+}
+@ tclproc crc::reflect idemeta struct EspTMServilo crc
+proc crc::reflect {v b} {
+    set t $v
+    for {set i 0} {$i < $b} {incr i} {
+        set v [expr {($t & 1) ? ($v | (1<<(($b-1)-$i))) : ($v & ~(1<<(($b-1)-$i))) }]
+        set t [expr {$t >> 1}]
+    }
+    return $v
+}
+@ tclproc crc::xmodem idemeta struct EspTMServilo crc
+proc crc::xmodem args {
+    return [eval [list crc -impl [namespace origin CRC-CCITT] -seed 0] $args]
+}
+namespace eval ::estrings {}
+@ tclproc estrings::and idemeta struct EspTMServilo estrings
+proc estrings::and {L1 L2} {
+    set res {}
+    foreach i $L1 {set a($i) 1}
+    foreach i $L2 {set b($i) 1}
+    foreach i [array names a] {
+        if {[info exists b($i)]} {
+            lappend res $i
+        }
+    }
+    set res
+ }
+@ tclproc estrings::bigramMatch idemeta struct EspTMServilo estrings
+proc estrings::bigramMatch {string1 string2 {scale 100}} {
+    set b1 [bigrams $string1]
+    set b2 [bigrams $string2]
+    expr {$scale * [llength [and $b1 $b2]]/[llength [or $b1 $b2]]}
+ }
+@ tclproc estrings::bigrams idemeta struct EspTMServilo estrings
+proc estrings::bigrams string {
+    set res {}
+    set last " "
+    foreach char [split "$string " ""] {
+        lappend res $last$char
+        set last $char
+    }
+    set res
+}
+@ tclproc estrings::levenshteinDistance idemeta struct EspTMServilo estrings
+proc estrings::levenshteinDistance {s t} {	
+    set n [string length $s]
+    set m [string length $t]
+		
+    if {$n==0} {
+        return $m
+    } elseif {$m==0} {
+        return $n
+    }
+		
+    for {set i 0} {$i<=$n} {incr i} {
+        lappend d 0
+    }
+		
+    # indexes into strings s and t
+    # int i; // iterates through s
+    # int j; // iterates through t
+    # int cost; // cost
+		
+    for {set i 0} {$i<=$n} {incr i} {
+        lappend p $i
+    }
+		
+    for {set j 1} {$j<=$m} {incr j} {
+        set t_j [string index $t [expr {$j-1}]]
+        lset d 0 $j
+			
+        for {set i 1} {$i<=$n} {incr i} {
+            set s_i [string index $s [expr {$i-1}]]
+            if {$s_i eq $t_j} {
+                set cost 0
+            } else {
+                set cost 1
+            }
+            # minimum of cell to the left+1, to the top+1, diagonally left and up +cost
+            lset d $i [min [expr {[lindex $d [expr {$i-1}]]+1}]  [expr {[lindex $p $i]+1}] [expr {[lindex $p [expr {$i-1}]]+$cost}]]
+        }
+			
+        # copy current distance counts to 'previous row' distance counts
+        set _d $p
+        set p $d
+        set d $_d
+    }
+		
+    # our last action in the above loop was to switch d and p, so p now
+    # actually has the most recent cost counts
+    lindex $p $n
+}
+@ tclproc estrings::max idemeta struct EspTMServilo estrings
+proc estrings::max args {lindex [lsort -real $args] end}
+@ tclproc estrings::min idemeta struct EspTMServilo estrings
+proc estrings::min args {lindex [lsort -real $args] 0}
+@ tclproc estrings::or idemeta struct EspTMServilo estrings
+proc estrings::or {L1 L2} {
+    foreach i [concat $L1 $L2] {set a($i) 1}
+    array names a
+ }
+@ tclproc estrings::string3Gramm idemeta struct EspTMServilo estrings
+proc estrings::string3Gramm str {
+    set str [regsub -all {[^a-z]} [string tolower $str] ""]
+    set rez [list]
+    set str " $str "
+    for {set x 0} {$x<[string length $str]-2} {incr x} {
+        lappend rez [string range $str $x [expr {$x+2}]]
+    }
+    return $rez
+}
+@ tclproc estrings::stringDistance2 idemeta struct EspTMServilo estrings
+proc estrings::stringDistance2 {a b} {
+     set n [string length $a]
+     set m [string length $b]
+     for {set i 0} {$i<=$n} {incr i} {set c($i,0) $i}
+     for {set j 0} {$j<=$m} {incr j} {set c(0,$j) $j}
+     for {set i 1; set i0 0} {$i<=$n} {incr i; incr i0} {
+         for {set j 1; set j0 0} {$j<=$m} {incr j; incr j0} {
+                set x [expr {$c($i0,$j)+1}]
+                set y [expr {$c($i,$j0)+1}]
+                set z $c($i0,$j0)
+                if {[string index $a $i0]!=[string index $b $j0]} {
+                        incr z
+                }
+                set c($i,$j) [min $x $y $z]
+            }
+        }
+        set c($n,$m)
+ }
+@ tclproc estrings::stringFuzzyMatch idemeta struct EspTMServilo estrings
+proc estrings::stringFuzzyMatch {str1 str2} {
+    set l1 [lsort -unique [trigrams $str1]]
+    set l2 [lsort -unique [trigrams $str2]]
+    set g 0
+    set i1 0
+    set i2 0
+    set len1 [llength $l1]
+    set len2 [llength $l2]
+    set t1 [lindex $l1 $i1]
+    set t2 [lindex $l2 $i2]
+    set l 0
+    while {$i1<$len1 && $i2<$len2} {
+        incr l
+        set r [string compare $t1 $t2]
+        if {$r==0} {
+            incr i1
+            set t1 [lindex $l1 $i1]
+            incr i2
+            set t2 [lindex $l2 $i2]
+            incr g
+        } elseif {$r==-1} {
+            incr i1
+            set t1 [lindex $l1 $i1]
+        } else {
+            incr i2
+            set t2 [lindex $l2 $i2]
+        }
+    }
+    if {$l>0} {
+        expr {(1.0*$g)/$l}
+    } else {
+        return 0
+    }
+}
+@ tclproc estrings::stringSimilarity idemeta struct EspTMServilo estrings
+proc estrings::stringSimilarity {a b} {
+    set totalLength [string length $a$b]
+    max [expr {double($totalLength-2*[stringDistance2 $a $b])/$totalLength}] 0.0
+}
+@ tclproc estrings::stringSimilarityLD idemeta struct EspTMServilo estrings
+proc estrings::stringSimilarityLD {a b} {
+    set totalLength [string length $a$b]
+    max [expr {double($totalLength-2*[levenshteinDistance $a $b])/$totalLength}] 0.0
+}
+@ tclproc estrings::stripNoChars idemeta struct EspTMServilo estrings
+proc estrings::stripNoChars string {
+    regsub -all {[^[:alpha:]]} $string {}
+}
+@ tclproc estrings::trigramMatch idemeta struct EspTMServilo estrings
+proc estrings::trigramMatch {string1 string2 {scale 100}} {
+    set b1 [trigrams $string1]
+    set b2 [trigrams $string2]
+    expr {$scale * [llength [and $b1 $b2]]/[llength [or $b1 $b2]]}
+ }
+@ tclproc estrings::trigrams idemeta struct EspTMServilo estrings
+proc estrings::trigrams string {
+    set rez [list]
+    set str " $string "
+    set l [expr {[string length $str]-2}]
+    for {set x 0} {$x<$l} {incr x} {
+        lappend rez [string range $str $x [expr {$x+2}]]
+    }
+    return $rez
+}
+@ Class TMRedaktilo {
+description {Redaktilo de traduka memoro}
+}
+Class TMRedaktilo -superclass {::IDE::Browser ::IDE::GUICommands} -parameter {fontaLingvo celaLingvo}
+@ ::TMRedaktilo idemeta categories {init-release navigado korektado importado-eksportado}
+@ ::TMRedaktilo idemeta categoriesMethods {{getTitle getMenuStruct createSystemMenu fillMenuStruct specificInit} {venuAlUnua venuAlSubAntaua venuAlSubSekva venuAlLasta venuAlAntaua venuAlSekva foriguTU} {prenuRezultoFenestro porCxiuVortoProgreso tausxuKunSugesto spellerrorRightbutton trovuLiterumajnErarojn aliguDerivonPorVorto prenuLiterumanVortaron literumu} {importXLIFF importTMX exportTMX exportTAB importTAB}}
+@ ::TMRedaktilo idemeta component EspTMServilo
+TMRedaktilo instproc aliguDerivonPorVorto vorto {
+    set vortaro [Vortaro prenuVortaron]
+    set erg [$vortaro estasVorto $vorto]
+    switch $erg {
+        0 {
+            EsperantoBrowser message [mc "radiko ne estas rekonata"]
+        }
+        1 {
+            NovaDerivoDlg aliguDerivonDeVortaro $vortaro
+        }
+        2 {
+            NovaDerivoDlg aliguDerivon [lindex [$vortaro set radiko] end] {} {}
+        }
+        3 {
+            EsperantoBrowser message [mc "vorto estas en ignorlisto"]
+        }
+    }
+}
+TMRedaktilo instproc createSystemMenu {} {
+    my createNonSystemMenu
+}
+TMRedaktilo instproc ekstraktuCelojn {} {
+    my instvar tmservilo
+    EsperantoBrowser redaktoTekston [$tmservilo ekstraktuCeloj 1]
+}
+TMRedaktilo instproc ekstraktuFontojn {} {
+    my instvar tmservilo
+    EsperantoBrowser redaktoTekston [$tmservilo ekstraktuFontoj 1]
+}
+TMRedaktilo instproc exportTAB {} {
+    my instvar tmservilo
+    $tmservilo exportTAB "" 1
+}
+TMRedaktilo instproc exportTMX {} {
+    my instvar tmservilo
+    $tmservilo exportTMX "" 1
+}
+TMRedaktilo instproc fillMenuStruct ms {
+    $ms enablementHandler [self]
+    $ms addCommand [mc "Malfermu tradukan memoron"] [list [self] redaktuDosieron]
+    $ms addCommand [mc "Elektu tradukan memoron"] [list [self] selektuMemoron]
+    $ms addCommand [mc "Kreu tradukan memoron"] [list [self] kreuTradukanMemoron]
+    $ms addSeparator
+    $ms addCommand [mc "Importu de TMX dosiero"] [list [self] importTMX]
+    $ms addCommand [mc "Importu de XLIFF dosiero"] [list [self] importXLIFF]
+    $ms addCommand [mc "Importu de TAB dosiero"] [list [self] importTAB]
+    $ms addCommand [mc "Eksportu al TMX dosiero"] [list [self] exportTMX]
+    $ms addCommand [mc "Eksportu al TAB dosiero"] [list [self] exportTAB]
+    $ms addCommand [mc "Ekstraktu fontajn tekstojn"] [list [self] ekstraktuFontojn]
+    $ms addCommand [mc "Ekstraktu celajn tekstojn"] [list [self] ekstraktuCelojn]
+    $ms addSeparator
+    $ms addCheckButton [mc "Testu per Literumilo"] [self]::uzuLiterumadon
+    $ms addCommand [mc "Literumu"] [list [self] literumu] 0 F2
+    $ms addCommand [mc "Trovu literumajn erarojn"] [list [self] trovuLiterumajnErarojn]
+    $ms addCommand [mc "Kreu vortaron (eksperimente)"] [list [self] kreuVortaron]
+    $ms addSeparator
+    $ms addCommand [mc "Konservu ŝanĝojn"] [list [self] konservuSxangxojn] 0 Control-s
+    $ms addCommand [mc "Venu al unua"] [list [self] venuAlUnua] 0 Control-f
+    $ms addCommand [mc "Venu al lasta"] [list [self] venuAlLasta] 0 Control-l
+    $ms addCommand [mc "Venu al sekvanta"] [list [self] venuAlSekva] 0 Control-n
+    $ms addCommand [mc "Venu al antaŭa"] [list [self] venuAlAntaua] 0 Control-p
+    $ms addCommand [mc "Forigu elementon"] [list [self] foriguTU] 0
+    $ms addSeparator
+    $ms addCommand [mc "Forlasu redaktilon"] [list [self] destroy]
+}
+TMRedaktilo instproc foriguRezulton {} {
+    my instvar rezultoListo tmservilo indekso lastaId tmNombro trovoVortoj
+    set trovoVortoj [list]
+    set rezultoListo [$tmservilo prenuIndeksojn]
+    set lastaId [expr {[llength $rezultoListo]-1}]
+    set tmNombro [llength $rezultoListo]
+    my setStatusBarText [mc "%s elementoj en tradukmemoro" [llength $rezultoListo]]
+    set indekso 0
+    my montruIndekson
+}
+TMRedaktilo instproc foriguTU {} {
+    my instvar tmservilo rezultoListo indekso
+    if {[EsperantoBrowser yesNo [mc "Ĉu forigi la tradukon kun fonto de memoro?"]] ne "yes"} {
+        return
+    }
+    $tmservilo foriguTU [lindex $rezultoListo $indekso]
+    set rezultoListo [lreplace $rezultoListo $indekso $indekso]
+    my setStatusBarText [mc "elemento estas forigita"]
+    my montruIndekson
+}
+TMRedaktilo instproc foriguTradukon {} {
+    my instvar tmservilo rezultoListo indekso tradukoj subid
+    if {[EsperantoBrowser yesNo [mc "Ĉu forigi la tradukon de memoro?"]] ne "yes"} {
+        return
+    }
+    if {[$tmservilo foriguTradukon [lindex $rezultoListo $indekso] [lindex $tradukoj $subid 1]]} {
+        set rezultoListo [lreplace $rezultoListo $indekso $indekso]
+    }
+    my setStatusBarText [mc "elemento estas forigita"]
+    my montruIndekson
+}
+TMRedaktilo instproc getMenuStruct {} {
+    IDE::MenuStruct create [self]::ms [mc "Redaktado"] 0
+}
+TMRedaktilo instproc getTitle {} {
+    return [mc "Redaktilo de tradukmemoro"]
+}
+TMRedaktilo instproc importTAB {} {
+    my instvar tmservilo
+    set file [IDE::Dialog getOpenFile {{{TAB text file} *.txt}}]
+    if {$file eq ""} return
+    set ret [$tmservilo importTAB $file 1]
+    if {$ret!=""} {
+        EsperantoBrowser message $ret
+    }
+    my foriguRezulton
+}
+TMRedaktilo instproc importTMX {} {
+    my instvar tmservilo
+    set file [IDE::Dialog getOpenFile {{{TMX Dosiero} *.tmx}}]
+    if {$file eq ""} return
+    set ret [$tmservilo importTMX $file 1]
+    if {$ret!=""} {
+        EsperantoBrowser message $ret
+    }
+    my foriguRezulton
+}
+TMRedaktilo instproc importXLIFF {} {
+     my instvar tmservilo
+    set file [IDE::Dialog getOpenFile {{{XLIFF Dosiero} {*.xliff *.xlf}}}]
+    if {$file eq ""} return
+    set ret [$tmservilo importXLIFF $file]
+    if {$ret!=""} {
+        EsperantoBrowser message $ret
+    }
+    my foriguRezulton
+}
+TMRedaktilo instproc konservuSxangxojn {} {
+    my instvar tmservilo indekso subid rezultoListo tradukoj uzuLiterumadon lastaRezulto
+    set twin [my prenuRezultoFenestro]
+    if {![$twin edit modified]} {
+        my setStatusBarText [mc "teksto ne havas ŝanĝojn"]
+        return
+    }
+    set teksto [my @cilo getText]
+    if {$uzuLiterumadon && $lastaRezulto ne $teksto && [my literumu]} {
+        set lastaRezulto $teksto
+        return
+    }
+    $tmservilo modifuTradukoListo [lindex $rezultoListo $indekso] [lindex $tradukoj $subid 1] $teksto
+    my setStatusBarText [mc "teksto estis konservita"]
+}
+TMRedaktilo instproc kreuTradukanMemoron {} {
+    my instvar tmservilo
+
+    set lingvoj [TradukaVortaroMontrilo lingvoListo]
+    set restoj [list]
+    foreach {lgv lingvo} $lingvoj {
+        lappend restoj [list $lgv $lingvo]
+    }
+    set s [::IDE::IDialogList getListItem [mc "Elektu la fontan lingvon"] $restoj]
+    if {$s ne ""} {
+        set fontaLingvo [lindex $s 0]
+    } else {
+        return
+    }
+
+    set restoj [list]
+    foreach {lgv lingvo} $lingvoj {
+        lappend restoj [list $lgv $lingvo]
+    }
+    set s [::IDE::IDialogList getListItem [mc "Elektu la fontan lingvon"] $restoj]
+    if {$s ne ""} {
+        set celaLingvo [lindex $s 0]
+    } else {
+        return
+    }
+    if {$celaLingvo eq $fontaLingvo} {
+        return
+    }
+
+    set dosiero [IDE::Dialog getSaveFile tm-$fontaLingvo-$celaLingvo.tmsql {{{Esperantilo TM} *.tmsql}} .tmsql]
+
+    set tmservilo [TMServiloSQL new -childof [self] -fontolingvo $fontaLingvo -lingvo $celaLingvo]
+    $tmservilo malfermuMK $dosiero
+    my setTitleAddition "[$tmservilo set fontolingvo]-[$tmservilo set lingvo] [file tail [$tmservilo set dosiero]]"
+    my foriguRezulton
+}
+TMRedaktilo instproc kreuVortaron {} {
+    my instvar tmservilo fontaLingvo celaLingvo
+    if {$fontaLingvo ne "eo" && $celaLingvo ne "eo"} {
+        IDE::Dialog message [mc "Unu de lingvoj devas esti Esperanto"]
+        return
+    }
+    if {$fontaLingvo eq "eo"} {
+        set reverse 0
+        set clingvo $celaLingvo
+    } else {
+        set reverse 1
+        set clingvo $fontaLingvo
+    }
+    set analizo [ParalelTekstoAnalizilo new -childof [self]]
+    set fanalizilo [ParalelFrazoAnalizilo newForLingvo $clingvo]
+    set elementoj [$tmservilo prenuIndeksojn]
+    set prog [ProgresoMontrilo startProgress "Anlizu tekston"]
+    set count [llength $elementoj]
+    set i 0
+    foreach id $elementoj {
+        $prog setProgress  [expr {round(100.0*$i/$count)}]
+        update
+        if {[$prog isStopped]} {
+            break
+        }
+        foreach {fonto tradukoj} [$tmservilo prenuTradukListo $id] {
+            foreach traduko $tradukoj {
+                set fonto [string map [list & ""] $fonto]
+                set traduko [string map [list & ""] [lindex $traduko 0]]
+                if {$reverse} {
+                    $fanalizilo analizuFrazoj $traduko $fonto
+                } else {
+                    $fanalizilo analizuFrazoj $fonto $traduko
+                }
+                $analizo analizo $fanalizilo
+            }
+        }
+        incr i
+    }
+    set ret [$analizo komputuVortaroPropono]
+    $analizo destroy
+    $fanalizilo destroy
+    if {$prog ne ""} {
+       $prog cleanUpAfterSignal
+       $prog destroy
+    }
+    EsperantoBrowser redaktoTekston $ret
+}
+TMRedaktilo instproc literumu {} {
+    my instvar uzuLiterumadon
+    set literumaVortaro [my prenuLiterumanVortaron]
+    if {$literumaVortaro eq ""} {
+        set uzuLiterumadon 0
+        return 0
+    }
+
+    set twin [my prenuRezultoFenestro]
+
+    $twin tag remove spellerror 1.0 end
+    $twin tag remove raderror 1.0 end
+    set vortoj 0
+    set errors 0
+    set raderrors 0
+    my porCxiuVortoProgreso vorto cur count {
+        incr vortoj
+        if {[EsperantoConf set ignoruMallongigoj] && [string toupper $vorto] eq $vorto} continue
+        if {[string length $vorto]==1} continue
+        set erg [$literumaVortaro estasVorto $vorto]
+        if {$erg==0} {
+            $twin tag add spellerror $cur "$cur + $count char"
+            incr errors
+        } elseif {$erg==1 && ![EsperantoConf set ignoruDerivoj]} {
+            $twin tag add raderror $cur "$cur + $count char"
+            incr raderrors
+        }
+    }
+    if {$uzuLiterumadon} {
+        my setStatusBarText [mc "%s eraroj. Akceptu denove por ignori tion." [expr {$errors+$raderrors}]]
+    } else {
+        my setStatusBarText [mc "%s eraroj" [expr {$errors+$raderrors}]]
+    }
+    expr {$raderrors+$errors>0}
+}
+TMRedaktilo instproc metuServilon servilo {
+    my instvar tmservilo fontaLingvo celaLingvo literumaVortaro
+    if {[info exists $tmservilo] && $tmservilo ne ""} {
+        $tmservilo release
+    }
+    if {[info exists literumaVortaro] && [Object isobject $literumaVortaro] && [$literumaVortaro prenuLingvo] ne [$servilo set lingvo]} {
+        if {![$literumaVortaro istype Vortaro]} {
+            $literumaVortaro destroy
+        }
+        set literumaVortaro ""
+    }
+    set tmservilo $servilo
+    set fontaLingvo [$tmservilo set fontolingvo]
+    set celaLingvo [$tmservilo set lingvo]
+
+    my setTitleAddition "$fontaLingvo-$celaLingvo [file tail [$tmservilo set dosiero]]"
+    my foriguRezulton
+}
+TMRedaktilo instproc montruIndekson {{dsubid 0}} {
+    my instvar tmservilo indekso win rezultoListo subnombro subid tradukoj trovoVortoj trovuTradukon
+    if {[llength $rezultoListo]>0} {
+        set dato [$tmservilo prenuTradukListo [lindex $rezultoListo $indekso]]
+        $win.delete configure  -state normal
+        $win.first configure -state normal
+        $win.last configure -state normal
+    } else {
+        set twin [my @fonto getTextWindow]
+        $twin configure -state normal
+        my @fonto setText ""
+        $twin configure -state disabled
+        my @cilo setText ""
+        $win.prev configure -state disabled
+        $win.next configure -state disabled
+        $win.first configure -state disabled
+        $win.last configure -state disabled
+        $win.deletet configure -state disabled
+        $win.delete configure  -state disabled
+        $win.sprev configure -state disabled
+        $win.snext configure -state disabled
+        return
+    }
+    
+    foreach {f c} $dato {
+        set twin [my @fonto getTextWindow]
+        $twin configure -state normal
+        my @fonto setText $f
+        $twin configure -state disabled
+        set subnombro [llength $c]
+        set tradukoj $c
+        set subid $dsubid
+        if {[llength $trovoVortoj]>0 && !$trovuTradukon} {
+            foreach v $trovoVortoj {
+                set cur 1.0
+                while 1 {
+                    set cur [$twin search -nocase -count count -- $v $cur end]
+                    if {$cur ne ""} {
+                        $twin tag add hlight $cur "$cur + $count char"
+                        set cur [$twin index "$cur + $count char"]
+                    } else {
+                        break
+                    }
+                }
+            }
+        }
+        break
+    }
+    my montruSubIndekson
+    if {$indekso==0} {
+        $win.prev configure -state disabled
+    } else {
+        $win.prev configure -state normal
+    }
+    if {$indekso+2<=[llength $rezultoListo]} {
+        $win.next configure -state normal
+    } else {
+        $win.next configure -state disabled
+    }
+    if {[llength $tradukoj]>1} {
+        $win.deletet configure -state normal
+    } else {
+        $win.deletet configure -state disabled
+    }
+}
+TMRedaktilo instproc montruSubIndekson {} {
+    my instvar subid tradukoj subnombro win uzuLiterumadon trovuTradukon trovoVortoj
+    my setStatusBarText ""
+    my @cilo setText [lindex $tradukoj $subid 0]
+    if {[llength $trovoVortoj]>0 && $trovuTradukon} {
+        set twin [my @cilo getTextWindow]
+        foreach v $trovoVortoj {
+            set cur 1.0
+            while 1 {
+                set cur [$twin search -nocase -count count -- $v $cur end]
+                if {$cur ne ""} {
+                    $twin tag add hlight $cur "$cur + $count char"
+                    set cur [$twin index "$cur + $count char"]
+                } else {
+                    break
+                }
+            }
+        }
+    }
+    [my prenuRezultoFenestro] edit reset
+    if {$subid==0} {
+        $win.sprev configure -state disabled
+    } else {
+        $win.sprev configure -state normal
+    }
+    if {$subid+2<=$subnombro} {
+        $win.snext configure -state normal
+    } else {
+        $win.snext configure -state disabled
+    }
+    if {$uzuLiterumadon} {
+        my literumu
+    }
+}
+TMRedaktilo instproc porCxiuVortoProgreso {vorto_ref cur_ref count_ref script} {
+   upvar $vorto_ref vorto $cur_ref cur $count_ref count
+   if {![Object isobject [self]::@kursoro]} {
+        EditKursoro create [self]::@kursoro -win [my prenuRezultoFenestro]
+        FrazoLegilo create [self]::@legilo -signoLegilo [self]::@kursoro
+        my @legilo komencuFrazon
+    }
+
+    set twin [my prenuRezultoFenestro]
+    set range [$twin tag ranges sel]
+    if {[llength $range]==0} {
+       set cur 1.0
+       set stopIndex end
+    } else {
+       set cur [lindex $range 0]
+       set stopIndex [lindex $range 1]
+    }
+    my @kursoro kursoro $cur
+    my @kursoro metuFinon $stopIndex
+    my @kursoro konservuKursoron
+
+    while {[set vorto [my @legilo prenuVorton]] ne ""} {
+       if {$vorto eq "_FINO_"} continue
+       if {[string is punct $vorto]} continue
+       if {[string is integer $vorto]} continue
+       set cur [my @kursoro vortkomenco]
+       set kursoro [my @kursoro kursoro]
+       set count [string length [$twin get $cur $kursoro]]
+       uplevel $script
+   }
+}
+TMRedaktilo instproc prenuLiterumanVortaron {} {
+    my instvar literumaVortaro celaLingvo uzuLiterumadon
+    if {![info exists literumaVortaro] || ![Object isobject $literumaVortaro]} {
+        if {$celaLingvo eq "eo"} {
+            set literumaVortaro [Vortaro prenuVortaron]
+        } else {
+            set literumaVortaro [HunspellTestilo prenuInstancoPorLingvo $celaLingvo]
+            if {$literumaVortaro eq ""} {
+                my setStatusBarText [mc "Literuma vortaro por la lingvo %s ne estis trovita" $celaLingvo]
+                set uzuLiterumadon 0
+                return
+            }
+        }
+    }
+    return $literumaVortaro
+}
+TMRedaktilo instproc prenuRezultoFenestro {} {
+    my @cilo getTextWindow
+}
+TMRedaktilo instproc redaktuDosieron {{filenamet {}}} {
+    my instvar win tmservilo
+    if {$filenamet eq ""} {
+        set fileTypes {{{TM Esperantilo} .tmsql}}
+        set olddir [pwd]
+        set parent [winfo toplevel $win]
+        set filenamet [tk_getOpenFile -parent $parent -filetypes $fileTypes]
+        cd $olddir
+    }
+    if {$filenamet ne ""} {
+        set s [TMServilo prenuPorDosiero $filenamet]
+        if {$s eq $tmservilo} {
+            return
+        }
+        if {$s ne ""} {
+           my metuServilon $s
+        } else {
+            set servilo [TMServiloSQL new -childof [self]]
+            $servilo malfermuMK $filenamet
+            my metuServilon $servilo
+        }
+    }
+}
+TMRedaktilo instproc selektuMemoron {} {
+    my instvar tmservilo
+    set servilo [TMServilo prenuDefault]
+    if {$servilo eq $tmservilo || ![$servilo istype TMServiloAro]} {
+        set tdosieroj [list]
+        set nomoj [list]
+        foreach d [glob -nocomplain -directory [EsperantoConf prefEspDosierujo] *.tmsql] {
+            lappend tdosieroj $d
+            lappend nomoj [file rootname [file tail $d]]
+        }
+        if {[llength $tdosieroj]==0} {
+            EsperantoBrowser message [mc "neniu traduka memoro"]
+            return
+        }
+        set ret [IDE::IDialogList getListItem [mc "selektu tradukan memoron"] $nomoj]
+        if {$ret eq ""} return
+        set id [lsearch $nomoj $ret]
+        my redaktuDosieron [lindex $tdosieroj $id]
+
+    } else {
+        set i 0
+        set slisto [list]
+        set vlisto [list]
+        foreach s [$servilo set serviloj] {
+            lappend slisto $s
+            lappend vlisto "$i - [file tail [$s prenuDosieron]]"
+        }
+        set ret [IDE::IDialogList getListItem [mc "selektu tradukan memoron"] $vlisto]
+        if {$ret eq ""} return
+        set id [lsearch $vlisto $ret]
+        set tmservilo [lindex $slisto $id]
+        my foriguRezulton
+    }
+}
+TMRedaktilo instproc specificInit {} {
+    my instvar win tmservilo indekso rezultoListo fontaLingvo celaLingvo trovuFrazon uzuLiterumadon tmNombro trovoVortoj trovuTradukon lastaRezulto
+
+    set trovuFrazon 0
+    set trovuTradukon 0
+    set rezultoListo [list]
+    set uzuLiterumadon 1
+    set tmNombro 0
+    set trovoVortoj [list]
+    set lastaRezulto ""
+
+    my requireNamespace
+    panedwindow $win.pwin -orient vertical
+    frame $win.ffonto
+    frame $win.fcilo
+
+    IDE::Text create [self]::@fonto $win.fonto -height 8
+    [my @fonto getTextWindow] configure -takefocus 0 -font espfont
+
+    label $win.ltrovu -text [mc "trovu"]
+    entry $win.trovu -width 50
+    esp::metuXEvento $win.trovu
+    bind $win.trovu <Return> [list [self] trovuVortojn]
+
+    button $win.ek -text [mc "ek"] -command [list [self] trovuVortojn]
+    button $win.cxiuj -text [mc "forigu rezulton"] -command [list [self] foriguRezulton]
+    checkbutton $win.frazo -text [mc "trovu frazon"] -variable [self]::trovuFrazon
+    checkbutton $win.trovuEnCelo -text [mc "trovu tradukon"] -variable [self]::trovuTradukon
+
+    pack $win.fonto -in $win.ffonto -side bottom -fill both -expand yes
+    pack $win.ltrovu $win.trovu $win.ek $win.cxiuj $win.frazo $win.trovuEnCelo -in $win.ffonto  -side left
+
+    frame $win.cframe
+
+    IDE::Text create [self]::@cilo $win.cframe.cilo -height 8
+    set twin [my prenuRezultoFenestro]
+    $twin configure -font espfont
+    $twin tag configure spellerror -foreground red -underline 1
+    $twin tag configure raderror -foreground darkgreen -underline 1
+    $twin tag bind raderror <ButtonPress-3> "[self] spellerrorRightbutton raderror %# %x %y %X %Y; break"
+    $twin tag bind spellerror <ButtonPress-3> "[self] spellerrorRightbutton spellerror %# %x %y %X %Y; break"
+
+    button $win.cframe.konservu -image [IDE::Toolbar createImage button_ok] -relief flat -overrelief raised -takefocus 0 -command [list [self] konservuSxangxojn]
+    button $win.cframe.literumu -image [IDE::Toolbar createImage autospellcheck] -relief flat -overrelief raised -takefocus 0 -command [list [self] literumu]
+
+    pack $win.cframe.cilo -side right -fill both -expand yes
+    pack $win.cframe.konservu $win.cframe.literumu
+
+
+    button $win.first -text "<<" -command [list [self] venuAlUnua] -width 5
+    button $win.prev -text "<" -command [list [self] venuAlAntaua] -width 5
+    button $win.next -text ">" -command [list [self] venuAlSekva] -width 5
+    button $win.last -text ">>" -command [list [self] venuAlLasta] -width 5
+    button $win.delete -text [mc "Forigu"] -command [list [self] foriguTU]
+    button $win.deletet -text [mc "Forigu tradukon"] -command [list [self] foriguTradukon]
+    label $win.indekso -textvariable [self]::indekso
+    label $win.delabo -text [mc "de"]
+    label $win.tmnombro -textvariable [self]::tmNombro
+
+    button $win.sprev -text "<s" -command [list [self] venuAlSubAntaua] -width 5
+    label $win.subid -textvariable [self]::subnombro
+    button $win.snext -text "s>" -command [list [self] venuAlSubSekva] -width 5
+
+
+    pack $win.cframe -in $win.fcilo -side bottom -fill both -expand yes
+    pack $win.first $win.prev $win.next $win.last $win.delete $win.deletet $win.indekso $win.delabo $win.tmnombro -in $win.fcilo  -side left
+    pack $win.sprev  -in $win.fcilo -side left -padx {10 0}
+    pack $win.subid $win.snext -in $win.fcilo -side left
+
+
+
+    $win.pwin add $win.ffonto -sticky news
+    $win.pwin add $win.fcilo -sticky news
+    pack $win.pwin -expand yes -fill both
+
+    my initStatusBar -1 -1
+
+    if {[info exists fontaLingvo] && [info exists celaLingvo]} {
+        set tmservilo [TMServilo prenuPorLingvoj $fontaLingvo $celaLingvo]
+    } else {
+        set tmservilo [TMServilo prenuDefault]
+    }
+    if {[$tmservilo istype TMServiloAro]} {
+        set tmservilo [$tmservilo set skribaServilo]
+    }
+    my metuServilon $tmservilo
+    focus $win.trovu
+}
+TMRedaktilo instproc spellerrorRightbutton {tag num x y X Y} {
+    my instvar eventNum literumaVortaro
+    set eventNum $num
+    set win [my prenuRezultoFenestro]
+    set cur [$win index @$x,$y]
+    set names [$win tag names $cur]
+    set range [$win tag prevrange $tag $cur]
+    if {[llength $range]>0} {
+        set start [lindex $range 0]
+        set stop [lindex $range 1]
+        set text [$win get $start $stop]
+        set vortaro $literumaVortaro
+        if {[$vortaro istype HunspellTestilo]} {
+            set speller $vortaro
+        } else {
+            set speller [HunspellTestilo prenuInstancoPorLingvo eo]
+        }
+        if {$speller eq ""} {
+            [my info parent] setStatusBarText [mc "vortlisto estas ne trovita"]
+        }
+        set proponoj [$speller prenuProponoj $text]
+        set pwin $win.popdown
+        if {[winfo exists $pwin]} {
+            ::destroy $pwin
+        }
+        menu $pwin -tearoff 0
+        foreach p $proponoj {
+            $pwin add command -label $p -command [list [self] tausxuKunSugesto $start $stop $p]
+        }
+        $pwin add separator
+        if {[$vortaro istype Vortaro]} {
+            if {$tag eq "spellerror"} {
+                $pwin add command -label [mc "aligu radikon"] -command [list NovaRadikoDlg aliguRadikon $text]
+            } else {
+                $pwin add command -label [mc "aligu derivon"] -command [list [self] aliguDerivonPorVorto $text]
+            }
+        }
+        $pwin add command -label [mc "ignoru nun"] -command [list [self] ignoruVortoRange  $text $start $stop]
+        $pwin add command -label [mc "ignoru ĉiam"] -command [list [self] ignoruCxiamVortoRange $text $start $stop]
+        tk_popup $pwin $X $Y
+    }
+}
+TMRedaktilo instproc tausxuKunSugesto {start stop vorto} {
+    set win [my prenuRezultoFenestro]
+    #puts "$start $stop $vorto"
+    $win delete $start $stop
+    $win insert $start $vorto
+}
+TMRedaktilo instproc trovuLiterumajnErarojn {} {
+    my instvar rezultoListo uzuLiterumadon indekso lastaId tmservilo
+    set startoSegmento $indekso
+    set literumaVortaro [my prenuLiterumanVortaron]
+    if {$literumaVortaro eq ""} {
+        return
+    }
+    set kursoro [TekstoKursoro new -childof [self]]
+    set legilo [FrazoLegilo new -childof [self] -signoLegilo $kursoro]
+    set eraro 0
+    while {$startoSegmento ne $lastaId} {
+        set dato [$tmservilo prenuTradukListo [lindex $rezultoListo $startoSegmento]]
+        set subindekso 0
+        foreach t [lindex $dato 1] {
+            set traduko [lindex $t 0]
+            if {$traduko ne ""} {
+                $kursoro teksto $traduko
+                $kursoro kursoro 0
+                while {[set vorto [$legilo prenuVorton]] ne ""} {
+                    if {[string length $vorto]==1} continue
+                    if {![string is alpha $vorto]} continue
+                    set erg [$literumaVortaro estasVorto $vorto]
+                    if {$erg==0} {
+                        set eraro 1
+                        break
+                    } elseif {$erg==1 && ![EsperantoConf set ignoruDerivoj]} {
+                        set eraro 1
+                        break
+                    }
+                }
+                if {$eraro} {
+                    set indekso $startoSegmento
+                    my montruIndekson $subindekso
+                    if {!$uzuLiterumadon} {
+                        my literumu
+                    }
+                    break
+                }
+            }
+            incr subindekso
+        }
+        if {$eraro} {
+            break
+        }
+        incr startoSegmento
+    }
+    if {!$eraro} {
+        my setStatusBarText [mc "neniu literuma eraro estis trovita"]
+    }
+    $kursoro destroy
+    $legilo destroy
+}
+TMRedaktilo instproc trovuVortojn {} {
+    my instvar win tmservilo rezultoListo indekso lastaId trovuFrazon tmNombro trovoVortoj trovuTradukon
+    set vortoj [$win.trovu get]
+    if {$trovuTradukon} {
+        if {[string first ? $vortoj]<0 && [string first * $vortoj]<0} {
+            set tvortoj *${vortoj}*
+        } else {
+            set tvortoj $vortoj
+        }
+        set rezultoListo [$tmservilo trovuEnCelajTekstoj $tvortoj]
+    } else {
+        if {!$trovuFrazon} {
+            set rezultoListo [$tmservilo trovuTuLauVortoj $vortoj 1.0]
+        } else {
+            set rezultoListo [$tmservilo trovuMultajId $vortoj]
+        }
+    }
+    set lastaId [expr {[llength $rezultoListo]-1}]
+    set tmNombro [llength $rezultoListo]
+
+    if {[llength $rezultoListo]==0} {
+        my setStatusBarText [mc "neniu elemento estas trovita"]
+    } else {
+        my setStatusBarText [mc "%s elementoj estas trovitaj"  [llength $rezultoListo]]
+        set trovoVortoj $vortoj
+        set indekso 0
+        my  montruIndekson
+    }
+}
+TMRedaktilo instproc venuAlAntaua {} {
+    my instvar indekso lastaId
+    if {$indekso>0 && $lastaId>=0} {
+        incr indekso -1
+        my montruIndekson
+    }
+}
+TMRedaktilo instproc venuAlLasta {} {
+    my instvar indekso lastaId
+    if {$lastaId>=0} {
+        set indekso $lastaId
+        my montruIndekson
+    }
+}
+TMRedaktilo instproc venuAlSekva {} {
+    my instvar indekso tmservilo lastaId
+    if {$lastaId eq $indekso || $lastaId<0} {
+        return
+    }
+    incr indekso 1
+    my montruIndekson
+}
+TMRedaktilo instproc venuAlSubAntaua {} {
+    my instvar subid 
+    if {$subid>0} {
+        incr subid -1
+        my montruSubIndekson
+    }
+}
+TMRedaktilo instproc venuAlSubSekva {} {
+    my instvar subid subnombro
+    if {$subid-1>=$subnombro} {
+        return
+    }
+    incr subid 1
+    my montruSubIndekson
+}
+TMRedaktilo instproc venuAlUnua args {
+    my set indekso 0
+    my montruIndekson
+}
+TMRedaktilo proc newBrowser {} {
+    EsperantoConf statAktiono TM
+    if {![Object isobject ::tmRedaktilo]} {
+        my create ::tmRedaktilo .tmRedaktilo
+    }
+    return ::tmRedaktilo
+}
+TMRedaktilo proc newBrowserPorObjekto objekto {
+    if {$objekto eq ""} {
+        my newBrowser
+    } else {
+        set obj ::tmRedaktilo
+        EsperantoConf statAktiono TM
+        if {![Object isobject $obj]} {
+            set obj [my create $obj .tmRedaktilo -fontaLingvo [$objekto prenuTMFontaLingvo] -celaLingvo [$objekto prenuTMCelaLingvo]]
+        } else {
+            $obj metuServilon [TMServilo prenuPorLingvoj [$objekto prenuTMFontaLingvo] [$objekto prenuTMCelaLingvo]]
+        }
+        return $obj
+    }
+}
+@ Class TMServilo {
+description {baza klaso por traduka memro. Taskoj
+ * komputo de ''hash'' por teksto per ''prenuHash''. La array estas konservita en variablo ''tuArr''
+ * array kun relato vorto -> listo de tuid. Per metodo ''aliguVortoIndekso''
+ * ''fuzi'' sercxo per ''trovuMultaljn''
+ * ekzakta sercxo per ''trovu''
+ * importado de TMX, XLIFF
+ * eksportado al TMX
+La bazo klaso povas esti uzata por nur un labora memoro bazo.}
+}
+Class TMServilo -parameter {fontolingvo lingvo}
+@ ::TMServilo idemeta categories {api private init-release imp-eksporto}
+@ ::TMServilo idemeta categoriesMethods {{trovu foriguTU prenuIndeksojn trovuTuLauVortoj modifuTradukoListo prenuTradukListo trovuMultaj aliguTU} {frazoAlvortoj prenuHash fuzzyMatch prenuTAId stripFleks} {purigu init} {importTMX importXLIFF exportTMX}}
+@ ::TMServilo idemeta component EspTMServilo
+TMServilo instproc aliguAlListo {fonto celo hash} {
+    my instvar tuListo
+    lappend tuListo [list $fonto [list $celo]]
+    return [expr {[llength $tuListo]-1}].0
+}
+TMServilo instproc aliguTU {fonto celo} {
+    my instvar tuArr
+
+    if {$fonto eq "" || $celo eq ""} return
+
+    set hash [my prenuHash $fonto]
+    if {[info exists tuArr($hash)]} {
+        set bid $tuArr($hash)
+        set tuid [my aliguTradukoAlListo $bid $fonto $celo]
+        if {$tuid ne ""} {
+            my aliguVortoIndekso $fonto $tuid
+        }
+    } else {
+        set tuid [my aliguAlListo $fonto $celo $hash]
+        my aliguVortoIndekso $fonto $tuid
+        set tuArr($hash) [my prenuTAId $tuid]
+    }
+    return $tuid
+}
+TMServilo instproc aliguTradukoAlListo {tuid fonto celo} {
+    my instvar tuListo
+    set d [lindex $tuListo $tuid]
+    set id 0
+    foreach {f c} $d {
+        incr id 2
+        if {$f eq $fonto} {
+            foreach uc $c {
+                if {$uc eq $celo} {
+                    return
+                }
+            }
+            lappend c $celo
+            incr id -1
+            lset d $id $c
+            set id -1
+            lset tuListo $tuid $d
+            return
+        }
+    }
+    lappend d $fonto [list $celo]
+    lset tuListo $tuid $d
+    return $tuid.[expr {[llength $d]/2-1}]
+}
+TMServilo instproc aliguVortoIndekso {fonto id} {
+    my instvar vortoArr
+    set ivortoj [list]
+    foreach vorto [my frazoAlvortoj $fonto] {
+        set vorto [my stripFleks $vorto]
+        if {$vorto ne "" && [lsearch $ivortoj $vorto]<0} {
+            lappend vortoArr($vorto) $id
+            lappend ivortoj $vorto
+        }
+    }
+}
+TMServilo instproc ekstraktuCeloj {{havuProgreson 0}} {
+    my instvar connection
+    my instvar mknomo fontolingvo lingvo dosieroNomo
+
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "eksporto de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set elementoj [my prenuIndeksojn]
+    set rows [llength $elementoj]
+    set i 0
+    set ret ""
+
+    foreach id $elementoj {
+        if {$progreso ne ""} {
+            $progreso setProgress [expr {round(100.0*$i/$rows)}]
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        incr i
+        foreach {fonto tradukoj} [my prenuTradukListo $id] {
+            if {$fonto eq ""} continue
+            foreach tradukol $tradukoj  {
+                append ret [lindex $tradukol 0] \n
+            }
+        }
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+    return $ret
+}
+TMServilo instproc ekstraktuFontoj {{havuProgreson 0}} {
+    my instvar connection
+    my instvar mknomo fontolingvo lingvo dosieroNomo
+
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "eksporto de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set elementoj [my prenuIndeksojn]
+    set rows [llength $elementoj]
+    set i 0
+    set ret ""
+
+    foreach id $elementoj {
+        if {$progreso ne ""} {
+            $progreso setProgress [expr {round(100.0*$i/$rows)}]
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        incr i
+        foreach {fonto tradukoj} [my prenuTradukListo $id] {
+            if {$fonto eq ""} continue
+            append ret $fonto \n
+        }
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+    return $ret
+}
+TMServilo instproc exportTAB {file {havuProgreson 0}} {
+    my instvar connection
+    my instvar mknomo fontolingvo lingvo dosieroNomo
+    if {$file eq ""} {
+        if {[info exists dosieroNomo]} {
+            set file [file rootname $dosieroNomo].txt
+        } else {
+            set file export-$fontolingvo-$lingvo.txt
+        }
+        set file [IDE::Dialog getSaveFile $file {{"TMX Dosiero" *.txt}} .txt]
+    }
+    if {$file eq ""} { return 0 }
+    set dosieroNomo $file
+
+    set fhandle [open $file w]
+    fconfigure $fhandle -encoding utf-8
+
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "eksporto de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set elementoj [my prenuIndeksojn]
+    set rows [llength $elementoj]
+    set i 0
+
+    foreach id $elementoj {
+        if {$progreso ne ""} {
+            $progreso setProgress [expr {round(100.0*$i/$rows)}]
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        incr i
+        foreach {fonto tradukoj} [my prenuTradukListo $id] {
+            if {$fonto eq ""} continue
+            foreach tradukol $tradukoj  {
+                set cilo [lindex $tradukol 0]
+                set fonto [string map [list \n \\n \t \\t]  $fonto]
+                set cilo [string map [list \n \\n \t \\t]  $cilo]
+                puts $fhandle "$fonto\t$cilo"
+            }
+        }
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+    close $fhandle
+    return 1
+}
+TMServilo instproc exportTMX {file {havuProgreson 0}} {
+    my instvar tuListo dosieroNomo
+    if {![info exists tuListo]} {
+        return 0
+    }
+    if {$file eq ""} {
+        if {[info exists dosieroNomo]} {
+            set file $dosieroNomo
+        }
+        set file [IDE::Dialog getSaveFile $file {{"TMX Dosiero" *.tmx}} .tmx]
+    }
+    if {$file eq ""} { return 0 }
+    set dosieroNomo $file
+
+    package require tdom
+    set document [dom createDocument tmx]
+    set body [$document createElement body]
+    [$document documentElement] appendChild $body
+    
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "eksporto de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set rows [llength $tuListo]
+    set i 0
+    foreach tu $tuListo {
+        foreach {fonto ciloj} $tu {
+            if {$fonto eq ""} continue
+            if {$progreso ne ""} {
+               $progreso setProgress [expr {round(100.0*$i/$rows)}]
+               if {[$progreso isStopped]} {
+                   break
+               }
+            }
+            incr i
+            set tv [$document createElement tu]
+            $body appendChild $tv
+            set tuv [$document createElement tuv]
+            $tv appendChild $tuv
+            set seg [$document createElement seg]
+            $tuv appendChild $seg
+            $tuv setAttribute xml:lang eo
+            $seg appendChild [$document createTextNode $fonto]
+
+            foreach cilo $ciloj {
+                set tuv [$document createElement tuv]
+                $tv appendChild $tuv
+                set seg [$document createElement seg]
+                $tuv appendChild $seg
+                $tuv setAttribute xml:lang [my prenuLingvon]
+                $seg appendChild [$document createTextNode $cilo]
+            }
+        }
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+
+    set fhandle [open $file w]
+    fconfigure $fhandle -encoding utf-8
+    [$document documentElement] asXML -channel $fhandle
+    $document delete
+    close $fhandle
+    return 1
+}
+TMServilo instproc foriguTU indekso {
+    my instvar tuListo
+    foreach {bid sid} [split $indekso .] {}
+    set d [lindex $tuListo $bid]
+    if {[llength $d]==0} {
+        return
+    } elseif {[llength $d]==2} {
+        lset tuListo $bid {}
+    } else {
+        set bid2 [expr {$sid*2}]
+        lset d $bid2 {}
+        incr bid2
+        lset d $bid2 {}
+        lset tuListo $bid $d
+    }
+}
+TMServilo instproc foriguTradukon indekso {
+}
+TMServilo instproc frazoAlvortoj frazo {
+    regexp -all -inline {[[:alpha:]]{3,}} $frazo
+}
+TMServilo instproc fuzzyMatch {s1 s2} {
+    estrings::stringFuzzyMatch [string tolower $s1] [string tolower $s2]
+}
+TMServilo instproc getNodePorLingvo {tu lingvo prefix} {
+    foreach f [$tu selectNodes "${prefix}tuv/${prefix}seg"] {
+        set p [$f parentNode]
+        if {[string tolower [$p getAttribute xml:lang ""]] eq $lingvo} {
+            return $f
+        }
+        if {[string tolower [$p getAttribute lang ""]] eq $lingvo} {
+            return $f
+        }
+    }
+    return
+}
+TMServilo instproc importTAB {file {kunProgreso 0}} {
+    package require tdom
+    my instvar dosieroNomo fontolingvo lingvo
+    if {$file eq ""} {
+        set file [IDE::Dialog getOpenFile {{{TAB text file} *.txt}}]
+    }
+    if {$file eq ""} return
+    set fhandle [open $file r]
+    fconfigure $fhandle -encoding utf-8
+    set i 0
+    while {[gets $fhandle line]>=0} {
+        if {$line eq ""} continue
+        if {[string index $line 0] eq "#"} continue
+        set tab [string first \t $line]
+        if {$tab>0} {
+            set fonto [string range $line 0 [expr {$tab-1}]]
+            set fonto [subst -nocommands -novariables $fonto]
+            set cilo [string range $line [expr {$tab+1}] end]
+            set cilo [subst -nocommands -novariables $cilo]
+            my aliguTU $fonto $cilo
+            incr i
+        }
+
+    }
+    close $fhandle
+    set dosieroNomo $file
+    return [mc "%s elementoj" $i]
+}
+TMServilo instproc importTMX {file {havuProgreson 0}} {
+    package require tdom
+    my instvar dosieroNomo fontolingvo lingvo
+    if {$file eq ""} {
+        set file [IDE::Dialog getOpenFile {{{TMX Dosiero} *.tmx}}]
+    }
+    if {$file eq ""} return
+    set fhandle [open $file r]
+    fconfigure $fhandle -encoding utf-8
+    if {[catch {dom parse -channel $fhandle} doc]} {
+        return $doc
+    }
+    set rootNode [$doc documentElement]
+    if {[$rootNode namespaceURI] ne ""} {
+        $doc selectNodesNamespaces [list t [$rootNode namespaceURI]]
+        set prefix "t:"
+    } else {
+        set prefix ""
+    }
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "importo de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+
+    set body [lindex [[$doc documentElement] selectNodes ${prefix}body] 0]
+    if {$body ne ""} {
+        set elementoj [$body selectNodes ${prefix}tu]
+        set rows [llength $elementoj]
+        set i 0
+        set c 0
+        foreach tu $elementoj {
+            if {$progreso ne ""} {
+               $progreso setProgress [expr {round(100.0*$i/$rows)}]
+               if {[$progreso isStopped]} {
+                   break
+               }
+            }
+            incr i
+            set fonto [my getNodePorLingvo $tu $fontolingvo $prefix]
+            if {$fonto eq ""} continue
+            set cilo [my getNodePorLingvo $tu $lingvo $prefix]
+            if {$cilo eq ""} continue
+            my aliguTU [iloj::prenuTekstonDeNode $fonto] [iloj::prenuTekstonDeNode $cilo]
+            incr c
+        }
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+    $doc delete
+    close $fhandle
+    set dosieroNomo $file
+    return [mc "%s elementoj" $c]
+}
+TMServilo instproc importXLIFF {file {havuProgreson 0}} {
+    package require tdom
+    my instvar dosieroNomo fontolingvo lingvo
+    if {$file eq ""} {
+        set file [IDE::Dialog getOpenFile {{{TMX Dosiero} *.xliff} {{TMX Dosiero} *.xlf}}]
+    }
+    if {$file eq ""} return
+    set fhandle [open $file r]
+    fconfigure $fhandle -encoding utf-8
+    if {[catch {dom parse -channel $fhandle} doc]} {
+        return $doc
+    }
+    set rootNode [$doc documentElement]
+    if {[$rootNode namespaceURI] ne ""} {
+        $doc selectNodesNamespaces [list t [$rootNode namespaceURI]]
+        set prefix "t:"
+    } else {
+        set prefix ""
+    }
+    set filenode [lindex [$rootNode selectNodes ${prefix}file] 0]
+    if {$filenode ne ""} {
+        if {[$filenode hasAttribute source-language]} {
+            set slan [$filenode getAttribute source-language]
+            set fLingvo [string tolower [lindex [split $slan -] 0]]
+            if {$fLingvo ne $fontolingvo} {
+                EsperantoBrowser message [mc "fonta lingvo en XLIFF estas %s atendas %s" $fLingvo $fontolingvo]
+                return
+            }
+        }
+        if {[$filenode hasAttribute target-language]} {
+            set slan [$filenode getAttribute target-language]
+            set cLingvo [string tolower [lindex [split $slan -] 0]]
+            if {$cLingvo ne $lingvo} {
+                EsperantoBrowser message [mc "cela lingvo en XLIFF estas %s atendas %s" $cLingvo $lingvo]
+                return
+            }
+        }
+    }
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "importo de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set elementoj [$rootNode selectNodes //${prefix}trans-unit]
+    set i 0
+    set c 0
+    foreach tu $elementoj {
+        if {$progreso ne ""} {
+            $progreso setProgress [expr {round(100.0*$i/$rows)}]
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        incr i
+        if {[$tu getAttribute approved ""] eq "no"} {
+            continue
+        }
+        set fonto [lindex [$tu selectNodes ${prefix}source] 0]
+        if {$fonto eq ""} {
+            continue
+        }
+        set celo [lindex [$tu selectNodes ${prefix}target] 0]
+        if {$celo eq ""} {
+            continue
+        }
+        # ignoru malcertaj tradukoj
+        if {[$celo getAttribute state ""] eq "needs-review-translation"} {
+            continue
+        }
+        incr c
+        my aliguTU [iloj::prenuTekstonDeNode $fonto] [iloj::prenuTekstonDeNode $celo]
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+    $doc delete
+    close $fhandle
+    set dosieroNomo $file
+    return [mc "%s elementoj" $c]
+}
+TMServilo instproc init args {
+    my instvar fontolingvo radikilo
+    if {![info exists fontolingvo]} {
+        set fontolingvo eo
+    }
+    # nur esperanto
+    if {$fontolingvo eq "eo"} {
+        set radikilo [Radikilaro prenuPorLingvo $fontolingvo]
+    }
+}
+TMServilo instproc modifuTradukoListo {tuid subid teksto} {
+    my instvar tuListo
+    if {[info exists tuListo] && [llength $tuListo]>0} {
+        foreach {lid slid} [split $tuid .] {}
+        set buketo [lindex $tuListo $lid]
+        set slid [expr {$slid*2+1}]
+        lset tuListo $lid $slid $subid $teksto
+        return 1
+    } else {
+        return 0
+    }
+}
+TMServilo instproc prenuDosieron {} {
+    my instvar dosieroNomo
+    return $dosieroNomo
+}
+TMServilo instproc prenuHash fonto {
+    crc::crc16 [string tolower [estrings::stripNoChars $fonto]]
+}
+TMServilo instproc prenuIndeksojn {} {
+    my instvar tuListo
+    if {![info exists tuListo]} {
+        return
+    }
+    set rez [list]
+    set bid 0
+    foreach t $tuListo {
+        set sid 0
+        foreach {f c} $t {
+            if {$f ne ""} {
+                lappend rez $bid.$sid
+            }
+            incr sid
+        }
+        incr bid
+    }
+    return $rez
+}
+TMServilo instproc prenuLingvon {} {
+    my set lingvo
+}
+TMServilo instproc prenuLuNombro {} {
+    my instvar tuListo
+    if {[info exists tuListo]} {
+        llength $tuListo
+    } else {
+        return 0
+    }
+}
+TMServilo instproc prenuTAId tuid {
+    lindex [split $tuid .] 0
+}
+TMServilo instproc prenuTradukListo tuid {
+    my instvar tuListo
+    if {[info exists tuListo] && [llength $tuListo]>0} {
+        foreach {lid slid} [split $tuid .] {}
+        set buketo [lindex $tuListo $lid]
+        set slid [expr {$slid*2}]
+        set fonto [lindex $buketo $slid]
+        set tradukoj [list]
+        set id 0
+        foreach t [lindex $buketo [expr {$slid+1}]] {
+            lappend tradukoj [list $t $id]
+            incr id
+        }
+        return [list $fonto $tradukoj]
+    } else {
+        return
+    }
+}
+TMServilo instproc purigu {} {
+    my instvar tuArr tuListo vortoArr
+    unset -nocomplain tuArr
+    unset -nocomplain tuListo
+    unset -nocomplain vortoArr
+}
+TMServilo instproc release {} {
+    my destroy
+}
+TMServilo instproc stripFleks vorto {
+    my instvar fontolingvo radikilo
+    set vorto [string tolower $vorto]
+    if {$fontolingvo ne "eo"} {
+        return $vorto
+    }
+    $radikilo radikigi $vorto
+}
+TMServilo instproc trovu fonto {
+    my instvar tuArr tuListo
+    set hash [my prenuHash $fonto]
+    if {[info exists tuArr($hash)]} {
+        set bid $tuArr($hash)
+        foreach {f c} [lindex $tuListo $bid] {
+            if {$f eq $fonto} {
+                return [lindex $c 0]
+            }
+        }
+    } else {
+        return
+    }
+}
+TMServilo instproc trovuEnCelajTekstoj teksto {
+    # ne ekzistas
+    [list]
+}
+@ TMServilo instproc trovuMultaj {} {
+description {listo de
+  matchIndekso traduko fonto}
+}
+TMServilo instproc trovuMultaj {fonto {minMatch 0.6}} {
+    my instvar tuArr tuListo
+    set hash [my prenuHash $fonto]
+    set rez [list]
+    set noFuzzy 0
+    if {[info exists tuArr($hash)]} {
+        set bid $tuArr($hash)
+        foreach {f c} [lindex $tuListo $bid] {
+            if {$f eq $fonto} {
+                foreach uc $c {
+                    lappend rez [list 1.0 $uc]
+                    set noFuzzy 1
+                }
+            } else {
+                if {[string tolower [estrings::stripNoChars $fonto]] eq [string tolower [estrings::stripNoChars $f]]} {
+                    foreach uc $c {
+                        lappend rez [list 0.99 $uc $f]
+                        set noFuzzy 1
+                    }
+                }
+            }
+        }
+    }
+    if {!$noFuzzy} {
+        foreach tuid [my trovuTuLauVortoj $fonto] {
+            foreach {f c} [my prenuTradukListo $tuid] {
+                if {[set match [my fuzzyMatch $f $fonto]]>$minMatch} {
+                    foreach uc $c {
+                        lappend rez [list $match [lindex $uc 0] $f]
+                    }
+                }
+            }
+        }
+    }
+    lsort -index 0 -real -decreasing $rez
+}
+TMServilo instproc trovuMultajId {fonto {minMatch 0.6}} {
+    my instvar tuArr tuListo
+    set hash [my prenuHash $fonto]
+    set rez [list]
+    set noFuzzy 0
+    if {[info exists tuArr($hash)]} {
+        set bid $tuArr($hash)
+        foreach {f c} [lindex $tuListo $bid] {
+            if {$f eq $fonto} {
+                foreach uc $c {
+                    lappend rez [list 1.0 $uc]
+                    set noFuzzy 1
+                }
+            } else {
+                if {[string tolower [estrings::stripNoChars $fonto]] eq [string tolower [estrings::stripNoChars $f]]} {
+                    foreach uc $c {
+                        lappend rez [list 0.99 $uc $f]
+                        set noFuzzy 1
+                    }
+                }
+            }
+        }
+    }
+    if {!$noFuzzy} {
+        foreach tuid [my trovuTuLauVortoj $fonto] {
+            foreach {f c} [my prenuTradukListo $tuid] {
+                if {[set match [my fuzzyMatch $f $fonto]]>$minMatch} {
+                    lappend rez [list $match $tuid]
+                }
+            }
+        }
+    }
+    set ret [list]
+    foreach i [lsort -index 0 -real -decreasing $rez] {
+        lappend ret [lindex $i 1]
+    }
+    return $ret
+}
+TMServilo instproc trovuTuLauVortoj {fonto {minFac 0.5}} {
+    my instvar vortoArr
+    set vortoj [my frazoAlvortoj $fonto]
+    set min [expr {round([llength $vortoj]*$minFac)}]
+
+    foreach vorto $vortoj {
+        set vorto [my stripFleks $vorto]
+        if {$vorto ne ""} {
+            if {[info exists vortoArr($vorto)]} {
+                foreach id $vortoArr($vorto) {
+                    if {![info exists idArr($id)]} {
+                        set idArr($id) 1
+                    } else {
+                        incr idArr($id)
+                    }
+                }
+            }
+        }
+    }
+    if {![array exists idArr]} {
+        return
+    }
+    set rez [list]
+    for {set sid [array startsearch idArr]} {[array anymore idArr $sid]} {} {
+        set id [array nextelement idArr $sid]
+        set nombro $idArr($id)
+        if {$nombro>=$min} {
+            lappend rez $id
+        }
+    }
+    array donesearch idArr $sid
+    return $rez
+}
+TMServilo proc addLegaServilo {{file {}}} {
+    if {$file eq ""} {
+        set tipoj {
+            {{TMX Dosiero} *.tmx}
+            {{XLIFF Dosiero} {*.xliff *.xlf}}
+            {{Esperantilo TM} *.tmsql}
+        }
+        set file [IDE::Dialog getOpenFile $tipoj]
+    }
+    if {$file eq ""} {
+        return
+    }
+    set d [my prenuDefault]
+    switch [file extension $file] {
+        .xliff -
+        .xlf {
+            set servilo [TMServilo new -lingvo [$d set lingvo] -fontolingvo [$d set fontolingvo]]
+            $servilo importXLIFF $file
+        }
+        .tmx {
+            set servilo [TMServilo new -lingvo [$d set lingvo] -fontolingvo [$d set fontolingvo]]
+            $servilo importTMX $file
+        }
+        .tmsql {
+            set servilo [TMServiloSQL new -lingvo [$d set lingvo] -fontolingvo [$d set fontolingvo]]
+            $servilo malfermuMK $file
+        }
+    }
+
+    if {[$d istype TMServiloAro]} {
+        $d addServilo $servilo
+    } else {
+        set dservilo $d
+        # TODO
+        my set [my prenuDefaultNomo] [TMServiloAro new -lingvo [EsperantoConf set lingvo]]
+        [my prenuDefault] addServilo $dservilo 1
+        [my prenuDefault] addServilo $servilo
+    }
+}
+TMServilo proc createMenuElementojTradukmemoro {menu {objekto {}}} {
+    $menu addCommand [mc "Redaktilo de Traduka Memoro"] [list TMRedaktilo newBrowserPorObjekto $objekto]
+    $menu addCommand [mc "Importu de TMX dosiero"] [list [self] importTMX]
+    $menu addCommand [mc "Importu de XLIFF dosiero"] [list [self] importXLIFF]
+    $menu addCommand [mc "Eksportu al TMX dosiero"] [list [self] exportTMX]
+    $menu addCommand [mc "Aligu legan tradukan memoron el TMX"] [list TMServilo addLegaServilo]
+}
+TMServilo proc createMenuTradukmemoro objekto {
+    set rm [IDE::MenuStruct new -childof $objekto [mc "Traduka Memoro"] 0]
+    my createMenuElementojTradukmemoro $rm $objekto
+    return $rm
+}
+TMServilo proc exportTMX {} {
+   [my prenuDefault] exportTMX ""
+}
+TMServilo proc importTMX {} {
+    set file [IDE::Dialog getOpenFile {{{TMX Dosiero} *.tmx}}]
+    if {$file eq ""} return
+    set ret [[my prenuDefault] importTMX $file 1]
+    if {$ret ne ""} {
+        EsperantoBrowser message $ret
+    }
+}
+TMServilo proc importXLIFF {} {
+   set file [IDE::Dialog getOpenFile {{{TMX Dosiero} *.tmx}}]
+    if {$file eq ""} return
+    set ret [[my prenuDefault] importXLIFF $file 1]
+    if {$ret ne ""} {
+        EsperantoBrowser message $ret
+    }
+}
+TMServilo proc initializeAfterLoad {} {
+    crc::init
+}
+TMServilo proc prenuDefault {} {
+    set defnomo [my prenuDefaultNomo]
+    if {![my exists $defnomo] || ![Object isobject [my set $defnomo]]} {
+        set servilo [TMServiloSQL new -fontolingvo eo -lingvo [EsperantoConf set lingvo]]
+        $servilo malfermuPropranMK
+        my set $defnomo $servilo
+    }
+    my set $defnomo
+}
+TMServilo proc prenuDefaultNomo {} {
+    if {[Object isobject EsperantoConf]} {
+        return default_eo_[EsperantoConf set lingvo]
+    } else {
+        return default
+    }
+
+}
+TMServilo proc prenuPorDosiero dosiero {
+    foreach s [TMServilo info vars default_*] {
+        if {[Object isobject $s] && [$s istype TMServiloSQL] && [$s set dosiero] eq $dosiero} {
+            return $s
+        }
+    }
+    return
+}
+TMServilo proc prenuPorLingvoj {fontoLingvo celaLingvo} {
+    set defnomo default_${fontoLingvo}_$celaLingvo
+    if {![my exists $defnomo] || ![Object isobject [my set $defnomo]]} {
+        set servilo [TMServiloSQL new -lingvo $celaLingvo -fontolingvo $fontoLingvo]
+        $servilo malfermuPropranMK
+        my set $defnomo $servilo
+    }
+    my set $defnomo
+}
+TMServilo proc testu {} {
+    set servilo [my prenuDefault]
+    $servilo importTMX testo.tmx
+    puts "trovu [$servilo trovu "Saluton mondo!"]"
+}
+TMServilo proc testuErezugen {} {
+    set servilo [my prenuDefault]
+    $servilo aliguTU "Saluton mondo!" "Witaj swiecie!"
+    puts "trovu [$servilo trovu "Saluton mondo!"]"
+    $servilo exportTMX testo.tmx
+}
+@ Class TMServiloAro {
+description {Tiu klaso havas la interfacon de TMServiloAro sed implementas tn. "Resposibity Chain Pattern".
+Do gxi estas kolektilo por multaj tradukaj memoroj}
+}
+Class TMServiloAro -parameter {fontolingvo lingvo}
+@ ::TMServiloAro idemeta component EspTMServilo
+TMServiloAro instproc addServilo {servilo {skriba 0}} {
+    my lappend serviloj $servilo
+    if {$skriba} {
+        my set skribaServilo $servilo
+    }
+}
+TMServiloAro instproc aliguTU {fonto zielo} {
+    my instvar skribaServilo
+    $skribaServilo aliguTU $fonto $zielo
+}
+TMServiloAro instproc exportTMX file {
+    my instvar skribaServilo
+    $skribaServilo exportTMX file
+}
+TMServiloAro instproc importTMX {file {kunProgreso 0}} {
+    my instvar lingvo
+    set servilo [TMServilo new -lingvo lingvo]
+    set ret [$servilo importTMX $file $kunProgreso]
+    my addServilo $servilo
+    return $ret
+}
+TMServiloAro instproc importXLIFF {file {kunProgreso 0}} {
+    my instvar lingvo
+    set servilo [TMServilo new -lingvo lingvo]
+    $servilo importXLIFF $file
+    my addServilo $servilo
+}
+TMServiloAro instproc init {} {
+    my instvar fontolingvo
+    if {![info exists fontolingvo]} {
+        set fontolingvo eo
+    }
+}
+TMServiloAro instproc trovu fonto {
+    my instvar serviloj
+    foreach servilo $serviloj {
+        set ret [$servilo trovu $fonto]
+        if {$ret ne ""} {
+            return $ret
+        }
+    }
+    return
+}
+TMServiloAro instproc trovuMultaj {fonto {minMatch 0.6}} {
+    my instvar serviloj
+    set ret [list]
+    foreach servilo $serviloj {
+        foreach r [$servilo trovuMultaj $fonto $minMatch] {
+            lappend ret $r
+        }
+    }
+    return $ret
+}
+@ Class TMServiloMK {
+description {Traduka memoro, kiu uzas MK-Databazo por konservado}
+}
+Class TMServiloMK -superclass ::TMServilo -parameter {{nurLega 0}}
+@ ::TMServiloMK idemeta categories {private imp-eksportado init-release api obsolete}
+@ ::TMServiloMK idemeta categoriesMethods {{prenuTAId aliguVortoIndekso aliguAlListo} {importXLIFF exportTMX importTMX} {init destroy} {foriguTU prenuIndeksojn aliguTradukoAlListo trovu aliguTU modifuTradukoListo leguArr malfermuMK prenuTradukListo trovuMultaj malfermuPropranMK} {metuSessionId testuSessionId}}
+@ ::TMServiloMK idemeta component EspTMServilo
+TMServiloMK instproc aliguAlListo {fonto celo hash} {
+    my instvar mknomo commit
+    set tac [mk::row append $mknomo.tuaro hash $hash]
+    set c [mk::row append $tac.tu fonto $fonto]
+    mk::row append $c.tradukoj traduko $celo
+    if {$commit} {
+        mk::file commit $mknomo
+    }
+    list [lindex [split $tac !] end] [lindex [split $c !] end]
+}
+TMServiloMK instproc aliguTU {fonto celo} {
+    if {[my nurLega]} {
+        return
+    } else {
+        next
+    }
+}
+TMServiloMK instproc aliguTradukoAlListo {tuid fonto celo} {
+    my instvar mknomo commit
+    mk::loop tuaroc $mknomo.tuaro!$tuid {
+        mk::loop tuc $tuaroc.tu {
+            if {[mk::get $tuc fonto] eq $fonto} {
+                mk::loop tradukoc $tuc.tradukoj {
+                    if {[mk::get $tradukoc traduko] eq $celo} {
+                        return
+                    }
+                }
+                mk::row append $tuc.tradukoj traduko $celo
+                return
+            }
+        }
+    }
+    set c [mk::row append $mknomo.tuaro!$tuid.tu fonto $fonto]
+    mk::row append $c.tradukoj traduko $celo
+    if {$commit} {
+        mk::file commit $mknomo
+    }
+    list $tuid [lindex [split $c !] end]
+}
+TMServiloMK instproc aliguVortoIndekso {fonto id} {
+    my instvar vortoArr mknomo commit
+    set ivortoj [list]
+    foreach vorto [my frazoAlvortoj $fonto] {
+        set vorto [my stripFleks $vorto]
+        if {$vorto ne "" && [lsearch $ivortoj $vorto]<0} {
+            lappend vortoArr($vorto) $id
+            lappend ivortoj $vorto
+            set vortojs [lindex [mk::select $mknomo.vorto -exact vorto $vorto] 0]
+            if {$vortojs ne ""} {
+                mk::row append $mknomo.vorto!$vortojs.ids tuid [lindex $id 0] stuid [lindex $id 1]
+            } else {
+                set cur [mk::row append $mknomo.vorto vorto $vorto]
+                mk::row append $cur.ids tuid [lindex $id 0] stuid [lindex $id 1]
+            }
+        }
+    }
+    if {$commit} {
+        mk::file commit $mknomo
+    }
+}
+TMServiloMK instproc destroy {} {
+    my instvar mknomo
+    if {[info exists mknomo]} {
+        mk::file commit $mknomo
+        mk::file close $mknomo
+        unset mknomo
+    }
+    next
+}
+TMServiloMK instproc exportTMX file {
+    my instvar mknomo fontolingvo lingvo
+    if {$file eq ""} {
+        if {[info exists dosieroNomo]} {
+            set file $dosieroNomo
+        }
+        set file [IDE::Dialog getSaveFile export.tmx {{"TMX Dosiero" *.tmx}} .tmx]
+    }
+    if {$file eq ""} { return 0 }
+    set dosieroNomo $file
+
+    package require tdom
+    set document [dom createDocument tmx]
+    set body [$document createElement body]
+    [$document documentElement] appendChild $body
+
+    mk::loop tuaroc $mknomo.tuaro {
+        mk::loop tuc $tuaroc.tu {
+            set fonto [mk::get $tuc fonto]
+            if {$fonto eq ""} continue
+
+            set tv [$document createElement tu]
+            $body appendChild $tv
+            set tuv [$document createElement tuv]
+            $tv appendChild $tuv
+            set seg [$document createElement seg]
+            $tuv appendChild $seg
+            $tuv setAttribute xml:lang $fontolingvo
+            $seg appendChild [$document createTextNode $fonto]
+
+            mk::loop tradukoc $tuc.tradukoj {
+                set cilo [mk::get $tradukoc traduko]
+                set tuv [$document createElement tuv]
+                $tv appendChild $tuv
+                set seg [$document createElement seg]
+                $tuv appendChild $seg
+                $tuv setAttribute xml:lang $lingvo
+                $seg appendChild [$document createTextNode $cilo]
+            }
+        }
+    }
+
+    set fhandle [open $file w]
+    fconfigure $fhandle -encoding utf-8
+    [$document documentElement] asXML -channel $fhandle
+    $document delete
+    close $fhandle
+    return 1
+}
+TMServiloMK instproc foriguTU tuid {
+    my instvar mknomo
+    foreach {lid slid} $tuid {}
+    mk::set $mknomo.tuaro!$lid.tu!$slid fonto ""
+    mk::loop tradukoc $mknomo.tuaro!$lid.tu!$slid.tradukoj {
+        mk::set $tradukoc traduko ""
+    }
+}
+TMServiloMK instproc foriguTradukon {tuid subid} {
+    error "funkcio ne subtenata"
+}
+TMServiloMK instproc importTMX {file {kunProgreso 0}} {
+    my instvar mknomo commit
+    set commit 0
+    set ret [next]
+    set commit 1
+    mk::file commit $mknomo
+    return $ret
+}
+TMServiloMK instproc importXLIFF file {
+    my instvar mknomo commit
+    set commit 0
+    next
+    set commit 1
+    mk::file commit $mknomo
+}
+TMServiloMK instproc init args {
+    next
+    my set commit 1
+}
+TMServiloMK instproc leguArr {} {
+    my instvar mknomo vortoArr tuArr
+    mk::loop vortojc $mknomo.vorto {
+        set ids [list]
+        set vorto [mk::get $vortojc vorto]
+        mk::loop tuisc $vortojc.ids {
+            foreach {tuid stuid} [mk::get $tuisc tuid stuid] {}
+            lappend ids [list $tuid $stuid]
+        }
+        set vortoArr($vorto) $ids
+    }
+    mk::loop tuc $mknomo.tuaro {
+        set hash [mk::get $tuc hash]
+        set tuArr($hash) [mk::cursor position tuc]
+    }
+}
+TMServiloMK instproc malfermuMK adosiero {
+    my instvar mknomo dosiero
+    package require Mk4tcl
+    set dosiero $adosiero
+    set mknomo [Object autoname tmbazo]
+    if {![file exists $dosiero]} {
+        mk::file open $mknomo $dosiero
+        set v [mk::view layout $mknomo.vorto {vorto {ids {tuid:I stuid:I}}}]
+        mk::file commit $v
+        # turaro hash - tu-tuid (fonto) - tradukoj-stuid traduko1
+        #                               - tradukoj-stuid traduko2
+        #             - tu-tuid (fonto) - tradukoj-stuid traduko3
+        set v [mk::view layout $mknomo.tuaro {hash:I {tu {fonto {tradukoj traduko}}}}]
+        mk::file commit $v
+    } else {
+        mk::file open $mknomo $dosiero
+    }
+    my leguArr
+    #my metuSessionId
+}
+TMServiloMK instproc malfermuPropranMK {} {
+    my instvar lingvo fontolingvo estasSistema
+    set estasSistema 1
+    my malfermuMK [file join [file normalize [EsperantoConf prefEspDosierujo]] tm_${fontolingvo}_${lingvo}.mk]
+}
+TMServiloMK instproc metuSessionId {} {
+    my instvar mknomo sessionid
+    set trov 0
+    foreach t [mk::view layout $mknomo] {
+        if {[lindex $t 0] eq "session"} {
+            set trov 1
+            break
+        }
+    }
+    if {!$trov} {
+        set v [mk::view layout $mknomo.session {id:I}]
+        mk::file commit $v
+        mk::row append $mknomo.session id 0
+    }
+    set sessionid [expr {round(rand()*(2<<16))+[clock seconds]}]
+    mk::set $mknomo.session!0 id $sessionid
+    mk::file commit $mknomo
+}
+TMServiloMK instproc modifuTradukoListo {tuid subid teksto} {
+    my instvar mknomo nurLega
+    if {$nurLega} return
+    foreach {lid slid} $tuid {}
+    mk::set $mknomo.tuaro!$lid.tu!$slid.tradukoj!$subid traduko $teksto
+}
+TMServiloMK instproc prenuDosieron {} {
+    my instvar dosiero
+    return $dosiero
+}
+TMServiloMK instproc prenuIndeksojn {} {
+    my instvar mknomo
+    set ids [list]
+    mk::loop tuc $mknomo.tuaro {
+        set tuid [mk::cursor position tuc]
+        mk::loop stuc $tuc.tu {
+            lappend ids [list $tuid [mk::cursor position stuc]]
+        }
+    }
+    return $ids
+}
+TMServiloMK instproc prenuTAId tuid {
+    lindex $tuid 0
+}
+TMServiloMK instproc prenuTradukListo tuid {
+    my instvar mknomo
+    foreach {lid slid} $tuid {}
+    set tradukoj [list]
+    set fonto [mk::get $mknomo.tuaro!$lid.tu!$slid fonto]
+    set id 0
+    mk::loop tradukoc $mknomo.tuaro!$lid.tu!$slid.tradukoj {
+        lappend tradukoj [list [mk::get $tradukoc traduko] $id]
+        incr id
+    }
+    list $fonto $tradukoj
+}
+TMServiloMK instproc testuSessionId {} {
+    my instvar mknomo sessionid nurLega
+    if {$nurLega} return
+    if {$sessionid != [mk::get $mknomo.session!0 id]} {
+        EsperantoBrowser message [mc "Nur unu programo povas modifi la tradukan memoron. Alia programo modifis la tradukan memoron. Nun la programo ne povas modifi la memoron."]
+        set nurLega 1
+    }
+
+}
+TMServiloMK instproc trovu fonto {
+    my instvar tuArr mknomo
+    set hash [my prenuHash $fonto]
+    if {[info exists tuArr($hash)]} {
+        set bid $tuArr($hash)
+        mk::loop tuc $mknomo.tuaro!$bid.tu {
+            if {[mk::get $tuc fonto] eq $fonto} {
+                puts "found $fonto"
+                return [mk::get $tuc.tradukoj!0 traduko]
+            }
+        }
+    }
+    return
+}
+TMServiloMK instproc trovuMultaj {fonto {minMatch 0.6}} {
+    my instvar tuArr mknomo
+    set hash [my prenuHash $fonto]
+    set rez [list]
+    set noFuzzy 0
+    if {[info exists tuArr($hash)]} {
+        set bid $tuArr($hash)
+        mk::loop tuc $mknomo.tuaro!bid.tu {
+            set f [mk::get $tuc fonto]
+            if {$f eq $fonto} {
+                mk::loop tradukoc $tuc.tradukoj {
+                    lappend rez [list 1.0 [mk::get $tradukoc traduko] $f]
+                    set noFuzzy 1
+                }
+           } else {
+                if {[string tolower [estrings::stripNoChars $fonto]] eq [string tolower [estrings::stripNoChars $f]]} {
+                    mk::loop tradukoc $tuc.tradukoj {
+                        lappend rez [list 0.99 [mk::get $tradukoc traduko] $f]
+                        set noFuzzy 1
+                    }
+                }
+            }
+        }
+    }
+    if {!$noFuzzy} {
+        foreach tuid [my trovuTuLauVortoj $fonto] {
+            foreach {f c} [my prenuTradukListo $tuid] {
+                if {[set match [my fuzzyMatch $f $fonto]]>$minMatch} {
+                    foreach uc $c {
+                        lappend rez [list $match [lindex $uc 0] $f]
+                    }
+                }
+            }
+        }
+    }
+    lsort -index 0 -real -decreasing $rez
+}
+Class TMServiloSQL -superclass ::TMServilo
+@ ::TMServiloSQL idemeta categories {init-release api}
+@ ::TMServiloSQL idemeta categoriesMethods {{destroy malfermuMK} {prenuIndeksojn foriguTU trovu trovuTuLauVortoj trovuMultaj modifuTradukoListo aliguTU}}
+@ ::TMServiloSQL idemeta component EspTMServilo
+TMServiloSQL instproc aliguTU {fonto celo} {
+   my instvar connection
+
+   if {$fonto eq "" || $celo eq ""} return
+   if {[string first "Project-Id-Version:" $fonto]>=0} return
+
+   set tradukoid ""
+   set fontoid [lindex [$connection queryList "select fontoid from fonto where fonto='[$connection escape $fonto]'"] 0 0]
+   if {$fontoid eq ""} {
+       set fontoid [$connection insertRowAutoId fonto {fonto hash} [list $fonto [my prenuHash $fonto]] fontoid]
+       my aliguVortoIndekso $fonto $fontoid
+   } else {
+       set tradukoid  [lindex [$connection queryList "select tradukoid from traduko where traduko='[$connection escape $celo]' and fontoid=$fontoid" ] 0 0]
+   }
+   if {$tradukoid eq ""} {
+       set tradukoid [$connection insertRowAutoId traduko {traduko fontoid} [list $celo $fontoid] tradukoid]
+   }
+   return $tradukoid
+}
+TMServiloSQL instproc aliguVortoIndekso {fonto fontoid} {
+    my instvar connection
+    set ivortoj [list]
+    $connection execute "BEGIN TRANSACTION"
+    foreach vorto [my frazoAlvortoj $fonto] {
+        set vorto [my stripFleks $vorto]
+        if {$vorto ne "" && [lsearch $ivortoj $vorto]<0} {
+            lappend ivortoj $vorto
+            set vortoid [lindex [$connection queryList {select vortoid from vorto where vorto='$vorto'}] 0 0]
+            if {$vortoid eq ""} {
+                set vortoid [$connection insertRowAutoId vorto {vorto} [list $vorto] vortoid]
+            }
+            $connection insertRow vortofonto {vortoid fontoid} [list $vortoid $fontoid]
+        }
+    }
+    $connection execute "END TRANSACTION"
+}
+TMServiloSQL instproc destroy {} {
+    my instvar connection
+    catch {$connection destroy}
+    next
+}
+TMServiloSQL instproc exportTMX {file {havuProgreson 0}} {
+    my instvar connection
+    my instvar mknomo fontolingvo lingvo dosieroNomo
+    if {$file eq ""} {
+        if {[info exists dosieroNomo]} {
+            set file [file rootname $dosieroNomo].tmx
+        } else {
+            set file export-$fontolingvo-$lingvo.tmx
+        }
+        set file [IDE::Dialog getSaveFile $file {{"TMX Dosiero" *.tmx}} .tmx]
+    }
+    if {$file eq ""} { return 0 }
+    set dosieroNomo $file
+
+    package require tdom
+    set document [dom createDocument tmx]
+    set body [$document createElement body]
+    [$document documentElement] appendChild $body
+
+    if {$havuProgreson} {
+        set progreso [ProgresoMontrilo startProgress [mc "eksporto de traduka memoro"]]
+    } else {
+        set progreso ""
+    }
+    set elementoj [my prenuIndeksojn]
+    set rows [llength $elementoj]
+    set i 0
+
+    foreach id $elementoj {
+        if {$progreso ne ""} {
+            $progreso setProgress [expr {round(100.0*$i/$rows)}]
+            if {[$progreso isStopped]} {
+                break
+            }
+        }
+        incr i
+        foreach {fonto tradukoj} [my prenuTradukListo $id] {
+            if {$fonto eq ""} continue
+            set tv [$document createElement tu]
+            $body appendChild $tv
+            set tuv [$document createElement tuv]
+            $tv appendChild $tuv
+            set seg [$document createElement seg]
+            $tuv appendChild $seg
+            $tuv setAttribute xml:lang $fontolingvo
+            $seg appendChild [$document createTextNode $fonto]
+            foreach tradukol $tradukoj  {
+                set cilo [lindex $tradukol 0]
+                set tuv [$document createElement tuv]
+                $tv appendChild $tuv
+                set seg [$document createElement seg]
+                $tuv appendChild $seg
+                $tuv setAttribute xml:lang $lingvo
+                $seg appendChild [$document createTextNode $cilo]
+            }
+        }
+    }
+    if {$progreso ne ""} {
+       $progreso cleanUpAfterSignal
+       $progreso destroy
+    }
+
+    set fhandle [open $file w]
+    fconfigure $fhandle -encoding utf-8
+    [$document documentElement] asXML -channel $fhandle
+    $document delete
+    close $fhandle
+    return 1
+}
+TMServiloSQL instproc foriguTU fontoid {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    $connection execute "DELETE FROM traduko where fontoid=$fontoid"
+    $connection execute "DELETE FROM fonto where fontoid=$fontoid"
+    $connection execute "DELETE FROM vortofonto where fontoid=$fontoid"
+    $connection execute "END TRANSACTION"
+}
+TMServiloSQL instproc foriguTradukon {fontoid tradukoid} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    $connection execute "DELETE FROM traduko where tradukoid=$tradukoid"
+    set len [$connection queryList "select fontoid from traduko where fontoid=$fontoid"]
+    # Se ekzistas nur fonto, forigu ankaux la fonton
+    set kunFonto 0
+    if {[llength $len]==0} {
+        $connection execute "DELETE FROM fonto where fontoid=$fontoid"
+        $connection execute "DELETE FROM vortofonto where fontoid=$fontoid"
+        set kunFonto 1
+    }
+    $connection execute "END TRANSACTION"
+    return $kunFonto
+}
+TMServiloSQL instproc importTAB {file {kunProgreso 0}} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    set ret [next]
+    $connection execute "END TRANSACTION"
+    return $ret
+}
+TMServiloSQL instproc importTMX {file {kunProgreso 0}} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    set ret [next]
+    $connection execute "END TRANSACTION"
+    return $ret
+}
+TMServiloSQL instproc importXLIFF {file {kunProgreso 0}} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    set ret [next]
+    $connection execute "END TRANSACTION"
+    return $ret
+}
+TMServiloSQL instproc malfermuMK adosiero {
+    my instvar connection dosiero lingvo fontolingvo
+
+    set ekzistas [file isfile $adosiero]
+
+    package require xdobry::sql
+    set iclass [Sqlinterface loadInterface sqlite]
+    set connection [$iclass new -childof [self]]
+    $connection connect [list sqlfile $adosiero noMeta 1]
+    set dosiero $adosiero
+
+    if {!$ekzistas} {
+        $connection execute {
+           CREATE TABLE vorto (
+             vortoid INTEGER PRIMARY KEY AUTOINCREMENT,
+             vorto varchar(50)
+           )
+        }
+        $connection execute {
+            CREATE INDEX vorto_vorto ON vorto (vorto)
+        }
+        $connection execute {
+            CREATE TABLE vortofonto (
+               vortoid INTEGER,
+               fontoid INTEGER
+            )
+        }
+        $connection execute {CREATE INDEX vortofonto_vortoid ON vortofonto (vortoid,fontoid)}
+        $connection execute {
+            CREATE TABLE fonto (
+               fontoid INTEGER PRIMARY KEY AUTOINCREMENT,
+               hash INTEGER,
+               fonto TEXT
+            )
+        }
+        $connection execute {CREATE INDEX fonto_fonto ON fonto (fonto)}
+        $connection execute {CREATE INDEX fonto_hash ON fonto (hash)}
+        $connection execute {
+            CREATE TABLE traduko (
+               tradukoid INTEGER PRIMARY KEY AUTOINCREMENT,
+               fontoid INTEGER,
+               traduko TEXT
+            )
+        }
+        $connection execute {CREATE INDEX traduko_fontod ON traduko (fontoid)}
+        $connection execute {
+             CREATE TABLE priskribo (
+                nomo VARCHAR(50),
+                valuo VARCHAR(400)
+             )
+        }
+        $connection execute "INSERT INTO priskribo (nomo,valuo) VALUES ('fontaLingvo','$fontolingvo')"
+        $connection execute "INSERT INTO priskribo (nomo,valuo) VALUES ('celaLingvo','$lingvo')"
+    } else {
+        foreach row [$connection queryList {select nomo,valuo from priskribo where nomo in ('fontaLingvo','celaLingvo')}] {
+            set nomo [lindex $row 0]
+            set valuo [lindex $row 1]
+            if {$nomo eq "fontaLingvo"} {
+                set fontolingvo $valuo
+            } elseif {$nomo eq "celaLingvo"} {
+                set lingvo $valuo
+            }
+        }
+    }
+}
+TMServiloSQL instproc malfermuPropranMK {} {
+    my instvar lingvo fontolingvo estasSistema
+    set estasSistema 1
+    my malfermuMK [file join [file normalize [EsperantoConf prefEspDosierujo]] tm_${fontolingvo}_${lingvo}.tmsql]
+}
+TMServiloSQL instproc modifuTradukoListo {fontoid subid teksto} {
+    my instvar connection
+    $connection execute "update traduko set traduko='[$connection escape $teksto]' where tradukoid=$subid"
+}
+TMServiloSQL instproc prenuDosieron {} {
+    my instvar dosiero
+    return $dosiero
+}
+TMServiloSQL instproc prenuIndeksojn {} {
+    my instvar connection
+    $connection queryList {select fontoid from fonto}
+}
+TMServiloSQL instproc prenuTradukListo fontoid {
+    my instvar connection
+    set fonto [lindex [$connection queryList "select fonto from fonto t where t.fontoid=$fontoid"] 0 0]
+    set tradukoj [list]
+    foreach row [$connection queryList "select tradukoid,traduko from traduko t where t.fontoid=$fontoid"] {
+        lappend tradukoj [list [lindex $row 1] [lindex $row 0]]
+    }
+    list $fonto $tradukoj
+}
+TMServiloSQL instproc puriguMalpelnaj {} {
+    my instvar connection
+    $connection execute "BEGIN TRANSACTION"
+    # todo
+    $connection execute "END TRANSACTION"
+}
+TMServiloSQL instproc release {} {
+    my instvar estasSistema
+    if {[info exists $estasSistema] && $estasSistema} {
+        my destroy
+    }
+}
+TMServiloSQL instproc trovu fonto {
+    my instvar connection
+    lindex [$connection queryList "select traduko from traduko t,fonto f where f.fonto='[$connection escape $fonto]'"] 0 0
+}
+TMServiloSQL instproc trovuEnCelajTekstoj teksto {
+    my instvar connection
+    set rez [list]
+    if {[string first * $teksto]>=0 || [string first ? $teksto]>=0} {
+        set teksto [string map {* % ? _} $teksto]
+        set op like
+    } else {
+        set op =
+    }
+    foreach row [$connection queryList "select f.fontoid from traduko t,fonto f where f.fontoid=t.fontoid and t.traduko $op '$teksto'"] {
+        lappend rez [lindex $row 0]
+    }
+    return $rez
+}
+TMServiloSQL instproc trovuMultaj {fonto {minMatch 0.6}} {
+    my instvar connection
+    set hash [my prenuHash $fonto]
+    set rez [list]
+    set noFuzzy 0
+    foreach row [$connection queryList "select traduko,fonto from traduko t,fonto f where f.hash=$hash and f.fontoid=t.fontoid"] {
+        set t [lindex $row 0]
+        set f [lindex $row 1]
+        if {$f eq $fonto} {
+            lappend rez [list 1.0 $t $f]
+            set noFuzzy 1
+        } else {
+            if {[string tolower [estrings::stripNoChars $fonto]] eq [string tolower [estrings::stripNoChars $f]]} {
+                lappend rez [list 0.99 $t $f]
+            }
+        }
+    }
+    if {!$noFuzzy} {
+        foreach tuid [my trovuTuLauVortoj $fonto] {
+            foreach {f c} [my prenuTradukListo $tuid] {
+                if {[set match [my fuzzyMatch $f $fonto]]>$minMatch} {
+                    foreach uc $c {
+                        lappend rez [list $match [lindex $uc 0] $f]
+                    }
+                }
+            }
+        }
+    }
+    lsort -index 0 -real -decreasing $rez
+}
+TMServiloSQL instproc trovuMultajId {fonto {minMatch 0.6}} {
+    my instvar connection
+    set hash [my prenuHash $fonto]
+    set rez [list]
+    set noFuzzy 0
+    foreach row [$connection queryList "select fonto,fontoid from traduko t,fonto f where f.hash=$hash and f.fontoid=t.fontoid"] {
+        set f [lindex $row 0]
+        set id [lindex $row 1]
+        if {$f eq $fonto} {
+            lappend rez [list 1.0 $id]
+            set noFuzzy 1
+        } else {
+            if {[string tolower [estrings::stripNoChars $fonto]] eq [string tolower [estrings::stripNoChars $f]]} {
+                lappend rez [list 0.99 $id]
+            }
+        }
+    }
+    foreach tuid [my trovuTuLauVortoj $fonto] {
+        foreach {f c} [my prenuTradukListo $tuid] {
+            if {[set match [my fuzzyMatch $f $fonto]]>$minMatch} {
+                lappend rez [list $match $tuid]
+            }
+        }
+    }
+    set ret [list]
+    foreach i [lsort -index 0 -real -decreasing $rez] {
+        lappend ret [lindex $i 1]
+    }
+    return $ret
+}
+TMServiloSQL instproc trovuTuLauVortoj {fonto {minFac 0.5}} {
+    my instvar connection
+    set vortoj [my frazoAlvortoj $fonto]
+    set min [expr {round([llength $vortoj]*$minFac)}]
+
+    set qvortoj [list]
+    foreach vorto $vortoj {
+        set vorto [my stripFleks $vorto]
+        lappend qvortoj $vorto
+    }
+    foreach id [$connection queryList "select fontoid from vortofonto vf,vorto v where vf.vortoid=v.vortoid and v.vorto in ('[join $qvortoj ',']')"] {
+        if {![info exists idArr($id)]} {
+            set idArr($id) 1
+        } else {
+            incr idArr($id)
+        }
+    }
+    if {![array exists idArr]} {
+        return
+    }
+    set rez [list]
+    for {set sid [array startsearch idArr]} {[array anymore idArr $sid]} {} {
+        set id [array nextelement idArr $sid]
+        set nombro $idArr($id)
+        if {$nombro>=$min} {
+            lappend rez $id
+        }
+    }
+    array donesearch idArr $sid
+    return $rez
+}
+Object TMSkripoj
+@ ::TMSkripoj idemeta component EspTMServilo
+TMSkripoj proc importuAlTM dosierujo {
+    set tm [TMServilo prenuPorLingvoj en eo]
+    foreach d [glob -nocomplain -directory $dosierujo *.xlf] {
+        puts "importas $d"
+        $tm importXLIFF $d
+    }
+    foreach subdos [glob -nocomplain -directory $dosierujo -types d *] {
+        my importuAlTM $subdos
+    }
+    # TMSkripoj importuAlTM /home/artur/esperanto/localization
+    # TMSkripoj importuAlTM /home/artur/programs/firefox-eo-lingvopako/chrome/po
+    # TMSkripoj importuAlTM /home/artur/esperanto/i18n/openoffice/po
+}
+TMSkripoj proc kreuCxiujXLIFFdePo {} {
+    set d /home/artur/esperanto/localization/kde-l10n-eo-644835
+    my kreuCxiujXLIFFdePoDosiero $d /home/artur/esperanto/localization
+    # TMSkripoj kreuCxiujXLIFFdePoDosiero /home/artur/programs/firefox-eo-lingvopako/chrome/po /home/artur/programs/firefox-eo-lingvopako/chrome/po
+}
+TMSkripoj proc kreuCxiujXLIFFdePoDosiero {dosierujo rdosierujo} {
+    foreach podos [glob -nocomplain  -directory $dosierujo *.po] {
+        catch {exec po2xliff $podos -o [file join $rdosierujo [file rootname [file tail $podos]].xliff]}
+    }
+    foreach subdos [glob -nocomplain -directory $dosierujo -types d *] {
+        my kreuCxiujXLIFFdePoDosiero $subdos $rdosierujo
+    }
+}
+TMServilo initializeAfterLoad
+

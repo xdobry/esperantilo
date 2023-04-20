@@ -1,0 +1,67 @@
+# automatically generated from XOTclIDE
+# script require component {IDECore IDETestFramework}
+package provide IDEDebuggerTests 0.58
+package require IDECore
+package require IDETestFramework
+
+@ tclproc giveForward idemeta struct IDEDebuggerTests HelpTestProcs
+proc giveForward {} {
+    set a 3
+    incr a
+    set b [expr {$a+2}]
+    procWithHalt
+    incr a
+    set b [expr {$a+2}]
+    set d 0
+    for {set a 0} {$a<5} {incr a} {
+        incr d $a
+    }
+    set d
+}
+@ tclproc giveForwardTo idemeta struct IDEDebuggerTests HelpTestProcs
+proc giveForwardTo {obj method} {
+    set a 0
+    incr a 1
+    $obj $method
+    incr a -1
+}
+@ tclproc procWithHalt idemeta struct IDEDebuggerTests HelpTestProcs
+proc procWithHalt {} {
+    set a 2
+    incr a
+    set b [expr {$a+2}]
+    set d 0
+    atk::halt
+    for {set a 0} {$a<5} {incr a} {
+        incr d $a
+    }
+    set d
+}
+Class IDE::TExtDebugger -superclass ::IDE::TestCase
+@ ::IDE::TExtDebugger idemeta component IDEDebuggerTests
+IDE::TExtDebugger instproc startTest {} {
+   expr {[Object isobject IDE::ExtendedDebugger] && [info commands atk::halt] ne ""}
+}
+IDE::TExtDebugger instproc testCSimpleHalt args {
+   set a b
+   set b 0
+   incr b
+   atk::halt
+   incr b
+   foreach a {1 2 3 4} {
+       set b $a
+   }
+   set a $b
+   
+}
+IDE::TExtDebugger instproc testDHaltInProc {} {
+    set a 3
+    giveForward
+    set b 4
+}
+IDE::TExtDebugger instproc testEHaltThrowProc {} {
+    set a 3
+    giveForwardTo [self] testCSimpleHalt
+    set b 4
+}
+

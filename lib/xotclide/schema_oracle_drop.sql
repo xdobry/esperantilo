@@ -1,0 +1,17 @@
+DROP TABLE Object;
+DROP SEQUENCE Object_seq;
+DROP TABLE Method;
+DROP SEQUENCE Method_seq;
+DROP TABLE ObjectMethod;
+DROP TABLE Component;
+DROP SEQUENCE Component_seq;
+DROP TABLE ComponentObject;
+DROP TABLE ComponentRequire;
+DROP TABLE Userlib;
+DROP SEQUENCE Userlib_seq;
+DROP TABLE Info;
+DROP SEQUENCE Info_seq;
+DROP TABLE Configmap;
+DROP SEQUENCE Configmap_seq;
+DROP TABLE ConfigmapComponent;
+DROP TABLE ConfigmapChildren;

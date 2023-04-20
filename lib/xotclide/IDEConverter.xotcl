@@ -1,0 +1,95 @@
+package provide IDEConverter 0.1
+Class ScriptConverter
+::ScriptConverter metadata component IDEConverter
+ScriptConverter instproc getLine {} {
+    [self] instvar fileh
+    return [gets $fileh]
+}
+ScriptConverter instproc insertCommand command {
+    [self] instvar fileout comment initArray
+    # collect or object set for insert in initializeAfterLoad method
+    if {[lindex $command 1]=="set"} {
+        append initArray([lindex $command 0]) $command
+        return
+    }
+    set commentToken [[self] commentToToken $command]
+    if {$commentToken!=""} {
+        puts $fileout $commentToken
+    }
+    set comment {}
+    puts $fileout $command
+}
+ScriptConverter instproc putInitCommand {} {
+    [self] instvar initArray fileout
+    if {![info exist initArray]} return
+    foreach k [array names initArray] {
+         puts $fileout "$k proc initializeAfterLoad {} {\n$initArray($k)\n}"
+         puts $fileout "$k initializeAfterLoad"
+    }
+}
+ScriptConverter instproc runConverter {} {
+    while 1 {
+       set command [[self] getCommand]
+       if {$command==""} break
+       
+       [self] insertCommand $command
+    }
+    [self] putInitCommand
+}
+ScriptConverter instproc convertFile file {
+   [self] instvar fileh fileout comment initArray
+   if {[info exist initArray]} {unset initArray}
+   set comment ""
+   set fileh [open $file r]
+   set fileout [open $file.out w]
+   [self] runConverter
+   close $fileh
+   close $fileout
+}
+ScriptConverter instproc commentToToken command {
+     [self] instvar comment 
+     if {$comment==""} return
+     set first [lindex $command 0]
+     if {$first=="Class" || $first=="Object"} {
+         return [concat @ $command "{\n  description {\n$comment}\n}"]
+     }
+     set secound [lindex $command 1]
+     if {$secound=="proc" || $secound=="instproc"} {
+         set arguments [lindex $command 3]
+         set arg {}
+         foreach a $arguments {
+             set arg [concat $arg $a [list {}]]
+         }
+         return [concat @ [lrange $command 0 2] [list $arg] "{\n  description {\n$comment}\n}"]
+     }
+}
+ScriptConverter instproc getCommand {} {
+    [self] instvar comment command fileh
+    set line [[self] getLine]
+    if {[eof $fileh]} {
+ 	set command {}       
+	return {}
+    }
+    if {[string index $line 0]=="#"} {
+        puts "comment found $line"
+	append comment [string trimleft $line #] \n
+    } else {
+      append command $line \n
+      if {[info complete $command]} {
+         set r $command; set command ""
+         return $r
+      }
+    }
+    [self] getCommand
+}
+ScriptConverter proc convertDir {{pattern *.tcl}} {
+    set current [pwd]
+    set work [tk_chooseDirectory]
+    set obj [[self] newChild]
+    foreach file [glob $pattern] {
+         $obj convertFile $file
+    }
+    $obj destroy
+    cd $current
+}
+

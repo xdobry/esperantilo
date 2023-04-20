@@ -1,0 +1,13 @@
+#!/opt/tcl8412/bin/tclsh8.4
+set argv [list -cgi]
+package require XOTcl
+# maltipa pritrakto por plirapidigi programon
+namespace eval ::xotcl::comm::httpd::Httpd {
+    xotcl::Class Wrk
+}
+package provide xotcl::comm:httpd 1.0
+namespace import xotcl::*
+source EspBazaLingvo.xotcl
+source EspSintaksaAnalizo.xotcl
+source EspAnalizoj.xotcl
+source Esperantilo.tcl

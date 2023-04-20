@@ -1,0 +1,344 @@
+# automatically generated from XOTclIDE
+# script require component EspAnalizoj
+@ Component EspHTTPServilo {
+description {Tiu Komponento oferas la gramatikon korektilo kiel HTTP-Servo.
+Ekzistas du ebloj
+   * Memstara HTTP servilo '''EoHttpdWorker startServer 8080'''
+   * CGI-Modo per Objekto '''CgiWorker faruCGI'''
+Legu la dokuemntaron en dosierujo ''cgi'' en EsperantiloSDK eldono}
+}
+package provide EspHTTPServilo 0.993
+package require EspAnalizoj
+Class EoHttpdWorker -superclass ::xotcl::comm::httpd::Httpd::Wrk
+@ ::EoHttpdWorker idemeta component EspHTTPServilo
+EoHttpdWorker instproc korektuTekston teksto {
+    my instvar analizilo con
+    # maksimala nombro de signoj estas 4000
+    set teksto [my preparuTekston $teksto]
+    set tekstoKursoro [TekstoKursoro new -childof [self] [list -teksto $teksto]]
+    set frazLegilo [FrazoLegilo new -childof [self] -signoLegilo $tekstoKursoro]
+    set analizilo [GramatikHTMLAnalizilo new -childof [self] -frazoLegilo $frazLegilo]
+    $analizilo analizu
+    $analizilo set rezulto
+}
+EoHttpdWorker instproc preparuTekston teksto {
+    set teksto [string range $teksto 0 4000]
+    set teksto [encoding convertfrom utf-8 $teksto]
+    set teksto [string map [list < "" > "" & ""] $teksto]
+    if {[string first x $teksto]>0} {
+        my instvar con
+        if {![info exists con]} {
+            set con [EsperantoStringConverter new -childof [self]]
+        }
+        $con initVariables
+        set teksto [$con translateString $teksto gx ĝ]
+    }
+    return $teksto
+}
+EoHttpdWorker instproc raportuEraron teksto {
+
+    set tmp {
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+Eraro: $teksto
+</body>
+</html>
+    }
+    my sendMsg [encoding convertto utf-8 [subst $tmp]]
+}
+EoHttpdWorker instproc respond-GET {} {
+    my instvar resourceName
+
+    set tmp {<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>}
+
+    set flOptions ""
+    foreach l [EsperantoConf prenuSubtenatajFontajLingvoj] {
+        append flOptions "<option>$l</option>\n"
+    }
+
+
+    set slingvo [EsperantoConf set lingvo]
+    set clOptions "<option selected=\"selected\">$slingvo</option>"
+    foreach l [EsperantoConf prenuSubtenatajCelajLingvoj] {
+        if {$slingvo ne $l} {
+            append clOptions "<option>$l</option>\n"
+        }
+    }
+
+    if {$resourceName eq "tradukilo"} {
+    append tmp {
+<a href="korektilo">korektilo</a>
+<br>
+<form action="traduku" method="post">
+fonta lingvo: <select name="fontaLingvo">$flOptions</select>
+ cela lingvo:
+<select name="celaLingvo">$clOptions</select>
+<br>
+Teksto por traduko:
+<br>
+<TEXTAREA id="teksto" name="teksto" rows="12" cols="65"></TEXTAREA>
+<br>
+<INPUT id="korektu" type="submit" value="Traduku" name="Traduku">
+</form>
+Maŝina tradukado estas farita per <a href="http://www.esperantilo.org">Esperantilo</a> ([EsperantoConf prenuEldono]).
+Instalu Esperantilon sur via Komputilo por aldonaj funkcioj.
+        }
+    } else {
+    append tmp {
+<a href="tradukilo">Tradukilo</a>
+<br>
+Teksto por gramatika korektado:
+<form action="korektu" method="post">
+<TEXTAREA id="teksto" name="teksto" rows="12" cols="65"></TEXTAREA>
+<br>
+<INPUT id="korektu" type="submit" value="Korektu" name="Korektu">
+</form>
+Gramatika korektado estas farita per <a href="http://www.esperantilo.org">Esperantilo</a> ([EsperantoConf prenuEldono]).
+Instalu Esperantilon sur via Komputilo por aldonaj funkcioj.}
+}
+
+    append tmp {
+</body>
+</html>}
+    set aktiono [my set resourceName]
+    my sendMsg [encoding convertto utf-8 [subst $tmp]]
+}
+EoHttpdWorker instproc respond-POST {} {
+    my instvar formData analizilo resourceName
+
+    if {$resourceName eq "traduku"} {
+        my traduku
+        return
+    }
+
+    foreach f $formData {
+        set fArr([$f set name]) $f
+    }
+    set respozo "Neniu teksto"
+    set stat ""
+    if {[info exists fArr(teksto)]} {
+        set havasRespondon 1
+        set respozo [$fArr(teksto) set content]
+        set respozo [my korektuTekston $respozo]
+        set stat "nekonataj vortoj: [$analizilo set nekonatajVortoj] gramatikaj eraroj: [$analizilo set gramatikajEraroj]"
+    }
+    set tmp {
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+Rezulto de gramatika korektado:
+<p>
+<div style="border:3px groove #FFCC99">
+$respozo
+</div>
+$stat
+</p>
+Gramatika korektado estas farita per <a href="http://www.esperantilo.org">Esperantilo</a> ([EsperantoConf prenuEldono]).
+</body>
+</html>
+    }
+    my sendMsg [encoding convertto utf-8 [subst $tmp]]
+}
+EoHttpdWorker instproc traduku {} {
+    my instvar formData analizilo resourceName
+
+
+    foreach f $formData {
+        set fArr([$f set name]) $f
+    }
+    if {[info exists fArr(fontaLingvo)] && [info exists fArr(celaLingvo)]} {
+        set fontaLingvo [$fArr(fontaLingvo) set content]
+        set celaLingvo [$fArr(celaLingvo) set content]
+    } else {
+        my raportuEraron "lingvo ne ekzistas"
+        return
+    }
+    if {[info exists fArr(teksto)]} {
+        set havasRespondon 1
+        set teksto [$fArr(teksto) set content]
+    } else {
+        my raportuEraron "teksto ne ekzistas"
+        return
+    }
+    set traduko [my tradukuTekston $teksto $fontaLingvo $celaLingvo]
+
+    set tmp {
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+Traduko de '$fontaLingvo' al '$celaLingvo'
+<p>
+<div style="border:3px groove #FFCC99">
+$traduko
+</div>
+</p>
+Tradukado estas farita per <a href="http://www.esperantilo.org">Esperantilo</a> ([EsperantoConf prenuEldono]).
+</body>
+</html>
+    }
+    my sendMsg [encoding convertto utf-8 [subst $tmp]]
+}
+EoHttpdWorker instproc tradukuTekston {teksto fontaLingvo celaLingvo} {
+    set teksto [my preparuTekston $teksto]
+    if {$fontaLingvo eq $celaLingvo} {
+        return $teksto
+    }
+    TekstoTradukilo tradukuTekston $teksto [EsperantoConf prenuLingvoFabrikoTradukado $fontaLingvo $celaLingvo]
+}
+EoHttpdWorker proc initializeAfterLoad {} {
+    # package require xotcl::comm::httpd
+    #EoHttpdWorker instmixin add ::Httpd::Wrk
+
+    if {[llength [info procs ide::ldetect]]==0} {
+        EsperantiloLancxilo initIdeProcs
+        puts stderr "init ide procs"
+    }
+}
+EoHttpdWorker proc startServer {{port 8080}} {
+    # enter the body hier
+    if {![Object isobject eoHttp]} {
+        Httpd create ::eoHttp -port $port -root [file nativename ~] -httpdWrk EoHttpdWorker
+        puts "Esperantilo servilo kuras sur pordo $port"
+    }
+}
+EoHttpdWorker proc stopServer {} {
+    # enter the body hier
+    if {[Object isobject eoHttp]} {
+        ::eoHttp destroy
+    }
+}
+Class GramatikHTMLAnalizilo -superclass ::TekstoBazaSintaksaAnalizo
+@ ::GramatikHTMLAnalizilo idemeta component EspHTTPServilo
+GramatikHTMLAnalizilo instproc analizuSintaksanArbon frazo {
+    my instvar redaktilo nekonatajVortoj gramatikajEraroj
+    my @erarkolektilo sintaksAsto [lindex [$frazo set sintaksoarbo] 0]
+    my @erarkolektilo sxercxiErarojn
+    set rez ""
+    foreach e [my @erarkolektilo set eraroj] {
+        set komencoArr([lindex $e 0 0]) $e
+        set finoArr([lindex $e 0 end]) $e
+    }
+    foreach e [$frazo elementoj] {
+        set vorto [$e vorto]
+        set space [esp::prenuSeparatilon $vorto]
+        append rez $space
+        if {[info exists komencoArr($e)]} {
+            append rez {<span style="background-color:lime">}
+        }
+        if {[$e istype GP::Nekonata]} {
+            append rez <u>$vorto</u>
+            incr nekonatajVortoj
+        } else {
+            append rez $vorto
+        }
+        if {[info exists finoArr($e)]} {
+            set err $finoArr($e)
+            append rez "</span> <code>\[[lindex $err 1]"
+            if {[lindex $err 2] ne ""} {
+                append rez  " - <ins>[lindex $err 2]</ins>"
+            }
+            append rez "</ins>\]</code>"
+        }
+    }
+    my aliguRezulton $rez<br>
+}
+GramatikHTMLAnalizilo instproc montruAnalizon {} {
+    # nenio
+    # eble mallonga raporte en "statusbar"
+}
+GramatikHTMLAnalizilo instproc preparuAnalizon {} {
+    next
+    ErarKolektilo create [self]::@erarkolektilo
+    my instvar nekonatajVortoj gramatikajEraroj
+    set nekonatajVortoj 0
+    set gramatikajEraroj 0
+    my set rezulto ""
+}
+Object CgiWorker
+@ ::CgiWorker idemeta component EspHTTPServilo
+CgiWorker proc decode-formData query {
+  #my showCall
+  foreach pair [split [string trimleft $query \n] &] {
+    set arg [my new-formData]
+    if {[regexp {^(.+)=(.*)$} $pair _ name content]} {
+      $arg set name [url decodeItem $name]
+      $arg set content [url decodeItem $content]
+    } else {
+      $arg set content [url decodeItem $pair]
+    }
+  }
+}
+CgiWorker proc faruCGI {} {
+    my instvar formData analizilo
+    set formData [list]
+    fconfigure stdin -encoding binary
+    my decode-formData [read stdin]
+    foreach f $formData {
+        set fArr([$f set name]) $f
+    }
+    set respondo "Neniu teksto"
+    set stat ""
+    if {[info exists fArr(teksto)]} {
+        set havasRespondon 1
+        set respondo [$fArr(teksto) set content]
+        set respondo [my korektuTekston $respondo]
+        set stat "nekonataj vortoj: [$analizilo set nekonatajVortoj] gramatikaj eraroj: [$analizilo set gramatikajEraroj]"
+    }
+    puts "Content-type: text/html\n"
+    fconfigure stdout -encoding binary
+    set tmp [my prenuRespondon]
+    puts [encoding convertto utf-8 [subst $tmp]]
+}
+CgiWorker proc korektuTekston teksto {
+    my instvar analizilo
+    set teksto [string range $teksto 0 4000]
+    set teksto [encoding convertfrom utf-8 $teksto]
+    set teksto [string map [list < "" > "" & ""] $teksto]
+    if {[string first x $teksto]>0} {
+        set con [EsperantoStringConverter new -childof [self]]
+        $con initVariables
+        set teksto [$con translateString $teksto gx ĝ]
+    }
+    set tekstoKursoro [TekstoKursoro new -childof [self] [list -teksto $teksto]]
+    set frazLegilo [FrazoLegilo new -childof [self] -signoLegilo $tekstoKursoro]
+    set analizilo [GramatikHTMLAnalizilo new -childof [self] -frazoLegilo $frazLegilo]
+    $analizilo analizu
+    $analizilo set rezulto
+}
+CgiWorker proc new-formData {} {
+  set arg [Object create [self]::[my autoname formData]]
+  my lappend formData $arg
+  return $arg
+}
+CgiWorker proc prenuRespondon {} {
+    if {[file isfile respondo.tmp]} {
+        set f [open respondo.tmp r]
+        set respondo [read $f]
+        close $f
+        return $respondo
+    } else {
+        return {
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+Rezulto de gramatika korektado:
+<p>
+<div style="border:3px groove #FFCC99">
+$respondo
+</div>
+$stat
+</p>
+Gramatika korektado estas farita per <a href="http://www.esperantilo.org">Esperantilo</a> ([EsperantoConf prenuEldono]).
+Instalu Esperantilon sur via Komputilo por aldonaj funkcioj.
+</body>
+</html>
+    }
+    }
+}
+EoHttpdWorker initializeAfterLoad
+

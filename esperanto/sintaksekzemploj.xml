@@ -1,0 +1,2015 @@
+<sintaksekzemploj>
+    <grupo nomo="bazaj frazpartoj">
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <priskribo>baza formo</priskribo>
+            <mallongigxo>adjepi</mallongigxo>
+            <ekzemplo>mia bona libro</ekzemplo>
+            <frazo>Mia bona libro malaperis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Mia ADJ:bona S:libro} V:malaperis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <priskribo>participa epiteto</priskribo>
+            <mallongigxo>adjepi</mallongigxo>
+            <ekzemplo>la laboranta junulo</ekzemplo>
+            <frazo>La laboranta junulo ne havas liberan tempon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La ADJ-PARTZ:laboranta S:junulo} {ne:radiko PADV:ne V:havas} {np:tempo ADJ:liberan S:tempon} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adverba epiteto</nomo>
+            <priskribo>priskribas adjektivon</priskribo>
+            <mallongigxo>advepi</mallongigxo>
+            <ekzemplo>tre utila</ekzemplo>
+            <frazo>Komputiloj estas tre utilaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S:Komputiloj V:estas {adjp:attr PADV:tre ADJ:utilaj} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>p pronomo epiteto</nomo>
+            <priskribo>priskribas adjektivon</priskribo>
+            <mallongigxo>ppronepi</mallongigxo>
+            <ekzemplo>mia</ekzemplo>
+            <frazo>La libro estas mia.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:libro} V:estas POSPRON:mia SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adverba epiteto</nomo>
+            <priskribo>priskribas adverbon</priskribo>
+            <mallongigxo>advepi</mallongigxo>
+            <ekzemplo>tre utile</ekzemplo>
+            <frazo>Li laboris tre utile.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:laboris {advp:adv PADV:tre ADV:utile} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>objekto</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi parolis pri tio.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:parolis {pp:pp PREP:pri S-TAB:tio} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva epiteto</nomo>
+            <priskribo>nominacio - nomesprimo</priskribo>
+            <mallongigxo>subepi</mallongigxo>
+            <ekzemplo>lia frato Petro</ekzemplo>
+            <frazo>Lia frato Petro lernas multe.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Lia {ident:radiko S:frato CONST:Petro}} V:lernas ADV:multe SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>alia + pronomo</nomo>
+            <priskribo>alia + pronomo</priskribo>
+            <mallongigxo>subepi</mallongigxo>
+            <ekzemplo>alia lia frato Petro</ekzemplo>
+            <frazo>Alia lia frato lernas malmulte.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S:Alia {np:np POSPRON:lia S:frato} V:lernas ADV:malmulte SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de substantivo</nomo>
+            <priskribo>prepozicio el</priskribo>
+            <mallongigxo>subsup</mallongigxo>
+            <ekzemplo>Knabino el Parizo</ekzemplo>
+            <frazo>Knabino el Parizo lernas lerte.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S:Knabino {pp:pp PREP:el S:Parizo} V:lernas ADV:lerte SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de substantivo</nomo>
+            <priskribo>prepozicio el</priskribo>
+            <mallongigxo>subsup</mallongigxo>
+            <ekzemplo>duono el la ĉeestantoj</ekzemplo>
+            <frazo>Duono el la ĉeestantoj estas Poloj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {subsup:subj S-NUN:Duono {pp:pos PREP:el {np:np DET:la S-PARTZ:ĉeestantoj}}} V:estas S:Poloj SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de substantivo</nomo>
+            <priskribo>prepozicio de</priskribo>
+            <mallongigxo>subsup</mallongigxo>
+            <ekzemplo>glaso da vino</ekzemplo>
+            <frazo>Glaso da vino staras sur tablo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {subsup:subj S:Glaso {pp:pos PREP:da S:vino}} V:staras {pp:pp PREP:sur S:tablo} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de substantivo</nomo>
+            <priskribo>prepozicio antaŭ</priskribo>
+            <mallongigxo>subsup</mallongigxo>
+            <ekzemplo>la arbaro antaŭ la dometo</ekzemplo>
+            <frazo>La arbaro antaŭ la dometo estas granda.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:arbaro} {pp:pp PREP:antaŭ {np:np DET:la S:dometo}} V:estas ADJ:granda
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de substantivo</nomo>
+            <priskribo>prepozicia suplemento</priskribo>
+            <mallongigxo>subsup</mallongigxo>
+            <ekzemplo>kondamno de juĝisto</ekzemplo>
+            <frazo>Kondamno de juĝisto ektimis ĉiujn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {subsup:subj S:Kondamno {pp:pos PREP:de S:juĝisto}} V:ektimis S-TAB:ĉiujn SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de substantivo</nomo>
+            <priskribo>prepozicia suplemento</priskribo>
+            <mallongigxo>subsup</mallongigxo>
+            <ekzemplo>laboro de frato</ekzemplo>
+            <frazo>Li ofte rakontis pri laboro de frato.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li ADV:ofte V:rakontis {pp:pp PREP:pri {subsup:parto S:laboro {pp:pos PREP:de S:frato}}}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>akuzativa suplemento de substantivo</nomo>
+            <priskribo/>
+            <mallongigxo>?sup</mallongigxo>
+            <ekzemplo>mia vojaĝo Hispanujon</ekzemplo>
+            <frazo>Mia vojaĝo Hispanujon daŭras longe.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Mia S:vojaĝo} S:Hispanujon V:daŭras ADV:longe SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva suplemento de substantivo</nomo>
+            <priskribo/>
+            <mallongigxo>?sup</mallongigxo>
+            <ekzemplo>pastra bieno</ekzemplo>
+            <frazo>Pastra bieno prosperas bone.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj ADJ:Pastra S:bieno} V:prosperas ADV:bone SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva suplemento de substantivo</nomo>
+            <priskribo/>
+            <mallongigxo>adjsup</mallongigxo>
+            <ekzemplo>perŝipa vojaĝo</ekzemplo>
+            <frazo>Perŝipa vojaĝo daŭras longe.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj ADJ:Perŝipa S:vojaĝo} V:daŭras ADV:longe SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adverba suplemento de adjektivo</nomo>
+            <priskribo/>
+            <mallongigxo>advadjsup</mallongigxo>
+            <ekzemplo>horloĝe akurata</ekzemplo>
+            <frazo>Li estas horloĝe akurata.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estas ADV:horloĝe ADJ:akurata SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de adverbo</nomo>
+            <priskribo>akuzativa suplemento de adverbo</priskribo>
+            <mallongigxo>akzadvsup</mallongigxo>
+            <ekzemplo>responde vian leteron</ekzemplo>
+            <frazo>Mi veturas responde vian leteron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:veturas {advsup:adv ADV:responde {np:epos POSPRON:vian S:leteron}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de adverbo</nomo>
+            <priskribo>prepozitiva suplemento de adverbo</priskribo>
+            <mallongigxo>preadvsup</mallongigxo>
+            <ekzemplo>responde al via leteron</ekzemplo>
+            <frazo>Mi veturas responde al via letero.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:veturas ADV:responde {pp:pp PREP:al {np:np POSPRON:via S:letero}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subjekto de substativigita propozicio</nomo>
+            <priskribo>'ke' subpropozicio</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Multe da libroj malaperis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {advsup:subj ADV:Multe {pp:epos PREP:da S:libroj}} V:malaperis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subjekto de substativigita propozicio</nomo>
+            <priskribo>s + adj</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis libron bonan.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj S:libron ADJ:bonan} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subjekto de substativigita propozicio</nomo>
+            <priskribo>s + adj</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis libron de frato maljuna.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {subsup:obj S:libron {pp:pos PREP:de {np:parto S:frato ADJ:maljuna}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>anstataŭ kiel konjunkcio</nomo>
+            <priskribo>s + adj</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis pri historio anstataŭ pri geografio.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {pp:pp PREP:pri {subsup:parto S:historio {pp:pos {grupo:radiko PREP:anstataŭ PREP:pri} S:geografio}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>anstataŭ kiel konjunkcio</nomo>
+            <priskribo>s + adj</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis krom pri historio ankaŭ pri geografio.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {pp:pp {grupo:radiko PREP:krom PREP:pri} {subsup:parto S:historio {pp:pos {grupo:radiko PADV:ankaŭ PREP:pri} S:geografio}}} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="np frazpartoj">
+        <ekzemplo>
+            <nomo>sup</nomo>
+            <priskribo>S de S</priskribo>
+            <mallongigxo/>
+            <ekzemplo>mia bona libro</ekzemplo>
+            <frazo>Tio estas la libro de frato.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Tio V:estas {np:subj DET:la {subsup:radiko S:libro {pp:pos PREP:de S:frato}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>S-ADJ</nomo>
+            <priskribo>S ADJ</priskribo>
+            <mallongigxo/>
+            <ekzemplo>mia bona libro</ekzemplo>
+            <frazo>Tio estas la libro malnova.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Tio V:estas {np:subj DET:la S:libro ADJ:malnova} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>sup</nomo>
+            <priskribo>SUP ADJ</priskribo>
+            <mallongigxo/>
+            <ekzemplo>mia bona libro</ekzemplo>
+            <frazo>Tio estas la libro de frato maljuna.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Tio V:estas {np:subj DET:la {subsup:radiko S:libro {pp:pos PREP:de {np:parto S:frato ADJ:maljuna}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kelkaj + np</nomo>
+            <priskribo>SUP ADJ</priskribo>
+            <mallongigxo/>
+            <ekzemplo>kelkajn miajn maljunajn librojn</ekzemplo>
+            <frazo>Mi legis kelkajn miajn mallongajn librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj ADJ:kelkajn POSPRON:miajn ADJ:mallongajn S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>io + adj</nomo>
+            <priskribo>SUP ADJ</priskribo>
+            <mallongigxo/>
+            <ekzemplo>io granda</ekzemplo>
+            <frazo>Mi parolis pri io interesa.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:parolis {pp:pp PREP:pri {np:np S-TAB:io ADJ:interesa}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>io + adj</nomo>
+            <priskribo>SUP ADJ</priskribo>
+            <mallongigxo/>
+            <ekzemplo>io stranga</ekzemplo>
+            <frazo>Mi legis ion interesan.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj S-TAB:ion ADJ:interesan} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>io + adj</nomo>
+            <priskribo>SUP ADJ</priskribo>
+            <mallongigxo/>
+            <ekzemplo>io stranga</ekzemplo>
+            <frazo>Mi legis ion alian.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj S-TAB:ion ADJ:alian} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>gxis nun en np</nomo>
+            <priskribo>tempa priskribo de adj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>ĝis nun malfama</ekzemplo>
+            <frazo>La ĝis nun malfama aŭtoro sukcesas.</frazo>
+            <sarbo>main:baza {np:subj DET:La {adjsup:parto {advp:advp PREP:ĝis PADV:nun} ADJ:malfama} S:aŭtoro} V:sukcesas SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="adjektivoj">
+        <ekzemplo>
+            <nomo>substantiva suplemento de adjektivo</nomo>
+            <priskribo>en akuzativo</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo&gt;subadjsup<ekzemplo>homo du metrojn longa</ekzemplo>
+            <frazo>Homo du metrojn longa estas longulo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj S:Homo {adjsup:adjsup {np:np NUN:du S:metrojn} ADJ:longa}} V:estas S:longulo
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de adjektivo</nomo>
+            <priskribo>en akuzativo</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo&gt;subadjsup<ekzemplo>homo du metrojn longa</ekzemplo>
+            <frazo>La du metrojn longa homo estas bone videbla.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:long DET:La NUN:du S:metrojn} {np:subj ADJ:longa S:homo} V:estas {adjp:attr ADV:bone ADJ:videbla} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>tiel adj</nomo>
+            <priskribo>tiel adj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>La tiel bona libro.</ekzemplo>
+            <frazo>La tiel bona libro ne povas malaperi.</frazo>
+            <sarbo>main:baza {np:subj DET:La {adjp:adjp TAB:tiel ADJ:bona} S:libro} {ne:radiko PADV:ne V:povas} {nfvp:nfvp V:malaperi} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adj pp</nomo>
+            <priskribo>adj pp</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>granda por mi.</ekzemplo>
+            <frazo>La granda por mi libro malaperis.</frazo>
+            <sarbo>main:baza {np:subj {adjsup:adjsup {np:radiko DET:La ADJ:granda} {pp:apos PREP:por PPRON:mi}} S:libro} V:malaperis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adj pp</nomo>
+            <priskribo>adj pp</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>por mi granda</ekzemplo>
+            <frazo>La por mi granda libro malaperis.</frazo>
+            <sarbo>main:baza {np:subj DET:La {adjsup:parto {pp:pp PREP:por PPRON:mi} ADJ:granda} S:libro} V:malaperis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adj pp</nomo>
+            <priskribo>adj pp</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>ĝis nun granda</ekzemplo>
+            <frazo>La ĝis nun granda libro malaperis.</frazo>
+            <sarbo>main:baza {np:subj DET:La {adjsup:parto {advp:advp PREP:ĝis PADV:nun} ADJ:granda} S:libro} V:malaperis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adj pp</nomo>
+            <priskribo>adj pp</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>ĝis hieraŭ granda</ekzemplo>
+            <frazo>La ĝis hieraŭ granda libro malaperis.</frazo>
+            <sarbo>main:baza {np:subj DET:La {adjsup:parto {advp:advp PREP:ĝis PADV:hieraŭ} ADJ:granda} S:libro} V:malaperis SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="nombroj">
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi havas du librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas {np:obj NUN:du S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi havas du tre bonajn librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas {np:obj NUN:du {adjp:adjp PADV:tre ADJ:bonajn} S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Du miaj libroj estas interesaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj NUN:Du POSPRON:miaj S:libroj} V:estas ADJ:interesaj SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Miaj du libroj estas interesaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Miaj NUN:du S:libroj} V:estas ADJ:interesaj SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo/>
+            <frazo>La dek unu libroj estas interesaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {num:num NUN:dek NUN:unu} S:libroj} V:estas ADJ:interesaj SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis la duan libron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj DET:la ADJ-NUN:duan S:libron} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Unu el la libroj estas bona.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {subsup:subj S:Unu {pp:pos PREP:el {np:np DET:la S:libroj}}} V:estas ADJ:bona SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis unu el la libroj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {subsup:obj S:unu {pp:pos PREP:el {np:np DET:la S:libroj}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>unu kiel tablovorto</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Unu volis tion.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S:Unu V:volis S-TAB:tion SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nombro</nomo>
+            <priskribo>baza nombro</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Tri el la libroj estas bonaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {subsup:subj S-NUN:Tri {pp:pos PREP:el {np:np DET:la S:libroj}}} V:estas ADJ:bonaj SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>po nombro</nomo>
+            <priskribo/>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ni sidis po unu ĉe tablo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ni V:sidis {pp:pp PREP:po S:unu} {pp:pp PREP:ĉe S:tablo} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>po nombro</nomo>
+            <priskribo/>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ni sidis po du ĉe tablo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ni V:sidis {pp:pp PREP:po NUN:du} {pp:pp PREP:ĉe S:tablo} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>po pseudonombro</nomo>
+            <priskribo/>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ni sidis po kelkaj ĉe tablo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ni V:sidis {pp:pp PREP:po S:kelkaj} {pp:pp PREP:ĉe S:tablo} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>po pseudonombro</nomo>
+            <priskribo/>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ni legis po kelkaj libroj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ni V:legis {pp:pp PREP:po {np:np ADJ:kelkaj S:libroj}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>du pos sub</nomo>
+            <priskribo/>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis du viajn librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj NUN:du POSPRON:viajn S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>du pos sub</nomo>
+            <priskribo/>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi legis kelkajn tiujn librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj ADJ:kelkajn ADJ-TAB:tiujn S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="verbo">
+        <ekzemplo>
+            <nomo>sensubjektivaj prepozicioj</nomo>
+            <priskribo>ordono</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Legu la libron!</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Legu {np:obj DET:la S:libron} SIM:!</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>objekto</nomo>
+            <priskribo>rekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi aĉetis libron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:aĉetis S:libron SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>akuzativo kiel longeco</nomo>
+            <priskribo>akuzativo kiel longeco</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi veturis du kilometrojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:veturis {np:long NUN:du S:kilometrojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>akuzativo kiel direkto</nomo>
+            <priskribo>akuzativo kiel direkto</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi veturis Parizon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:veturis S:Parizon SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>sola 'mem'</nomo>
+            <priskribo>primitiva adverbo 'mem' en frazo</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Li lernis mem.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:lernis PADV:mem SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>atribua predikativo</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Oni elektis lin kiel prezidanton.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Oni V:elektis {subsup:obj PPRON:lin {kadv:pos TAB:kiel S:prezidanton}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>atribua predikativo</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Li nomis lin prezidanto.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:nomis PPRON:lin S:prezidanto SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva predikativo de objekto</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Li farbis la domon blua.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:farbis {np:obj DET:la S:domon} ADJ:blua SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ec-prepozicio</nomo>
+            <priskribo>ajektiva</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>La domo estas granda.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:domo} V:estas ADJ:granda SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ec-prepozicio</nomo>
+            <priskribo>substantiva</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>La hundo estas besto.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:hundo} V:estas S:besto SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>esti + infinitivo</nomo>
+            <priskribo>esti + infinitivo</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>La tasko estas programi komputilojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:tasko} V:estas {nfvp:nfvp V:programi S:komputilojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ec-prepozicio</nomo>
+            <priskribo>prepozitiva</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mia fratino estas de meza kresko.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Mia S:fratino} V:estas {pp:pp PREP:de {np:np ADJ:meza S:kresko}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>atribua predikativo</nomo>
+            <priskribo>rekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Oni elektis lin prezidanto.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Oni V:elektis PPRON:lin S:prezidanto SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>sensubjektivaj prepozicioj</nomo>
+            <priskribo>sen aganto</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Pluvas jam du tagojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Pluvas {np:tempo {grupo:grupo PADV:jam NUN:du} S:tagojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>sensubjektivaj prepozicioj</nomo>
+            <priskribo>sen aganto</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Estas bone scii tion.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Estas {nfvp:subj ADV:bone V:scii S-TAB:tion} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subjekto en subpropozicio</nomo>
+            <priskribo>'ke' subpropozicio</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ŝajnas, ke tio eblas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:cxeffrazo V:Ŝajnas} {main:subfrazo SIM:, INT:ke S-TAB:tio V:eblas SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>komplemento en erdono</nomo>
+            <priskribo>komplemento en erdono</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Iĝu programisto!</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Iĝu S:programisto SIM:!</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>Attributo en ordono</nomo>
+            <priskribo>Attributo en ordono</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Estu ĉiam ĝentila!</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Estu {adjp:attr ADV-TAB:ĉiam ADJ:ĝentila} SIM:!</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="pli, kiel kaj ol">
+        <ekzemplo>
+            <nomo>suplemento de adverbo</nomo>
+            <priskribo>kiel suplemento de adverbo</priskribo>
+            <mallongigxo>akzadvsup</mallongigxo>
+            <ekzemplo>Rapide kiel leopardo</ekzemplo>
+            <frazo>Rapide kiel leopardo li veturis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {advsup:adv ADV:Rapide {kadv:epos TAB:kiel S:leopardo}} PPRON:li V:veturis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva suplemento de adjektivo</nomo>
+            <priskribo>kun prepozitivo</priskribo>
+            <mallongigxo>subadjsup</mallongigxo>
+            <ekzemplo>pli alta je kapo</ekzemplo>
+            <frazo>Li estas pli alta de kapo ol ŝi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estas {padj:attr PADV:pli ADJ:alta} {pp:pp PREP:de S:kapo} {kadv:adv CONJ:ol PPRON:ŝi} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>prepozicia suplemento de adjektivo</nomo>
+            <priskribo/>
+            <mallongigxo>preadjsup</mallongigxo>
+            <ekzemplo>malpli granda ol Petro</ekzemplo>
+            <frazo>Ŝi estas malpli granda ol Petro.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ŝi V:estas {adjp:attr {padj:radiko PADV:malpli ADJ:granda} CONJ:ol S-CONST:Petro}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel suplemento de adjektivo</nomo>
+            <priskribo/>
+            <mallongigxo>preadjsup</mallongigxo>
+            <ekzemplo>kiel domo granda</ekzemplo>
+            <frazo>Kiel domo granda homo manĝas multe.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza ADV-TAB:Kiel S:domo {np:np ADJ:granda S:homo} V:manĝas ADV:multe SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ne kiel</nomo>
+            <priskribo/>
+            <mallongigxo>ne kiel</mallongigxo>
+            <ekzemplo>kiel domo granda</ekzemplo>
+            <frazo>Li vidis lin ne kiel lernanton.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:vidis {subsup:obj PPRON:lin {kadv:pos {ne:ne PADV:ne TAB:kiel} S-PARTZ:lernanton}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel np</nomo>
+            <priskribo>kiel kun np</priskribo>
+            <mallongigxo>kielnp</mallongigxo>
+            <ekzemplo>kiel granda domo</ekzemplo>
+            <frazo>Lia aspekto estis kiel granda domo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Lia S:aspekto} V:estis {kadv:adv ADV-TAB:kiel {np:np ADJ:granda S:domo}}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel np</nomo>
+            <priskribo>adjektivo kun kiel</priskribo>
+            <mallongigxo>adjkielnp</mallongigxo>
+            <ekzemplo>alte kiel cedro</ekzemplo>
+            <frazo>Li estis alta kiel cedro.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estis {adjsup:attr ADJ:alta {kadv:apos TAB:kiel S:cedro}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel np</nomo>
+            <priskribo>adjektivo kun kiel</priskribo>
+            <mallongigxo>adjkielnp</mallongigxo>
+            <ekzemplo>kiel la unua romano</ekzemplo>
+            <frazo>La libro aperis kiel la unua romano de tiu aŭtoro.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:libro} V:aperis {kadv:adv ADV-TAB:kiel {np:np DET:la ADJ-NUN:unua
+      {subsup:radiko S:romano {pp:pos PREP:de {np:np ADJ-TAB:tiu S:aŭtoro}}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel np</nomo>
+            <priskribo>kiel adjektivo</priskribo>
+            <mallongigxo>kieladj2adv</mallongigxo>
+            <ekzemplo>kiel malutila</ekzemplo>
+            <frazo>Tiu laboro estas konsiderata kiel malutila.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj ADJ-TAB:Tiu S:laboro} V:estas ADJ-PARTZ:konsiderata {adjp:adjp TAB:kiel ADJ:malutila}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel pp</nomo>
+            <priskribo>kiel pp</priskribo>
+            <mallongigxo>kielpp</mallongigxo>
+            <ekzemplo>kiel en domo</ekzemplo>
+            <frazo>Li sentis sin kiel en hejmo.</frazo>
+            <sarbo>main:baza PPRON:Li V:sentis PPRON:sin {kadv:adv ADV-TAB:kiel {pp:pp PREP:en S:hejmo}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kiel ĝis nun</nomo>
+            <priskribo>kiel ĝis nun</priskribo>
+            <mallongigxo>kielpp</mallongigxo>
+            <ekzemplo>kiel en domo</ekzemplo>
+            <frazo>Li faros kiel ĝis nun.</frazo>
+            <sarbo>main:baza PPRON:Li V:faros {kadv:adv ADV-TAB:kiel {advp:advp PREP:ĝis PADV:nun}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de adverbo</nomo>
+            <priskribo>prepozitiva suplemento de adverbo</priskribo>
+            <mallongigxo>preadvsup</mallongigxo>
+            <ekzemplo>pli pure ol sia fratino</ekzemplo>
+            <frazo>Li kantas pli pure ol sia fratino.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:kantas {advp:adv {padv:radiko PADV:pli ADV:pure} CONJ:ol {np:np POSPRON:sia
+      S:fratino}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de adverbo</nomo>
+            <priskribo>prepozitiva suplemento de adverbo</priskribo>
+            <mallongigxo>preadvsup</mallongigxo>
+            <ekzemplo>same kiel sia fratino</ekzemplo>
+            <frazo>Li kantas same kiel sia fratino.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:kantas {advsup:adv ADV:same {kadv:epos TAB:kiel {np:np POSPRON:sia S:fratino}}}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ju des</nomo>
+            <priskribo>kombinaj vortetoj</priskribo>
+            <mallongigxo>judes</mallongigxo>
+            <ekzemplo>ju des</ekzemplo>
+            <frazo>Ju pli granda li estis, des pli li manĝis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main {padj:attr CONJ:Ju {padj:radiko PADV:pli ADJ:granda}} PPRON:li V:estis} {main:main SIM:, {grupo:adv CONJ:des PADV:pli} PPRON:li V:manĝis SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ju des</nomo>
+            <priskribo>kombinaj vortetoj</priskribo>
+            <mallongigxo>judes</mallongigxo>
+            <ekzemplo>ju des</ekzemplo>
+            <frazo>Ju pli da laboro, des pli da mono oni havos.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {npmain:smain {advsup:radiko {grupo:radiko CONJ:Ju PADV:pli} {pp:epos PREP:da S:laboro}}} {main:main SIM:, {advsup:obj {grupo:radiko CONJ:des PADV:pli} {pp:epos PREP:da S:mono}} PPRON:oni V:havos SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ju des</nomo>
+            <priskribo>kombinaj vortetoj</priskribo>
+            <mallongigxo>judes</mallongigxo>
+            <ekzemplo>ju des</ekzemplo>
+            <frazo>Ju pli malmulte li parolos, des pli bone.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {padv:adv CONJ:Ju {padv:radiko PADV:pli ADV:malmulte}} PPRON:li {disk:radiko V:parolos {npmain:npmain SIM:, {padv:padv CONJ:des {padv:radiko PADV:pli ADV:bone}} SIM:.}}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pli ol nombro</nomo>
+            <priskribo>pli ol nombro</priskribo>
+            <mallongigxo>pliolcent</mallongigxo>
+            <ekzemplo>pli ol cent</ekzemplo>
+            <frazo>Mi havas pli ol cent librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas {np:obj {grupo:grupo PADV:pli CONJ:ol NUN:cent} S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pli ol nenio</nomo>
+            <priskribo>pli ol nenio</priskribo>
+            <mallongigxo>pliolnenio</mallongigxo>
+            <ekzemplo>pli ol nenio</ekzemplo>
+            <frazo>Tio estas pli ol nenio.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Tio V:estas {advp:subj PADV:pli CONJ:ol S-TAB:nenio} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pli ol nenio</nomo>
+            <priskribo>pli ol nenio</priskribo>
+            <mallongigxo>pliolnenio</mallongigxo>
+            <ekzemplo>pli ol nenio</ekzemplo>
+            <frazo>Li laboras, pli ol li povas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Li V:laboras} {main:main SIM:, {advp:subj PADV:pli CONJ:ol PPRON:li} V:povas SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pli ol la aliaj</nomo>
+            <priskribo>pli ol nenio</priskribo>
+            <mallongigxo>pliolnenio</mallongigxo>
+            <ekzemplo>pli ol nenio</ekzemplo>
+            <frazo>Li laboras pli ol la aliaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:laboras {advp:advp PADV:pli CONJ:ol {np:np DET:la ADJ:aliaj}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pli ol la aliaj</nomo>
+            <priskribo>pli ol nenio</priskribo>
+            <mallongigxo>pliolnenio</mallongigxo>
+            <ekzemplo>pli ol nenio</ekzemplo>
+            <frazo>Li laboras pli ol la frato.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:laboras {advp:advp PADV:pli CONJ:ol {np:np DET:la S:frato}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pli multe legi ol</nomo>
+            <priskribo>'pli multe' kun 'ol'</priskribo>
+            <mallongigxo>pliolnenio</mallongigxo>
+            <ekzemplo>pli multe legi ol vi</ekzemplo>
+            <frazo>Mi povas pli multe legi ol vi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:povas {nfvp:nfvp {grupo:radiko {padv:padv PADV:pli ADV:multe} V:legi CONJ:ol PPRON:vi}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>tab pli adj sub</nomo>
+            <priskribo>'pli adj' en np</priskribo>
+            <mallongigxo>pliolnenio</mallongigxo>
+            <ekzemplo>tiun pli bonan libron</ekzemplo>
+            <frazo>Mi legis tiun pli bonan libron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj ADJ-TAB:tiun {padj:padj PADV:pli ADJ:bonan} S:libron} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dispartigita ol</nomo>
+            <priskribo>pli subj v obj ol obj2</priskribo>
+            <ekzemplo>legas gazetojn ol librojn.</ekzemplo>
+            <frazo>Multe pli da personoj legas gazetojn ol librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {advsup:subj {grupo:radiko ADV:Multe PADV:pli} {pp:epos PREP:da S:personoj}} V:legas {subsup:obj S:gazetojn {kadv:pos CONJ:ol S:librojn}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol pp</nomo>
+            <priskribo>ol pp</priskribo>
+            <ekzemplo>ol en Eŭropo</ekzemplo>
+            <frazo>Oni bezonas tie pli da mono ol en Eŭropo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Oni V:bezonas ADV-TAB:tie {advsup:obj PADV:pli {pp:epos PREP:da S:mono}} {kadv:adv CONJ:ol {pp:pp PREP:en S:Eŭropo}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol adv</nomo>
+            <priskribo>ol adv</priskribo>
+            <ekzemplo>ol frue</ekzemplo>
+            <frazo>Oni bezonas nun pli da mono ol frue.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Oni V:bezonas PADV:nun {advsup:obj PADV:pli {pp:epos PREP:da S:mono}} {kadv:adv CONJ:ol ADV:frue} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subj ... pli obj ol np</nomo>
+            <priskribo>ol adv</priskribo>
+            <ekzemplo>ol frue</ekzemplo>
+            <frazo>La virinoj ĉiam havis multe pli gravan rolon en Esperantujo ol la viroj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:virinoj} ADV-TAB:ĉiam V:havis {np:obj {padj:padj {grupo:grupo ADV:multe PADV:pli} ADJ:gravan} S:rolon} {pp:pp PREP:en S:Esperantujo} {kadv:adv CONJ:ol {np:np DET:la S:viroj}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol sen pli</nomo>
+            <priskribo>ol adv</priskribo>
+            <ekzemplo>malsame ol ĝis nun</ekzemplo>
+            <frazo>Li vivos malsame ol ĝis nun.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:vivos {advsup:adv ADV:malsame {kadv:epos CONJ:ol {advp:advp PREP:ĝis PADV:nun}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol sen pli</nomo>
+            <priskribo>ol adv</priskribo>
+            <ekzemplo>malsama ol vi</ekzemplo>
+            <frazo>Li estas malsama ol vi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estas {adjsup:attr ADJ:malsama {kadv:apos CONJ:ol PPRON:vi}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol sen pli</nomo>
+            <priskribo>ol adv</priskribo>
+            <ekzemplo>malsama ol vi</ekzemplo>
+            <frazo>Li estas alia ol vi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estas {subsup:comp S:alia {kadv:pos CONJ:ol PPRON:vi}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol sen pli</nomo>
+            <priskribo>ol adv</priskribo>
+            <ekzemplo>malsama ol vi</ekzemplo>
+            <frazo>Li havas alian ideon ol vi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:havas {np:obj ADJ:alian S:ideon} {kadv:adv CONJ:ol PPRON:vi} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol participo</nomo>
+            <priskribo>ol participo</priskribo>
+            <ekzemplo>ol planite</ekzemplo>
+            <frazo>La rezulto estis malpli grava ol planite.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:rezulto} V:estis {adjsup:attr {padj:radiko PADV:malpli ADJ:grava} {kadv:apos CONJ:ol ADV-PARTZ:planite}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ol participo</nomo>
+            <priskribo>ol participo</priskribo>
+            <ekzemplo>ol planite</ekzemplo>
+            <frazo>La rezulto estis malpli grava ol oni tion planis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:rezulto} V:estis {adjp:attr {padj:radiko PADV:malpli ADJ:grava} CONJ:ol PPRON:oni} S-TAB:tion V:planis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>komo ol np</nomo>
+            <priskribo>komo ol np</priskribo>
+            <ekzemplo>ol planite</ekzemplo>
+            <frazo>Lakto estas pli nutra, ol vino.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S:Lakto V:estas {padj:attr PADV:pli {disk:radiko ADJ:nutra {npmain:npmain SIM:, CONJ:ol S:vino SIM:.}}}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>v pli ol subfrazo</nomo>
+            <priskribo>ol kun subfrazo</priskribo>
+            <ekzemplo>pli ol la memoro permesis. (ol tiom, kiom la memoro permesis)</ekzemplo>
+            <frazo>Ili ne povis kanti pli ol la memoro permesis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ili {ne:radiko PADV:ne V:povis} {nfvp:nfvp V:kanti} {advp:advp PADV:pli CONJ:ol {np:np DET:la S:memoro}} V:permesis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>v pli ol subfrazo</nomo>
+            <priskribo>ol kun subfrazo</priskribo>
+            <ekzemplo>ol mi tiun supozus</ekzemplo>
+            <frazo>Li legas pli, ol mi tion supozus.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Li V:legas PADV:pli} {main:main SIM:, CONJ:ol PPRON:mi S-TAB:tion V:supozus SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>iom pli ol nombro</nomo>
+            <priskribo>iom pli ol nombro</priskribo>
+            <ekzemplo>iom pli ol unu</ekzemplo>
+            <frazo>Ĝi kostis 299 dolarojn antaŭ iom pli ol unu jaro.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ĝi V:kostis {np:obj NUN:299 S:dolarojn} PREP:antaŭ ADV-TAB:iom {np:np {grupo:grupo PADV:pli CONJ:ol NUN:unu} S:jaro} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="konjunkcioj">
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <priskribo>priskribas po objekton de plurala substantivo</priskribo>
+            <mallongigxo>adjepi</mallongigxo>
+            <ekzemplo>la angla kaj franca lingvo</ekzemplo>
+            <frazo>La angla kaj franca lingvoj sonas bele.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {konj:fkonj ADJ:angla CONJ:kaj ADJ:franca} S:lingvoj} V:sonas ADV:bele
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <priskribo>plurala adjektivo priskribas du singularajn substantivojn</priskribo>
+            <mallongigxo>adjepi</mallongigxo>
+            <ekzemplo>anglajn muzikon kaj teatron.</ekzemplo>
+            <frazo>Mi ŝatas anglajn muzikon kaj teatron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:ŝatas {np:obj ADJ:anglajn {konj:radiko S:muzikon CONJ:kaj S:teatron}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <priskribo>adjektivo priskribas substantivon</priskribo>
+
+
+
+
+
+
+
+&lt;mallongiĝo&gt;adjepi<ekzemplo>anglajn muzikon kaj teatron.</ekzemplo>
+            <frazo>Mi ŝatas anglan muzikon kaj teatron.</frazo>
+            <sarbo>main:baza PPRON:Mi V:ŝatas {konj:obj {np:radiko ADJ:anglan S:muzikon} CONJ:kaj S:teatron} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <priskribo>priskribas multajn substantivojn</priskribo>
+            <mallongigxo>adjepi</mallongigxo>
+            <ekzemplo>belaj domo kaj ĝardeno</ekzemplo>
+            <frazo>Belaj domo kaj ĝardeno bezonas flegadon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj ADJ:Belaj {konj:radiko S:domo CONJ:kaj S:ĝardeno}} V:bezonas S:flegadon SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <ekzemplo>belaj domo kaj ĝardeno</ekzemplo>
+            <frazo>Mi havas tre konatan kaj interesan libron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas {np:obj {konj:adjp {adjp:radiko PADV:tre ADJ-PARTZ:konatan} CONJ:kaj ADJ:interesan} S:libron} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adj adj kaj adj sub</nomo>
+            <priskribo>adj kun kaj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>grandan malnovan kaj interesan</ekzemplo>
+            <frazo>Mi havas grandan malnovan kaj interesan libron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas {np:obj ADJ:grandan {konj:fkonj ADJ:malnovan CONJ:kaj ADJ:interesan} S:libron} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adjektiva epiteto</nomo>
+            <ekzemplo>belaj domo kaj ĝardeno</ekzemplo>
+            <frazo>Mi havas du konatajn kaj interesajn librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas NUN:du {np:obj {konj:fkonj ADJ-PARTZ:konatajn CONJ:kaj ADJ:interesajn} S:librojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kaj subfrazoj</nomo>
+            <priskribo>kaj separigas subfrazojn</priskribo>
+            <mallongigxo>akajsub</mallongigxo>
+            <ekzemplo>programisto kaj vi</ekzemplo>
+            <frazo>Mi estas programisto kaj vi estas instruisto.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Mi V:estas S:programisto} {main:main CONJ:kaj PPRON:vi V:estas S:instruisto
+      SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kaj subfrazoj</nomo>
+            <priskribo>kaj separigas pp frazpartojn</priskribo>
+            <mallongigxo>kajpp</mallongigxo>
+            <ekzemplo>pri programado kaj pri testado</ekzemplo>
+            <frazo>Mi parolas pri programado kaj pri testado.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:parolas {konj:pp {pp:radiko PREP:pri S:programado} CONJ:kaj {pp:pp PREP:pri
+      S:testado}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subfrazoj relativa kaj</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>S V S kaj S V</ekzemplo>
+            <frazo>Li parolis pri la frato kaj la fratino kuiris.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Li V:parolis {pp:pp PREP:pri {np:np DET:la S:frato}}} {main:main CONJ:kaj
+      {np:subj DET:la S:fratino} V:kuiris SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kaj kun subsup</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>S pp S kaj S</ekzemplo>
+            <frazo>Ĉiu ricevis kuleregon da supo kaj grandan suplementon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Ĉiu V:ricevis {konj:obj {subsup:radiko S:kuleregon {pp:pos PREP:da S:supo}} CONJ:kaj {np:np ADJ:grandan S:suplementon}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kaj kun inf</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>PP INF kaj PP INF</ekzemplo>
+            <frazo>Mi havas ion por manĝi kaj por trinki.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Mi V:havas S-TAB:ion {ppinf:ppinf PREP:por {nfvp:nfvp V:manĝi}}} {smain:smain CONJ:kaj PREP:por V:trinki SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adv kaj pp</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>PP INF kaj PP INF</ekzemplo>
+            <frazo>Li veturis rapide kaj sen iu zorgo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:veturis {konj:adv ADV:rapide CONJ:kaj {pp:pp PREP:sen {np:np ADJ-TAB:iu S:zorgo}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>pp , np kaj np</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>PP INF kaj PP INF</ekzemplo>
+            <frazo>En tiu tempo, frato kaj fratino estas pretaj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {pp:pp PREP:En {np:radiko ADJ-TAB:tiu S:tempo}} SIM:, {konj:subj S:frato CONJ:kaj S:fratino} V:estas ADJ:pretaj SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>np kaj np (elipso al adj)</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>PP INF kaj PP INF</ekzemplo>
+            <frazo>Mi havas du grandajn librojn kaj tri malgrandajn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Mi V:havas {np:obj NUN:du ADJ:grandajn S:librojn}} {smain:smain CONJ:kaj NUN:tri ADJ:malgrandajn SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>multe da kaj np</nomo>
+            <priskribo>multe da</priskribo>
+            <frazo>Li diskutis pri gazetoj kaj multe da libroj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Li V:diskutis {pp:pp PREP:pri S:gazetoj}} {smain:smain CONJ:kaj {advsup:advsup ADV:multe {pp:epos PREP:da S:libroj}} SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>multe da kaj np</nomo>
+            <priskribo>multe da</priskribo>
+            <frazo>Li vidis gazetojn kaj multe da libroj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:vidis {konj:obj S:gazetojn CONJ:kaj {advsup:advsup ADV:multe {pp:epos PREP:da S:libroj}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>, kaj subrazoj</nomo>
+            <priskribo>, kaj subrazoj sen subjekto</priskribo>
+            <frazo>Li legis gazetojn, skribis leterojn kaj dormis en la lito.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {mainc:main {main:main PPRON:Li V:legis S:gazetojn} {smain:smain SIM:, V:skribis S:leterojn}} {smain:main CONJ:kaj V:dormis {pp:pp PREP:en {np:np DET:la S:lito}} SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>elispigita verbo</nomo>
+            <priskribo>elispigita verbo en subfrazo</priskribo>
+            <frazo>Li legis gazetojn kaj ŝi librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Li V:legis S:gazetojn} {main:main CONJ:kaj PPRON:ŝi S:librojn SIM:.}</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="specialaj vortetoj">
+        <ekzemplo>
+            <nomo>vortordo</nomo>
+            <priskribo>mem</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi mem tion volis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {grupo:subj PPRON:Mi PADV:mem} S-TAB:tion V:volis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>vortordo</nomo>
+            <priskribo>nenion plu</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi deziras nenion plu.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:deziras S-TAB:nenion PADV:plu SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ĉi vorteto</nomo>
+            <priskribo>ĉi vorteto</priskribo>
+            <mallongigxo/>
+            <ekzemplo>tiu ĉi</ekzemplo>
+            <frazo>Tiu ĉi homo estas konata.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj {grupo:grupo TAB:Tiu PADV:ĉi} S:homo} V:estas ADJ-PARTZ:konata SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ĉi vorteto</nomo>
+            <priskribo>ĉi vorteto</priskribo>
+            <mallongigxo/>
+            <ekzemplo>tie ĉi</ekzemplo>
+            <frazo>Tie ĉi mi loĝas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {grupo:adv ADV-TAB:Tie PADV:ĉi} PPRON:mi V:loĝas SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ĉi vorteto</nomo>
+            <priskribo>ĉi vorteto</priskribo>
+            <mallongigxo/>
+            <ekzemplo>ĉi tie</ekzemplo>
+            <frazo>Ĉi tie mi loĝas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {grupo:adv PADV:Ĉi ADV-TAB:tie} PPRON:mi V:loĝas SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ĉi vorteto</nomo>
+            <priskribo>ĉi vorteto</priskribo>
+            <mallongigxo/>
+            <ekzemplo>ĉi tien</ekzemplo>
+            <frazo>Li venos ĉi tien morgaŭ.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:venos {grupo:adv PADV:ĉi ADV-TAB:tien} PADV:morgaŭ SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>vi ĉiuj</nomo>
+            <priskribo>vi ĉiuj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>vi ĉiuj</ekzemplo>
+            <frazo>Vi ĉiuj lernas multe.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj PPRON:Vi ADJ-TAB:ĉiuj} V:lernas ADV:multe SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>sola for</nomo>
+            <priskribo>sola for</priskribo>
+            <mallongigxo/>
+            <ekzemplo>for</ekzemplo>
+            <frazo>Li estis for.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estis PADV:for SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>for kun distanco</nomo>
+            <priskribo>sola for</priskribo>
+            <mallongigxo/>
+            <ekzemplo>for</ekzemplo>
+            <frazo>La domo troviĝas tri kilometrojn for.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:domo} V:troviĝas {subsup:long {np:radiko NUN:tri S:kilometrojn} PADV:for} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>for kun distanco kaj rilato</nomo>
+            <priskribo>for kun distanco kaj rilato</priskribo>
+            <mallongigxo/>
+            <ekzemplo>for</ekzemplo>
+            <frazo>La domo troviĝas tri kilometrojn for de stacidomo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:domo} V:troviĝas {subsup:long {np:radiko NUN:tri S:kilometrojn} {advsup:pos PADV:for {pp:epos PREP:de S:stacidomo}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>for kiel suplemento de substantivo</nomo>
+            <priskribo>for kiel suplemento de substantivo</priskribo>
+            <mallongigxo/>
+            <ekzemplo>for</ekzemplo>
+            <frazo>Tio estas la movo for de suno.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Tio V:estas {np:subj DET:la S:movo} {advsup:adv PADV:for {pp:epos PREP:de S:suno}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>jen</nomo>
+            <priskribo>frazo kun jen sen verbo</priskribo>
+            <mallongigxo/>
+            <ekzemplo>jen</ekzemplo>
+            <frazo>Jen la libro, kiu estas populara.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PADV:Jen {np:np DET:la {disk:radiko S:libro {main:subfrazo SIM:, S-TAB:kiu V:estas ADJ:populara}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>jen</nomo>
+            <priskribo>anŝtataŭ kiel legilo</priskribo>
+            <mallongigxo/>
+            <ekzemplo>anŝtataŭ interesa</ekzemplo>
+            <frazo>La libro estas peza anŝtataŭ interesa.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:libro} V:estas ADJ:peza NULL:anŝtataŭ ADJ:interesa SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="specialaj frazpartoj">
+        <ekzemplo>
+            <nomo>substantiva epiteto</nomo>
+            <priskribo>apozicio</priskribo>
+            <mallongigxo>subepi</mallongigxo>
+            <ekzemplo>Li, la reĝo</ekzemplo>
+            <frazo>Li, la reĝo, tion volas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {disk:subj PPRON:Li {npmain:npmain SIM:, {np:np DET:la S:reĝo} SIM:,}} S-TAB:tion V:volas
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva epiteto</nomo>
+            <priskribo>ekvivalento</priskribo>
+            <mallongigxo>subepi</mallongigxo>
+            <ekzemplo>lia devo, lia helpo al vunditoj</ekzemplo>
+            <frazo>Lia devo, lia helpo al vunditoj, estas necesa.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Lia {disk:radiko S:devo {npmain:npmain SIM:, {np:np POSPRON:lia S:helpo} {pp:pp
+      PREP:al S-PARTZ:vunditoj} SIM:,}}} V:estas ADJ:necesa SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva epiteto</nomo>
+            <priskribo>nominacio - citaĵo</priskribo>
+            <mallongigxo>subepi</mallongigxo>
+            <ekzemplo>la vorto "amo"</ekzemplo>
+            <frazo>La vorto "amo" estas utila.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {ignor:radiko S:vorto {npmain:citajxo SIM:\" S:amo SIM:\"}}} V:estas ADJ:utila
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>substantiva epiteto</nomo>
+            <priskribo>nominacio - vokativo</priskribo>
+            <mallongigxo>subepi</mallongigxo>
+            <ekzemplo>helpu min, Petro</ekzemplo>
+            <frazo>Helpu min, Petro.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Helpu {disk:obj PPRON:min {npmain:npmain SIM:, S-CONST:Petro SIM:.}}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dato</nomo>
+            <priskribo>dato</priskribo>
+            <mallongigxo/>
+            <ekzemplo>la sepan de septembro</ekzemplo>
+            <frazo>Frato venos la sepan de septembro.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S:Frato V:venos {np:tempo DET:la {subsup:radiko S-NUN:sepan {pp:pos PREP:de S:septembro}}}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dato</nomo>
+            <priskribo>ekde dato</priskribo>
+            <mallongigxo/>
+            <ekzemplo>ekde la sepan de septembro</ekzemplo>
+            <frazo>Ekde la sepa de septembro funkcios la servilo.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {pp:pp PREP:Ekde {np:np DET:la {subsup:radiko S-NUN:sepa {pp:pos PREP:de S:septembro}}}}
+      V:funkcios {np:subj DET:la S:servilo} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>tempo daŭro + poste</nomo>
+            <priskribo>tempo daŭro + poste</priskribo>
+            <mallongigxo/>
+            <ekzemplo>du monatojn poste</ekzemplo>
+            <frazo>Du monatojn poste li revenis hejmen.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {advp:adv {np:np NUN:Du S:monatojn} ADV:poste} PPRON:li V:revenis ADV:hejmen SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dato</nomo>
+            <priskribo>dato</priskribo>
+            <mallongigxo/>
+            <ekzemplo>la dudek sepa de marto.</ekzemplo>
+            <frazo>Hodiaŭ estas la dudek sepa de marto.</frazo>
+            <sarbo>main:baza PADV:Hodiaŭ V:estas {np:subj DET:la {num:num NUN:dudek {subsup:radiko S-NUN:sepa {pp:pos PREP:de S:marto}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dato en akuzativo</nomo>
+            <priskribo>dato</priskribo>
+            <mallongigxo/>
+            <ekzemplo>la dudek duan de februaro.</ekzemplo>
+            <frazo>Li estis naskita la dudek duan de februaro.</frazo>
+            <sarbo>main:baza PPRON:Li V:estis ADJ-PARTZ:naskita {np:obj DET:la {num:num NUN:dudek {subsup:radiko S-NUN:duan {pp:pos PREP:de S:februaro}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>frazparto en apostrofoj</nomo>
+            <priskribo>apostrofoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>mian tre "interesan" libron.</ekzemplo>
+            <frazo>Mi legis mian tre "interesan" libron.</frazo>
+            <sarbo>main:baza PPRON:Mi V:legis {np:obj POSPRON:mian {adjp:adjp PADV:tre {npmain:radiko SIM:\" ADJ:interesan SIM:\"}} S:libron} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="participoj">
+        <ekzemplo>
+            <nomo>suplemento de verboj</nomo>
+            <priskribo>objektoj de participo</priskribo>
+            <mallongigxo>akzadvsup</mallongigxo>
+            <ekzemplo>domo havanta tri fenestrojn</ekzemplo>
+            <frazo>Domo havanta tri fenestrojn bruliĝis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj {subsup:parto S:Domo {adjp:pos ADJ-PARTZ:havanta {np:obj NUN:tri S:fenestrojn}}}} V:bruliĝis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de verboj</nomo>
+            <priskribo>objektoj de participo</priskribo>
+            <mallongigxo>akzadvsup</mallongigxo>
+            <ekzemplo>domo havanta tri fenestrojn</ekzemplo>
+            <frazo>Ni parolis pri la domo havanta tri fenestrojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ni V:parolis {pp:pp PREP:pri {np:np DET:la {subsup:radiko S:domo {adjp:pos ADJ-PARTZ:havanta {np:obj NUN:tri S:fenestrojn}}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de verboj</nomo>
+            <priskribo>objektoj de participo</priskribo>
+            <mallongigxo>akzadvsup</mallongigxo>
+            <ekzemplo>donacinte libron al la infanoj</ekzemplo>
+            <frazo>Donacinte libron al la infanoj li sukcesis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {advp:adv ADV-PARTZ:Donacinte S:libron} {pp:iobj PREP:al {np:np DET:la S:infanoj}} PPRON:li
+      V:sukcesis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>a-participoj</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Leginte trankvile la libron li ekdormis.</frazo>
+            <statuso>sintakso</statuso>
+            <sarbo>main:baza ADV-PARTZ:Leginte ADV:trankvile {np:obj DET:la S:libron} PPRON:li V:ekdormis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nun + participo</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>La nun forgesita libro estis tre fama.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {grupo:grupo PADV:nun ADJ-PARTZ:forgesita} S:libro} V:estis {adjp:attr PADV:tre ADJ:fama} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nun + participo</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>La nun forgesita libro estis tre fama.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {grupo:grupo PADV:nun ADJ-PARTZ:forgesita} S:libro} V:estis {adjp:attr PADV:tre ADJ:fama} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>akusativo + pasiva participo</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Tio estas la nenion faranta homo.</frazo>
+            <statuso>sintakso</statuso>
+            <sarbo>main:baza S-TAB:Tio V:estas {np:subj DET:la {advp:advp S-TAB:nenion ADJ-PARTZ:faranta} S:homo} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>participo kiel oattr</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>La bildo montris la homon kantanta.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La S:bildo} V:montris {np:obj DET:la S:homon} ADJ-PARTZ:kantanta SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>participo kiel oattr</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Li estis suprizita vidante konatan personon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:estis ADJ-PARTZ:suprizita {advp:adv ADV-PARTZ:vidante {np:obj ADJ-PARTZ:konatan S:personon}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>participa frazparto en np</nomo>
+            <priskribo>participaj frazparto kun adv en np</priskribo>
+            <frazo>La nun bone konata aŭtoro prelegis.</frazo>
+            <sarbo>main:baza {np:subj DET:La {grupo:grupo PADV:nun {adjp:radiko ADV:bone ADJ-PARTZ:konata}} S:aŭtoro} V:prelegis SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>participa frazparto kun pp en np</nomo>
+            <priskribo>participaj frazparto kun adv en np</priskribo>
+            <frazo>La de li skribita libro estas maldika.</frazo>
+            <sarbo>main:baza {np:subj DET:La {adjsup:parto {pp:pp PREP:de PPRON:li} ADJ-PARTZ:skribita} S:libro} V:estas ADJ:maldika SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kompleksa tempo</nomo>
+            <priskribo>estas + inta</priskribo>
+            <frazo>Li estas leginta la libron.</frazo>
+            <sarbo>main:baza PPRON:Li {ktempo:radiko V:estas V:leginta} {np:obj DET:la S:libron} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kompleksa tempo kun obj</nomo>
+            <priskribo>estas + obj + inta</priskribo>
+            <frazo>Li estas ĝin leginta.</frazo>
+            <sarbo>main:baza PPRON:Li V:estas PPRON:ĝin ADJ-PARTZ:leginta SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>kompleksa tempo</nomo>
+            <priskribo>estas + inta</priskribo>
+            <frazo>Li devas esti leginta la libron.</frazo>
+            <sarbo>main:baza PPRON:Li V:devas {nfvp:nfvp {ktempo:radiko V:esti V:leginta} {np:obj DET:la S:libron}} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="infinitivaj frazpartoj">
+        <ekzemplo>
+            <nomo>i-verbo kun objekto</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi venis por vidi vin.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:venis {ppinf:ppinf PREP:por {nfvp:nfvp V:vidi PPRON:vin}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dipartigita i-frazparto</nomo>
+            <priskribo>dipartigita i-frazparto</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Lin mi volas vidi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Lin PPRON:mi V:volas {nfvp:nfvp V:vidi} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dipartigita i-frazparto</nomo>
+            <priskribo>dipartigita i-frazparto</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Tiun libron mi ne povis legi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:nfvpobj ADJ-TAB:Tiun S:libron} PPRON:mi {ne:radiko PADV:ne V:povis} {nfvp:nfvp V:legi} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>suplemento de verboj</nomo>
+            <priskribo>objektoj de inifinitivo</priskribo>
+            <mallongigxo>akzadvsup</mallongigxo>
+            <ekzemplo>viziti amikojn estas afero de ĝentileco</ekzemplo>
+            <frazo>Viziti amikojn estas afero de ĝentileco.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {nfvp:nfvp V:Viziti S:amikojn} V:estas {subsup:subj S:afero {pp:pos PREP:de S:ĝentileco}}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>infinitiva suplemento de adjektivo</nomo>
+            <priskribo>tre malofta</priskribo>
+            <mallongigxo>infadjsup</mallongigxo>
+            <ekzemplo>ema paroli</ekzemplo>
+            <frazo>Ŝi estas ema paroli.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ŝi V:estas {adjsup:attr ADJ:ema {nfvp:nfvp V:paroli}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>infinitiva suplemento de adjektivo</nomo>
+            <priskribo>tre malofta</priskribo>
+            <mallongigxo>infadjsup</mallongigxo>
+            <ekzemplo>preta kompreni</ekzemplo>
+            <frazo>Vi estas preta tion bone kompreni.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Vi V:estas {adjsup:attr ADJ:preta {nfvp:nfvp S-TAB:tion ADV:bone V:kompreni}}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>duopa infinitiva frazparo</nomo>
+            <priskribo>tre malofta</priskribo>
+            <mallongigxo>infporinf</mallongigxo>
+            <ekzemplo>veni por vidi vin</ekzemplo>
+            <frazo>Mi volas veni por vidi vin.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:volas {nfvp:nfvp V:veni {ppinf:ppinf PREP:por {nfvp:nfvp V:vidi PPRON:vin}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>por+inf en komenco</nomo>
+            <priskribo>malofta</priskribo>
+            <mallongigxo>perinfkom</mallongigxo>
+            <ekzemplo>Por fari tion</ekzemplo>
+            <frazo>Por fari tion ni bezonas tempon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {ppinf:ppinf PREP:Por {nfvp:nfvp V:fari S-TAB:tion}} PPRON:ni V:bezonas S:tempon SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>por+inf+inf</nomo>
+            <priskribo>malofta</priskribo>
+            <mallongigxo>perinfkom</mallongigxo>
+            <ekzemplo>por helpi realigi tiujn ĉi celojn.</ekzemplo>
+            <frazo>Mi faras tion por helpi realigi tiujn ĉi celojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:faras S-TAB:tion {ppinf:ppinf PREP:por {nfvp:nfvp V:helpi {nfvp:nfvp V:realigi {np:obj {grupo:grupo TAB:tiujn PADV:ĉi} S:celojn}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>verbo+inf+inf</nomo>
+            <priskribo>malofta</priskribo>
+            <mallongigxo>infinf</mallongigxo>
+            <ekzemplo>volas helpi realigi tiujn ĉi celojn..</ekzemplo>
+            <frazo>Mi volas helpi realigi tiujn ĉi celojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:volas {nfvp:nfvp V:helpi {nfvp:nfvp V:realigi {np:obj {grupo:grupo TAB:tiujn PADV:ĉi} S:celojn}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>por+inf en komenco</nomo>
+            <priskribo>tre malofta</priskribo>
+            <mallongigxo>perakzinfkom</mallongigxo>
+            <ekzemplo>Por tion efektivigi</ekzemplo>
+            <frazo>Por tion efektivigi mi devus tranĉi mian animon en du partoj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {ppinf:ppinf PREP:Por {nfvp:nfvp S-TAB:tion V:efektivigi}} PPRON:mi V:devus {nfvp:nfvp V:tranĉi {np:obj POSPRON:mian S:animon} {pp:pp PREP:en {np:np NUN:du S:partoj}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>infinitiva suplemento de substantivo</nomo>
+            <priskribo/>
+            <mallongigxo>infsup</mallongigxo>
+            <ekzemplo>ordono ataki</ekzemplo>
+            <frazo>Lia ordono ataki ne gravas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj POSPRON:Lia {subsup:radiko S:ordono {nfvp:pos V:ataki}}} {ne:radiko PADV:ne V:gravas}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>infinitiva suplemento de substantivo en nfvp</nomo>
+            <priskribo/>
+            <mallongigxo>infsup</mallongigxo>
+            <ekzemplo>havi okazon ridi</ekzemplo>
+            <frazo>Ili volis havi okazon ridi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ili V:volis {nfvp:nfvp V:havi {subsup:obj S:okazon {nfvp:pos V:ridi}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>ec-prepozicio</nomo>
+            <priskribo>infinitiva</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Li ŝajnis heziti.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:ŝajnis {nfvp:nfvp V:heziti} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subjekto de infinitivo</nomo>
+            <priskribo>subj kiel inf</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Manĝi fruktojn estas plezure.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {nfvp:subj V:Manĝi S:fruktojn} V:estas ADV:plezure SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subjekto de infinitivo</nomo>
+            <priskribo>subj kiel inf</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Legi librojn interesis min.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {nfvp:subj V:Legi S:librojn} V:interesis PPRON:min SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>sen subjekto + infinitivo</nomo>
+            <priskribo>sen subj kiel inf</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ne surprizas min legi, ke tio ne sukcesis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:cxeffrazo {ne:radiko PADV:Ne V:surprizas} {nfvp:subj PPRON:min V:legi}} {main:subfrazo SIM:, INT:ke S-TAB:tio {ne:radiko PADV:ne V:sukcesis} SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>antaŭ ol + inf</nomo>
+            <priskribo>antaŭ ol + inf</priskribo>
+            <mallongigxo/>
+            <ekzemplo>antaŭ ol preni</ekzemplo>
+            <frazo>Vi pagas antaŭ ol preni la varon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Vi V:pagas {ppinf:ppinf {grupo:grupo PREP:antaŭ CONJ:ol} {nfvp:nfvp V:preni {np:obj DET:la S:varon}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>inf kaj subfrazo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>kaj inf</ekzemplo>
+            <frazo>Li volas malofte labori kaj ofte ripozi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:volas {nfvp:nfvp ADV:malofte V:labori} {nfvp:nfvp CONJ:kaj ADV:ofte V:ripozi}
+      SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>necesi sufiĉi</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Al vi necesas dormi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {pp:iobj PREP:Al PPRON:vi} V:necesas {nfvp:nfvp V:dormi} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dispartigita objekt de nfvp</nomo>
+            <priskribo>nerekta</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Tion mi ne sukcesis kompreni.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza S-TAB:Tion PPRON:mi {ne:radiko PADV:ne V:sukcesis} {nfvp:nfvp V:kompreni} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>dispartigita objekt de nfvp</nomo>
+            <priskribo>nerekta</priskribo>
+            <frazo>Tion mi ne estas kapabla kompreni.</frazo>
+            <sarbo>main:baza S-TAB:Tion PPRON:mi {ne:radiko PADV:ne V:estas} {adjsup:attr ADJ:kapabla {nfvp:nfvp V:kompreni}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>duopa nfvp kun adjektivo</nomo>
+            <priskribo>duopa nfvp</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Ŝi opiniis sin nekonvena respondi pri tio.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Ŝi V:opiniis PPRON:sin {adjsup:attr ADJ:nekonvena {nfvp:nfvp V:respondi {pp:pp PREP:pri S-TAB:tio}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>rekursiva nfvp</nomo>
+            <priskribo>nfvp en nfvp</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Li volis permesi lin legi tiun libron.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:volis {nfvp:nfvp V:permesi PPRON:lin {nfvp:nfvp V:legi {np:obj ADJ-TAB:tiun S:libron}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adverba nfvp</nomo>
+            <priskribo>adv nfvp</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Estas eble fari tion.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza V:Estas {advsup:adv ADV:eble {nfvp:nfvp V:fari S-TAB:tion}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>adverba nfvp</nomo>
+            <priskribo>adv nfvp</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi faris tion celante pliponigi la programon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:faris S-TAB:tion {advsup:adv ADV-PARTZ:celante {nfvp:nfvp V:pliponigi {np:obj DET:la S:programon}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>povas esti</nomo>
+            <priskribo>povas esti</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Post tiu tago povas esti granda suprizo.</frazo>
+            <sarbo>main:baza {pp:pp PREP:Post {np:np ADJ-TAB:tiu S:tago}} V:povas {nfvp:nfvp V:esti {np:comp ADJ:granda S:suprizo}} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+    <grupo nomo="subfrazoj">
+        <ekzemplo>
+            <nomo>objekto</nomo>
+            <priskribo>subpropozicia</priskribo>
+            <mallongigxo/>
+            <ekzemplo/>
+            <frazo>Mi volas, ke vi kantu.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:cxeffrazo PPRON:Mi V:volas} {main:subfrazo SIM:, INT:ke PPRON:vi V:kantu SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa frazo kaj-frazo</nomo>
+            <priskribo>kompleksaj subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>kiu bezonas komputilon kaj kiu kapablas legi</ekzemplo>
+            <frazo>Mi konas homon, kiu bezonas komputilon kaj kiu kapablas legi.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:konas {disk:obj S:homon {main:subfrazo SIM:, S-TAB:kiu V:bezonas S:komputilon}} {disk:fkonj CONJ:kaj {main:subfrazo S-TAB:kiu V:kapablas {nfvp:nfvp V:legi}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa frazo kaj-frazo</nomo>
+            <priskribo>kompleksaj subfrazoj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>kiu bezonas komputilon kaj legas librojn</ekzemplo>
+            <frazo>Mi konas homon, kiu bezonas komputilon kaj legas librojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Mi V:konas {disk:obj S:homon {main:subfrazo SIM:, S-TAB:kiu V:bezonas S:komputilon}}} {smain:subfrazo CONJ:kaj V:legas S:librojn SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa frazo kaj-frazo</nomo>
+            <priskribo>malfacila rekono de subfrazoj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>kiujn saĝaj kaj edukitaj homoj legas.</ekzemplo>
+            <frazo>Mi konas librojn, kiujn saĝaj kaj edukitaj homoj legas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:konas {disk:obj S:librojn {main:subfrazo SIM:, S-TAB:kiujn {np:subj {konj:fkonj ADJ:saĝaj CONJ:kaj ADJ-PARTZ:edukitaj} S:homoj} V:legas}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa frazo kaj-frazo</nomo>
+            <priskribo>malfacila rekono de subfrazoj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>ke li parolis pri libroj kaj lernantoj dormis.</ekzemplo>
+            <frazo>Mi scias, kiu parolis pri libroj kaj lernantoj dormis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:main PPRON:Mi {disk:radiko V:scias {main:subfrazo SIM:, S-TAB:kiu V:parolis {pp:pp PREP:pri S:libroj}}}} {main:main CONJ:kaj S-PARTZ:lernantoj V:dormis SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa frazo kaj-frazo</nomo>
+            <priskribo>malfacila rekono de subfrazoj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>ke li parolis pri libroj kaj lernantoj dormis.</ekzemplo>
+            <frazo>Mi scias, ke li parolis pri libroj kaj lernantoj dormis.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {main:cxeffrazo PPRON:Mi V:scias} {mainc:subfrazo {main:main SIM:, INT:ke PPRON:li V:parolis {pp:pp PREP:pri S:libroj}} {main:main CONJ:kaj S-PARTZ:lernantoj V:dormis SIM:.}}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subfrazoj relativa kaj</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>S V S kaj S V</ekzemplo>
+            <frazo>La frato, kiu estis la plej juna, dum tuta nokto kaj tago parolis pri libroj.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {disk:radiko S:frato {main:subfrazo SIM:, S-TAB:kiu V:estis {adjp:attr DET:la PADV:plej ADJ:juna} SIM:,}}} INT:dum {konj:np {np:radiko ADJ:tuta S:nokto} CONJ:kaj S:tago} V:parolis {pp:pp PREP:pri S:libroj} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subfrazoj relativa kaj</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>S V S kaj S V</ekzemplo>
+            <frazo>La frato, kiu estis la amiko de Johano, instruisto de esperanta lingvo, venis vespere.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>mainc:baza {npmain:main {np:radiko DET:La {disk:radiko S:frato {main:subfrazo SIM:, S-TAB:kiu V:estis {np:subj DET:la {subsup:radiko S:amiko {pp:pos PREP:de S-CONST:Johano}}} SIM:,}}} {subsup:parto S:instruisto {pp:pos PREP:de {np:np ADJ:esperanta S:lingvo}}}} {smain:smain SIM:, V:venis ADV:vespere SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa subfrazo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>kiu ...</ekzemplo>
+            <frazo>La homo, kiu laboras, havas monon.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza {np:subj DET:La {disk:radiko S:homo {main:subfrazo SIM:, S-TAB:kiu V:laboras SIM:,}}} V:havas
+      S:monon SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>relativa subfrazo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>kiu ...</ekzemplo>
+            <frazo>Mi vidis la homon, kiu pene laboras, tre ofte.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:vidis {np:obj DET:la {disk:radiko S:homon {main:subfrazo SIM:, S-TAB:kiu ADV:pene
+      V:laboras SIM:,}}} {advp:adv PADV:tre ADV:ofte} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>koma subfrazo enŝuto</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>, S ,</ekzemplo>
+            <frazo>Mi konas tiun aktorinon, filinon de nia instruisto, jam ok jarojn.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:konas {np:obj ADJ-TAB:tiun {disk:radiko S:aktorinon {npmain:npmain SIM:, {subsup:parto S:filinon {pp:pos PREP:de {np:np POSPRON:nia S:instruisto}}} SIM:,}}} {np:tempo {grupo:grupo PADV:jam NUN:ok} S:jarojn} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>koma kaj</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>, S ,</ekzemplo>
+            <frazo>Li kuras tiel rapide kaj tiel mallaŭte, kiel la leono tion povas.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:kuras {konj:adv {advp:radiko TAB:tiel ADV:rapide} CONJ:kaj {advp:advp TAB:tiel {disk:radiko ADV:mallaŭte {main:subfrazo SIM:, ADV-TAB:kiel {np:subj DET:la S:leono} S-TAB:tion V:povas}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>nfvpobj en relativa frazo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>, S ,</ekzemplo>
+            <frazo>Li rifuzis aĵojn, kiujn li ne sukcesis kompreni.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Li V:rifuzis {disk:obj S:aĵojn {main:subfrazo SIM:, S-TAB:kiujn PPRON:li {ne:radiko PADV:ne V:sukcesis} {nfvp:nfvp V:kompreni}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>duopa relativa frazo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>,kiu ,kiu</ekzemplo>
+            <frazo>Mi havas la libron, kiu apartenas al homo, kiu loĝas tie.</frazo>
+            <statuso>nekonata</statuso>
+            <sarbo>main:baza PPRON:Mi V:havas {np:obj DET:la {disk:radiko S:libron {main:subfrazo SIM:, S-TAB:kiu V:apartenas {pp:iobj PREP:al {disk:radiko S:homo {main:subfrazo SIM:, S-TAB:kiu V:loĝas ADV-TAB:tie}}}}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>duopa relativa frazo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>,kiu ,kiu</ekzemplo>
+            <frazo>Se vi havas la libron, kiu estas multekosta, vi povas vendi ĝin.</frazo>
+            <statuso>sanalizo</statuso>
+            <sarbo>mainc:baza {main:subfrazo INT:Se PPRON:vi V:havas {np:obj DET:la {disk:radiko S:libron {main:subfrazo SIM:, S-TAB:kiu V:estas ADJ:multekosta SIM:,}}}} {main:subfrazo PPRON:vi V:povas {nfvp:nfvp V:vendi PPRON:ĝin} SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subfrazo kun infinitivo</nomo>
+            <priskribo>subfrazoj</priskribo>
+            <mallongigxo/>
+            <ekzemplo>kion fari</ekzemplo>
+            <frazo>Mi ne scias, kion fari.</frazo>
+            <sarbo>main:baza PPRON:Mi {ne:radiko PADV:ne {disk:radiko V:scias {main:subfrazo SIM:, S-TAB:kion V:fari}}} SIM:.</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subfrazo kaj kiu</nomo>
+            <priskribo>subfrazoj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>kion fari</ekzemplo>
+            <frazo>Mi legas la librojn kaj vi diskutas kun homoj, kiuj ne legas librojn.</frazo>
+            <sarbo>mainc:baza {main:main PPRON:Mi V:legas {np:obj DET:la S:librojn}} {main:main CONJ:kaj PPRON:vi V:diskutas {pp:pp PREP:kun {disk:parto S:homoj {main:subfrazo SIM:, S-TAB:kiuj {ne:radiko PADV:ne V:legas} S:librojn}}} SIM:.}</sarbo>
+        </ekzemplo>
+        <ekzemplo>
+            <nomo>subfrazo kaj kiu</nomo>
+            <priskribo>subfrazoj</priskribo>
+
+
+
+
+
+
+
+
+&lt;mallongiĝo/&gt;
+            <ekzemplo>kion fari</ekzemplo>
+            <frazo>Mi legas la librojn kaj gazetojn, kiujn mi aĉetis.</frazo>
+            <sarbo>main:baza PPRON:Mi V:legas {konj:obj {np:radiko DET:la S:librojn} CONJ:kaj {disk:parto S:gazetojn {main:subfrazo SIM:, S-TAB:kiujn PPRON:mi V:aĉetis}}} SIM:.</sarbo>
+        </ekzemplo>
+    </grupo>
+</sintaksekzemploj>

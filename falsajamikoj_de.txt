@@ -1,0 +1,29 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+Abi 	abituro, abiturienta ekzameno 	abio 	Tanne
+absolvieren 	finstudi 	absolvi 	freisprechen, lossprechen (von Sünden)
+Affäre 	skandalo 	afero 	Sache, Angelegenheit
+AG 	AK (akcia kompanio) 	ago 	Tat, Handlung
+alt 	malnova, maljuna 	alta 	hoch
+Art 	maniero; speco; specio 	arto 	Kunst
+Brille 	okulvitroj 	brilo 	Glanz, Schein
+Dom 	katedralo 	domo 	Haus
+du 	ci, vi 	du 	zwei
+dumm 	stulta, malsaĝa 	dum 	während
+Dutzend 	dekduo	ducent	zweihundert (200)
+Glatze 	kalvaĵo 	glacio 	Eis
+Katze 	kato 	kaco 	Penis
+Mord 	murdo 	mordo 	Biss
+Muschi 	vagino 	muŝo 	Fliege
+Nase 	nazo 	naso 	Reuse
+Ohr 	orelo 	oro 	Gold
+Sonnenbrille 	sunprotektaj okulvitroj 	sunbrilo 	Sonnenschein
+Sorte 	speco, tipo 	sorto 	Schicksal
+starren 	fiksrigardi, rigide rigardi 	stari 	stehen
+Termin 	limtago; tempolimo; fiksita dato 	termino 	Fachbegriff, Terminus
+Wirt 	gastejestro 	virto 	Tugend
+korekt	ĝusta	korekta	der korrektur betreffend	

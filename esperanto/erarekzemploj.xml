@@ -1,0 +1,1236 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<eraroj>
+   <!--
+    GNU Free Documentation License
+		  Version 1.2, November 2002
+
+
+ Copyright (C) 2000,2001,2002  Free Software Foundation, Inc.
+     51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+
+0. PREAMBLE
+
+The purpose of this License is to make a manual, textbook, or other
+functional and useful document "free" in the sense of freedom: to
+assure everyone the effective freedom to copy and redistribute it,
+with or without modifying it, either commercially or noncommercially.
+Secondarily, this License preserves for the author and publisher a way
+to get credit for their work, while not being considered responsible
+for modifications made by others.
+
+This License is a kind of "copyleft", which means that derivative
+works of the document must themselves be free in the same sense.  It
+complements the GNU General Public License, which is a copyleft
+license designed for free software.
+
+We have designed this License in order to use it for manuals for free
+software, because free software needs free documentation: a free
+program should come with manuals providing the same freedoms that the
+software does.  But this License is not limited to software manuals;
+it can be used for any textual work, regardless of subject matter or
+whether it is published as a printed book.  We recommend this License
+principally for works whose purpose is instruction or reference.
+
+
+1. APPLICABILITY AND DEFINITIONS
+
+This License applies to any manual or other work, in any medium, that
+contains a notice placed by the copyright holder saying it can be
+distributed under the terms of this License.  Such a notice grants a
+world-wide, royalty-free license, unlimited in duration, to use that
+work under the conditions stated herein.  The "Document", below,
+refers to any such manual or work.  Any member of the public is a
+licensee, and is addressed as "you".  You accept the license if you
+copy, modify or distribute the work in a way requiring permission
+under copyright law.
+
+A "Modified Version" of the Document means any work containing the
+Document or a portion of it, either copied verbatim, or with
+modifications and/or translated into another language.
+
+A "Secondary Section" is a named appendix or a front-matter section of
+the Document that deals exclusively with the relationship of the
+publishers or authors of the Document to the Document's overall subject
+(or to related matters) and contains nothing that could fall directly
+within that overall subject.  (Thus, if the Document is in part a
+textbook of mathematics, a Secondary Section may not explain any
+mathematics.)  The relationship could be a matter of historical
+connection with the subject or with related matters, or of legal,
+commercial, philosophical, ethical or political position regarding
+them.
+
+The "Invariant Sections" are certain Secondary Sections whose titles
+are designated, as being those of Invariant Sections, in the notice
+that says that the Document is released under this License.  If a
+section does not fit the above definition of Secondary then it is not
+allowed to be designated as Invariant.  The Document may contain zero
+Invariant Sections.  If the Document does not identify any Invariant
+Sections then there are none.
+
+The "Cover Texts" are certain short passages of text that are listed,
+as Front-Cover Texts or Back-Cover Texts, in the notice that says that
+the Document is released under this License.  A Front-Cover Text may
+be at most 5 words, and a Back-Cover Text may be at most 25 words.
+
+A "Transparent" copy of the Document means a machine-readable copy,
+represented in a format whose specification is available to the
+general public, that is suitable for revising the document
+straightforwardly with generic text editors or (for images composed of
+pixels) generic paint programs or (for drawings) some widely available
+drawing editor, and that is suitable for input to text formatters or
+for automatic translation to a variety of formats suitable for input
+to text formatters.  A copy made in an otherwise Transparent file
+format whose markup, or absence of markup, has been arranged to thwart
+or discourage subsequent modification by readers is not Transparent.
+An image format is not Transparent if used for any substantial amount
+of text.  A copy that is not "Transparent" is called "Opaque".
+
+Examples of suitable formats for Transparent copies include plain
+ASCII without markup, Texinfo input format, LaTeX input format, SGML
+or XML using a publicly available DTD, and standard-conforming simple
+HTML, PostScript or PDF designed for human modification.  Examples of
+transparent image formats include PNG, XCF and JPG.  Opaque formats
+include proprietary formats that can be read and edited only by
+proprietary word processors, SGML or XML for which the DTD and/or
+processing tools are not generally available, and the
+machine-generated HTML, PostScript or PDF produced by some word
+processors for output purposes only.
+
+The "Title Page" means, for a printed book, the title page itself,
+plus such following pages as are needed to hold, legibly, the material
+this License requires to appear in the title page.  For works in
+formats which do not have any title page as such, "Title Page" means
+the text near the most prominent appearance of the work's title,
+preceding the beginning of the body of the text.
+
+A section "Entitled XYZ" means a named subunit of the Document whose
+title either is precisely XYZ or contains XYZ in parentheses following
+text that translates XYZ in another language.  (Here XYZ stands for a
+specific section name mentioned below, such as "Acknowledgements",
+"Dedications", "Endorsements", or "History".)  To "Preserve the Title"
+of such a section when you modify the Document means that it remains a
+section "Entitled XYZ" according to this definition.
+
+The Document may include Warranty Disclaimers next to the notice which
+states that this License applies to the Document.  These Warranty
+Disclaimers are considered to be included by reference in this
+License, but only as regards disclaiming warranties: any other
+implication that these Warranty Disclaimers may have is void and has
+no effect on the meaning of this License.
+
+
+2. VERBATIM COPYING
+
+You may copy and distribute the Document in any medium, either
+commercially or noncommercially, provided that this License, the
+copyright notices, and the license notice saying this License applies
+to the Document are reproduced in all copies, and that you add no other
+conditions whatsoever to those of this License.  You may not use
+technical measures to obstruct or control the reading or further
+copying of the copies you make or distribute.  However, you may accept
+compensation in exchange for copies.  If you distribute a large enough
+number of copies you must also follow the conditions in section 3.
+
+You may also lend copies, under the same conditions stated above, and
+you may publicly display copies.
+
+
+3. COPYING IN QUANTITY
+
+If you publish printed copies (or copies in media that commonly have
+printed covers) of the Document, numbering more than 100, and the
+Document's license notice requires Cover Texts, you must enclose the
+copies in covers that carry, clearly and legibly, all these Cover
+Texts: Front-Cover Texts on the front cover, and Back-Cover Texts on
+the back cover.  Both covers must also clearly and legibly identify
+you as the publisher of these copies.  The front cover must present
+the full title with all words of the title equally prominent and
+visible.  You may add other material on the covers in addition.
+Copying with changes limited to the covers, as long as they preserve
+the title of the Document and satisfy these conditions, can be treated
+as verbatim copying in other respects.
+
+If the required texts for either cover are too voluminous to fit
+legibly, you should put the first ones listed (as many as fit
+reasonably) on the actual cover, and continue the rest onto adjacent
+pages.
+
+If you publish or distribute Opaque copies of the Document numbering
+more than 100, you must either include a machine-readable Transparent
+copy along with each Opaque copy, or state in or with each Opaque copy
+a computer-network location from which the general network-using
+public has access to download using public-standard network protocols
+a complete Transparent copy of the Document, free of added material.
+If you use the latter option, you must take reasonably prudent steps,
+when you begin distribution of Opaque copies in quantity, to ensure
+that this Transparent copy will remain thus accessible at the stated
+location until at least one year after the last time you distribute an
+Opaque copy (directly or through your agents or retailers) of that
+edition to the public.
+
+It is requested, but not required, that you contact the authors of the
+Document well before redistributing any large number of copies, to give
+them a chance to provide you with an updated version of the Document.
+
+
+4. MODIFICATIONS
+
+You may copy and distribute a Modified Version of the Document under
+the conditions of sections 2 and 3 above, provided that you release
+the Modified Version under precisely this License, with the Modified
+Version filling the role of the Document, thus licensing distribution
+and modification of the Modified Version to whoever possesses a copy
+of it.  In addition, you must do these things in the Modified Version:
+
+A. Use in the Title Page (and on the covers, if any) a title distinct
+   from that of the Document, and from those of previous versions
+   (which should, if there were any, be listed in the History section
+   of the Document).  You may use the same title as a previous version
+   if the original publisher of that version gives permission.
+B. List on the Title Page, as authors, one or more persons or entities
+   responsible for authorship of the modifications in the Modified
+   Version, together with at least five of the principal authors of the
+   Document (all of its principal authors, if it has fewer than five),
+   unless they release you from this requirement.
+C. State on the Title page the name of the publisher of the
+   Modified Version, as the publisher.
+D. Preserve all the copyright notices of the Document.
+E. Add an appropriate copyright notice for your modifications
+   adjacent to the other copyright notices.
+F. Include, immediately after the copyright notices, a license notice
+   giving the public permission to use the Modified Version under the
+   terms of this License, in the form shown in the Addendum below.
+G. Preserve in that license notice the full lists of Invariant Sections
+   and required Cover Texts given in the Document's license notice.
+H. Include an unaltered copy of this License.
+I. Preserve the section Entitled "History", Preserve its Title, and add
+   to it an item stating at least the title, year, new authors, and
+   publisher of the Modified Version as given on the Title Page.  If
+   there is no section Entitled "History" in the Document, create one
+   stating the title, year, authors, and publisher of the Document as
+   given on its Title Page, then add an item describing the Modified
+   Version as stated in the previous sentence.
+J. Preserve the network location, if any, given in the Document for
+   public access to a Transparent copy of the Document, and likewise
+   the network locations given in the Document for previous versions
+   it was based on.  These may be placed in the "History" section.
+   You may omit a network location for a work that was published at
+   least four years before the Document itself, or if the original
+   publisher of the version it refers to gives permission.
+K. For any section Entitled "Acknowledgements" or "Dedications",
+   Preserve the Title of the section, and preserve in the section all
+   the substance and tone of each of the contributor acknowledgements
+   and/or dedications given therein.
+L. Preserve all the Invariant Sections of the Document,
+   unaltered in their text and in their titles.  Section numbers
+   or the equivalent are not considered part of the section titles.
+M. Delete any section Entitled "Endorsements".  Such a section
+   may not be included in the Modified Version.
+N. Do not retitle any existing section to be Entitled "Endorsements"
+   or to conflict in title with any Invariant Section.
+O. Preserve any Warranty Disclaimers.
+
+If the Modified Version includes new front-matter sections or
+appendices that qualify as Secondary Sections and contain no material
+copied from the Document, you may at your option designate some or all
+of these sections as invariant.  To do this, add their titles to the
+list of Invariant Sections in the Modified Version's license notice.
+These titles must be distinct from any other section titles.
+
+You may add a section Entitled "Endorsements", provided it contains
+nothing but endorsements of your Modified Version by various
+parties - - for example, statements of peer review or that the text has
+been approved by an organization as the authoritative definition of a
+standard.
+
+You may add a passage of up to five words as a Front-Cover Text, and a
+passage of up to 25 words as a Back-Cover Text, to the end of the list
+of Cover Texts in the Modified Version.  Only one passage of
+Front-Cover Text and one of Back-Cover Text may be added by (or
+through arrangements made by) any one entity.  If the Document already
+includes a cover text for the same cover, previously added by you or
+by arrangement made by the same entity you are acting on behalf of,
+you may not add another; but you may replace the old one, on explicit
+permission from the previous publisher that added the old one.
+
+The author(s) and publisher(s) of the Document do not by this License
+give permission to use their names for publicity for or to assert or
+imply endorsement of any Modified Version.
+
+
+5. COMBINING DOCUMENTS
+
+You may combine the Document with other documents released under this
+License, under the terms defined in section 4 above for modified
+versions, provided that you include in the combination all of the
+Invariant Sections of all of the original documents, unmodified, and
+list them all as Invariant Sections of your combined work in its
+license notice, and that you preserve all their Warranty Disclaimers.
+
+The combined work need only contain one copy of this License, and
+multiple identical Invariant Sections may be replaced with a single
+copy.  If there are multiple Invariant Sections with the same name but
+different contents, make the title of each such section unique by
+adding at the end of it, in parentheses, the name of the original
+author or publisher of that section if known, or else a unique number.
+Make the same adjustment to the section titles in the list of
+Invariant Sections in the license notice of the combined work.
+
+In the combination, you must combine any sections Entitled "History"
+in the various original documents, forming one section Entitled
+"History"; likewise combine any sections Entitled "Acknowledgements",
+and any sections Entitled "Dedications".  You must delete all sections
+Entitled "Endorsements".
+
+
+6. COLLECTIONS OF DOCUMENTS
+
+You may make a collection consisting of the Document and other documents
+released under this License, and replace the individual copies of this
+License in the various documents with a single copy that is included in
+the collection, provided that you follow the rules of this License for
+verbatim copying of each of the documents in all other respects.
+
+You may extract a single document from such a collection, and distribute
+it individually under this License, provided you insert a copy of this
+License into the extracted document, and follow this License in all
+other respects regarding verbatim copying of that document.
+
+
+7. AGGREGATION WITH INDEPENDENT WORKS
+
+A compilation of the Document or its derivatives with other separate
+and independent documents or works, in or on a volume of a storage or
+distribution medium, is called an "aggregate" if the copyright
+resulting from the compilation is not used to limit the legal rights
+of the compilation's users beyond what the individual works permit.
+When the Document is included in an aggregate, this License does not
+apply to the other works in the aggregate which are not themselves
+derivative works of the Document.
+
+If the Cover Text requirement of section 3 is applicable to these
+copies of the Document, then if the Document is less than one half of
+the entire aggregate, the Document's Cover Texts may be placed on
+covers that bracket the Document within the aggregate, or the
+electronic equivalent of covers if the Document is in electronic form.
+Otherwise they must appear on printed covers that bracket the whole
+aggregate.
+
+
+8. TRANSLATION
+
+Translation is considered a kind of modification, so you may
+distribute translations of the Document under the terms of section 4.
+Replacing Invariant Sections with translations requires special
+permission from their copyright holders, but you may include
+translations of some or all Invariant Sections in addition to the
+original versions of these Invariant Sections.  You may include a
+translation of this License, and all the license notices in the
+Document, and any Warranty Disclaimers, provided that you also include
+the original English version of this License and the original versions
+of those notices and disclaimers.  In case of a disagreement between
+the translation and the original version of this License or a notice
+or disclaimer, the original version will prevail.
+
+If a section in the Document is Entitled "Acknowledgements",
+"Dedications", or "History", the requirement (section 4) to Preserve
+its Title (section 1) will typically require changing the actual
+title.
+
+
+9. TERMINATION
+
+You may not copy, modify, sublicense, or distribute the Document except
+as expressly provided for under this License.  Any other attempt to
+copy, modify, sublicense or distribute the Document is void, and will
+automatically terminate your rights under this License.  However,
+parties who have received copies, or rights, from you under this
+License will not have their licenses terminated so long as such
+parties remain in full compliance.
+
+
+10. FUTURE REVISIONS OF THIS LICENSE
+
+The Free Software Foundation may publish new, revised versions
+of the GNU Free Documentation License from time to time.  Such new
+versions will be similar in spirit to the present version, but may
+differ in detail to address new problems or concerns.  See
+http://www.gnu.org/copyleft/.
+
+Each version of the License is given a distinguishing version number.
+If the Document specifies that a particular numbered version of this
+License "or any later version" applies to it, you have the option of
+following the terms and conditions either of that specified version or
+of any later version that has been published (not as a draft) by the
+Free Software Foundation.  If the Document does not specify a version
+number of this License, you may choose any version ever published (not
+as a draft) by the Free Software Foundation.
+
+
+ADDENDUM: How to use this License for your documents
+
+To use this License in a document you have written, include a copy of
+the License in the document and put the following copyright and
+license notices just after the title page:
+
+    Copyright (c)  YEAR  YOUR NAME.
+    Permission is granted to copy, distribute and/or modify this document
+    under the terms of the GNU Free Documentation License, Version 1.2
+    or any later version published by the Free Software Foundation;
+    with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+    A copy of the license is included in the section entitled "GNU
+    Free Documentation License".
+
+If you have Invariant Sections, Front-Cover Texts and Back-Cover Texts,
+replace the "with...Texts." line with this:
+
+    with the Invariant Sections being LIST THEIR TITLES, with the
+    Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST.
+
+If you have Invariant Sections without Cover Texts, or some other
+combination of the three, merge those two alternatives to suit the
+situation.
+
+If your document contains nontrivial examples of program code, we
+recommend releasing these examples in parallel under your choice of
+free software license, such as the GNU General Public License,
+to permit their use in free software.
+   -->
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas la kato.</eraro>
+    <bona>Mi vidas la katon.</bona>
+    <priskribo>Kazo de direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vi vidas.</eraro>
+    <bona>Mi vin vidas.</bona>
+    <priskribo>Kazo de direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas tio.</eraro>
+    <bona>Mi vidas tion.</bona>
+    <priskribo>Kazo de direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas la kato de patro.</eraro>
+    <bona>Mi vidas la katon de patro.</bona>
+    <priskribo>Kazo de direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi volas vidi la kato.</eraro>
+    <bona>Mi volas vidi la katon.</bona>
+    <priskribo>Kazo de direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi volas vidi la kato de patro.</eraro>
+    <bona>Mi volas vidi la katon de patro.</bona>
+    <priskribo>Kazo de direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas bela katon.</eraro>
+    <bona>Mi vidas belan katon.</bona>
+    <priskribo>Kazo de NP</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas tre bela katon.</eraro>
+    <bona>Mi vidas tre belan katon.</bona>
+    <priskribo>Kazo de NP</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas tiun kato.</eraro>
+    <bona>Mi vidas tiun katon.</bona>
+    <priskribo>Kazo de NP</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas iu katon.</eraro>
+    <bona>Mi vidas iun katon.</bona>
+    <priskribo>Kazo de NP</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas mia katon.</eraro>
+    <bona>Mi vidas mian katon.</bona>
+    <priskribo>Kazo de NP</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi dormas la domon.</eraro>
+    <bona>Mi dormas en la domo.</bona>
+    <priskribo>ne transitiva verbo kun direkta objekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>lernu.net</autoro>
+    <eraro>Okazas nenion.</eraro>
+    <bona>Okazas nenio.</bona>
+    <priskribo>Subjekto en nominativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidas laboratan homon.</eraro>
+    <bona>Mi vidas laborantan homon.</bona>
+    <priskribo>Pasiva participo ĉe netransitivaj verboj ne estas ebla.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi venas al domon.</eraro>
+    <bona>Mi venas al domo.</bona>
+    <priskribo>prepozicio 'al' kun akuzativo</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi parolas pri tion.</eraro>
+    <bona>Mi parolas pri tio.</bona>
+    <priskribo>prepozicio 'pri' kun nominativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>lernu.net</autoro>
+    <eraro>Mi metas libron sur la tablo.</eraro>
+    <bona>Mi metas libron sur la tablon.</bona>
+    <priskribo>uzu akuzativon se movo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>lernu.net</autoro>
+    <eraro>Mi uzas la tukon kiel kovrilo.</eraro>
+    <bona>Mi uzas la tukon kiel kovrilon.</bona>
+    <priskribo>uzu akuzativon post kiel kaj akuzativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="adjektivo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mia kato estas grande.</eraro>
+    <bona>Mia kato estas granda.</bona>
+    <priskribo>adverbo en 'est' frazoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="adjektivo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mia kato estas tre grande.</eraro>
+    <bona>Mia kato estas tre granda.</bona>
+    <priskribo>adverbo en 'est' frazoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="adjektivo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi havas la grande katon.</eraro>
+    <bona>Mi havas la grandan katon.</bona>
+    <priskribo>adverbo anŝtataŭ adjektivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="adjektivo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi parolas pri grande kato.</eraro>
+    <bona>Mi parolas pri granda kato.</bona>
+    <priskribo>adverbo anŝtataŭ adjektivo</priskribo>
+  </ekz>
+  <ekz tipo="gramtiko" subtipo="i-verbo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Lerni estas necesa.</eraro>
+    <bona>Lerni estas necese.</bona>
+    <priskribo>priskribo de i-verbo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Miaj katoj estas bona.</eraro>
+    <bona>Miaj katoj estas bonaj.</bona>
+    <priskribo>Kazo en 'est' adjektivoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Miaj katoj estas tre bona.</eraro>
+    <bona>Miaj katoj estas tre bonaj.</bona>
+    <priskribo>Kazo en 'est' adjektivoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>La katoj estas mia.</eraro>
+    <bona>La katoj estas miaj.</bona>
+    <priskribo>Kazo en 'est' posesiva pronomo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Via filoj estas amikoj.</eraro>
+    <bona>Viaj filoj estas amikoj.</bona>
+    <priskribo>Kazo en 'est' posesiva pronomo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Katoj estas besto.</eraro>
+    <bona>Katoj estas bestoj.</bona>
+    <priskribo>Suplemento de predikativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Kato estas besto kaj vivaĵoj.</eraro>
+    <bona>Kato estas besto kaj vivaĵo.</bona>
+    <priskribo>Suplemento de predikativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="kazo">
+    <autoro>artur trzewik</autoro>
+    <eraro>Kato estas rapida kaj lertaj.</eraro>
+    <bona>Kato estas radida kaj lerta.</bona>
+    <priskribo>Suplemento de predikativo</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Katoj estas tre granda besto.</eraro>
+    <bona>Katoj estas tre grandaj bestoj.</bona>
+    <priskribo>Kazo en kompleksaj NP</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Katoj estas tre granda bestoj.</eraro>
+    <bona>Katoj estas tre grandaj bestoj.</bona>
+    <priskribo>Kazo en kompleksaj NP</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi kaj li estas preta.</eraro>
+    <bona>Mi kaj li estas pretaj.</bona>
+    <priskribo>Nombro de konjukcioj</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Domo kaj veturilo estas tre malnova.</eraro>
+    <bona>Domo kaj veturilo estas tre malnovaj.</bona>
+    <priskribo>Nombro de konjukcioj</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Ŝi estas fama aŭtoro.</eraro>
+    <bona>Ŝi estas fama aŭtorino.</bona>
+    <priskribo>Sekso de substantivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Li estas fama aŭtorino.</eraro>
+    <bona>Li estas fama aŭtoro.</bona>
+    <priskribo>Sekso de substantivo</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi farbis la brunajn pordojn verda.</eraro>
+    <bona>Mi farbis la brunajn pordojn verdaj.</bona>
+    <priskribo>Nombreco de priskribo de objekto</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Multe da katoj estas dika.</eraro>
+    <bona>Multe da katoj estas dikaj.</bona>
+    <priskribo>Nombreco de 'Multe da ...o'</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Multe da akvo estas necesaj.</eraro>
+    <bona>Multe da akvo estas necesa.</bona>
+    <priskribo>Nombreco de 'Multe da ...j'</priskribo>
+  </ekz>
+ <ekz tipo="gramatiko" subtipo="nombro">
+    <autoro>artur trzewik</autoro>
+    <eraro>Vi ĉiuj estas preta.</eraro>
+    <bona>Vi ĉiuj estas pretaj.</bona>
+    <priskribo>Nombreco de 'vi ĉiuj'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Homoj, kiun mi konas, estas junaj.</eraro>
+    <bona>Homoj, kiujn mi konas, estas junaj.</bona>
+    <priskribo>Nombro de relativpronomo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Estas bona.</eraro>
+    <bona>Estas bone.</bona>
+    <priskribo>sen klarigo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>La lingvo estas malfacilan.</eraro>
+    <bona>La lingvo estas malfacila.</bona>
+    <priskribo>subjekta predikativo nur en nominativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>La mia lingvo estas malfacila.</eraro>
+    <bona>Mia lingvo estas malfacila.</bona>
+    <priskribo>sen klarigo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Estas vi malsata?</eraro>
+    <bona>Ĉu vi estas malsata?</bona>
+    <priskribo>Demando sen 'ĉu' aŭ tablovorto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Bonvolu legu la libron!</eraro>
+    <bona>Bonvolu legi la libron!</bona>
+    <priskribo>bonvolu + infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi legi libron.</eraro>
+    <bona>Mi legas libron.</bona>
+    <priskribo>frazo nur kun infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi volas, ke li legi la libron.</eraro>
+    <bona>Mi volas, ke li legu la libron.</bona>
+    <priskribo>frazo nur kun infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi volas, ke li legas la libron.</eraro>
+    <bona>Mi volas, ke li legu la libron.</bona>
+    <priskribo>frazo nur kun infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi havas la libron, kiu esti necesa.</eraro>
+    <bona>Mi havas la libron, kiu estas necesa.</bona>
+    <priskribo>subfrazo nur kun infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>akademio de esperanto</autoro>
+    <eraro>Li lernis ek de lundo.</eraro>
+    <bona>Li lernis ekde lundo.</bona>
+    <priskribo>"ek de" = devas esti "ekde"</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Antaŭ paroli vi devas pensi.</eraro>
+    <bona>Antaŭ ol paroli vi devas pensi.</bona>
+    <priskribo>'Antaŭ ol' kun infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Li diris, ke sia patro malsaniĝis.</eraro>
+    <bona>Li diris, ke lia patro malsaniĝis.</bona>
+    <priskribo>'si' rilatas nur al subjekto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi nehavas tiun libron.</eraro>
+    <bona>Mi ne havas tiun libron.</bona>
+    <priskribo>'ne' kun verboj oni skribas dise</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Kion libron vi legas?</eraro>
+    <bona>Kiun libron vi legas?</bona>
+    <priskribo>kio ne rolas kiel priskribo de substantivoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Per kioj iras la homoj?</eraro>
+    <bona>Per kio iras la homoj?</bona>
+    <priskribo>io-vortoj nur en singularo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>La libro, kio kuŝas sur la lito, estas interesa.</eraro>
+    <bona>La libro, kiu kuŝas sur la lito, estas interesa</bona>
+    <priskribo>io-vortoj ne rolas kiel rilataj vortoj de priskribo de substantivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi faras tion, kiun mi volas.</eraro>
+    <bona>Mi faras tion, kion mi volas.</bona>
+    <priskribo>io-vortoj rolas kiel rilataj vortoj de priskribo de 'tio'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Dekunu homoj pereis.</eraro>
+    <bona>Dek unu homoj pereis.</bona>
+    <priskribo>skribado de numeraloj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi manĝas po pomo.</eraro>
+    <bona>Mi manĝas po unu pomo.</bona>
+    <priskribo>'po' priskriboj nur kun numeraloj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi trinkis du tasojn da kafon.</eraro>
+    <bona>Mi trinkis du tasojn da kafo.</bona>
+    <priskribo>prepozicio 'da' nur kun nominativo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi havas nek centimon en la poŝo.</eraro>
+    <bona>Mi ne havas eĉ unu centimon en la poŝo.</bona>
+    <priskribo>Signifo de vorto 'nek'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi lernas pro kuri.</eraro>
+    <bona>Mi lernas por kuri.</bona>
+    <priskribo>Prepozicio 'pro' ne estas uzebla kun infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi lernas, por ke mi scias</eraro>
+    <bona>Mi lernas, por ke mi sciu</bona>
+    <priskribo>'por ke' nur kun volitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Tio estas dua libro.</eraro>
+    <bona>Tio estas la dua libro.</bona>
+    <priskribo>vicorda numeralo ĉiam kun 'la'. (sen 'la' nur malofte)</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Artur Trzewik</autoro>
+    <eraro>Tio estas lasta libro.</eraro>
+    <bona>Tio estas la lasta libro.</bona>
+    <priskribo>la objekto estas difinita per adjektivo 'lasta'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Artur Trzewik</autoro>
+    <eraro>En somero estas varmege.</eraro>
+    <bona>En la somero estas varmege.</bona>
+    <priskribo>Oni uzu 'la' ĉe kelkaj difinitaj objektoj.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Artur Trzewik</autoro>
+    <eraro>Mi jam vidis riveron Vistulo.</eraro>
+    <bona>Mi jam vidis la riveron Vistulo.</bona>
+    <priskribo>Identiga frazparto estas difinita.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Artur Trzewik</autoro>
+    <eraro>Mi jam estas en la Varsovio.</eraro>
+    <bona>Mi jam estas en Varsovio.</bona>
+    <priskribo>difinilo 'la' ne aperas antaŭ propraj nomoj.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi havas du libron.</eraro>
+    <bona>Mi havas du librojn.</bona>
+    <priskribo>numeralo rezultas pluralon</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Li legis ambaŭ libron.</eraro>
+    <bona>Li legis ambaŭ librojn.</bona>
+    <priskribo>vorteto 'ambaŭ' bezonas pluralon</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko pmeg</autoro>
+    <eraro>La ambaŭ libroj estas interesaj.</eraro>
+    <bona>Ambaŭ libroj estas interesaj.</bona>
+    <priskribo>vorteto 'ambaŭ' estas jam difinilo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko pmeg</autoro>
+    <eraro>Ambaŭ la libroj estas interesaj.</eraro>
+    <bona>Ambaŭ libroj estas interesaj.</bona>
+    <priskribo>vorteto 'ambaŭ' estas jam definilo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko pmeg</autoro>
+    <eraro>Mi konas ĉiujn la librojn.</eraro>
+    <bona>Mi konas ĉiujn librojn.</bona>
+    <priskribo>difinilo 'la' ne estus kun tablovorto</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi havas unu librojn.</eraro>
+    <bona>Mi havas unu libron.</bona>
+    <priskribo>numeralo rezultas singularon</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi havas du libron.</eraro>
+    <bona>Mi havas du librojn.</bona>
+    <priskribo>numeralo rezultas pluralon</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi vidis ambaŭ libron.</eraro>
+   <bona>Mi vidis ambaŭ librojn.</bona>
+   <priskribo>vorteto "ambaŭ" bezonas pluralon.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>esperanta gramatiko</autoro>
+    <eraro>Mi havas dekdu librojn.</eraro>
+    <bona>Mi havas dek du librojn.</bona>
+    <priskribo>skribo de numeraloj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>retejo lernu</autoro>
+    <eraro>Mi volas fariĝi instruiston.</eraro>
+    <bona>Mi volas fariĝi instruisto.</bona>
+    <priskribo>predikativo de 'est'-verboj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>retejo lernu</autoro>
+    <eraro>Mi aĉetis kilogramon de terpomoj.</eraro>
+    <bona>Mi aĉetis kilogramon da terpomoj.</bona>
+    <priskribo>kvanto kun 'da'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>retejo lernu</autoro>
+    <eraro>Ni ricevis kvin eŭrojn po persono.</eraro>
+    <bona>Ni ricevis po kvin eŭroj pro persono.</bona>
+    <priskribo>'po' prepozicio</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>retejo lernu</autoro>
+    <eraro>Mi interesas pri tio.</eraro>
+    <bona>Mi interesiĝas pri tio.</bona>
+    <priskribo>Verbo interesi</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Artur Trzewik</autoro>
+    <eraro>Mi farbis la pordon bluan.</eraro>
+    <bona>Mi farbis la pordon blua.</bona>
+    <priskribo>Adjektivo priskribas la agon</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidis programon kaj libro.</eraro>
+    <bona>Mi vidis programon kaj libron.</bona>
+    <priskribo>perdita akuzativo post vorto 'kaj'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Li startis la komputilon.</eraro>
+    <bona>Li startigis la komputilon.</bona>
+    <priskribo>Uzado de netransitivaj verboj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>La strato estas bone lumita.</eraro>
+    <bona>La strato estas bone lumigita.</bona>
+    <priskribo>Uzado de netransitivaj verboj kiel pasivas participoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>La somero komencas hodiaŭ.</eraro>
+    <bona>La somero komenciĝas hodiaŭ.</bona>
+    <priskribo>Uzado de transitivaj verboj anstataŭ iĝ-verboj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Li venas morgaŭ.</eraro>
+    <bona>Li venos morgaŭ.</bona>
+    <priskribo>Uzado as-tempo por venonta tempo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Li ĵus venas.</eraro>
+    <bona>Li ĵus venis.</bona>
+    <priskribo>Uzado as-tempo por pasinta tempo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi ne jam legis la libron.</eraro>
+    <bona>Mi ankoraŭ ne legis la libron.</bona>
+    <priskribo>Nekutima negado</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi ne ankoraŭ legis la libron.</eraro>
+    <bona>Mi ankoraŭ ne legis la libron.</bona>
+    <priskribo>Nekutima uzado de 'ankoraŭ'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi ne eblas plenumi tiun taskon.</eraro>
+   <bona>Mi ne povas plenumi tiun taskon.</bona>
+   <priskribo>Uzado de verbo "ebli"</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi lokigis libron sur la breton.</eraro>
+   <bona>Mi lokis libron sur la breton.</bona>
+   <priskribo>loki estas jam transitiva</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Kiel vi nomigas?</eraro>
+   <bona>Kiel vi nomiĝas?</bona>
+   <priskribo>malĝusta transitiveco</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi mankas monon.</eraro>
+   <bona>Mono mankas al mi.</bona>
+   <priskribo>malĝusta transitiveco</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi plaĉas tiun filmon.</eraro>
+   <bona>Mi ŝatas tiun filmon.</bona>
+   <priskribo>malĝusta transitiveco</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Kiom da vi volas?</eraro>
+   <bona>Kiom vi volas?</bona>
+   <priskribo>kiom da</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi estis tie ĉi jare.</eraro>
+   <bona>Mi estis tie ĉi-jare.</bona>
+   <priskribo>Kiam "ĉi" rilatas al adverbo aŭ adjektivo oni devas kunskribi per streketo.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi estis ĉi-tie.</eraro>
+   <bona>Mi estis ĉi tie.</bona>
+   <priskribo>Kiam "ĉi" rilatas al korelativo oni ne kunskribu per streketo.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+   <autoro>projekto lingvohelpilo</autoro>
+   <eraro>Mi vidis ĉi-filmon.</eraro>
+   <bona>Mi vidis ĉi filmon.</bona>
+   <priskribo>Kiam "ĉi" rilatas al substantivo oni ne kunskribu per streketo.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Tie lernis ĉirkaŭ 100 studentojn.</eraro>
+    <bona>Tie lernis ĉirkaŭ 100 studentoj.</bona>
+    <priskribo>Superflua n-finaĵo.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Li kaj sia kato manĝis.</eraro>
+    <bona>Li kaj lia kato manĝis.</bona>
+    <priskribo>pronomo 'sia' en subjekto.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Tiu libro estas plej interesa ol la filmo.</eraro>
+    <bona>Tiu libro estas pli interesa ol la filmo.</bona>
+    <priskribo>pli kaj plej</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Tiu libro estas la pli interesa.</eraro>
+    <bona>Tiu libro estas la plej interesa.</bona>
+    <priskribo>pli kaj plej.</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Mi ne venos tial, ke mi ne povas.</eraro>
+    <bona>Mi ne venos, ĉar mi ne povas.</bona>
+    <priskribo>'tial ke' kaj 'ĉar'</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Hokan Lundenberg</autoro>
+    <eraro>Ĉu lanĉu ĝin?</eraro>
+    <bona>Ĉu lanĉi ĝin?</bona>
+    <priskribo>Ordono en demenadoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Hokan Lundenberg</autoro>
+    <eraro>Ĉu mi lanĉi ĝin?</eraro>
+    <bona>Ĉu mi lanĉu ĝin?</bona>
+    <priskribo>Ordono en demenadoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Hokan Lundenberg</autoro>
+    <eraro>Kion faru?</eraro>
+    <bona>Kion fari?</bona>
+    <priskribo>Ordono kaj infinitivo en demenadoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Hokan Lundenberg</autoro>
+    <eraro>Kion mi fari?</eraro>
+    <bona>Kion mi faru?</bona>
+    <priskribo>Ordono kaj infinitivo en demenadoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>Hokan Lundenberg</autoro>
+    <eraro>Kio mi faru?</eraro>
+    <bona>Kion mi faru?</bona>
+    <priskribo>Ordono kaj akuzativo en demenadoj</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>tereza sabatier</autoro>
+    <eraro>Mi frato estas ĝentila.</eraro>
+    <bona>Mia frato estas ĝentila.</bona>
+    <priskribo>Malĝusta pronomo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi estis en pollando.</eraro>
+    <bona>Mi estis en Pollando.</bona>
+    <priskribo>Malĝusta litergrandeco</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi legis Polan libron.</eraro>
+    <bona>Mi legis polan libron.</bona>
+    <priskribo>Malĝusta litergrandeco</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Ni parolis pri legi librojn.</eraro>
+    <bona>Ni parolis pri legado de libroj.</bona>
+    <priskribo>oni ne uzas "pri" + infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Post legi la libron mi ekdormis.</eraro>
+    <bona>Leginte la libron mi ekdormis.</bona>
+    <priskribo>oni ne uzas "post" + infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>projekto lingvohelpilo</autoro>
+    <eraro>Per legi la libron mi ekdormis.</eraro>
+    <bona>Legante la libron mi ekdormin.</bona>
+    <priskribo>oni ne uzas "pro" + infinitivo</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi legis du de tiuj libroj.</eraro>
+    <bona>Mi legis du el tiuj libroj.</bona>
+    <priskribo>oni uzas "nombro + el"</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>lingvohelpilo</autoro>
+    <eraro>Mi ankoraŭ ne scias, se mi venos morgaŭ.</eraro>
+    <bona>Mi ankoraŭ ne scias, ĉu mi venos morgaŭ.</bona>
+    <priskribo>uzado de "se"</priskribo>
+  </ekz>
+  <ekz tipo="gramatiko">
+    <autoro>lingohelpilo</autoro>
+    <eraro>Ĉiu patrino amas ŝian bebon.</eraro>
+    <bona>Ĉiu patrino amas sian bebon.</bona>
+    <priskribo>uzado de "sia"</priskribo>
+  </ekz>
+  <ekz tipo="fazeologio">
+    <autoro>vojĉeh</autoro>
+    <eraro>Li eraras vojon.</eraro>
+    <bona>Li maltrafis vojon.</bona>
+    <priskribo>"erari vojon" - erari estas netransitiva verbo kaj signufas mise pensi, ne iri</priskribo>
+  </ekz>
+  <ekz tipo="fazeologio">
+    <autoro>vojĉeh</autoro>
+    <eraro>La antaŭvidita tasko estas malfacila.</eraro>
+    <bona>La projektita tasko estas malfacila.</bona>
+    <priskribo>"antaŭvidita" tempo (tempon oni ne vidas)</priskribo>
+  </ekz>
+  <ekz tipo="fazeologio">
+    <autoro>vojĉeh</autoro>
+    <eraro>Ŝi ne venis pro timi.</eraro>
+    <bona>Ŝi ne venis pro timo.</bona>
+    <priskribo>"pro timi" post pro ne povas esti infinitivo </priskribo>
+  </ekz>
+  <ekz tipo="fazeologio">
+    <autoro>akademio de esperanto</autoro>
+    <eraro>Li estis tre dankema por la subteno.</eraro>
+    <bona>Li estis tre danka por la subteno.</bona>
+    <priskribo>Oni ne uzu "dankema", kiam ne temas pri konstanta emo al danko, sed pri la momenta manifestiĝo de danko pro konkreta servo oni simple uzu "danka".</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Li pensas ke tio ne okazos.</eraro>
+    <bona>Li pensas, ke tio ne okazos.</bona>
+    <priskribo>Uzu , antaŭ 'ke'</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Ŝi faris tion, tiel ke ĉiu estis kontenta.</eraro>
+    <bona>Ŝi faris tion tiel, ke ĉiu estis kontenta.</bona>
+    <priskribo>Uzu , antaŭ 'ke'</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Li pensas pri homo kiun mi konas.</eraro>
+    <bona>Li pensas pri homo, kiun mi konas.</bona>
+    <priskribo>Separigu relativajn frazojn per komo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Ni volis tion sed tio ne okazis.</eraro>
+    <bona>Ni volis tion, sed tio ne okazis.</bona>
+    <priskribo>Separigu subfrazojn per komo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Kiam li laboras oni miras.</eraro>
+    <bona>Kiam li laboras, oni miras.</bona>
+    <priskribo>Separigu subfrazojn per komo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Homo, kiu legas librojn havas tempon.</eraro>
+    <bona>Homo, kiu legas librojn, havas tempon.</bona>
+    <priskribo>Separigu subfrazojn per komo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Post tagmezo, ni iris al la domo.</eraro>
+    <bona>Post tagmezo ni iris al la domo.</bona>
+    <priskribo>Superflua komo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Legas vi librojn?</eraro>
+    <bona>Ĉu legas vi librojn?</bona>
+    <priskribo>Direktaj demandaj frazoj necesas 'ĉu'</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Ĉu tio okazis.</eraro>
+    <bona>Ĉu tio okazis?</bona>
+    <priskribo>Demandaj frazoj finas per demanda signo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Ne fumu.</eraro>
+    <bona>Nu fumu!</bona>
+    <priskribo>Ordonaj frazoj finas per ordona signo</priskribo>
+  </ekz>
+  <ekz tipo="interpunkcio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi legis la la libron.</eraro>
+    <bona>Mi legis la libron</bona>
+    <priskribo>Duobligo de vortoj</priskribo>
+  </ekz>
+  <ekz tipo="tipografio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi estas preta .</eraro>
+    <bona>Mi estas preta.</bona>
+    <priskribo>Neniu spaco antaŭ punkto</priskribo>
+  </ekz>
+  <ekz tipo="tipografio">
+    <autoro>artur trzewik</autoro>
+    <eraro>L'domo estas granda.</eraro>
+    <bona>L' domo estas granda.</bona>
+    <priskribo>Spaco post signo '</priskribo>
+  </ekz>
+  <ekz tipo="tipografio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidis amikon " Petro ".</eraro>
+    <bona>Mi vidis amikon "Petro".</bona>
+    <priskribo>signoj "</priskribo>
+  </ekz>
+  <ekz tipo="tipografio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Mi vidis amikon( Petro).</eraro>
+    <bona>Mi vidis amikon (Petro).</bona>
+    <priskribo>signoj ()</priskribo>
+  </ekz>
+  <ekz tipo="tipografio">
+    <autoro>artur trzewik</autoro>
+    <eraro>Li pensas , ke tio ne okazos.</eraro>
+    <bona>Li pensas, ke tio ne okazos.</bona>
+    <priskribo>Inter komo kaj vorto ne estu spaceto.</priskribo>
+  </ekz>
+</eraroj>

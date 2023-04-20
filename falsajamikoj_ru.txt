@@ -1,0 +1,29 @@
+# listo de falsaj amikoj de http://eo.wikipedia.org/wiki/Listo_de_falsaj_amikoj
+# 5 vortoj seperatitaj je \t
+#  1- nacia vorto
+#  2- vera traduko
+#  3- falsa amiko
+#  4- vera senco de falsa amiko
+афера [afera] 	fiafero 	afero 	дело [delo], занятие [zanjatie], бизнес [biznes]
+аферист [aferist] 	fiaferisto 	aferisto 	бизнесмен [biznesmen]
+анекдот [anekdot] 	spritaĵo 	anekdoto 	интересный случай из жизни известных людей
+благо [blago] 	beno, bono 	blago 	враньё [vranjo], трёп [trjop], блажь [blaĵ]
+вера [vera] 	kredo 	vero 	правда [pravda], истина [istina]
+ветер [veter] 	vento 	vetero 	погода [pogoda]
+дура [dura] 	malsaĝulino, stultulino 	dura 	твёрдый [tvjordij]
+кал [kal] 	fekaĵo 	kalo 	мозоль [mozol(j)]
+кушать [kuŝatj] 	manĝi 	kuŝi 	лежать [leĵatj]
+мало [malo] 	malmulte 	malo 	противоположность [protivopoloĵnostj]
+национальность [nacionaljnostj] 	etna aparteno 	nacieco 	гражданство [graĵdanstvo]
+пароль [parolj] 	pasvorto 	parolo 	речь [reĉ], слово [slovo]
+писать [pisAtj] 	skribi 	pisi 	мочиться
+полено [poleno] 	ŝtipo 	poleno 	пыльца [piljca]
+путина [putina] 	tempo de intensa fiŝkaptado 	putino 	проститутка [prostitutka], шлюха [ŝluĥa]
+работать [rabotatj] 	labori 	raboti 	строгать [strogatj]
+резина [rezina] 	gumo 	rezino 	смола [smola]
+сало [salo] 	lardo 	salo 	соль [sol(j)]
+симпатичный [simpatiĉnij] 	atraktiva, minjona 	simpatia 	приятный [prijatnij]
+субсидия [subsidija] 	subvencio 	subsidi 	затихать [zatiĥatj]
+сука [suka] 	fiulino (hundino) 	suko 	сок [sok]
+триста [trista] 	tricent 	trista 	печальный [peĉalnij], грустный [grustnij]
+тушить [tuŝitj] 	I. estigni II. brezi, stufi 	tuŝi 	трогать [trogatj]
